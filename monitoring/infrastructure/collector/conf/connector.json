@@ -1,0 +1,12 @@
+{
+    "amqp_connector":{
+        "class": "amqp",
+        "conf":{
+            "end_point": "localhost",
+            "exchange_name": "k3s_system_report",
+            "exchange_type": "topic",
+            "out_routing_key": "k3s.node1.report2",
+            "queue_name": "node1_report2"
+        }
+    }
+}

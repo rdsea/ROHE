@@ -1,0 +1,64 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: master_rasp01
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.12:9100"]
+  - job_name: worker_jet01
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.135:9100"]
+  - job_name: worker_jet01_gpu
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.135:9101"]
+  - job_name: worker_jet02
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.53:9100"]
+  - job_name: worker_jet02_gpu
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.53:9101"]
+  - job_name: worker_jet03
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.79:9100"]
+  - job_name: worker_jet03_gpu
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.79:9101"]
+  - job_name: worker_jet04
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.55:9100"]
+  - job_name: worker_jet04_gpu
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.55:9101"]
+  - job_name: worker_jet06
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.92:9100"]
+  - job_name: worker_jet06_gpu
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.92:9101"]
+  - job_name: worker_rasp02
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.91:9100"]
+  - job_name: worker_rasp03
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.85:9100"]
+  - job_name: worker_rasp04
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.66:9100"]
+  - job_name: worker_rasp05
+    scrape_interval: 1s
+    static_configs:
+      - targets: ["130.233.193.70:9100"]

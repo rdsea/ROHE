@@ -1,0 +1,27 @@
+{
+    "monitor":
+    {
+        "task_id":"lstm_ml",
+        "protocol": "AMQP",
+        "heartbeat": 5,
+        "configuration":{
+            "url": "localhost",
+            "client_id":"aaltosea1",
+            "exchange_name": "task_report",
+            "exchange_type": "topic",
+            "routing_key": "task.report.lstm_ml",
+            "log": "False",
+            "type": "sender"
+        }
+    },
+    "queue_size":10000,
+    "inter_communication":[
+        {
+            "name":"default",
+            "protocol": "ZMQ",
+            "configuration":{
+                "url":"tcp://0.0.0.0:5555"
+            }
+        }
+    ]
+}

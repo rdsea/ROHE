@@ -1,0 +1,18 @@
+{
+    "receiver":[
+        {
+            "name":"default",
+            "info":{
+                "url": "localhost",
+                "client_id":"aaltosea1",
+                "exchange_name": "task_report",
+                "exchange_type": "topic",
+                "in_queue": "task_report",
+                "in_routing_key": "task.report.#",
+                "roles": "server",
+                "log": "False",
+                "type": "receiver"
+            }
+        }
+    ]
+}
