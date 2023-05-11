@@ -1,0 +1,270 @@
+{
+    "stakeholders": [
+        {"id": "google1", "roles": "inf_provider", "provisioning": ["storage", "computing"]},
+        {"id": "google2", "roles": "inf_provider", "provisioning": ["storage"]},
+        {"id": "aaltosea1", "roles": "ml_provider", "provisioning": ["mlmodels", "services"]},
+        {"id": "aaltosea2", "roles": "ml_provider", "provisioning": ["mlmodels"]},
+        {"id": "user1", "roles": "ml_user", "provisioning": ["request"]},
+        {"id": "user2", "roles": "ml_user", "provisioning": ["request"]}
+    ],
+    "resources": {
+        "service": [
+            {"id": "request", "serviceapis": "mptt", "machinetypes": ["small", "normal"], "processortypes": ["CPU"]}
+        ],
+        "data": [
+            {"id": "BTS", "datatypes": "plain_text", "formats": "csv"}
+        ],
+        "mlmodels":[
+            {"id": "ml_inference", "mlinfrastructures": "tensorflow", "modelclasses": ["RNN", "LR"], "inferencemodes": "dynamic"},
+            {"id": "ml_training", "mlinfrastructures": "tensorflow", "modelclasses": ["RNN"], "inferencemodes": "dynamic"}
+        ],
+        "model_composition":{ 
+            "composition_1":{
+                "quantity": [3,8], 
+                "resource_tier": "edge", 
+                "model_tier": 4, 
+                "composition":{
+                    "agg_max": {
+                        "method": "agg_max",
+                        "source":["yolo8s", "yolo5x"]
+                    },
+                    "yolo8s":{
+                        "method":"yolo8s inference",
+                        "source":["data_processing"]
+                    },
+                    "yolo5x":{
+                        "method":"yolo5x inference",
+                        "source":["data_processing"]
+                    },
+                    "data_processing":{
+                        "method": "sharpen",
+                        "source":["data_ingestion"]
+                    },
+                    "data_ingestion":{
+                        "method": "REST",
+                        "source":[]
+                    }
+                }
+            }
+        }
+    },
+
+    "quality": {
+        "services": [
+            {"ResponseTime":{
+                "id":2,
+                "attributenames":"ResponseTime on normal devices",
+                "operators":"max",
+                "class": ["performance"],
+                "constraint":[
+                    {"condition":{
+                        "resource_tier": ["edge"],
+                        "model_tier":2
+                    },
+                    "stage":"none",
+                    "unit":"s",
+                    "value":0.5,
+                    "subject":"violation"},
+                    {"condition":{
+                        "resource_tier": ["fog"],
+                        "model_tier":3
+                    },
+                    "stage":"none",
+                    "unit":"s",
+                    "value":0.4,
+                    "subject":"violation"},
+                    {"condition":{
+                        "resource_tier": ["cloud"],
+                        "model_tier":4
+                    },
+                    "stage":"none",
+                    "unit":"s",
+                    "value":0.3,
+                    "subject":"violation"}
+                ]
+                    
+                }
+            },
+            {"Reliability":{
+                "id":3,
+                "attributenames":"Reliability on normal devices",
+                "operators":"min",
+                "unit":"percentage",
+                "value":90, 
+                "class": ["performance"], 
+                "machinetypes": ["normal"]}
+            }
+        ],
+        "data":[
+            {"Accuracy":{
+                "id":4,
+                "attributenames":"Accuracy",
+                "operators":"min",
+                "unit":"percentage",
+                "value":80, 
+                "class": ["qualityofdata"]}
+            },
+            {"Completeness":{
+                "id":5,
+                "attributenames":"Completeness",
+                "operators":"min",
+                "unit":"percentage",
+                "value":90, 
+                "resourceType": ["qualityofdata"]}
+            },
+            {"Object_height":{
+                "id":6,
+                "attributenames":"Object height",
+                "operators":"min",
+                "constraint":[
+                    {"unit":"pixel",
+                    "stage":"none",
+                    "value":50}
+                ],
+                "resourceType": ["qualityofdata"]}
+            },
+            {"Object_width":{
+                "id":7,
+                "attributenames":"Object width",
+                "operators":"min",
+                "constraint":[
+                    {"unit":"pixel",
+                    "stage":"none",
+                    "value":50}
+                ],
+                "resourceType": ["qualityofdata"]}
+            },
+            {"Image_height":{
+                "id":8,
+                "attributenames":"Image height",
+                "operators":"max",
+                "constraint":[
+                    {"unit":"pixel",
+                    "stage":"none",
+                    "value":1080}
+                ],
+                "resourceType": ["qualityofdata"]}
+            },
+            {"Image_width":{
+                "id":9,
+                "attributenames":"Image width",
+                "operators":"max",
+                "constraint":[
+                    {"unit":"pixel",
+                    "stage":"none",
+                    "value":1080}
+                ],
+                "resourceType": ["qualityofdata"]}
+            },
+            {"Object_quantity":{
+                "id":10,
+                "attributenames":"Object quantity",
+                "operators":"max",
+                "constraint":[
+                    {"unit":"unit",
+                    "stage":"none",
+                    "value":20}
+                ],
+                "resourceType": ["qualityofdata"]}
+            }
+        ],
+        "mlmodels": [
+            {"Accuracy":{
+                "id":11,
+                "attributenames":"Accuracy of MLmodel on small devices",
+                "operators":"min",
+                "unit":"percentage",
+                "value":80, 
+                "class": ["Accuracy"], 
+                "machinetypes": ["small"]}
+            },
+            {"Accuracy":{
+                "id":12,
+                "attributenames":"Accuracy of MLmodel on normal devices",
+                "operators":"min",
+                "unit":"percentage",
+                "value":95, 
+                "class": ["Accuracy"], 
+                "machinetypes": ["normal"]}
+            },
+            {"Confidence":{
+                "id":13,
+                "attributenames":"Confidence of MLmodel on edge devices",
+                "operators":"min",
+                "constraint":[
+                    {"condition":{
+                        "resource_tier": ["edge"],
+                        "model_tier":2
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.7,
+                    "subject":"violation"},
+                    {"condition":{
+                        "resource_tier": ["edge"],
+                        "model_tier":2
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.75,
+                    "subject":"warning"},
+                    {"condition":{
+                        "resource_tier": ["fog"],
+                        "model_tier":3
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.75,
+                    "subject":"violation"},
+                    {"condition":{
+                        "resource_tier": ["fog"],
+                        "model_tier":3
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.8,
+                    "subject":"warning"},
+                    {"condition":{
+                        "resource_tier": ["cloud"],
+                        "model_tier":4
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.8,
+                    "subject":"violation"},
+                    {"condition":{
+                        "resource_tier": ["cloud"],
+                        "model_tier":4
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.85,
+                    "subject":"warning"}
+                ],
+                "class": ["Confidence"]
+            }}
+        ]   
+    },
+    "security": {
+        "encryption":{"types": ["end2end"]},
+        "encryptedinference": {"mode":[true,false]}
+    },
+    "privacy": {
+        "membershipinferencerisk":{"operators":["min","max"],"unit":"float","range":[0,1],"value":"value", "class": ["Privacy"]}
+    },
+    "fairness":{
+        "predictionbias":{"operators":["min","max"],"unit":"percentage","value":"value", "class": ["Accuracy"]}
+    },
+    "interpretability": {
+        "explainability": {"modes": ["full","compact"]}
+    },
+    "cost": {
+        "cost":{
+            "operators":["min","max","range"],"unit":["USD","EUR","other"],"value":"value", "class": "cost"
+        },
+        "pricingmodel":{
+            "id":"the id of the pricing model in the system",
+            "name":"name", "class": "cost"
+        }
+    }
+}

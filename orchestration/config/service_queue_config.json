@@ -1,0 +1,9 @@
+{
+    "priority": 0,
+    "queue_balance": 3,
+    "weights": {
+        "cpu": 1,
+        "memory": 1
+    },
+    "strategy": 1
+}

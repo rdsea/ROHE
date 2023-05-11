@@ -2,7 +2,7 @@ from kubernetes import config, dynamic
 from kubernetes.client import api_client
 import yaml
 
-class Service(object):
+class KubeService(object):
     # """
     # Example of an api client: 
     #     client = dynamic.DynamicClient(

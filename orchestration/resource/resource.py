@@ -1,0 +1,256 @@
+from queue import PriorityQueue
+import time,uuid
+import numpy as np
+
+"""
+Node config:
+{
+    "node_name":"RaspberryPi_01",
+    "frequency": 1.5,
+    "accelerator":{
+        "GPU0":{
+            "mode": "pre-emptive",
+            "core": 512,
+            "capacity": 100
+        }
+    },
+    "cpu": {
+        "capacity": 4000
+    },
+    "memory": {
+        "capacity": {
+            "rss": 4096,
+            "vms": 2048
+        }
+    },
+    "processor": {
+        "capacity": 4
+    }
+}
+
+Service config:
+{
+    "service_name":"object_detection_service",
+    "cpu": 500,
+    "accelerator": {
+        "gpu": 12
+    },
+    "memory": {
+        "rss": 200,
+        "vms": 200
+    },
+    "processor": 1,
+    "sensitivity": 0,
+    "replicas": 1
+}
+"""
+
+class Service(object):
+    def __init__(self, config):
+        self.config = config
+        self.id = str(uuid.uuid4())
+        self.name = config["service_name"]
+        self.cpu = config["cpu"]
+        self.memory = config["memory"]
+        self.processor =  config["processor"]
+        self.accelerator =  config["accelerator"]
+        # Sensitivity:
+        # 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitve; 3 CPU & Memory sensitive
+        self.sensitivity =  config["sensitivity"]
+        self.replicas = config["replicas"]
+        self.q_time = time.time()
+        self.node_list = {}
+        
+    
+    def update_service(self, config):
+        self.config = config
+        self.name = config["service_name"]
+        self.cpu = config["cpu"]
+        self.memory = config["memory"]
+        self.processor =  config["processor"]
+        self.accelerator =  config["accelerator"]
+        self.sensitivity =  config["sensitivity"]
+        self.replicas = config["replicas"]
+        self.image = config["image"]
+
+    def assign(self, node):
+        if node.id in self.node_list:
+            self.node_list[node.id] += 1
+        else:
+            self.node_list[node.id] = 1
+
+    
+    def set_replicas(self, rep):
+        self.replicas = rep
+    
+    def set_qtime(self):
+        self.q_time = time.time()
+
+    def __lt__(self, other):
+        return self.q_time < other.q_time
+    
+    def __gt__(self, other):
+        return self.q_time > other.q_time
+    
+    def __le__(self, other):
+        return self.q_time <= other.q_time
+    
+    def __ge__(self, other):
+        return self.q_time >= other.q_time
+    
+    def __eq__(self, other):
+        return self.q_time == other.q_time
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return self.name
+    
+
+class Service_Queue(object):
+    def __init__(self, config):
+        self.config = config
+        # Priority:
+        # 0 - No Priority; 1 - CPU sensitive priority; 2 - Memory sensitve priority
+        self.priority_factor = config["priority"]
+        self.queue_balance = config["queue_balance"]
+        self.priority_count = 0
+        self.p_queue = PriorityQueue()
+        self.np_queue = PriorityQueue()
+
+    def empty(self):
+        return (self.p_queue.empty() and self.np_queue.empty())
+    
+    def put(self, service):
+        if (self.priority_factor > 0) and ((service.sensitivity == self.priority_factor) or (service.sensitivity == 3)):
+            service.set_qtime(time.time())
+            if self.priority_factor <= 1:
+                self.p_queue.put((-service.cpu, service))
+            elif self.priority_factor == 2:
+                self.p_queue.put((-service.memory["rss"], service))
+        else:
+            self.np_queue.put((-service.cpu, service))
+
+    def get(self):
+        if not self.p_queue.empty() and self.priority_count > self.queue_balance:
+            self.priority_count += 1
+            return self.p_queue.get()[1]
+        elif not self.np_queue.empty():
+            self.priority_count = 0
+            return self.np_queue.get()[1]
+        else:
+            return None
+
+
+    
+
+class Node(object):
+    def __init__(self, config):
+        # configuration - dictionary, including: 
+        # node_name - string 
+        # address (ip) - string 
+        # cpu - integer
+        # mem - integer
+        # accelerator - string  
+        self.config = config
+        self.id = str(uuid.uuid4())
+        self.name = config["node_name"]
+        self.frequency = config["frequency"]
+        self.accelerator = config["accelerator"]
+        for device in self.accelerator:
+            self.accelerator[device]["used"] = 0
+        self.cpu = config["cpu"]
+        self.cpu["used"] = 0
+        self.memory = config["memory"]
+        self.memory["used"] = {}
+        self.memory["used"]["rss"] = 0
+        self.memory["used"]["vms"] = 0
+        self.processor =  config["processor"]
+        # service_list - list of dictionary: {service_name: num_replicas}
+        self.service_list = {}
+    
+    def set_max_processes(self, num_processes):
+        self.processor["capacity"] = num_processes
+
+    def get_resource_av(self):
+        return {"cpu": self.cpu["capacity"] - self.cpu["used"], 
+                "mem": {"rss": self.memory["capacity"]["rss"] - self.memory["used"]["rss"], "vms": self.memory["capacity"]["vms"] - self.memory["used"]["vms"]},
+                "proc": self.processor["capacity"] - self.processor["used"]}
+    def get_resource(self):
+        return {"cpu": self.cpu["capacity"], 
+                "mem": {"rss": self.memory["capacity"]["rss"], "vms": self.memory["capacity"]["vms"]}, 
+                "proc": self.processor["capacity"]}
+
+    def allocate(self, service):
+        self.cpu["used"] = self.cpu["used"] + service.cpu
+        self.memory["used"]["rss"] = self.memory["used"]["rss"] + service.memory["rss"]
+        self.memory["used"]["vms"] = self.memory["used"]["vms"] + service.memory["vms"]
+        for dev in service.accelerator:
+            for device in self.accelerator:
+                av_accelerator = self.accelerator[device]["capacity"] - self.accelerator[device]["used"]
+                if self.accelerator[device]["type"] == dev and service.accelerator[dev] < av_accelerator:
+                    self.accelerator[device]["used"] = self.accelerator[device]["used"] + service.accelerator[dev]
+        used_proc = np.sort(np.array(self.processor["used"]))
+        req_proc = np.array(service.processor)
+        req_proc.resize(used_proc.shape)
+        service.assign(self)
+        req_proc = -np.sort(-req_proc)
+        used_proc = used_proc+req_proc
+        self.processor["used"] = used_proc.tolist()
+        if service.id in self.service_list:
+            self.service_list[service.id] += 1
+        else:
+            self.service_list[service.id] = 1
+
+    def __str__(self):
+        node_info = "Name: "+ self.name+ "\nID: "+ self.id \
+                    +"\nResource: \n CPU: \n  Capacity: "+ str(self.cpu["capacity"]) \
+                    + "\n  Used: " + str(self.cpu["used"]) \
+                    + "\n Memory: \n  Capacity: "+ str(self.memory["capacity"]["rss"]) \
+                    + "\n  Used: " + str(self.memory["used"]["rss"]) \
+                    + "\n Accelerator: \n"+ str(self.accelerator) \
+                    +"\n Processor: \n  Capacity: "+ str(self.processor["capacity"]) \
+                    + "\n  Used: " + str(self.processor["used"])
+        return node_info
+    
+    def __repr__(self):
+        node_info = "Name: "+ self.name+ "\nID: "+ self.id \
+                    +"\nResource: \n CPU: \n  Capacity: "+ str(self.cpu["capacity"]) \
+                    + "\n  Used: " + str(self.cpu["used"]) \
+                    + "\n Memory: \n  Capacity: "+ str(self.memory["capacity"]["rss"]) \
+                    + "\n  Used: " + str(self.memory["used"]["rss"]) \
+                    + "\n Accelerator: \n"+ str(self.accelerator) \
+                    +"\n Processor: \n  Capacity: "+ str(self.processor["capacity"]) \
+                    + "\n  Used: " + str(self.processor["used"])
+        return node_info
+        
+class Node_Collection(object):
+    def __init__(self, nodes=None):
+        if nodes == None:
+            self.collection = {}
+        else:
+            self.collection = nodes
+
+    def add(self, node):
+        self.collection[node.id] = node
+
+    def remove(self,node_name):
+        return self.collection.pop(node_name)
+    
+    def __str__(self):
+        collection_info = ""
+        for key in self.collection:
+            collection_info = collection_info + str(self.collection[key]) + "\n"
+        return collection_info
+    
+    def __repr__(self):
+        collection_info = ""
+        for key in self.collection:
+            collection_info = collection_info + str(self.collection[key]) + "\n"
+        return collection_info
+
+
+
+
+
