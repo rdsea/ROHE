@@ -79,6 +79,8 @@ def assign(nodes, node_id, service):
 if __name__ == '__main__': 
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Orchestration Algorithm")
+
+    # TO DO: read from database
     parser.add_argument('--aconf', help='Application configuration file', default="../config/application_config.json")
     parser.add_argument('--nconf', help='Node configuration file', default="../config/node_config.json")
     parser.add_argument('--sqconf', help='Service queue configuration file', default="../config/service_queue_config.json")

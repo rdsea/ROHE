@@ -5,7 +5,6 @@ parser = argparse.ArgumentParser(description="Deployment application")
 parser.add_argument('--conf', help='configuration file', default='./application_config.json')
 args = parser.parse_args()
 
-# read temporary directory
 os.system('rm ./deployed/*.yml')
 
 deploy_conf = json.load(open(args.conf))

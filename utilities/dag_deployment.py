@@ -29,8 +29,7 @@ def get_edges(graph, config):
         edges_dict[edge[0]].append(temp_link)
     return edges_dict
 
-def generate_node_configuration(node, edge, config,**kwargs):
-    
+def generate_node_configuration(node, edge, config):
     # Build the task configuration for each node base on default configuration
     task_config = config.copy()
     task_config["task_configuration"] = node["task_configuration"]
@@ -43,16 +42,8 @@ def generate_node_configuration(node, edge, config,**kwargs):
     else:
         task_config["downstream"] = node["downstream"]
     task_config.pop("inter_communication",None)
-    # check if there is a variable file name
-    file_name_var_name="file_name"
-    if (file_name_var_name in kwargs.keys()):
-        file_name=kwargs.get(file_name_var_name)
-    else:
-        file_name=node["path"]+'config.json'
-    #write to file
-    with open(file_name, 'w') as fp:
+    with open(node["path"]+'config.json', 'w') as fp:
         json.dump(task_config, fp, indent=4)
-
 
 def generate_graph_configuration(user_config, default_config):
     convert_boolean(user_config)
@@ -93,33 +84,14 @@ def generate_graph_deployment(user_pipeline,def_pod_deploy, def_service_deploy):
 
 
 
-def generateDeployment(user_config_path, default_com_config_path, default_deployment_path):
-
-    parser = argparse.ArgumentParser(description="Generate Graph")
-    parser.add_argument('--uconf', help='configuration file', default='./bts/DAG/user_dag.json')
-    parser.add_argument('--dconf', help='configuration file', default='./bts/DAG/config.json')
-    parser.add_argument('--ddepl', help='default deployment file', default='./bts/DAG/deployment.yaml')
-    parser.add_argument('--host', help='k3s host', default='localhost')
-    parser.add_argument('--port', help='k3s port', default=6443)
-    parser.add_argument('--key', help='k3s key', default='./key.txt')
-    parser.add_argument('--scale', help='deployment scales', default='./scale.txt')
-    parser.add_argument('--namespace', help='deployment namespace', default='default')
-    parser.add_argument('--time', help='testing time', default=10)
-    parser.add_argument('--profile', help='testing time', default=10)
-    args = parser.parse_args()
-
+def generateDeploymentK3s(user_config_path, default_com_config_path, default_deployment_path):
 
     user_config = json.load(open(user_config_path))
     default_config = json.load(open(default_com_config_path))
     def_pod_deploy, def_service_deploy = yaml.full_load_all(open(default_deployment_path))
-    # print(def_service_deploy)
     user_pipeline = generate_graph_configuration(user_config, default_config)
     
     generate_graph_deployment(user_pipeline,def_pod_deploy, def_service_deploy)
-    # print(def_pod_deploy)
-    # for key in def_pod_deploy:
-    #     # print(key)
-    #     print(def_pod_deploy[key])
 
     # nx.draw(user_pipeline, with_labels=True, font_weight='bold')
     # plt.show()
