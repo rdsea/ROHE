@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ deployment_name }}
+  labels:
+    app: {{ task_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ task_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ task_name }}
+    spec:
+      # nodeSelector:
+      #   main: raspberry
+      containers:
+        - image: {{ image_repo }}
+          imagePullPolicy: Always
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "250m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m"
+          name: {{ task_name }}
+          ports:
+            - containerPort: 5555
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ task_name }}-service
+spec:
+  selector:
+    app: {{ task_name }}
+  ports:
+  - port: 5555
+    name: defaultport
+    protocol: TCP
+    targetPort: 5555
