@@ -84,24 +84,14 @@ def generate_graph_deployment(user_pipeline,def_pod_deploy, def_service_deploy):
 
 
 
-if __name__ == '__main__':
-    # Parse the input args
-    parser = argparse.ArgumentParser(description="Generate Graph")
-    parser.add_argument('--uconf', help='configuration file', default='./user_dag.json')
-    parser.add_argument('--dconf', help='configuration file', default='./default/config.json')
-    parser.add_argument('--ddepl', help='default deployment file', default='./default/deployment.yaml')
-    args = parser.parse_args()
-    user_config = json.load(open(args.uconf))
-    default_config = json.load(open(args.dconf))
-    def_pod_deploy, def_service_deploy = yaml.full_load_all(open(args.ddepl))
-    # print(def_service_deploy)
+def generateDeployment(user_config_path, default_com_config_path, default_deployment_path):
+
+    user_config = json.load(open(user_config_path))
+    default_config = json.load(open(default_com_config_path))
+    def_pod_deploy, def_service_deploy = yaml.full_load_all(open(default_deployment_path))
     user_pipeline = generate_graph_configuration(user_config, default_config)
     
     generate_graph_deployment(user_pipeline,def_pod_deploy, def_service_deploy)
-    # print(def_pod_deploy)
-    # for key in def_pod_deploy:
-    #     # print(key)
-    #     print(def_pod_deploy[key])
 
     # nx.draw(user_pipeline, with_labels=True, font_weight='bold')
     # plt.show()

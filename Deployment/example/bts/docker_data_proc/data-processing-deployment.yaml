@@ -16,7 +16,7 @@ spec:
         app: data-processing
     spec:
       containers:
-      - image: minhtribk12/data_ubuntu:2.0
+      - image: minhtribk12/data_ubuntu:1.10
         imagePullPolicy: Always
         name: data-processing
         ports:

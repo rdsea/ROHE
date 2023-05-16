@@ -1,0 +1,36 @@
+{
+    "user_config": "./path/user_dag.json",
+    "default_com_config": "./path/config.json",
+    "default_deployment": "./path/deployment.yaml",
+    "k3s_host": "localhost",
+    "k3s_port": 6443,
+    "k3s_key": "./path/key.txt",
+    "namespace": "default",
+    "profiling_time": 10,
+    "profiling_scales": {
+        "profile01":{
+            "service_name1": 1,
+            "service_name2": 3
+        },
+        "profile02":{
+            "service_name1": 1,
+            "service_name2": 5
+        },
+        "profile03":{
+            "service_name1": 1,
+            "service_name2": 10
+        },
+        "profile04":{
+            "service_name1": 3,
+            "service_name2": 1
+        },
+        "profile05":{
+            "service_name1": 5,
+            "service_name2": 1
+        },
+        "profile06":{
+            "service_name1": 10,
+            "service_name2": 1
+        }
+    }
+}

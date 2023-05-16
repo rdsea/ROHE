@@ -16,7 +16,7 @@ spec:
         app: ml-processing
     spec:
       containers:
-      - image: minhtribk12/ml_ubuntu:2.0
+      - image: minhtribk12/ml_ubuntu:1.10
         imagePullPolicy: Always
         name: ml-processing
         ports:

@@ -45,6 +45,7 @@ The type of service is specify as `LoadBalancer` make sure every coming requests
 ```bash
 sudo kubectl apply -f <file_path>
 ```
+
 ## Communication among microservices
 - For applications where the developer already defines and implements the service call (e.g. REST), the `configMap` is used to provide environment variables mapping with the service names. It usually includes the address of all tasks/services so the containerized service know where to call other services.
 - For some applications where the developer only provide the functions and computation pipeline/graph without communication feature. We can use DAG and template service wrapper (image_build/core_function) to build containerized services which communicate via messages forming a pipeline/graph.
@@ -59,6 +60,19 @@ This module requires developer specify the computation pipeline in `json` format
     - Auto deploy/update/remove deployments/services
 
 ## Application Profiling
-- The script in the profiling folder (`deploy.py`) will load the user's pre-defined computation graph and deploy node by node (microservices) with the scales in "scale.txt". We can set different scales and profiling times by passing parameter when calling the script.
+- The script in the profiling folder (`profilingDeployment.py`) will load the user's pre-defined computation graph and deploy node by node (microservices) with the scales in "scale.txt". We can set different scales and profiling times by passing parameter when calling the script.
 If the script is not executed in the K3s master node, we need a `key` stored in `key.txt`.
 - At the same time, we must start sending requests to the deployed application and run a collector to collect monitoring data. The colletor must query data from the specific channels and queues where the application sends its monitoring data to.
+
+
+## Automate Deployment
+- First, you need to generate deployment files from the pre-defined computation graph (`user_dag.json`), default deployment (`/default/deployment.yaml`), and default communication (`/default/config.json`) - if the communications between services are not specified.
+
+  Execute the function `generateDeployment` in `init_from_dag.py` with file paths to the above three configurations.
+
+  The deployment file will be generated and stored in the folders specified in `user_dag.json`
+- Second, you need to create a profiling configuration `profiling_config.json` and specify Kube/K3s configuration, profiling time and service scales (the name of the service must match with node[value] in `user_dag.json`)
+
+  Execute the function `profilingDeploy` in `profilingDeployment.py`
+
+- An example with BTS is provided in `example/bts/bts_profiling.py`. You must copy utilities, profiling folders and init_from_dag.py to the same folder to make sure they can be imported.

@@ -84,16 +84,25 @@ def generate_graph_deployment(user_pipeline,def_pod_deploy, def_service_deploy):
 
 
 
-if __name__ == '__main__':
-    # Parse the input args
+def generateDeployment(user_config_path, default_com_config_path, default_deployment_path):
+
     parser = argparse.ArgumentParser(description="Generate Graph")
-    parser.add_argument('--uconf', help='configuration file', default='./user_dag.json')
-    parser.add_argument('--dconf', help='configuration file', default='./config.json')
-    parser.add_argument('--ddepl', help='default deployment file', default='./deployment.yaml')
+    parser.add_argument('--uconf', help='configuration file', default='./bts/DAG/user_dag.json')
+    parser.add_argument('--dconf', help='configuration file', default='./bts/DAG/config.json')
+    parser.add_argument('--ddepl', help='default deployment file', default='./bts/DAG/deployment.yaml')
+    parser.add_argument('--host', help='k3s host', default='localhost')
+    parser.add_argument('--port', help='k3s port', default=6443)
+    parser.add_argument('--key', help='k3s key', default='./key.txt')
+    parser.add_argument('--scale', help='deployment scales', default='./scale.txt')
+    parser.add_argument('--namespace', help='deployment namespace', default='default')
+    parser.add_argument('--time', help='testing time', default=10)
+    parser.add_argument('--profile', help='testing time', default=10)
     args = parser.parse_args()
-    user_config = json.load(open(args.uconf))
-    default_config = json.load(open(args.dconf))
-    def_pod_deploy, def_service_deploy = yaml.full_load_all(open(args.ddepl))
+
+
+    user_config = json.load(open(user_config_path))
+    default_config = json.load(open(default_com_config_path))
+    def_pod_deploy, def_service_deploy = yaml.full_load_all(open(default_deployment_path))
     # print(def_service_deploy)
     user_pipeline = generate_graph_configuration(user_config, default_config)
     

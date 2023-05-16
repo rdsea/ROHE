@@ -10,7 +10,7 @@
                 "data": {
                     "id": 1, 
                     "value": "data-processing", 
-                    "path": "../docker_data_proc/",
+                    "path": "./bts/docker_data_proc/",
                     "image": "minhtribk12/data_ubuntu:1.10",
                     "upstream": [
                         {
@@ -45,7 +45,7 @@
                 "data": {
                     "id": 2, 
                     "value": "ml-processing", 
-                    "path": "../docker_ml/",
+                    "path": "./bts/docker_ml/",
                     "image": "minhtribk12/ml_ubuntu:1.10",
                     "data_feature":{
                         "input": "string",

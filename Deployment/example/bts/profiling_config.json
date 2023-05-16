@@ -1,0 +1,36 @@
+{
+    "user_config": "./bts/DAG/user_dag.json",
+    "default_com_config": "./bts/DAG/config.json",
+    "default_deployment": "./bts/DAG/deployment.yaml",
+    "k3s_host": "localhost",
+    "k3s_port": 6443,
+    "k3s_key": "./key.txt",
+    "namespace": "default",
+    "profiling_time": 10,
+    "profiling_scales": {
+        "profile01":{
+            "data-processing": 1,
+            "ml-processing": 3
+        },
+        "profile02":{
+            "data-processing": 1,
+            "ml-processing": 5
+        },
+        "profile03":{
+            "data-processing": 1,
+            "ml-processing": 10
+        },
+        "profile04":{
+            "data-processing": 3,
+            "ml-processing": 1
+        },
+        "profile05":{
+            "data-processing": 5,
+            "ml-processing": 1
+        },
+        "profile06":{
+            "data-processing": 10,
+            "ml-processing": 1
+        }
+    }
+}
