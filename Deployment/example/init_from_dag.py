@@ -29,7 +29,8 @@ def get_edges(graph, config):
         edges_dict[edge[0]].append(temp_link)
     return edges_dict
 
-def generate_node_configuration(node, edge, config):
+def generate_node_configuration(node, edge, config,**kwargs):
+    
     # Build the task configuration for each node base on default configuration
     task_config = config.copy()
     task_config["task_configuration"] = node["task_configuration"]
@@ -42,8 +43,16 @@ def generate_node_configuration(node, edge, config):
     else:
         task_config["downstream"] = node["downstream"]
     task_config.pop("inter_communication",None)
-    with open(node["path"]+'config.json', 'w') as fp:
+    # check if there is a variable file name
+    file_name_var_name="file_name"
+    if (file_name_var_name in kwargs.keys()):
+        file_name=kwargs.get(file_name_var_name)
+    else:
+        file_name=node["path"]+'config.json'
+    #write to file
+    with open(file_name, 'w') as fp:
         json.dump(task_config, fp, indent=4)
+
 
 def generate_graph_configuration(user_config, default_config):
     convert_boolean(user_config)
