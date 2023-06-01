@@ -1,6 +1,6 @@
 from roheAgent import Rohe_Agent
 import qoa4ml.utils as utils
-import uuid
+import uuid, pymongo, time
 import pandas as pd
 import argparse, random
 import traceback,sys,pathlib
@@ -17,7 +17,7 @@ def get_dict_at(dict, i):
     keys = list(dict.keys())
     return dict[keys[i]], keys[i]
 
-application_list = {}
+local_application_list = {}
 agent_list = {}
 
 
@@ -28,7 +28,25 @@ class Rohe_ObService(Resource):
         self.db_config = self.conf["database"]
         self.connector_config = self.conf["connector"]
         self.collector_config = self.conf["collector"]
-        
+        self.mongo_client = pymongo.MongoClient(self.db_config["url"])
+        self.db = self.mongo_client[self.db_config["db_name"]]
+        self.collection = self.db[self.db_config["collection"]]
+    
+    def get_app(self,app_name):
+        return list(self.collection.find({"app_name":app_name}).sort([('timestamp', pymongo.DESCENDING)]))
+    
+    def update_app(self,metadata):
+        return self.collection.insert_one(metadata)
+
+    def register_app(self,app_name):
+        metadata = {}
+        metadata["app_name"] = app_name
+        metadata["id"] = str(uuid.uuid4())
+        metadata["db"] = "application_"+app_name+"_"+metadata["id"]
+        metadata["timestamp"] = time.time()
+        metadata["client_count"] = 1
+        self.collection.insert_one(metadata)
+        return metadata
         
     def get(self):
         args = request.query_string.decode("utf-8").split("&")
@@ -38,23 +56,33 @@ class Rohe_ObService(Resource):
     def post(self):
         if request.is_json:
             args = request.get_json(force=True)
-            print(args)
             response = {}
             if "application" in args:
                 application_name = args["application"]
-                if application_name not in application_list:
-                    application_list[application_name] = {}
-                    application_list[application_name]["id"] = str(uuid.uuid4())
-                    application_list[application_name]["client_count"] = 0
+                app_list = self.get_app(application_name)
+                if not app_list:
+                    metadata = self.register_app(application_name)
                     response[application_name] = "Application {} created".format(application_name)
                 else:
-                    response[application_name] = "OK"
-                    
-                application_list[application_name]["client_count"] += 1
+                    response[application_name] = "Application already exist"
+                    metadata = app_list[0]
+                    metadata["client_count"] += 1
+                    metadata["timestamp"] = time.time()
+                    metadata.pop("_id")
+                    self.update_app(metadata)
+                
+                local_application_list[application_name] = {}
+                local_application_list[application_name]["id"] = metadata["id"]
+                local_application_list[application_name]["client_count"] = metadata["client_count"]
+                local_application_list[application_name]["db"] = metadata["db"]
+
+
                 # TO DO
                 # Check client_id, role, stage_id, instance_name
 
                 # Prepare connector for QoA Client
+
+                
                 connector = self.connector_config.copy()
                 for key in list(connector.keys()):
                     connector_i = connector[key]
@@ -67,16 +95,16 @@ class Rohe_ObService(Resource):
                         i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["stage_id"]
                     if "instance_name" in args:
                         i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["instance_name"]
-                    i_config["out_routing_key"] = i_config["out_routing_key"]+".client"+str(application_list[application_name]["client_count"])
-                response["application_id"] = application_list[application_name]["id"]
+                    i_config["out_routing_key"] = i_config["out_routing_key"]+".client"+str(local_application_list[application_name]["client_count"])
+                response["application_id"] = local_application_list[application_name]["id"]
                 response["connector"] = connector
                 
                 # Prepare QoA Agent
-                application_id = application_list[application_name]["id"]
+                application_id = local_application_list[application_name]["id"]
                 if application_id not in agent_list:
                     # Database configuration
                     agent_db_config = self.db_config.copy()
-                    agent_db_config["db_name"] = application_name+"_"+application_id
+                    agent_db_config["db_name"] = "application_"+application_name+"_"+application_id
                     agent_db_config["metric_collection"] = "metric_collection"
                     # Collector configuration
                     collector_config = self.collector_config.copy()

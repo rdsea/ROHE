@@ -4,7 +4,7 @@ from threading import Thread, Timer
 import json
 
 class Rohe_Agent(object):
-    def __init__(self, configuration, mg_db=False):
+    def __init__(self, configuration, mg_db=True):
         self.conf = configuration
         colletor_conf = self.conf["collector"]
         self.collector = Amqp_Collector(colletor_conf['amqp_collector']['conf'], host_object=self)
@@ -31,7 +31,7 @@ class Rohe_Agent(object):
 
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
-        print("Receive QoA Report: \n", mess)
+        # print("Receive QoA Report: \n", mess)
         if self.insert_db:
             insert_id = self.metric_collection.insert_one(mess)
             print("Insert to database", insert_id)
