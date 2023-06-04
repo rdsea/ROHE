@@ -1,29 +1,32 @@
 import sys
-sys.path.insert(0, '..')
-from resource.resource import Node, Node_Collection, Service_Queue, Service
-from operator import itemgetter
 import qoa4ml.utils as utils
-import argparse
 import numpy as np
 import traceback
+import yaml, os
+from jinja2 import Environment, FileSystemLoader
 
+
+
+temporary_folder = utils.get_parent_dir(__file__,1)+"/temp"
+template_folder = utils.get_parent_dir(__file__,2)+"/templates"
+jinja_env = Environment(loader=FileSystemLoader(template_folder))
 
 
 
 def filtering_node(nodes, service):
     key_list = []
-    for key in nodes.collection:
+    for key in nodes:
         node_flag = False
-        av_cpu = nodes.collection[key].cpu["capacity"] - nodes.collection[key].cpu["used"]
-        av_mem = nodes.collection[key].memory["capacity"]["rss"] - nodes.collection[key].memory["used"]["rss"]
+        av_cpu = nodes[key].cpu["capacity"] - nodes[key].cpu["used"]
+        av_mem = nodes[key].memory["capacity"]["rss"] - nodes[key].memory["used"]["rss"]
         if service.cpu <= av_cpu and service.memory["rss"] <= av_mem:
             for dev in service.accelerator:
                 if service.accelerator[dev] == 0:
                     node_flag = True
                 else:
-                    for device in nodes.collection[key].accelerator:
-                        av_accelerator = nodes.collection[key].accelerator[device]["capacity"] - nodes.collection[key].accelerator[device]["used"]
-                        if nodes.collection[key].accelerator[device]["type"] == dev and service.accelerator[dev] < av_accelerator:
+                    for device in nodes[key].accelerator:
+                        av_accelerator = nodes[key].accelerator[device]["capacity"] - nodes[key].accelerator[device]["used"]
+                        if nodes[key].accelerator[device]["type"] == dev and service.accelerator[dev] < av_accelerator:
                             node_flag = True
         if node_flag:
             key_list.append(key)
@@ -33,7 +36,7 @@ def filtering_node(nodes, service):
 def ranking(nodes, keys, service, weights={"cpu":1,"memory":1}):
     node_ranks = {}
     for key in keys:
-        selected_node = nodes.collection[key]
+        selected_node = nodes[key]
 
         remain_proc = np.sort((np.array(selected_node.processor["capacity"]) - np.array(selected_node.processor["used"])))
         req_proc = np.array(service.processor)
@@ -71,53 +74,63 @@ def selecting_node(node_ranks, strategy=0):
 
 
 def assign(nodes, node_id, service):
-    if node_id in nodes.collection:
-        nodes.collection[node_id].allocate(service)
+    if node_id in nodes:
+        nodes[node_id].allocate(service)
         # print("assign success")
-    
 
-if __name__ == '__main__': 
-    # init_env_variables()
-    parser = argparse.ArgumentParser(description="Orchestration Algorithm")
+def allocate_service(service, nodes, weights, strategy, replicas):
+    for i in range(replicas):
+        fil_nodes = filtering_node(nodes, service)
+        ranking_list = ranking(nodes, fil_nodes,service,weights)
+        # print(ranking_list)
+        node_id = selecting_node(ranking_list,strategy)
+        if node_id == -1:
+            print("Cannot find node for service: {}".format(service))
+        else:
+            assign(nodes, node_id, service)
 
-    # TO DO: read from database
-    parser.add_argument('--aconf', help='Application configuration file', default="../config/application_config.json")
-    parser.add_argument('--nconf', help='Node configuration file', default="../config/node_config.json")
-    parser.add_argument('--sqconf', help='Service queue configuration file', default="../config/service_queue_config.json")
-    args = parser.parse_args()
-    sqconfig = utils.load_config(args.sqconf)
-    service_queue = Service_Queue(sqconfig)
-
-    nconfig = utils.load_config(args.nconf)
-
-    nodes = Node_Collection()
-    for key in nconfig:
-        nodes.add(Node(nconfig[key]))
+def deallocate_service(service, nodes, weights, strategy):
+    pass
 
 
-    aconfig = utils.load_config(args.aconf)
-    services = {}
-    for app in aconfig:
-        for key in aconfig[app]:
-            services[key] = Service(aconfig[app][key])
-            service_queue.put(services[key])
-            print(services[key])
+def generate_deployment(nodes, service):
+    jinja_var = {}
+    deployment = jinja_env.get_template("deployment_templates.yaml")
+    folder_path = temporary_folder+"/"+service.name
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    for node in service.node_list:
+        jinja_var["node_name"] = nodes[node].name
+        jinja_var["task_name"] = service.name
+        jinja_var["image_name"] = service.image
+        jinja_var["service_replica"] = service.replicas
+        jinja_var["ports"] = service.ports
+        jinja_var["port_mapping"] = service.port_mapping
+        file_path = folder_path+"/"+nodes[node].name+".yaml"
+        with open(file_path, "w") as f:
+            f.write(deployment.render(jinja_var))
 
+def ex_orchestrate(nodes, services, service_queue):
     while not service_queue.empty():
         p_service = service_queue.get()
-        for i in range(p_service.replicas):
-            fil_nodes = filtering_node(nodes, p_service)
-            ranking_list = ranking(nodes, fil_nodes,p_service,sqconfig["weights"])
-            # print(ranking_list)
-            node_id = selecting_node(ranking_list,sqconfig["strategy"])
-            if node_id == -1:
-                print("Cannot find node for service: {}".format(p_service))
+        replica = p_service.replicas
+        l_nodes = {}
+        if p_service.id in services:
+            if p_service.replicas == services[p_service.id].replicas:
+                continue
+            elif p_service.replicas < services[p_service.id].replicas:
+                deallocate_service(p_service, nodes, service_queue.config["weights"], service_queue.config["strategy"])
+                continue
             else:
-                assign(nodes, node_id, p_service)
-
-    for key in services:
-        print(services[key],services[key].node_list)
-
-    print(nodes)
-        
-    
+                replica = p_service.replicas - services[p_service.id].replicas
+                l_nodes = services[p_service.id].node_list
+        allocate_service(p_service, nodes, service_queue.config["weights"], service_queue.config["strategy"], replica)
+        generate_deployment(nodes, p_service)
+        for node in l_nodes:
+            if node in p_service.node_list:
+                p_service.node_list[node] += l_nodes[node]
+            else:
+                p_service.node_list[node] = l_nodes[node]
+        p_service.status = "running"
+        services[p_service.id] = p_service
+        # print(p_service.config)

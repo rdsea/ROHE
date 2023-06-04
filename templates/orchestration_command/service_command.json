@@ -5,10 +5,17 @@
             "object_detection_web_service":{
                 "service_name":"object_detection_web_service",
                 "service_id": "EW:VE:TW:WQ:01",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/od_web:2.0",
-                "dep_path": "../object_detection/deployment/web/web.yml",
-                "ser_path": "../object_detection/deployment/web/web-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 424,
                 "accelerator": {
                     "gpu": 0
@@ -24,10 +31,17 @@
             "object_detection_imgproc_service":{
                 "service_name":"object_detection_imgproc_service",
                 "service_id": "EW:VE:TW:WQ:02",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/od_proc:2.0",
-                "dep_path": "../object_detection/deployment/proc/proc.yml",
-                "ser_path": "../object_detection/deployment/proc/proc-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 933,
                 "accelerator": {
                     "gpu": 0
@@ -43,10 +57,17 @@
             "object_detection_inference_service":{
                 "service_name":"object_detection_inference_service",
                 "service_id": "EW:VE:TW:WQ:03",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/od_inf:2.0",
-                "dep_path": "../object_detection/deployment/inference/inf.yml",
-                "ser_path": "../object_detection/deployment/inference/inf-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 500,
                 "accelerator": {
                     "gpu": 15
@@ -64,10 +85,17 @@
             "kpi_web_service":{
                 "service_name":"kpi_web_service",
                 "service_id": "EW:VE:TW:WQ:04",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/kpi_web:2.0",
-                "dep_path": "../forecasting/deployment/web/web.yml",
-                "ser_path": "../forecasting/deployment/web/web-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 400,
                 "accelerator": {
                     "gpu": 0
@@ -83,10 +111,17 @@
             "kpi_minio_service":{
                 "service_name":"kpi_minio_service",
                 "service_id": "EW:VE:TW:WQ:05",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "minio/minio",
-                "dep_path": "../forecasting/deployment/minio/minio.yml",
-                "ser_path": "../forecasting/deployment/minio/minio-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 1000,
                 "accelerator": {
                     "gpu": 0
@@ -102,10 +137,17 @@
             "kpi_database_service":{
                 "service_name":"kpi_database_service",
                 "service_id": "EW:VE:TW:WQ:06",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/kpi_database:2.0",
-                "dep_path": "../forecasting/deployment/database/database.yml",
-                "ser_path": "../forecasting/deployment/database/database-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 500,
                 "accelerator": {
                     "gpu": 0
@@ -116,15 +158,22 @@
                 },
                 "processor": [20,20,10,10],
                 "sensitivity": 0,
-                "replicas": 2
+                "replicas": 1
             },
             "kpi_inference_service":{
                 "service_name":"kpi_inference_service",
                 "service_id": "EW:VE:TW:WQ:07",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/kpi_forecast:2.0",
-                "dep_path": "../forecasting/deployment/forecast/forecast.yml",
-                "ser_path": "../forecasting/deployment/forecast/forecast-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 4000,
                 "accelerator": {
                     "gpu": 0
@@ -135,17 +184,24 @@
                 },
                 "processor": [100,80,80,80],
                 "sensitivity": 0,
-                "replicas": 3
+                "replicas": 1
             }
         },
         "bts":{
             "bts_dataproc_service":{
                 "service_name":"bts_dataproc_service",
                 "service_id": "EW:VE:TW:WQ:08",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/bts_data_proc:2.0",
-                "dep_path": "../bts/deployment/data_processing/data.yml",
-                "ser_path": "../bts/deployment/data_processing/data-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 1000,
                 "accelerator": {
                     "gpu": 0
@@ -161,10 +217,17 @@
             "bts_inference_service":{
                 "service_name":"bts_inference_service",
                 "service_id": "EW:VE:TW:WQ:09",
-                "status": "running",
+                "node": {},
+                "status": "queueing",
                 "image": "rdsea/bts_ml_proc:2.0",
-                "dep_path": "../bts/deployment/ml_model/ml.yml",
-                "ser_path": "../bts/deployment/ml_model/ml-service.yml",
+                "ports": [4002],
+                "port_mapping": [{
+                    "con_port": 4002,
+                    "phy_port": 4002
+                },{
+                    "con_port": 4003,
+                    "phy_port": 4003
+                }],
                 "cpu": 1000,
                 "accelerator": {
                     "gpu": 0

@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ deployment_name }}
+  name: {{ task_name }}-{{ node_name }}
   labels:
     app: {{ task_name }}
 spec:
-  replicas: 1
+  replicas: {{ service_replica }}
   selector:
     matchLabels:
       app: {{ task_name }}
@@ -14,33 +14,33 @@ spec:
       labels:
         app: {{ task_name }}
     spec:
-      # nodeSelector:
-      #   main: raspberry
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/hostname: {{ node_name }}
       containers:
-        - image: {{ image_repo }}
-          imagePullPolicy: Always
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
-          name: {{ task_name }}
-          ports:
-            - containerPort: 5555
+        - name: {{ task_name }}
+          image: {{ image_name }}
+          imagePullPolicy: "Always"
+          ports: {% for port in ports %}
+            - containerPort: {{ port }} {% endfor %}
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ task_name }}-service
 spec:
+  ports: {% for p_map in port_mapping %}
+  - port: {{ p_map.con_port }} {% if p_map.phy_port is defined %}
+    targetPort: {{ p_map.phy_port }} {% endif %} {% endfor %}
   selector:
     app: {{ task_name }}
-  ports:
-  - port: 5555
-    name: defaultport
-    protocol: TCP
-    targetPort: 5555

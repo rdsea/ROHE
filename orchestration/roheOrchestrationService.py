@@ -33,27 +33,18 @@ class Rohe_Orchestration_Service(Resource):
         self.node_collection = self.db[self.db_config["node_collection"]]
         self.service_collection = self.db[self.db_config["service_collection"]]
 
+
+    ################################ NODE FUNCTIONS ################################
     def is_node_exist(self,mac_add):
         node = list(self.node_collection.find({"mac":mac_add}))
         return bool(node)
     
-    def is_service_exist(self,service_id):
-        service = list(self.service_collection.find({"service_id":service_id}))
-        return bool(service)
-
     def get_node_status(self,mac_add):
         node_db = list(self.node_collection.find({"mac":mac_add}).sort([('timestamp', pymongo.DESCENDING)]))[0]
         return node_db["status"]
 
-    def get_service_status(self,service_id):
-        service_db = list(self.service_collection.find({"service_id":service_id}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        return service_db["status"]
-    
     def delete_node(self, mac_add):
         self.node_collection.delete_many({"mac":mac_add})
-    
-    def delete_service(self, service_id):
-        self.service_collection.delete_many({"service_id":service_id})
 
     def update_node_db(self, node):
         node_db = list(self.node_collection.find({"mac":node["MAC"]}).sort([('timestamp', pymongo.DESCENDING)]))[0]
@@ -72,50 +63,62 @@ class Rohe_Orchestration_Service(Resource):
         self.node_collection.insert_one(metadata)
 
     def add_nodes(self, node_data):
+        node_changes = []
+        results = {}
         for node_key in node_data:
             node = node_data[node_key]
+            node_changes.append(node["MAC"])
+
             if self.is_node_exist(node["MAC"]):
                 self.update_node_db(node)
-                print("node updated")
+                results[node_key] = "Updated"
             else:
                 self.add_node_db(node)
-                print("node added")
-        return {"result":"Node Added"}
+                results[node_key] = "Added"
+        return {"result":results}
     
     def remove_node_db(self, node):
         self.node_collection.delete_many({"mac":node["MAC"]})
 
     def remove_nodes(self, node_data):
+        node_changes = []
+        results = {}
         for node_key in node_data:
             node = node_data[node_key]
+            node_changes.append(node["MAC"])
             self.remove_node_db(node)
-        return {"result":"Nodes removed"}
+            results[node_key] = "Removed"
+        return {"result":results}
+    
+    ################################ SERVICE FUNCTIONS ################################
+
+    def is_service_exist(self,service_id):
+        service = list(self.service_collection.find({"service_id":service_id}))
+        return bool(service)
+
+    
+    def get_service_status(self,service_id):
+        service_db = list(self.service_collection.find({"service_id":service_id}).sort([('timestamp', pymongo.DESCENDING)]))[0]
+        return service_db["status"]
+    
+    def delete_service(self, service_id):
+        self.service_collection.delete_many({"service_id":service_id})
+
     
     def remove_service_db(self, service):
         self.service_collection.delete_many({"service_id":service["service_id"]})
 
     def remove_services(self, service_data):
+        service_changes = []
+        results = {}
         for app_key in service_data:
             application = service_data[app_key]
             for s_key in application:
                 service = application[s_key]
+                service_changes.append(service["service_id"])
                 self.remove_service_db(service)
-        return {"result":"Services removed"}
-
-
-        
-    def get(self):
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({'status': args})
-    
-    def update_node_db(self, service):
-        service_db = list(self.service_collection.find({"service_id":service["service_id"]}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        service_db.pop("_id")
-        service_db["status"] = service["status"]
-        service_db["timestamp"] = time.time()
-        service_db["data"] = merge_dict(service_db["data"],service)
-        self.service_collection.insert_one(service_db)
+                results[s_key] = "Removed"
+        return {"result":results}
     
     def add_service_db(self, service, application):
         metadata = {}
@@ -127,17 +130,36 @@ class Rohe_Orchestration_Service(Resource):
         self.service_collection.insert_one(metadata)
 
     def add_services(self, data):
+        service_changes = []
+        results = {}
         for app_key in data:
             application = data[app_key]
             for s_key in application:
                 service = application[s_key]
+                service_changes.append(service["service_id"])
                 if self.is_service_exist(service["service_id"]):
-                    self.update_node_db(service)
-                    print("service updated")
+                    self.update_service_db(service)
+                    results[s_key] = "Updated"
                 else:
                     self.add_service_db(service, app_key)
-                    print("service added")
-        return {"result":"Services Added"}
+                    results[s_key] = "Added"
+        return {"result":results}
+    
+    def update_service_db(self, service):
+        service_db = list(self.service_collection.find({"service_id":service["service_id"]}).sort([('timestamp', pymongo.DESCENDING)]))[0]
+        service_db.pop("_id")
+        service_db["status"] = service["status"]
+        service_db["timestamp"] = time.time()
+        service_db["data"] = merge_dict(service_db["data"],service)
+        self.service_collection.insert_one(service_db)
+
+
+    ################################ REST FUNCTIONS ################################
+        
+    def get(self):
+        args = request.query_string.decode("utf-8").split("&")
+        # get param from args here
+        return jsonify({'status': args})
 
 
     def post(self):
@@ -160,15 +182,19 @@ class Rohe_Orchestration_Service(Resource):
                     response = {"result":"All services removed"}
                 elif command == "REMOVE SERVICE":
                     response = self.remove_services(args["data"])
+
+                elif command == "START AGENT":
+                    self.agent.start()
+                    response = {"result":"Agent started"}
+                elif command == "STOP AGENT":
+                    self.agent.stop()
+                    response = {"result":"Agent Stop"}
+
+                
                 else:
                     response = {"result":"Unknow command"}
-                
-                
-            
             else:
                 response = {"result":"Command not found"}
-
-            
         return jsonify({'status': "success", "response":response})
 
     def put(self):
@@ -196,7 +222,7 @@ if __name__ == '__main__':
         config_file = utils.get_parent_dir(__file__,1)+config_path
         print(config_file)
     configuration = utils.load_config(config_file)
-    rohe_agent = Rohe_Orchestration_Agent(configuration)
+    rohe_agent = Rohe_Orchestration_Agent(configuration,False)
     configuration["agent"] = rohe_agent
 
     api.add_resource(Rohe_Orchestration_Service, '/management',resource_class_kwargs=configuration)

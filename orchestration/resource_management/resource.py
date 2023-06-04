@@ -47,31 +47,27 @@ Service config:
 
 class Service(object):
     def __init__(self, config):
+        self.q_time = time.time()
+        self.update(config)
+
+        
+    def update(self, config):
         self.config = config
-        self.id = str(uuid.uuid4())
-        self.name = config["service_name"]
-        self.cpu = config["cpu"]
-        self.memory = config["memory"]
-        self.processor =  config["processor"]
-        self.accelerator =  config["accelerator"]
+        self.name = self.config["service_name"]
+        self.cpu = self.config["cpu"]
+        self.memory = self.config["memory"]
+        self.processor =  self.config["processor"]
+        self.accelerator =  self.config["accelerator"]
+        self.sensitivity =  self.config["sensitivity"]
         # Sensitivity:
         # 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitve; 3 CPU & Memory sensitive
-        self.sensitivity =  config["sensitivity"]
-        self.replicas = config["replicas"]
-        self.q_time = time.time()
-        self.node_list = {}
-        
-    
-    def update_service(self, config):
-        self.config = config
-        self.name = config["service_name"]
-        self.cpu = config["cpu"]
-        self.memory = config["memory"]
-        self.processor =  config["processor"]
-        self.accelerator =  config["accelerator"]
-        self.sensitivity =  config["sensitivity"]
-        self.replicas = config["replicas"]
-        self.image = config["image"]
+        self.replicas = self.config["replicas"]
+        self.image = self.config["image"]
+        self.ports = self.config["ports"]
+        self.port_mapping = self.config["port_mapping"]
+        self.node_list = self.config["node"]
+        self.id = self.config["service_id"]
+        self.status = self.config["status"]
 
     def assign(self, node):
         if node.id in self.node_list:
@@ -102,10 +98,14 @@ class Service(object):
         return self.q_time == other.q_time
     
     def __str__(self):
-        return self.name
+        service_info = "Name: "+ self.name+ "\nID: "+ self.id \
+                    + "\n Nodes: \n"+ str(self.node_list) 
+        return service_info
     
     def __repr__(self):
-        return self.name
+        service_info = "Name: "+ self.name+ "\nID: "+ self.id \
+                    + "\n Nodes: \n"+ str(self.node_list) 
+        return service_info
     
 
 class Service_Queue(object):
@@ -118,6 +118,8 @@ class Service_Queue(object):
         self.priority_count = 0
         self.p_queue = PriorityQueue()
         self.np_queue = PriorityQueue()
+        self.update_flag = False
+        
 
     def empty(self):
         return (self.p_queue.empty() and self.np_queue.empty())
@@ -141,6 +143,8 @@ class Service_Queue(object):
             return self.np_queue.get()[1]
         else:
             return None
+    
+   
 
 
     
@@ -153,23 +157,26 @@ class Node(object):
         # cpu - integer
         # mem - integer
         # accelerator - string  
+        self.update(config)
+
+    def update(self, config):
         self.config = config
-        self.id = str(uuid.uuid4())
-        self.name = config["node_name"]
-        self.frequency = config["frequency"]
-        self.accelerator = config["accelerator"]
-        for device in self.accelerator:
-            self.accelerator[device]["used"] = 0
-        self.cpu = config["cpu"]
-        self.cpu["used"] = 0
-        self.memory = config["memory"]
-        self.memory["used"] = {}
-        self.memory["used"]["rss"] = 0
-        self.memory["used"]["vms"] = 0
-        self.processor =  config["processor"]
+        if "service" not in config:
+            self.config["service"] = {}
+        self.mac = self.config["MAC"]
+        self.id = self.mac
+        self.name = self.config["node_name"]
+        self.status = self.config["status"]
+        self.frequency = self.config["frequency"]
+        self.accelerator = self.config["accelerator"]
+        self.cpu = self.config["cpu"]
+        self.memory = self.config["memory"]
+        self.processor =  self.config["processor"]
         # service_list - list of dictionary: {service_name: num_replicas}
-        self.service_list = {}
+        self.service_list = self.config["service"]
     
+
+
     def set_max_processes(self, num_processes):
         self.processor["capacity"] = num_processes
 
@@ -210,8 +217,9 @@ class Node(object):
                     + "\n Memory: \n  Capacity: "+ str(self.memory["capacity"]["rss"]) \
                     + "\n  Used: " + str(self.memory["used"]["rss"]) \
                     + "\n Accelerator: \n"+ str(self.accelerator) \
+                    + "\n Services: \n"+ str(self.service_list) \
                     +"\n Processor: \n  Capacity: "+ str(self.processor["capacity"]) \
-                    + "\n  Used: " + str(self.processor["used"])
+                    + "\n  Used: " + str(self.processor["used"]) +"\n"
         return node_info
     
     def __repr__(self):
@@ -221,8 +229,9 @@ class Node(object):
                     + "\n Memory: \n  Capacity: "+ str(self.memory["capacity"]["rss"]) \
                     + "\n  Used: " + str(self.memory["used"]["rss"]) \
                     + "\n Accelerator: \n"+ str(self.accelerator) \
+                    + "\n Services: \n"+ str(self.service_list) \
                     +"\n Processor: \n  Capacity: "+ str(self.processor["capacity"]) \
-                    + "\n  Used: " + str(self.processor["used"])
+                    + "\n  Used: " + str(self.processor["used"]) +"\n"
         return node_info
         
 class Node_Collection(object):

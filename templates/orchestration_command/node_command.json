@@ -8,12 +8,17 @@
             "frequency": 1.5,
             "accelerator":{}, 
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 4096
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -28,12 +33,17 @@
             "frequency": 1.5,
             "accelerator":{}, 
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 4096
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -48,12 +58,17 @@
             "frequency": 1.5,
             "accelerator":{}, 
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 4096
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -68,12 +83,17 @@
             "frequency": 1.5,
             "accelerator":{}, 
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 4096
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -88,12 +108,17 @@
             "frequency": 1.5,
             "accelerator":{}, 
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 4096
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -111,16 +136,22 @@
                     "mode": "nonpre-emptive",
                     "type": "gpu",
                     "core": 128,
-                    "capacity": 100
+                    "capacity": 100,
+                    "used": 0
                 }
             },
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 2048
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -138,16 +169,22 @@
                     "mode": "nonpre-emptive",
                     "type": "gpu",
                     "core": 128,
-                    "capacity": 100
+                    "capacity": 100,
+                    "used": 0
                 }
             },
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 2048
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -165,16 +202,22 @@
                     "mode": "nonpre-emptive",
                     "type": "gpu",
                     "core": 128,
-                    "capacity": 100
+                    "capacity": 100,
+                    "used": 0
                 }
             },
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 2048
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -192,16 +235,22 @@
                     "mode": "nonpre-emptive",
                     "type": "gpu",
                     "core": 128,
-                    "capacity": 100
+                    "capacity": 100,
+                    "used": 0
                 }
             },
             "cpu": {
-                "capacity": 4000
+                "capacity": 4000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 4096,
                     "vms": 2048
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
@@ -219,16 +268,22 @@
                     "mode": "pre-emptive",
                     "type": "gpu",
                     "core": 512,
-                    "capacity": 100
+                    "capacity": 100,
+                    "used": 0
                 }
             },
             "cpu": {
-                "capacity": 8000
+                "capacity": 8000,
+                "used": 0
             },
             "memory": {
                 "capacity": {
                     "rss": 16384,
                     "vms": 16384
+                },
+                "used": {
+                    "rss": 0,
+                    "vms": 0
                 }
             },
             "processor": {
