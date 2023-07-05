@@ -1,0 +1,6 @@
+{
+    "path": "../classified_img/",
+    "model_name":["yolov8l","yolov8m","yolov8n","yolov8s","yolov8x"],
+    "target":["bicycle","car","cat","dog","person"],
+    "output": "./yolo8.csv"
+}

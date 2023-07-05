@@ -1,0 +1,16 @@
+{
+    "compositions":[
+        {
+            "instances":[
+                {
+                    "model": "yolov5",
+                    "parameters": "yolov5l"
+                },
+                {
+                    "model": "yolov8",
+                    "parameters": "yolov8n"
+                }     
+            ]
+        }
+    ]
+}

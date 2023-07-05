@@ -1,0 +1,6 @@
+{ 
+    "client_id": "aaltosea1",
+    "application_id": "object detection",
+    "component_id": "object_webservice",
+    "interval": 2
+}

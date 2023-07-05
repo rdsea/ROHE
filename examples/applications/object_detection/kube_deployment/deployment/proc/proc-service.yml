@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-preprocessor
+spec:
+  ports:
+  - port: 8000
+    targetPort: 5000
+  selector:
+    app: edge-preprocessor

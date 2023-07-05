@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: edge-inference-server
+  name: edge-inference-server-jet01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-inference-server
+  template:
+    metadata:
+      labels:
+        app: edge-inference-server
+    spec:
+      containers:
+      - env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: rdsea/od_inf:2.0
+        imagePullPolicy: Always
+        name: edge-inference
+        ports:
+        - containerPort: 4002
+      nodeSelector:
+        kubernetes.io/hostname: aaltosea-jet01-worker
+      restartPolicy: Always

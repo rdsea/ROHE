@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: od-ray
+  name: ray-head-light
+  labels:
+    app: main-ray-head-light
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-head-light
+  template:
+    metadata:
+      labels:
+        app: ray-head-light
+    spec:
+      containers:
+      - name: ray-head-light
+        image: rdsea/od_ray_light:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8111
+        - containerPort: 8000
+        - containerPort: 6379
+        - containerPort: 8265
+        - containerPort: 10001
+        - containerPort: 52365
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: DATABASE_URL
+          value: "mongodb://195.148.22.62:27017/"
+        - name: DATABASE_NAME
+          value: "object_detection_db"
+        - name: USER_COLLECTION
+          value: "user_data"
+        - name: INSTANCE_COLLECTION
+          value: "instance_data"
+        - name: CUSTOMER_ID
+          value: "Aaltosea1"
+        - name: CONF_FILE
+          value: "/conf.json"
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command: ["/bin/bash", "./source/serve.sh"]
+
+        volumeMounts:
+        - mountPath: /home/source
+          name: source-code
+      volumes:
+      - name: source-code
+        hostPath:
+          # directory location on host
+          path: "/odmount"
+          # this field is optional
+          type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: od-ray
+  name: ray-head-light-service
+spec:
+  ports:
+  - port: 6379
+    name: gcs 
+    targetPort: 6379
+  - port: 8000
+    name: serve
+    targetPort: 8000
+  - port: 8265
+    name: dashboard
+    targetPort: 8265
+  - port: 10001
+    name: client
+    targetPort: 10001
+  - port: 52365
+    name: default
+    targetPort: 52365
+  - port: 8111
+    name: odapp
+    targetPort: 8111
+    nodePort: 30005
+  selector:
+    app: ray-head-light
+  type: NodePort

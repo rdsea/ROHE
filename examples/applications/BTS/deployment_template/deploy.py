@@ -10,7 +10,7 @@ import time
 # import pytz
 # from os import path
 
-def main():
+def run():
     # Define the bearer token we are going to use to authenticate.
     # See here to create the token:
     # https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/
@@ -109,4 +109,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run()
