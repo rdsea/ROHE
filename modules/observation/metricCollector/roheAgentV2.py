@@ -1,5 +1,7 @@
-from roheAgent import Rohe_Agent
-import qoa4ml.utils as utils
+from qoa4ml.collector.amqp_collector import Amqp_Collector
+import pymongo
+from threading import Thread
+import json
 import uuid, pymongo, time
 import pandas as pd
 import argparse, random
@@ -147,18 +149,43 @@ class Rohe_ObService(Resource):
         return jsonify({'status': args})
 
 
-if __name__ == '__main__': 
-    # init_env_variables()
-    parser = argparse.ArgumentParser(description="Argument for Rohe Observation Service")
-    parser.add_argument('--conf', help='configuration file', default=None)
-    parser.add_argument('--path', help='default config path', default="/configurations/observation/observationConfig.json")
-    args = parser.parse_args()
-    config_file = args.conf
-    config_path = args.path
-    if not config_file:
-        config_file = utils.get_parent_dir(__file__,3)+config_path
-        print(config_file)
-    configuration = utils.load_config(config_file)
+class Rohe_Agent(object):
+    def __init__(self, configuration, mg_db=True):
+        self.conf = configuration
+        colletor_conf = self.conf["collector"]
+        self.collector = Amqp_Collector(colletor_conf['amqp_collector']['conf'], host_object=self)
+        db_conf = self.conf["database"]
+        self.mongo_client = pymongo.MongoClient(db_conf["url"])
+        self.db = self.mongo_client[db_conf["db_name"]]
+        self.metric_collection = self.db[db_conf["metric_collection"]]
 
-    api.add_resource(Rohe_ObService, '/registration',resource_class_kwargs=configuration)
-    app.run(debug=True, port=5001)
+        self.insert_db = mg_db
+    
+    def reset_db(self):
+        self.metric_collection.drop()
+
+    def start_consuming(self):
+        print("Start Consuming")
+        self.collector.start()
+
+    def start(self):
+        sub_thread = Thread(target=self.start_consuming)
+        sub_thread.start()
+        print("start consumming message")
+
+
+
+    def message_processing(self, ch, method, props, body):
+        mess = json.loads(str(body.decode("utf-8")))
+        # print("Receive QoA Report: \n", mess)
+        if self.insert_db:
+            insert_id = self.metric_collection.insert_one(mess)
+            print("Insert to database", insert_id)
+
+    def stop(self):
+        # self.collector.stop()
+        self.insert_db = False
+    def restart(self):
+        # self.collector.stop()
+        self.insert_db = True
+    

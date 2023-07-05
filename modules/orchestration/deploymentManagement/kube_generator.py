@@ -13,6 +13,9 @@ jinja_env = Environment(loader=FileSystemLoader(template_folder))
 def kube_generator(nodes, service):
     jinja_var = {}
     deployment = jinja_env.get_template("deployment_templates.yaml")
+    folder_path = temporary_folder
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     folder_path = temporary_folder+"/"+service.name
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)

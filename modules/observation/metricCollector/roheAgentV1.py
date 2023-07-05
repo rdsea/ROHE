@@ -1,17 +1,13 @@
 import pymongo
 from qoa4ml.collector.amqp_collector import Amqp_Collector
-import qoa4ml.utils as utils
 from threading import Thread, Timer
 import time, json, os
 import pandas as pd
-import argparse, random
+import random
 import traceback,sys
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
-
-app = Flask(__name__)
-api = Api(app)
 
 
 def get_dict_at(dict, i):
@@ -364,14 +360,3 @@ class Agent_Service(Resource):
         # get param from args here
         return jsonify({'status': args})
 
-
-if __name__ == '__main__': 
-    # init_env_variables()
-    parser = argparse.ArgumentParser(description="Argument for Mangement Service")
-    parser.add_argument('--conf', help='configuration file', default="./conf.json")
-    args = parser.parse_args()
-    config = utils.load_config(args.conf)
-    agent = Observability_Agent(config)
-
-    api.add_resource(Agent_Service, '/agent',resource_class_kwargs={"agent": agent})
-    app.run(debug=True, port=5000)
