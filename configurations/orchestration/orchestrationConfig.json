@@ -11,7 +11,10 @@
     "false_rate": 3,
     "service_queue":{
         "priority": 0,
-        "queue_balance": 3,
+        "queue_balance": 3
+    },
+    "orchestrateConfig":{
+        "name": "Priority Orchestration",
         "weights": {
             "cpu": 1,
             "memory": 1

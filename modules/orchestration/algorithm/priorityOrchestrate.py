@@ -1,8 +1,8 @@
 import sys
 import numpy as np
 import traceback
-sys.path.append("..")
-from deployment_management.kube_generator import kube_generator
+import logging
+logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 
 
 
@@ -48,7 +48,7 @@ def ranking(nodes, keys, service, weights={"cpu":1,"memory":1}):
     node_ranks = {k: v for k, v in node_ranks.items() if v > 0}
     return node_ranks
 
-def selecting_node(node_ranks, strategy=0):
+def selecting_node(node_ranks, strategy=0, debug=False):
     node_id = -1
     try:
         if strategy == 0: # first fit
@@ -60,9 +60,11 @@ def selecting_node(node_ranks, strategy=0):
             elif strategy == 2: # worst fit
                 node_id = list(sort_nodes.keys())[0]
     except Exception as e:
-        print("[ERROR] - Error {} while sellecting node: {}".format(type(e),e.__traceback__))
-        traceback.print_exception(*sys.exc_info())
-
+        if debug:
+            print("[ERROR] - Error {} while sellecting node: {}".format(type(e),e.__traceback__))
+            traceback.print_exception(*sys.exc_info())
+        else:
+            logging.warning("Cannot selecting node in priorityOrchestration")
     return node_id
 
 
@@ -70,6 +72,7 @@ def assign(nodes, node_id, service):
     if node_id in nodes:
         nodes[node_id].allocate(service)
         # print("assign success")
+        logging.info(str("Assign {} to {}".format(service.name, nodes[node_id].name)))
 
 def allocate_service(service, nodes, weights, strategy, replicas):
     for i in range(replicas):
@@ -78,7 +81,7 @@ def allocate_service(service, nodes, weights, strategy, replicas):
         # print(ranking_list)
         node_id = selecting_node(ranking_list,strategy)
         if node_id == -1:
-            print("Cannot find node for service: {}".format(service))
+            logging.warning(str("Cannot find node for service: {}".format(service)))
         else:
             assign(nodes, node_id, service)
 
@@ -86,27 +89,18 @@ def deallocate_service(service, nodes, weights, strategy):
     pass
 
 
-def ex_orchestrate(nodes, services, service_queue):
+def orchestrate(nodes, services, service_queue, configuration):
+    for key in services:
+        service = services[key]
+        if service.running != service.replicas:
+            service_queue.put(service)
+                
     while not service_queue.empty():
         p_service = service_queue.get()
-        replica = p_service.replicas
-        l_nodes = {}
-        if p_service.id in services:
-            if p_service.replicas == services[p_service.id].replicas:
-                continue
-            elif p_service.replicas < services[p_service.id].replicas:
-                deallocate_service(p_service, nodes, service_queue.config["weights"], service_queue.config["strategy"])
-                continue
-            else:
-                replica = p_service.replicas - services[p_service.id].replicas
-                l_nodes = services[p_service.id].node_list
-        allocate_service(p_service, nodes, service_queue.config["weights"], service_queue.config["strategy"], replica)
-        kube_generator(nodes, p_service)
-        for node in l_nodes:
-            if node in p_service.node_list:
-                p_service.node_list[node] += l_nodes[node]
-            else:
-                p_service.node_list[node] = l_nodes[node]
-        p_service.status = "running"
-        services[p_service.id] = p_service
-        # print(p_service.config)
+        replica = p_service.replicas-p_service.running
+        if p_service.replicas < services[p_service.id].replicas:
+            deallocate_service(p_service, nodes, configuration["weights"], configuration["strategy"])
+            continue
+        else:
+            allocate_service(p_service, nodes, configuration["weights"], configuration["strategy"], replica)
+ 

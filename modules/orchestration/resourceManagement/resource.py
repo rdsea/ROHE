@@ -1,6 +1,10 @@
 from queue import PriorityQueue
 import time,uuid
 import numpy as np
+# import sys
+# main_path = config_file = utils.get_parent_dir(__file__,2)
+# sys.path.append(main_path)
+from modules.orchestration.deploymentManagement.kube_generator import kube_generator
 
 """
 Node config:
@@ -45,10 +49,35 @@ Service config:
 }
 """
 
+class ServiceInstance(object):
+    def __init__(self, service, node):
+        self.node = node
+        self.service = service
+        self.id = str(uuid.uuid4())
+        self.gen_deployment = False
+    
+    def generateDeployment(self):
+        if self.gen_deployment == False:
+            kube_generator(self)
+            self.gen_deployment = True
+
+
+    def __str__(self):
+        instance_info = "Service Name: "+ str(self.service.name)+ "\nID: "+ str(self.id) \
+                    + "\n Node Name: \n"+ str(self.node.name) 
+        return instance_info
+    
+    def __repr__(self):
+        instance_info = "Service Name: "+ str(self.service.name)+ "\nID: "+ str(self.id) \
+                    + "\n Node Name: \n"+ str(self.node.name) 
+        return instance_info
+
 class Service(object):
     def __init__(self, config):
         self.q_time = time.time()
         self.update(config)
+        self.instances = {}
+        self.queueing = self.replicas
 
         
     def update(self, config):
@@ -68,12 +97,34 @@ class Service(object):
         self.node_list = self.config["node"]
         self.id = self.config["service_id"]
         self.status = self.config["status"]
+        self.running = self.config["running"]
+        self.instanceIDs = self.config["instanceIDs"]
+    
+    def getRunningCount(self):
+        self.running = len(self.instanceIDs)
+        return self.running
+
+    def getQueueingCount(self):
+        self.queueing = self.replicas - len(self.instanceIDs)
+        return self.queueing
+
+    def selfUpdateConfig(self):
+        self.config["node"] = self.node_list
+        self.config["running"] = self.running
+        self.config["instanceIDs"] = self.instanceIDs
 
     def assign(self, node):
         if node.id in self.node_list:
             self.node_list[node.id] += 1
         else:
             self.node_list[node.id] = 1
+        new_instance = ServiceInstance(self, node)
+        self.instances[new_instance.id] = new_instance
+        self.instanceIDs =  list(self.instances.keys())
+        self.running = len(self.instanceIDs)
+        self.selfUpdateConfig()
+        new_instance.generateDeployment()
+
 
     
     def set_replicas(self, rep):
@@ -209,6 +260,14 @@ class Node(object):
             self.service_list[service.id] += 1
         else:
             self.service_list[service.id] = 1
+        self.selfUpdate()
+
+    def selfUpdate(self):
+        self.config["cpu"] = self.cpu
+        self.config["memory"] = self.memory 
+        self.config["processor"] = self.processor
+        self.config["accelerator"] = self.accelerator
+        self.config["service"] = self.service_list
 
     def __str__(self):
         node_info = "Name: "+ self.name+ "\nID: "+ self.id \

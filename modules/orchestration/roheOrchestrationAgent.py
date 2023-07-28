@@ -1,217 +1,25 @@
 import pymongo
 from threading import Thread, Timer
 import time
-from resourceManagement.resource import Node, Service, Service_Queue
-from algorithm.ensembleSelector import ex_orchestrate
-
 import qoa4ml.utils as utils
 import pymongo, time
 import pandas as pd
 import argparse, random
+import logging
+logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
+
+
 import sys
 main_path = config_file = utils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from utils.common import merge_dict
+from modules.orchestration.resourceManagement.resource import Node, Service, Service_Queue
+from modules.orchestration.algorithm.priorityOrchestrate import orchestrate as prioriryOrchestrate
 
+# def get_dict_at(dict, i):
+#     keys = list(dict.keys())
+#     return dict[keys[i]], keys[i]
 
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
-
-def get_dict_at(dict, i):
-    keys = list(dict.keys())
-    return dict[keys[i]], keys[i]
-
-
-
-class Rohe_Orchestration_Service(Resource):
-    def __init__(self, **kwargs) -> None:
-        super().__init__()
-        self.conf = kwargs
-        self.agent = self.conf["agent"]
-        self.db_config = self.conf["database"]
-        self.mongo_client = pymongo.MongoClient(self.db_config["url"])
-        self.db = self.mongo_client[self.db_config["db_name"]]
-        self.node_collection = self.db[self.db_config["node_collection"]]
-        self.service_collection = self.db[self.db_config["service_collection"]]
-
-
-    ################################ NODE FUNCTIONS ################################
-    def is_node_exist(self,mac_add):
-        node = list(self.node_collection.find({"mac":mac_add}))
-        return bool(node)
-    
-    def get_node_status(self,mac_add):
-        node_db = list(self.node_collection.find({"mac":mac_add}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        return node_db["status"]
-
-    def delete_node(self, mac_add):
-        self.node_collection.delete_many({"mac":mac_add})
-
-    def update_node_db(self, node):
-        node_db = list(self.node_collection.find({"mac":node["MAC"]}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        node_db.pop("_id")
-        node_db["status"] = node["status"]
-        node_db["timestamp"] = time.time()
-        node_db["data"] = merge_dict(node_db["data"],node)
-        self.node_collection.insert_one(node_db)
-
-    def add_node_db(self, node):
-        metadata = {}
-        metadata["status"] = node["status"]
-        metadata["timestamp"] = time.time()
-        metadata["data"] = node
-        metadata["mac"] = node["MAC"]
-        self.node_collection.insert_one(metadata)
-
-    def add_nodes(self, node_data):
-        node_changes = []
-        results = {}
-        for node_key in node_data:
-            node = node_data[node_key]
-            node_changes.append(node["MAC"])
-
-            if self.is_node_exist(node["MAC"]):
-                self.update_node_db(node)
-                results[node_key] = "Updated"
-            else:
-                self.add_node_db(node)
-                results[node_key] = "Added"
-        return {"result":results}
-    
-    def remove_node_db(self, node):
-        self.node_collection.delete_many({"mac":node["MAC"]})
-
-    def remove_nodes(self, node_data):
-        node_changes = []
-        results = {}
-        for node_key in node_data:
-            node = node_data[node_key]
-            node_changes.append(node["MAC"])
-            self.remove_node_db(node)
-            results[node_key] = "Removed"
-        return {"result":results}
-    
-    ################################ SERVICE FUNCTIONS ################################
-
-    def is_service_exist(self,service_id):
-        service = list(self.service_collection.find({"service_id":service_id}))
-        return bool(service)
-
-    
-    def get_service_status(self,service_id):
-        service_db = list(self.service_collection.find({"service_id":service_id}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        return service_db["status"]
-    
-    def delete_service(self, service_id):
-        self.service_collection.delete_many({"service_id":service_id})
-
-    
-    def remove_service_db(self, service):
-        self.service_collection.delete_many({"service_id":service["service_id"]})
-
-    def remove_services(self, service_data):
-        service_changes = []
-        results = {}
-        for app_key in service_data:
-            application = service_data[app_key]
-            for s_key in application:
-                service = application[s_key]
-                service_changes.append(service["service_id"])
-                self.remove_service_db(service)
-                results[s_key] = "Removed"
-        return {"result":results}
-    
-    def add_service_db(self, service, application):
-        metadata = {}
-        metadata["status"] = service["status"]
-        metadata["application"] = application
-        metadata["timestamp"] = time.time()
-        metadata["data"] = service
-        metadata["service_id"] = service["service_id"]
-        self.service_collection.insert_one(metadata)
-
-    def add_services(self, data):
-        service_changes = []
-        results = {}
-        for app_key in data:
-            application = data[app_key]
-            for s_key in application:
-                service = application[s_key]
-                service_changes.append(service["service_id"])
-                if self.is_service_exist(service["service_id"]):
-                    self.update_service_db(service)
-                    results[s_key] = "Updated"
-                else:
-                    self.add_service_db(service, app_key)
-                    results[s_key] = "Added"
-        return {"result":results}
-    
-    def update_service_db(self, service):
-        service_db = list(self.service_collection.find({"service_id":service["service_id"]}).sort([('timestamp', pymongo.DESCENDING)]))[0]
-        service_db.pop("_id")
-        service_db["status"] = service["status"]
-        service_db["timestamp"] = time.time()
-        service_db["data"] = merge_dict(service_db["data"],service)
-        self.service_collection.insert_one(service_db)
-
-
-    ################################ REST FUNCTIONS ################################
-        
-    def get(self):
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({'status': args})
-
-
-    def post(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-            response = {}
-            if "command" in args:
-                command = args["command"]
-                if command == "ADD NODE":
-                    response = self.add_nodes(args["data"])
-                elif command == "REMOVE ALL NODE":
-                    self.node_collection.drop()
-                    response = {"result":"All nodes removed"}
-                elif command == "REMOVE NODE":
-                    response =self.remove_nodes(args["data"])
-                elif command == "ADD SERVICE":
-                    response =self.add_services(args["data"])
-                elif command == "REMOVE ALL SERVICE":
-                    self.service_collection.drop()
-                    response = {"result":"All services removed"}
-                elif command == "REMOVE SERVICE":
-                    response = self.remove_services(args["data"])
-
-                elif command == "START AGENT":
-                    self.agent.start()
-                    response = {"result":"Agent started"}
-                elif command == "STOP AGENT":
-                    self.agent.stop()
-                    response = {"result":"Agent Stop"}
-
-                
-                else:
-                    response = {"result":"Unknow command"}
-            else:
-                response = {"result":"Command not found"}
-        return jsonify({'status': "success", "response":response})
-
-    def put(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({'status': True})
-
-    def delete(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({'status': args})
-
-
-class Rohe_Orchestration_Agent(object):
+class RoheOrchestrationAgent(object):
     def __init__(self, configuration, sync=True):
         self.conf = configuration
         self.db_config = self.conf["database"]
@@ -220,17 +28,21 @@ class Rohe_Orchestration_Agent(object):
         self.node_collection = self.db[self.db_config["node_collection"]]
         self.service_collection = self.db[self.db_config["service_collection"]]
         self.nodes = {}
-        self.update_flag = False
         self.services = {}
+        self.orchestrateConfig = configuration["orchestrateConfig"]
         self.service_queue = Service_Queue(configuration["service_queue"])
         if sync:
             self.sync_from_db()
         self.orches_flag = True
-        
+        self.update_flag = False
         # self.show_services()
         # self.show_nodes()
         
 
+    def start(self):
+        # Periodically check service queue and allocate service 
+        self.orches_flag = True
+        self.orchestrate()
 
     def allocate_service(self):
         pass
@@ -238,71 +50,83 @@ class Rohe_Orchestration_Agent(object):
     def sync_from_db(self):
         self.sync_node_from_db()
         self.sync_service_from_db()
-        # queue_list = []
-        # for key in self.services:
-        #     if self.services[key]["status"] == "queueing":
-        #         queue_list.append(key)
+        
+
 
     
 
     def orchestrate(self):
         if self.orches_flag:
-            print("Orchestrating")
+            logging.info("Agent Start Orchestrating")
             self.sync_from_db()
-            ex_orchestrate(self.nodes, self.services, self.service_queue)
-            # self.show_services()
-            if self.update_flag:
-                self.sync_node_to_db()
-                self.sync_service_to_db()
-                self.update_flag = False
-                print("Updated")
+            logging.info("Sync completed")
+            prioriryOrchestrate(self.nodes, self.services, self.service_queue, self.orchestrateConfig)
+            self.show_services()
+            self.sync_node_to_db()
+            self.sync_service_to_db()
+            logging.info("Sync nodes and services to Database completed")
             self.timer = Timer(self.conf["timer"], self.orchestrate)
             self.timer.start()
 
-    def start(self):
-        # Periodically check service queue and allocate service 
-        self.orches_flag = True
-        self.orchestrate()
+    
         
 
     def stop(self):
         self.orches_flag = False
 
-    def sync_node_from_db(self, node_mac=None):
-        print("sync node from db")
+    def sync_node_from_db(self, node_mac=None, replace=True):
+        # Sync specific node
         if node_mac != None:
+            # query node from db
             node_res = list(self.node_collection.find({"mac":node_mac}).sort([('timestamp', pymongo.DESCENDING)]))
             if len(node_res) > 0:
                 node_db = node_res[0]
-                self.nodes[node_mac] = node_db["data"]
+                #if replace -> completely replace local node by node from database
+                if replace:
+                    self.nodes[node_mac] = node_db["data"]
+                #if not replace -> update local node using node from database: To do
+                else:
+                    pass
+        # Sync all node
         else:
-            pipeline = [{"$sort":{"timestamp":1}},
-                {"$group": {"_id": "$mac", "timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
+            # query the last updated nodes
+            pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$mac", "timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
             node_list = list(self.node_collection.aggregate(pipeline))
             self.nodes = {}
             for node in node_list:
-                self.nodes[node["_id"]] = Node(node["data"])
+                #if replace -> completely replace local nodes by nodes from database
+                if replace:
+                    self.nodes[node["_id"]] = Node(node["data"])
+                #if not replace -> update local nodes using nodes from database: To do
+                else:
+                    pass
+        logging.info("Agent Sync nodes from Database complete")
 
-    def sync_service_from_db(self, service_id=None):
-        print("sync service from db")
+    def sync_service_from_db(self, service_id=None, replace=True):
+        # Sync specific service
         if service_id != None:
+            # query service from db
             service_res = list(self.service_collection.find({"service_id":service_id}).sort([('timestamp', pymongo.DESCENDING)]))
             if len(service_res) > 0:
                 service_db = service_res[0]
-                if service_db["status"] == "queueing":
-                    self.service_queue.put(Service(service_db["data"]))
-                    self.update_flag = True
+                #if replace -> completely replace local service by service from database
+                if replace:
+                    self.services[service_id] = Service(service_db)
+                else: 
+                    pass
+                # if number of service instance running lower than its required replicas, put it to service queue
         else:
             pipeline = [{"$sort":{"timestamp":1}},
-                {"$group": {"_id": "$service_id", "status": {"$last": "$status"},"timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
+                {"$group": {"_id": "$service_id","replicas": {"$last": "$replicas"}, "running": {"$last": "$running"},"timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
             service_list = list(self.service_collection.aggregate(pipeline))
             self.services = {}
             for service in service_list:
-                if service["status"] == "running":
+                #if replace -> completely replace local services by services from database
+                if replace:
                     self.services[service["_id"]] = Service(service["data"])
-                if service["status"] == "queueing":
-                    self.service_queue.put(Service(service["data"]))
-                    self.update_flag = True
+                else:
+                    pass
+        logging.info("Agent Sync services from Database complete")
     
     def sync_node_to_db(self, node_mac=None):
         if node_mac != None:
@@ -320,21 +144,24 @@ class Rohe_Orchestration_Agent(object):
         if service_id != None:
             service_db = list(self.service_collection.find({"service_id":service_id}).sort([('timestamp', pymongo.DESCENDING)]))[0]
             service_db["data"] = self.services[service_id].config
-            service_db["status"] = self.services[service_id].status
+            service_db["replicas"] = self.services[service_id].replicas
+            service_db["running"] = self.services[service_id].running
             service_db.pop("_id")
             service_db["timestamp"] = time.time()
             self.service_collection.insert_one(service_db)
         else:
             for key in self.services:
-                print(key)
+                logging.info(key)
                 self.sync_service_to_db(key)
 
     def show_nodes(self):
+        print("############ NODES LIST ############")
         for node_key in self.nodes:
             print(self.nodes[node_key],":", node_key)
         print("Nodes Size: ",len(self.nodes))
 
     def show_services(self):
+        print("############ SERVICES LIST ############")
         for service_key in self.services:
             print(self.services[service_key])
         print("Services Size: ",len(self.services))
@@ -343,7 +170,6 @@ class Rohe_Orchestration_Agent(object):
 
 ############################################## TESTING ##############################################
 import argparse
-import qoa4ml.utils as utils 
 
 if __name__ == '__main__': 
     # init_env_variables()
@@ -354,7 +180,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = utils.load_config(args.conf)
     print(config)
-    agent = Rohe_Orchestration_Agent(config)
+    agent = RoheOrchestrationAgent(config)
     
     # agent.show_services()
     agent.orchestrate()
