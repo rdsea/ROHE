@@ -4,8 +4,8 @@ from threading import Thread
 import json
 import uuid, pymongo
 import pandas as pd
-import argparse, random
-import traceback,sys,pathlib
+from ..streamAnalysis.window import EventBuffer, TimeBuffer
+
 
 
 def get_dict_at(dict, i):
@@ -26,12 +26,14 @@ class RoheObservationAgent(object):
         self.metric_collection = self.db[db_conf["metric_collection"]]
         print(self.conf["collector"])
         self.status = 0
+        self.eventbuff = EventBuffer(100)
         """
         Agent Status
         0 - Ready
         1 - Running
         2 - Stop
         """
+        # self.count = 0
         self.insert_db = mg_db
     
     def reset_db(self):
@@ -52,12 +54,15 @@ class RoheObservationAgent(object):
 
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
-        
+        self.eventbuff.append(mess)
+        # print(self.count)
+        # self.count+=1
+        print(len(self.eventbuff.get()))
         if self.insert_db:
-            print("Receive QoA Report: \n", mess)
+            # print("Receive QoA Report: \n", mess)
             insert_id = self.metric_collection.insert_one(mess)
             print("Insert to database", insert_id)
-            print("ablc")
+            # print("ablc")
 
     def stop(self):
         # self.collector.stop()
