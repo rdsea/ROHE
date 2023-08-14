@@ -5,6 +5,7 @@ import argparse
 import pymongo
 main_path = config_file = utils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
+from modules.roheObject import RoheObject
 
 
 
@@ -17,26 +18,33 @@ api = Api(app)
 # local_application_list = {}
 agent_list = {}
 
-class RoheRegistrationService(Resource):
+class RoheRegistrationService(Resource, RoheObject):
     def __init__(self, **kwargs) -> None:
         super().__init__()
+
         self.conf = kwargs
+        # Init Database connection
         self.db_config = self.conf["database"]
         self.connector_config = self.conf["connector"]
         self.collector_config = self.conf["collector"]
         self.mongo_client = pymongo.MongoClient(self.db_config["url"])
         self.db = self.mongo_client[self.db_config["db_name"]]
         self.collection = self.db[self.db_config["collection"]]
+        self.set_logger_level(int(self.conf["logging_level"]))
     
     def get_app(self,app_name):
+        # Get application configuration from database
+        # Prepare query pipeline
         pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "app_name": {"$last": "$app_name"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
         app_list = list(self.collection.aggregate(pipeline))
+        # Get application from application list
         for app in app_list:
             if app["app_name"] == app_name:
                 return app
         return None
     
     def update_app(self,metadata):
+        # update application configuration
         return self.collection.insert_one(metadata)
 
 
@@ -59,6 +67,7 @@ class RoheRegistrationService(Resource):
         return agent_config
 
     def register_app(self,app_name):
+        # Create new application configuration and push to database
         metadata = {}
         metadata["app_name"] = app_name
         metadata["appID"] = str(uuid.uuid4())
@@ -72,11 +81,13 @@ class RoheRegistrationService(Resource):
     
         
     def get(self):
+        # Functon to handle GET request
         args = request.query_string.decode("utf-8").split("&")
         # get param from args here
         return jsonify({'status': args})
 
     def post(self):
+        # Functon to handle POST request
         if request.is_json:
             args = request.get_json(force=True)
             response = {}

@@ -3,7 +3,7 @@
         "amqp_collector":{
             "class": "amqp",
             "conf":{
-                "end_point": "195.148.22.62",
+                "end_point": "192.168.1.3",
                 "exchange_name": "exchange_name",
                 "exchange_type": "topic",
                 "in_routing_key": "in_routing_key",
@@ -15,7 +15,7 @@
         "amqp_connector":{
             "class": "amqp",
             "conf":{
-                "end_point": "195.148.22.62",
+                "end_point": "192.168.1.3",
                 "exchange_name": "exchange_name",
                 "exchange_type": "topic",
                 "out_routing_key": "out_routing_key"
@@ -23,12 +23,23 @@
         }
     },
     "database":{
-        "url": "mongodb://195.148.22.62:27017/",
+        "url": "mongodb://192.168.1.3:27017/",
         "db_name": "rohe_observation",
         "collection": "registration"
     },
     "timer":10,
     "output_folder": "/results/",
     "sample_rate": 50,
-    "false_rate": 3
+    "false_rate": 3,
+    "logging_level": 2,
+    "window":{
+        "interval":{
+            "type": 2,
+            "value": 3
+        },
+        "size":{
+            "type": 2,
+            "value": 100
+        }
+    }
 }

@@ -4,14 +4,13 @@ import time
 import qoa4ml.utils as utils
 import pymongo, time
 import pandas as pd
-import argparse, random
-import logging
-logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
+import argparse, random, sys
+lib_path = utils.get_parent_dir(__file__,2)
+sys.path.append(lib_path)
+from modules.roheObject import RoheObject
 
 
-import sys
-main_path = config_file = utils.get_parent_dir(__file__,2)
-sys.path.append(main_path)
+
 from modules.orchestration.resourceManagement.resource import Node, Service, Service_Queue
 from modules.orchestration.algorithm.priorityOrchestrate import orchestrate as prioriryOrchestrate
 
@@ -19,8 +18,9 @@ from modules.orchestration.algorithm.priorityOrchestrate import orchestrate as p
 #     keys = list(dict.keys())
 #     return dict[keys[i]], keys[i]
 
-class RoheOrchestrationAgent(object):
-    def __init__(self, configuration, sync=True):
+class RoheOrchestrationAgent(RoheObject):
+    def __init__(self, configuration, sync=True, log_lev=2):
+        super().__init__(logging_level=log_lev)
         self.conf = configuration
         self.db_config = self.conf["database"]
         self.mongo_client = pymongo.MongoClient(self.db_config["url"])
@@ -57,14 +57,14 @@ class RoheOrchestrationAgent(object):
 
     def orchestrate(self):
         if self.orches_flag:
-            logging.info("Agent Start Orchestrating")
+            self.log("Agent Start Orchestrating")
             self.sync_from_db()
-            logging.info("Sync completed")
+            self.log("Sync completed")
             prioriryOrchestrate(self.nodes, self.services, self.service_queue, self.orchestrateConfig)
             self.show_services()
             self.sync_node_to_db()
             self.sync_service_to_db()
-            logging.info("Sync nodes and services to Database completed")
+            self.log("Sync nodes and services to Database completed")
             self.timer = Timer(self.conf["timer"], self.orchestrate)
             self.timer.start()
 
@@ -100,7 +100,7 @@ class RoheOrchestrationAgent(object):
                 #if not replace -> update local nodes using nodes from database: To do
                 else:
                     pass
-        logging.info("Agent Sync nodes from Database complete")
+        self.log("Agent Sync nodes from Database complete")
 
     def sync_service_from_db(self, service_id=None, replace=True):
         # Sync specific service
@@ -126,7 +126,7 @@ class RoheOrchestrationAgent(object):
                     self.services[service["_id"]] = Service(service["data"])
                 else:
                     pass
-        logging.info("Agent Sync services from Database complete")
+        self.log("Agent Sync services from Database complete")
     
     def sync_node_to_db(self, node_mac=None):
         if node_mac != None:
@@ -151,20 +151,20 @@ class RoheOrchestrationAgent(object):
             self.service_collection.insert_one(service_db)
         else:
             for key in self.services:
-                logging.info(key)
+                self.log(key)
                 self.sync_service_to_db(key)
 
     def show_nodes(self):
-        print("############ NODES LIST ############")
+        self.log("############ NODES LIST ############")
         for node_key in self.nodes:
-            print(self.nodes[node_key],":", node_key)
-        print("Nodes Size: ",len(self.nodes))
+            self.log("{} : {}".format(self.nodes[node_key], node_key))
+        self.log("Nodes Size: {}".format(len(self.nodes)))
 
     def show_services(self):
-        print("############ SERVICES LIST ############")
+        self.log("############ SERVICES LIST ############")
         for service_key in self.services:
-            print(self.services[service_key])
-        print("Services Size: ",len(self.services))
+            self.log(self.services[service_key])
+        self.log("Services Size: ".format(len(self.services)))
 
 
 

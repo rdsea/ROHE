@@ -1,8 +1,14 @@
 from collections import deque
-import time
+import time, sys
+from qoa4ml import utils
+lib_path = utils.get_parent_dir(__file__,2)
+sys.path.append(lib_path)
+from roheObject import RoheObject
 
-class EventBuffer(object):
-    def __init__(self, size=100):
+class EventBuffer(RoheObject):
+    # Object handling Event window as a buffer
+    def __init__(self, size=100, log_lev=2):
+        super().__init__(logging_level=log_lev)
         self.size = size   
         self.buffer = deque(maxlen=size)
     
@@ -18,8 +24,10 @@ class EventBuffer(object):
         # return and remove the rightmost item
         self.buffer.pop()
 
-class TimeBuffer(object):
-    def __init__(self, windowside=100, maxsize=100000):
+class TimeBuffer(RoheObject):
+    def __init__(self, windowside=100, maxsize=100000, log_lev=2):
+        # Object handling Time window as a buffer
+        super().__init__(logging_level=log_lev)
         self.size = maxsize   
         self.buffer = deque(maxlen=maxsize)
         self.windowside = windowside

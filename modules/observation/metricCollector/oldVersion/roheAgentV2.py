@@ -57,7 +57,6 @@ class RoheObservationAgent(object):
             print("Receive QoA Report: \n", mess)
             insert_id = self.metric_collection.insert_one(mess)
             print("Insert to database", insert_id)
-            print("ablc")
 
     def stop(self):
         # self.collector.stop()

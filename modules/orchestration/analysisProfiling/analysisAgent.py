@@ -9,6 +9,11 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import matplotlib
 
+from qoa4ml import utils
+lib_path = utils.get_parent_dir(__file__,2)
+sys.path.append(lib_path)
+from roheObject import RoheObject
+
 app = Flask(__name__)
 api = Api(app)
 matplotlib.use('Agg')
@@ -18,8 +23,9 @@ def get_dict_at(dict, i):
     keys = list(dict.keys())
     return dict[keys[i]], keys[i]
 
-class Analysis_Agent(object):
-    def __init__(self, conf_file):
+class Analysis_Agent(RoheObject):
+    def __init__(self, conf_file, log_lev=2):
+        super().__init__(logging_level=log_lev)
         self.conf = conf_file
         self.sample_rate = self.conf["sample_rate"]
         db_conf = self.conf["database"]
@@ -44,7 +50,7 @@ class Analysis_Agent(object):
                 new_row = pd.DataFrame.from_records([dict_start])
                 output = pd.concat([output,new_row], ignore_index=True)
         except Exception as e:
-            print("[ERROR] - Error {} while handling resource report: ".format(type(e)))
+            self.log("Error {} while handling resource report: ".format(type(e)),4)
             traceback.print_exception(*sys.exc_info())
         return output
 
@@ -65,7 +71,7 @@ class Analysis_Agent(object):
                         new_row = pd.DataFrame.from_records([dict_prediction])
                         output = pd.concat([output,new_row], ignore_index=True)
         except Exception as e:
-            print("[ERROR] - Error {} while handling feedback report: {}".format(type(e),e.__traceback__))
+            self.log("Error {} while handling feedback report: {}".format(type(e),e.__traceback__),4)
             traceback.print_exception(*sys.exc_info())
         return output
 
@@ -97,9 +103,9 @@ class Analysis_Agent(object):
                         new_row = pd.DataFrame.from_records([dict_prediction])
                         output = pd.concat([output,new_row], ignore_index=True)
         except Exception as e:
-            print("[ERROR] - Error {} while handling service quality report: {}".format(type(e),e.__traceback__))
+            self.log("Error {} while handling service quality report: {}".format(type(e),e.__traceback__),4)
             traceback.print_exception(*sys.exc_info())
-        print(output)
+        self.log(output)
         return output
     
 
@@ -114,7 +120,7 @@ class Analysis_Agent(object):
                             new_row = pd.DataFrame.from_records([row])
                             output = pd.concat([output,new_row], ignore_index=True)
                 except IndexError as e:
-                    print("Error while match accuracy (no feedback): ", e)
+                    self.log("Error while match accuracy (no feedback): {}".format(e),4)
                     traceback.print_exception(*sys.exc_info())
             else:
                 for index, row in df_feedback.iterrows():
@@ -131,16 +137,16 @@ class Analysis_Agent(object):
                                 new_row = pd.DataFrame.from_records([q_row])
                                 output = pd.concat([output,new_row], ignore_index=True) 
                         except IndexError as e:
-                            print("Error while match accuracy: ", e)
+                            self.log("Error while match accuracy: {}".format(e),4)
                             traceback.print_exception(*sys.exc_info())
         except Exception as e:
-            print("[ERROR] - Error {} while estimating feedback report: {}".format(type(e),e.__traceback__))
+            self.log("Error {} while estimating feedback report: {}".format(type(e),e.__traceback__),4)
             traceback.print_exception(*sys.exc_info())
         return output
     
 
     def analyse(self):
-        print(time.time())
+        self.log(time.time())
         sumary = {}
         try:
             quality_report = self.quality_report_col.find().sort([('timestamp', pymongo.DESCENDING)])
@@ -156,7 +162,7 @@ class Analysis_Agent(object):
 
             if quality_report:
                 df_quality_report = self.handle_quality_report(list(quality_report))
-                print(df_quality_report.info())
+                self.log(df_quality_report.info())
                 if not df_quality_report.empty:
                     sumary["total_prediction"] = len(df_quality_report.loc[df_quality_report["source"].str.len() != 0].index)
                 else:
@@ -164,7 +170,7 @@ class Analysis_Agent(object):
 
             if feedback:
                 df_feedback = self.handle_feedback(list(feedback))
-                print(df_feedback.info())
+                self.log(df_feedback.info())
                 if not df_feedback.empty:
                     sumary["false_prediction"] = len(df_feedback.loc[df_feedback["accuracy"] == 0].index)
                     sumary["total_feedback"] = len(df_feedback.index)
@@ -173,16 +179,16 @@ class Analysis_Agent(object):
                     sumary["feed_back"] = "No feedback"
 
             df_mapped = self.map_feedback(df_quality_report, df_feedback)
-            print(df_mapped)
-            print(df_mapped.info())
+            self.log(df_mapped)
+            self.log(df_mapped.info())
             
-            print(sumary)
+            self.log(sumary)
             kmeans = KMeans(n_clusters=2)
             columns = df_mapped.columns
             clusters = kmeans.fit(df_mapped[['confidence', columns[10]]])
 
             df_mapped['Cluster'] = clusters.labels_
-            print(df_mapped.info())
+            self.log(df_mapped.info())
 
             plt.scatter(df_mapped['confidence'], df_mapped[columns[10]], c=clusters.labels_.astype(float), s=50, alpha=0.5)
             centroids = kmeans.cluster_centers_
@@ -191,7 +197,7 @@ class Analysis_Agent(object):
 
 
         except Exception as e:
-            print("[ERROR] - Error {} while estimating contribution: {}".format(type(e),e.__traceback__))
+            self.log("Error {} while estimating contribution: {}".format(type(e),e.__traceback__),4)
             traceback.print_exception(*sys.exc_info())
 
 class Analysis_Service(Resource):
@@ -208,7 +214,7 @@ class Analysis_Service(Resource):
     def post(self):
         if request.is_json:
             args = request.get_json(force=True)
-            print(args)
+            self.log(args)
             response = "Analyse metric"
             if (args['command'] == 0):
                 self.agent.analyse()
