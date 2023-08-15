@@ -10,7 +10,7 @@
         }
     },
     "processing":{
-        "function": "sdn_detect_isolation_forest",
+        "function": "sdn_detect_local_outlier_factor",
         "parser": {
             "name": "sdnParser",
             "metric":{

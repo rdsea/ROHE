@@ -10,7 +10,7 @@
         }
     },
     "processing":{
-        "function": "detect_isolation_forest",
+        "function": "detect_local_outlier_factor",
         "parser": {
             "name": "objectDetectionParser",
             "metric":{
