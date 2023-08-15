@@ -4,6 +4,7 @@ from qoa4ml import utils
 lib_path = utils.get_parent_dir(__file__,2)
 sys.path.append(lib_path)
 from roheObject import RoheObject
+import pandas as pd
 
 class EventBuffer(RoheObject):
     # Object handling Event window as a buffer
@@ -14,9 +15,17 @@ class EventBuffer(RoheObject):
     
     def append(self, item):
         # add a new entry to the right side
+        # item should be DataFrame
         self.buffer.append(item) 
     
-    def get(self):
+    def get(self, dataframe=False):
+        if dataframe:
+            df_list = list(self.buffer)
+            df = df_list[0]
+            if isinstance(df, pd.DataFrame):
+                for i in range(1,len(df_list)):
+                    df = pd.concat([df,df_list[i]], ignore_index=True)
+                return df
         # get all item as a list
         return list(self.buffer)
     

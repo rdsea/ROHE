@@ -17,7 +17,7 @@ from modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
 
 
 class RoheObservationAgent(RoheObject):
-    def __init__(self, configuration, mg_db=True, log_lev=2):
+    def __init__(self, configuration, mg_db=False, log_lev=2):
         super().__init__(logging_level=log_lev)
         self.conf = configuration
         # Init Metric collector 
@@ -41,7 +41,8 @@ class RoheObservationAgent(RoheObject):
         
 
         # Inint processing configuration e.g., processing window (time/event), processing function, data parser
-        self.agent_config = utils.load_config(lib_path+"/configurations/observation/agent/streamConfig.json")
+        self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
+        # self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
         """
@@ -93,12 +94,17 @@ class RoheObservationAgent(RoheObject):
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
 
-        # Add metric report to buffer - processing window
-        self.buffer.append(mess)
+        # Get parser from configuration
+        parser = getattr(pars, self.proc_config["parser"]["name"])
+        # Parse data to DataFrame
+        df_mess = parser(mess, self.proc_config["parser"])
+
+        # Add metric report as dataframe to buffer - processing window
+        self.buffer.append(df_mess)
         self.log(len(self.buffer.get()),2)
 
         if self.insert_db:
-            # Insert to databased if insert_db is set to True
+            # Insert raw data to databased if insert_db is set to True
             insert_id = self.metric_collection.insert_one(mess)
             self.log("Insert to database {}".format(insert_id), 2)
         
@@ -109,13 +115,20 @@ class RoheObservationAgent(RoheObject):
     # Function for processing window
     def windowProcessing(self):
         self.log("Start Window Processing")
-        # Get parser from configuration
-        parser = getattr(pars, self.proc_config["parser"]["name"])
-        data, feature_list = parser(self.buffer, self.proc_config["parser"])
+        # Get data from buffer processing window
+        data = self.buffer.get(dataframe=True)
+
+        self.log(data, 1) # For Debugging
+
+        # Load dynamic processing function from function configuration
         procFunc = getattr(func, self.proc_config["function"])
+        feature_list = self.proc_config["parser"]["feature"]
+
+        # data, feature_list = parser(self.buffer, self.proc_config["parser"])
+        # 
         for feature in feature_list:
             result_df, model = procFunc(data, feature)
-            self.log("\n"+str(result_df))
+            # self.log("\n"+str(result_df))
 
     def eventTrigger(self):
         # Check trigger and reset counter

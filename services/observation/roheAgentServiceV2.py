@@ -140,4 +140,4 @@ if __name__ == '__main__':
     
     # Run the Observation Service
     api.add_resource(RoheObservationService, '/agent',resource_class_kwargs=configuration)
-    app.run(debug=True, port=port)
+    app.run(debug=True, port=port,host="0.0.0.0")

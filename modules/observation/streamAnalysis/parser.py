@@ -1,4 +1,4 @@
-import logging, traceback,sys
+import logging, traceback,sys, copy
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
@@ -138,7 +138,7 @@ def get_data_quality_metric(report, metric_config):
     if aggregate_method == "min":
         min_value = float('inf')
         for instance in report[stage][metric_name]:
-            if report[stage][metric_name][instance] < max_value:
+            if report[stage][metric_name][instance] < min_value:
                 min_value = report[stage][metric_name][instance]
         return {metric_name : [min_value]}
     else:
@@ -159,52 +159,134 @@ def replace_feature(feature, metric_name, replacements):
     new_feature.append(new_item)
     return new_feature
 
-def objectDetectionParser(buff, parser_conf):
+def objectDetectionParser(item, parser_conf):
     try:
-        data = buff.get()
-        inf_df = pd.DataFrame()
         metric_list = parser_conf["metric"]
-        feature_list = parser_conf["feature"]
-        for item in data:
-            # Get quality report 
-            if "quality" in item:
-                quality_report = item["quality"]
-                # Init an empty dictionary to store metrics
-                metric_cols = {} 
-                if ("inference" in metric_list) and ("inference" in quality_report):
-                    # Get inference metrics
-                    for inf_metric in metric_list["inference"]:
-                        metric_cols.update(get_inference_metric(quality_report["inference"], inf_metric))
-                if ("data" in metric_list) and ("data" in quality_report):
-                    # Get data quality metrics
-                    for data_metric in metric_list["data"]:
-                        metric_cols.update(get_data_quality_metric(quality_report["data"], data_metric))
+        # Get quality report 
+        if "quality" in item:
+            quality_report = item["quality"]
+            # Init an empty dictionary to store metrics
+            metric_cols = {} 
+            if ("inference" in metric_list) and ("inference" in quality_report):
+                # Get inference metrics
+                for inf_metric in metric_list["inference"]:
+                    metric_cols.update(get_inference_metric(quality_report["inference"], inf_metric))
+            if ("data" in metric_list) and ("data" in quality_report):
+                # Get data quality metrics
+                for data_metric in metric_list["data"]:
+                    metric_cols.update(get_data_quality_metric(quality_report["data"], data_metric))
 
 
 
 
-            # Get metadate for later analyses
-            if "metadata" in item:
-                client_id = [item["metadata"]["client_id"]]
-                instance_name = [item["metadata"]["instance_name"]]
-                instances_id = [item["metadata"]["instances_id"]]
-                timestamp = [item["metadata"]["timestamp"]]
-                stage_id = [item["metadata"]["stage_id"]]
-                application = [item["metadata"]["application"]]
-            # Creat new row data
-            row_dict = {"client_id":client_id,
-                        "instance_name":instance_name,
-                        "instances_id":instances_id,
-                        "timestamp":timestamp,
-                        "stage_id":stage_id,
-                        "application":application}
-            row_dict.update(metric_cols)
-            dfi = pd.DataFrame(row_dict)
-            # concat new row data to result dataframe 
-            inf_df = pd.concat([inf_df, dfi], ignore_index=True)
-        return inf_df, feature_list
+        # Get metadate for later analyses
+        if "metadata" in item:
+            client_id = [item["metadata"]["client_id"]]
+            instance_name = [item["metadata"]["instance_name"]]
+            instances_id = [item["metadata"]["instances_id"]]
+            timestamp = [item["metadata"]["timestamp"]]
+            stage_id = [item["metadata"]["stage_id"]]
+            application = [item["metadata"]["application"]]
+        # Creat new row data
+        row_dict = {"client_id":client_id,
+                    "instance_name":instance_name,
+                    "instances_id":instances_id,
+                    "timestamp":timestamp,
+                    "stage_id":stage_id,
+                    "application":application}
+        row_dict.update(metric_cols)
+        inf_df = pd.DataFrame(row_dict)
+        return inf_df
     except Exception as e:
         logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))
         traceback.print_exception(*sys.exc_info())
         return None, None
-    
+
+def agg_switch(switch, metric, aggregate_method):
+    if aggregate_method == "mean":
+        sum_value = 0
+        count = 0
+        for key in switch:
+            flow = switch[key]
+            if metric in flow:
+                sum_value += flow[metric]
+                count+=1
+        if count != 0:
+            return sum_value/count
+        else:
+            return 0
+    if aggregate_method == "max":
+        max_value = float('-inf')
+        for key in switch:
+            flow = switch[key]
+            if metric in flow:
+                if flow[metric] > max_value:
+                    max_value = flow[metric]
+        return max_value
+    if aggregate_method == "min":
+        min_value = float('inf')
+        for key in switch:
+            flow = switch[key]
+            if metric in flow:
+                if flow[metric] < min_value:
+                    min_value = flow[metric]
+        return min_value
+    if aggregate_method == "sum":
+        sum_value = 0
+        for key in switch:
+            flow = switch[key]
+            if metric in flow:
+                sum_value += flow[metric]
+        return sum_value
+
+
+def aggregate_switch(switch, config, prefix):
+    result = {}
+    for metric in config:
+        metric_name = metric["name"]
+        agg_med = metric["aggregate"]
+        result[prefix+str(metric_name)] = [agg_switch(switch, metric_name, agg_med)]
+    return result
+
+def sdnParser(item, parser_conf):
+    try:
+        swith_df = pd.DataFrame()
+        metric_list = parser_conf["metric"]
+        if "flow" in metric_list:
+            flowstat_config = metric_list["flow"]
+        if "port" in metric_list:
+            portstat_config = metric_list["port"]
+        if "metadata" in item:
+            client_id = [item["metadata"]["client_id"]]
+            instance_name = [item["metadata"]["instance_name"]]
+            instances_id = [item["metadata"]["instances_id"]]
+            timestamp = [item["metadata"]["timestamp"]]
+            stage_id = [item["metadata"]["stage_id"]]
+            application = [item["metadata"]["application"]]
+        # Creat new row data
+        metadata_dict = {"client_id":client_id,
+                    "instance_name":instance_name,
+                    "instances_id":instances_id,
+                    "timestamp":timestamp,
+                    "stage_id":stage_id,
+                    "application":application}
+        switches = copy.deepcopy(item)
+        switches.pop("metadata")
+        for key in switches:
+            row_switch = {}
+            row_switch["switch"] = key
+            switch = switches[key]
+            row_switch.update(aggregate_switch(switch["FlowStats"], flowstat_config, "flow_"))
+            row_switch.update(aggregate_switch(switch["PortStats"], portstat_config, "port_"))
+            row_switch["agg_byte_count"] = [switch["Aggregate"]["byte_count"]]
+            row_switch["agg_packet_count"] = [switch["Aggregate"]["packet_count"]]
+            row_switch["agg_flow_count"] = [switch["Aggregate"]["flow_count"]]
+            row_switch.update(metadata_dict)
+            dfi = pd.DataFrame(row_switch)
+            # concat new row data to result dataframe 
+            swith_df = pd.concat([swith_df, dfi], ignore_index=True)
+        return swith_df
+    except Exception as e:
+        logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))
+        traceback.print_exception(*sys.exc_info())
+        return None, None

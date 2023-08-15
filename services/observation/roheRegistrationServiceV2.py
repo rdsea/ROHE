@@ -197,4 +197,4 @@ if __name__ == '__main__':
     configuration = utils.load_config(config_file)
 
     api.add_resource(RoheRegistrationService, '/registration',resource_class_kwargs=configuration)
-    app.run(debug=True, port=port)
+    app.run(debug=True, port=port, host="0.0.0.0")
