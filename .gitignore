@@ -7,3 +7,11 @@ templates/profiling/.DS_Store
 *.jpg
 *.pt
 *.pyc
+
+__pycache__/
+# *.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+.env
