@@ -8,17 +8,20 @@ from flask_restful import Resource
 class RoheInferenceAgent(RoheObject, Resource, ABC):
     def __init__(self, configuration, log_lev=2):
         super().__init__(logging_level=log_lev)
+
         self.conf = configuration
+
+        #Init model configuration (architecture, weight file)
+        model_conf = self.conf["model"]
+        print(f"this is the model configuration: {model_conf}")
+
+        self.model, self.input_shape = self.load_model(model_conf)
+
         self.post_command_handlers = {
             'predict': self.handle_predict_req,
             'modify_weights': self.handle_modify_weights_req,
             'modify_structure': self.handle_modify_structure_req,
         }
-
-        #Init model configuration (architecture, weight file)
-        model_conf = self.conf["model"]
-        self.model, self.input_shape = self.load_model(model_conf)
-
 
     def get(self):
         response = self.handle_get_request(request)
@@ -48,9 +51,6 @@ class RoheInferenceAgent(RoheObject, Resource, ABC):
         '''
         pass
 
-    @abstractmethod
-    def make_prediction(self):
-        pass
 
     @abstractmethod
     def handle_get_request(self, request):

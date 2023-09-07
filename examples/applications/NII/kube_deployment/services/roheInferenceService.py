@@ -33,8 +33,8 @@ local_agent_list = {}
 
 
 class RoheInferenceService(RoheInferenceAgent):
-    def __init__(self, configuration):
-        super().__init__(configuration= configuration)
+    def __init__(self, configuration, log_lev= 2):
+        super().__init__(configuration= configuration, log_lev= log_lev)
 
         storage_info = configuration['minio_config']
         self.minio_connector = self.load_minio_storage(storage_info= storage_info)
@@ -60,8 +60,12 @@ class RoheInferenceService(RoheInferenceAgent):
         minio_connector = MinioConnector(storage_info= storage_info)
         return minio_connector
 
-    def get(self, request: request):
+    
+    def handle_get_request(self, request):
         return "Hello from Rohe Inference Server"
+    
+    def make_prediction(self):
+        return super().make_prediction()
     
     # # Convert the numpy array to bytes
     # image_bytes = image_np.tobytes()
@@ -174,11 +178,17 @@ class RoheInferenceService(RoheInferenceAgent):
 
 
 if __name__ == '__main__': 
+
+    up_level = 6
+    root_path = get_parent_dir(__file__, up_level)
+    sys.path.append(root_path)
+    print(root_path)
+
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Inference Service")
-    parser.add_argument('--conf', type= "str", help='configuration file', 
-                        default= "examples/applications/NII/kube_deployment/conf/inference_configuration.json")
-    parser.add_argument('--port', type= "int", help='default port', default=9000)
+    parser.add_argument('--conf', type= str, help='configuration file', 
+                        default= "inference_configuration.json")
+    parser.add_argument('--port', type= int, help='default port', default=9000)
 
     # Parse the parameters
     args = parser.parse_args()
