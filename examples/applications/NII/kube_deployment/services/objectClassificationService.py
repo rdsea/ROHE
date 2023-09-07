@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Api
 
 # set the ROHE to be in the system path
 def get_parent_dir(file_path, levels_up=1):
@@ -24,7 +24,7 @@ up_level = 6
 root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
-from examples.applications.NII.kube_deployment.modules import RoheInferenceAgent
+from examples.applications.NII.kube_deployment.modules import ObjectClassificationAgent
 from examples.applications.NII.utilities import MinioConnector
 
 app = Flask(__name__)
@@ -32,12 +32,17 @@ api = Api(app)
 local_agent_list = {}
 
 
-class RoheInferenceService(RoheInferenceAgent):
-    def __init__(self, configuration, log_lev= 2):
-        super().__init__(configuration= configuration, log_lev= log_lev)
+# class ObjectClassificationSerivce(RoheInferenceAgent):
+#     def __init__(self, configuration, log_lev= 2):
+#         super().__init__(configuration= configuration, log_lev= log_lev)
 
-        storage_info = configuration['minio_config']
-        self.minio_connector = self.load_minio_storage(storage_info= storage_info)
+#         storage_info = configuration['minio_config']
+#         self.minio_connector = self.load_minio_storage(storage_info= storage_info)
+class ObjectClassificationSerivce(ObjectClassificationAgent):
+    def __init__(self, **kwargs):
+        configuration = kwargs.get('configuration', {})
+        log_lev = kwargs.get('log_lev', 2)
+        super().__init__(configuration=configuration, log_lev=log_lev)
 
     def load_model(self, conf):
         # assume that need both architecture file and weights file to load the model
@@ -62,10 +67,8 @@ class RoheInferenceService(RoheInferenceAgent):
 
     
     def handle_get_request(self, request):
-        return "Hello from Rohe Inference Server"
+        return "Hello from Rohe Object Classification Server"
     
-    def make_prediction(self):
-        return super().make_prediction()
     
     # # Convert the numpy array to bytes
     # image_bytes = image_np.tobytes()
@@ -187,7 +190,7 @@ if __name__ == '__main__':
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Inference Service")
     parser.add_argument('--conf', type= str, help='configuration file', 
-                        default= "inference_configuration.json")
+                        default= "server_config.json")
     parser.add_argument('--port', type= int, help='default port', default=9000)
 
     # Parse the parameters
@@ -199,9 +202,10 @@ if __name__ == '__main__':
     with open(config_file, 'r') as json_file:
         config = json.load(json_file)    
 
-    config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
-    config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
+    config['configuration']['minio_config']['access_key'] = os.getenv("minio_client_access_key")
+    config['configuration']['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
     
     # Run the Observation Service
-    api.add_resource(RoheInferenceService, '/inference_service',resource_class_kwargs= config)
+    api.add_resource(ObjectClassificationSerivce, '/inference_service',resource_class_kwargs= config)
+    
     app.run(debug=True, port=port,host="0.0.0.0")

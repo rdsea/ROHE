@@ -1,1 +1,1 @@
-from .roheInferenceAgent import RoheInferenceAgent
+from .objectCassificationAgent import ObjectClassificationAgent

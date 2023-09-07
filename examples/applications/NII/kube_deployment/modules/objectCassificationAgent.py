@@ -4,8 +4,9 @@ from flask import request, jsonify
 from modules.roheObject import RoheObject
 from flask_restful import Resource
 
+import json
 
-class RoheInferenceAgent(RoheObject, Resource, ABC):
+class ObjectClassificationAgent(RoheObject, Resource, ABC):
     def __init__(self, configuration, log_lev=2):
         super().__init__(logging_level=log_lev)
 
@@ -13,7 +14,6 @@ class RoheInferenceAgent(RoheObject, Resource, ABC):
 
         #Init model configuration (architecture, weight file)
         model_conf = self.conf["model"]
-        print(f"this is the model configuration: {model_conf}")
 
         self.model, self.input_shape = self.load_model(model_conf)
 
@@ -24,23 +24,34 @@ class RoheInferenceAgent(RoheObject, Resource, ABC):
         }
 
     def get(self):
-        response = self.handle_get_request(request)
-        return jsonify({'response': response}), 200
-        
+        try:
+            response = self.handle_get_request(request)
+            print("Response:", response)  # Debugging line to see what exactly is the response
+            return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)  # Debugging line to see what exception was thrown
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
+
     # structure of client request
     # sample
     # payload = {'command': 'load_weight'}
     # files = {'weights': open('model_weights.h5', 'rb')}
     # requests.post('http://server-address/api-name', data=payload, files=files)
-    def post(self):
-        command = request.form.get('command')
-        handler = self.post_command_handlers.get(command)
 
-        if handler:
-            response = handler(request)
-            return jsonify({'response': response}), 200
-        else:
-            return jsonify({"response": "Command not found"}), 404
+    def post(self):
+        try:
+            command = request.form.get('command')
+            handler = self.post_command_handlers.get(command)
+
+            if handler:
+                response = handler(request)
+                print("Response:", response)  # Debugging line to see what exactly is the response
+                return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+            else:
+                return json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)  # Debugging line to see what exception was thrown
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
 
     @abstractmethod
