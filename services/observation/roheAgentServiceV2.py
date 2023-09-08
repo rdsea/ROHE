@@ -5,17 +5,14 @@ import pymongo
 main_path = config_file = utils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
-from modules.roheObject import RoheObject
+from lib.restService import RoheRestObject, RoheRestService
 
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
+from flask import jsonify, request
 
-app = Flask(__name__)
-api = Api(app)
 local_agent_list = {}
 
 
-class RoheObservationService(Resource, RoheObject):
+class RoheObservation(RoheRestObject):
     def __init__(self, **kwargs) -> None:
         super().__init__()
         self.conf = kwargs
@@ -25,10 +22,6 @@ class RoheObservationService(Resource, RoheObject):
         self.db = self.mongo_client[self.db_config["db_name"]]
         self.collection = self.db[self.db_config["collection"]]
         self.set_logger_level(int(self.conf["logging_level"]))
-
-        # self.connector_config = self.conf["connector"]
-        # self.collector_config = self.conf["collector"]
-        
     
     def get_app(self,app_name):
         # Create sorted pipepline to query application list
@@ -46,11 +39,6 @@ class RoheObservationService(Resource, RoheObject):
         for agent in local_agent_list:
             self.log("{} - {} - {}".format(agent, local_agent_list[agent].status, local_agent_list[agent].insert_db), 1)
 
-    def get(self):
-        # Processing GET request
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({'status': args})
     
     def post(self):
         # Processing POST request
@@ -137,7 +125,7 @@ if __name__ == '__main__':
         config_file = utils.get_parent_dir(__file__,2)+config_path
         print(config_file)
     configuration = utils.load_config(config_file)
-    
-    # Run the Observation Service
-    api.add_resource(RoheObservationService, '/agent',resource_class_kwargs=configuration)
-    app.run(debug=True, port=port,host="0.0.0.0")
+
+    observationService = RoheRestService(configuration)
+    observationService.add_resource(RoheObservation, '/agent')
+    observationService.run(port=port)

@@ -5,23 +5,13 @@ import argparse
 import pymongo
 main_path = config_file = utils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from modules.roheObject import RoheObject
+from lib.restService import RoheRestObject, RoheRestService
+from flask import jsonify, request
 
 
-
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
-
-app = Flask(__name__)
-api = Api(app)
-
-# local_application_list = {}
-agent_list = {}
-
-class RoheRegistrationService(Resource, RoheObject):
+class RoheRegistration(RoheRestObject):
     def __init__(self, **kwargs) -> None:
         super().__init__()
-
         self.conf = kwargs
         # Init Database connection
         self.db_config = self.conf["database"]
@@ -77,14 +67,6 @@ class RoheRegistrationService(Resource, RoheObject):
         metadata["agent_config"] = self.generate_agent_conf(metadata)
         self.collection.insert_one(metadata)
         return metadata
-    
-    
-        
-    def get(self):
-        # Functon to handle GET request
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({'status': args})
 
     def post(self):
         # Functon to handle POST request
@@ -106,11 +88,6 @@ class RoheRegistrationService(Resource, RoheObject):
                     metadata.pop("_id")
                     self.update_app(metadata)
                 
-                # local_application_list[application_name] = {}
-                # local_application_list[application_name]["appID"] = metadata["appID"]
-                # local_application_list[application_name]["client_count"] = metadata["client_count"]
-                # local_application_list[application_name]["db"] = metadata["db"]
-
 
                 # TO DO
                 # Check client_id, role, stage_id, instance_name
@@ -134,52 +111,13 @@ class RoheRegistrationService(Resource, RoheObject):
                 response["application_id"] = metadata["appID"]
                 response["connector"] = connector
                 
-                # # Prepare QoA Agent
-                # application_id = local_application_list[application_name]["appID"]
-                # if application_id not in agent_list:
-                #     # Database configuration
-                #     agent_db_config = self.db_config.copy()
-                #     agent_db_config["db_name"] = "application_"+application_name+"_"+application_id
-                #     agent_db_config["metric_collection"] = "metric_collection"
-                #     # Collector configuration
-                #     collector_config = copy.deepcopy(self.collector_config)
-                #     for key in list(collector_config.keys()):
-                #         collector_i = collector_config[key]
-                #         i_config = collector_i["conf"]
-                #         i_config["exchange_name"] = str(application_name)+"_exchange"
-                #         i_config["in_routing_key"] = str(application_name)+".#"
-
-                #     # Agent configuration 
-                #     agent_config ={}
-                #     agent_config["database"] = agent_db_config
-                #     agent_config["collector"] = collector_config
-                #     agent = RoheObservationAgent(agent_config)
-                #     agent_id = str(uuid.uuid4())
-                #     agent_list[application_id] = {}
-                #     agent_list[application_id][agent_id] = {}
-                #     agent_list[application_id][agent_id]["agent"] = agent
-                #     agent_list[application_id][agent_id]["status"] = "stop"
-                #     agent_list[application_id][agent_id]["configuration"] = agent_config
-                #     agent.start()
 
             else:
                 response["Error"] = "Application name not found"
             
-           
-            
         return jsonify({'status': "success", "response":response})
 
-    def put(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({'status': True})
-
-    def delete(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({'status': args})
+    
 
 if __name__ == '__main__': 
     # init_env_variables()
@@ -196,5 +134,9 @@ if __name__ == '__main__':
         print(config_file)
     configuration = utils.load_config(config_file)
 
-    api.add_resource(RoheRegistrationService, '/registration',resource_class_kwargs=configuration)
-    app.run(debug=True, port=port, host="0.0.0.0")
+    rgistrationService = RoheRestService(configuration)
+    rgistrationService.add_resource(RoheRegistration, '/registration')
+    rgistrationService.run()
+
+    # api.add_resource(RoheRegistration, '/registration',resource_class_kwargs=configuration)
+    # app.run(debug=True, port=port, host="0.0.0.0")

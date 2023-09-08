@@ -7,7 +7,7 @@ import pandas as pd
 import argparse, random, sys
 lib_path = utils.get_parent_dir(__file__,2)
 sys.path.append(lib_path)
-from modules.roheObject import RoheObject
+from lib.roheObject import RoheObject
 
 
 
