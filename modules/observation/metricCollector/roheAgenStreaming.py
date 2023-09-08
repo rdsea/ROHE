@@ -9,7 +9,7 @@ import pandas as pd
 # Append syspath for dynamic import modules
 lib_path = utils.get_parent_dir(__file__,3)
 sys.path.append(lib_path)
-from modules.roheObject import RoheObject
+from lib.roheObject import RoheObject
 import modules.observation.streamAnalysis.functions as func
 import modules.observation.streamAnalysis.parser as pars
 from modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
@@ -41,8 +41,8 @@ class RoheObservationAgent(RoheObject):
         
 
         # Inint processing configuration e.g., processing window (time/event), processing function, data parser
-        self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
-        # self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
+        # self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
+        self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
         """
