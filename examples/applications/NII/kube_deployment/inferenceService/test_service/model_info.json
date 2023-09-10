@@ -1,0 +1,29 @@
+{
+"model_0": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/repair"
+},
+"model_1": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/0/repair"
+},
+"model_2": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/2/7/repair"
+},
+"model_3": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/2/12/repair"
+},
+"model_4": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/3/6/repair"
+},
+"model_5": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/6/repair"
+},
+"model_6": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/6/7/repair"
+},
+"model_7": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/7/repair"
+},
+"model_8": {
+    "folder": "/home/vtn/aalto-internship/test_model/VGG16/7/6/repair"
+}
+}

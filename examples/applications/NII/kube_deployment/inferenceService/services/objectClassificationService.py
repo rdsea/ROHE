@@ -120,7 +120,7 @@ class ClassificationRestService(RoheRestObject):
             binary_encoded = request.files['image']
             # Convert the binary data to a numpy array and decode the image
             image = self._retrieve_image(binary_encoded, dtype)
-            if image:
+            if image is not None:
                 try:
                     with self.model_lock:
                         result = self.MLAgent.predict(image)
@@ -150,12 +150,33 @@ class ClassificationRestService(RoheRestObject):
     
     # payload = {
     #     'command': 'modify_weights',
-    #     'minio_url': 'weight-file-name.h5',
+    #     'local_file': True,
+    #     'weights_url': 'weight-file-name.h5',
     # }
     # # Send POST request
     # response = requests.post('http://server-address/api-name', json=payload)
     def _handle_load_new_weights_req(self, request: request):
-        remote_file_path = request.form.get('minio_url')
+        local_file = request.form.get('local_file')
+        if local_file:
+            return self._handle_load_new_local_weights_req(request)
+        else:
+            return self._handle_load_new_remote_weights_req(request)
+
+    def _handle_load_new_local_weights_req(self, request: request):
+        local_file_path = request.form.get('weights_url')
+        try:
+            with self.model_lock:
+                self.MLAgent.load_weights(local_file_path)
+        # after loading the weight, delete the local file
+        except:
+            os.remove(local_file_path)
+            return "fail to update new weights (layers doesn't match)"
+
+        os.remove(local_file_path) 
+        return "successfully update new weights"
+
+    def _handle_load_new_remote_weights_req(self, request: request):
+        remote_file_path = request.form.get('weights_url')
         local_file_path = './tmp_weights_file.h5'
         success = self.minio_connector.download(remote_file_path= remote_file_path,
                                                          local_file_path= local_file_path)
@@ -175,14 +196,40 @@ class ClassificationRestService(RoheRestObject):
 
     # payload = {
     #     'command': 'modify_weights',
-    #     'minio_url': 'weight-file-name.h5',
+    #     'local_file': True, 
+    #     'weights_url': 'weight-file-name.h5',
     #     'architecture_url': 'architecture-file-name.json'
     # }
     # # Send POST request
     # response = requests.post('http://server-address/api-name', json=payload)
     def _handle_load_new_model_req(self, request: request):
+        local_file = request.form.get('local_file')
+        if local_file:
+            return self._handle_load_new_local_model_req(request)
+        else:
+            return self._handle_load_new_remote_model_req(request)
+
+    def _handle_load_new_local_model_req(self, request: request):
+        try:
+            files = {
+                "weights_file": request.form.get('weights_url'),
+                "architecture_file": request.form.get('architecture_url')
+            }
+            
+            new_model = self.MLAgent.load_model(files= files)
+
+            with self.model_lock:
+                self.MLAgent.change_model(new_model)
+            
+            return "Local file case. Sucessfully change the model"
+                
+        except Exception as e:
+            return f"Local model case. Failed to update new weights or architecture: {str(e)}"
+
+
+    def _handle_load_new_remote_model_req(self, request: request):
         # Download weights file
-        weight_remote_file_path = request.form.get('minio_url')
+        weight_remote_file_path = request.form.get('weights_url')
         weight_local_file_path = './tmp_weights_file.h5'
         success = self.minio_connector.download(remote_file_path=weight_remote_file_path,
                                                     local_file_path=weight_local_file_path)
@@ -197,11 +244,13 @@ class ClassificationRestService(RoheRestObject):
             try:
                 files = {
                     "architecture_file": architecture_local_file_path,
-                    "weigts_file": weight_local_file_path
+                    "weights_file": weight_local_file_path
                 }
                 new_model = self.MLAgent.load_model(files= files)
                 with self.model_lock:
                     self.MLAgent.change_model(new_model)
+                
+                return "Remote case. Successfully change the model"
 
             except Exception as e:
                 # Cleanup and return failure
@@ -229,7 +278,7 @@ class ClassificationRestService(RoheRestObject):
             image = np.frombuffer(binary_encoded.read(), dtype=dtype)
             image = image.reshape(self.MLAgent.input_shape)
         except:
-            image = []
+            image = None
         return image
 
 

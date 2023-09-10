@@ -18,6 +18,9 @@ class ClassificationObject(RoheObject):
             self.input_shape = get_image_dim_from_str(self.input_shape)
 
     def load_model(self, files, model_from_config= True):
+        print("#" * 50)
+        print(f"This is the files used to load new model: {files}")
+        print("#" * 50)
         if model_from_config:
             model = self._load_model_from_config(**files)
             return model
@@ -25,7 +28,9 @@ class ClassificationObject(RoheObject):
             raise ValueError("Now, only support load model from config files")
         
     def _load_model_from_config(self, architecture_file, weights_file):
+        print("-" * 20)
         print(architecture_file, weights_file)
+        print("-" * 20)
         with open(architecture_file, 'r') as f:
             model_architecture = json.load(f)
             model = tf.keras.models.model_from_config(model_architecture)
@@ -50,7 +55,7 @@ class ClassificationObject(RoheObject):
                 predicted_class_index = -1
                 confidence_level = -1
 
-        result = {"class": predicted_class_index, "confidence_level": confidence_level}
+        result = {"class": int(predicted_class_index), "confidence_level": float(confidence_level)}
 
         return result
     
