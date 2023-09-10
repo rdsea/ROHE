@@ -1,0 +1,29 @@
+{
+    "ingestion_config": {
+        "file_extension": "npy",
+        "tmp_image_folder": "tmp_image_folder"
+    },
+
+    "max_thread": 3,
+    
+    "minio_config": {
+        "endpoint_url": "http://128.214.254.126:9000",
+        "access_key": "",
+        "secret_key": "",
+        "bucket_name": "nii-application-unprocessed-image"
+    },
+
+    "mqtt_config": {
+        "broker_info": {
+            "url": "mqtt.eclipse.org",
+            "port": 1883,
+            "keepalive": 60
+        },
+        "client_id": "",
+        "sub_topic": ""
+    },
+    "redis_server": {
+        "url": ""
+    }
+
+}

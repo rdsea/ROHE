@@ -1,0 +1,18 @@
+{
+    "max_thread": 3,
+
+    "processing_config": {
+        "min_request_period": 1,
+        "max_request_period": 30,
+        "image_dim": "32,32,3"
+    },
+
+    "redis_server": {
+        "url": ""
+    },
+
+    "inference_server": {
+        "url": ""
+    }
+
+}

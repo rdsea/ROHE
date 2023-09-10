@@ -8,7 +8,7 @@ from time import sleep
 
 logging.getLogger(__name__)
 
-from .boto3_storage_connector import Boto3Connector, StorageInfo
+from .boto3StorageConnector import Boto3Connector, StorageInfo
 
 class MinioConnector(Boto3Connector):
     time_sleep = 10

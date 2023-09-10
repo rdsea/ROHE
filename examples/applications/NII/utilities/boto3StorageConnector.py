@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import os
 from time import sleep
 import logging
+import sys
+import re
 
 logging.getLogger(__name__)
 
@@ -113,3 +115,52 @@ class Boto3Connector(ABC):
         except Exception as e:
             logging.error(f"Error occurred while checking if file {file_path} exists in bucket {self._bucket_name}. Error: {e}")
             return False
+
+    def create_bucket(self):
+        # check whether the bucket name is in the valid format
+        valid_bucket_name = self._check_valid_bucket_name()
+        if valid_bucket_name:
+            try:
+                logging.info(f"Creating bucket {self._bucket_name}")
+                self._s3.create_bucket(
+                    Bucket=self._bucket_name,
+                )            
+                logging.info(f"Created bucket {self._bucket_name}")
+                # self._s3.put_object(Bucket=self._bucket_name, Key= f'{self._global_model_root_folder}/')
+
+            except Exception as e:
+                if 'BucketAlreadyOwnedByYou' in str(e):
+                    logging.info(f"Bucket {self._bucket_name} already exists")
+                else:
+                    logging.info("=" * 20)
+                    logging.error(e)
+                    logging.info("=" * 20)
+                    sys.exit(0)
+                    
+        else:
+            logging.info(f"Bucket name {self._bucket_name} is not valid. Exit the program")
+            sys.exit(0)
+
+    def _check_valid_bucket_name(self) -> bool:
+        # Bucket name length should be between 3 and 63
+        if len(self._bucket_name) < 3 or len(self._bucket_name) > 63:
+            logging.info("Bucket name length should be between 3 and 63 characters.")
+            return False
+
+        # Bucket name should start and end with a number or lowercase letter
+        if not re.match('^[a-z0-9]', self._bucket_name) or not re.match('.*[a-z0-9]$', self._bucket_name):
+            logging.info("Bucket name should start and end with a lowercase letter or number.")
+            return False
+
+        # Bucket name should not contain underscore, double dots, dash next to dots, 
+        # end with a dash, start with 'xn--', end with '-s3alias' or '--ol-s3'.
+        if re.search('_|\.\.|\-$|\-\.|\.\-|^xn--|\-s3alias$|--ol-s3$', self._bucket_name):
+            logging.info("Bucket name should not contain underscore, double dots, dash next to dots, end with a dash, start with 'xn--', end with '-s3alias' or '--ol-s3'.")
+            return False
+
+        # Bucket name should not be in IP format
+        if re.match('\d+\.\d+\.\d+\.\d+', self._bucket_name):
+            logging.info("Bucket name should not be in IP format.")
+            return False
+
+        return True

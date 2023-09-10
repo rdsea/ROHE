@@ -1,1 +1,1 @@
-from .classificationObject import ObjectClassificationAgent
+from .classificationObject import ClassificationObject

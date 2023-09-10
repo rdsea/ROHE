@@ -1,0 +1,6 @@
+{   "device_id": "aaltosea-cam-01",
+    "mqtt_config": {
+        "url": "",
+        "topic": "ingestion-topic"
+    }
+}

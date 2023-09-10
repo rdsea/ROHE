@@ -1,9 +1,7 @@
-import qoa4ml.utils as utils
-import sys
-import argparse
-import pymongo
-main_path = config_file = utils.get_parent_dir(__file__,1)
-sys.path.append(main_path)
+# import qoa4ml.utils as utils
+# import sys
+# main_path = config_file = utils.get_parent_dir(__file__,1)
+# sys.path.append(main_path)
 from lib.roheObject import RoheObject
 
 from flask import Flask, jsonify, request
