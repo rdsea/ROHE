@@ -5,6 +5,8 @@ import time
 from datetime import datetime
 import h5py
 import random
+import argparse
+
 
 def send_predict_request(image_array, url='http://localhost:9000/inference_service'):
     payload = {
@@ -16,28 +18,46 @@ def send_predict_request(image_array, url='http://localhost:9000/inference_servi
     response = requests.post(url, data=payload, files=files)
     return response.json()
 
-def main():
-    url = 'http://localhost:9000/inference_service'
-    # rate = 10  # Number of requests per second
-    rate = 1  # Number of requests per second
+def main(config):
+    test_ds = config['test_ds']
+    rate = config['rate']  # Number of requests per second
+    server_address = config['server_address']
     sleep_time = 1.0 / rate
 
     # # Create some dummy image data (32x32x3)
     # image_data = np.random.randint(0, 128, (32, 32, 3), dtype=np.uint8)
-    test_ds = "/home/vtn/aalto-internship/test_model/datasets/BDD100K-Classification/test.h5"
     with h5py.File(test_ds, 'r') as f:
         X_test = np.array(f['images'])
-        y_test = np.array(f['labels'])
+        # y_test = np.array(f['labels'])
 
-    image_data = X_test[random.randint(0, 50000)]
+    index = random.randint(0, 50000)
+    image_data = X_test[index]
+    # # fixed index
+    # image_data = X_test[100]
 
     for i in range(1, 10000):
         # Create some dummy image data (32x32x3)
         # image_data = np.random.randint(0, 128, (32, 32, 3), dtype=np.uint8)
-        response = send_predict_request(image_data, url)
+        response = send_predict_request(image_data, server_address)
         timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-        print(f"at {timestamp}, Request number {i}, Received response {response} ")
+        print(f"at {timestamp}, Request number {i} for image index of {index}, Received response {response} ")
         time.sleep(sleep_time)
 
 if __name__ == '__main__':
-    main()
+    # init_env_variables()
+    parser = argparse.ArgumentParser(description="Argument for choosingg model to request")
+    parser.add_argument('--server_address', type= str, help='default service address', 
+                        default= "http://localhost:9000/inference_service")
+    parser.add_argument('--test_ds', type= str, help='default test dataset path', 
+                default= "/home/vtn/aalto-internship/test_model/datasets/BDD100K-Classification/test.h5")
+    parser.add_argument('--rate', type= int, help='default number of requests per second', default= 20)
+
+    # Parse the parameters
+    args = parser.parse_args()
+
+    config = {
+        'server_address': args.server_address,
+        'test_ds': args.test_ds,
+        'rate': args.rate,
+    }
+    main(config= config)

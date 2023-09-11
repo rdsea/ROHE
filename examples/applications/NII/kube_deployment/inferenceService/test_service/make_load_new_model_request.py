@@ -4,28 +4,29 @@ import argparse
 import os
 import time
 from datetime import datetime
-import sys
 
 
 # init_env_variables()
 parser = argparse.ArgumentParser(description="Argument for choosingg model to request")
-parser.add_argument('--conf', type= str, help='configuration file', 
+parser.add_argument('--conf', type= str, help='model configuration file', 
                     default= "model_info.json")
 parser.add_argument('--server_address', type= str, help='default service address', 
                     default= "http://localhost:9000/inference_service")
+parser.add_argument('--rate', type= int, help='default number of requests per 60 seconds', default= 20)
 
 # Parse the parameters
 args = parser.parse_args()
 config_file = args.conf
 server_address = args.server_address
+rate = args.rate
 
+sleeping_time = 60 / rate
 # load configuration file
 with open(config_file, 'r') as json_file:
     config: dict = json.load(json_file)   
 
 for k, v in config.items():
     print(k, v)
-    time.sleep(10)
     model_folder = v['folder']
     weights_path = os.path.join(model_folder, "model.h5")
     architecture_path = os.path.join(model_folder, "model.json")
@@ -56,4 +57,5 @@ for k, v in config.items():
     except Exception as e:
         print(f"An error occurred at client request side: {e}")
 
+    time.sleep(sleeping_time)
 

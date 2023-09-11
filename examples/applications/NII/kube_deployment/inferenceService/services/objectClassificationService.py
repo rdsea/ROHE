@@ -27,19 +27,24 @@ from examples.applications.NII.utilities import MinioConnector
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 from lib import RoheRestObject, RoheRestService
 
+from datetime import datetime
 
+
+# class ClassificationRestService():
 class ClassificationRestService(RoheRestObject):
     def __init__(self, **kwargs):
         super().__init__()
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
+        timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        print(f"\n\nAT {timestamp}, THIS MESSSGE IS EXPECTED TO POP UP ONLY 1 TIME!\n\n")
 
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
-        # set up minio storage connector
-        self.minio_connector = self._load_minio_storage(storage_info= self.conf.get('minio_config', {})) 
+        # set minio storage connector
+        self.minio_connector = config['minio_connector']
 
         #Init model configuration (architecture, weight file)
         ############################################################################################################################################
@@ -52,21 +57,17 @@ class ClassificationRestService(RoheRestObject):
         # - others: set/get weight, modify structure...
         ############################################################################################################################################
 
-        self.MLAgent = ClassificationObject(files= configuration['model']['files'],
-                                            input_shape= configuration['model']['input_shape'],
-                                            model_from_config= True)
-        self.model_lock = threading.Lock()
+        # set model handler module
+        self.MLAgent = config['MLAgent']
+
+        # set model lock
+        self.model_lock = config['lock']
 
         self.post_command_handlers = {
             'predict': self._handle_predict_req,
             'load_new_weights': self._handle_load_new_weights_req,
             'load_new_model': self._handle_load_new_model_req,
         }
-
-    
-    def _load_minio_storage(self, storage_info):
-        minio_connector = MinioConnector(storage_info= storage_info)
-        return minio_connector
 
     
     def post(self):
@@ -250,6 +251,10 @@ class ClassificationRestService(RoheRestObject):
                 with self.model_lock:
                     self.MLAgent.change_model(new_model)
                 
+                # Cleanup
+                os.remove(weight_local_file_path)
+                os.remove(architecture_local_file_path)
+
                 return "Remote case. Successfully change the model"
 
             except Exception as e:
@@ -258,12 +263,6 @@ class ClassificationRestService(RoheRestObject):
                 os.remove(architecture_local_file_path)
                 return f"Failed to update new weights or architecture: {str(e)}"
 
-            # Cleanup
-            os.remove(weight_local_file_path)
-            os.remove(architecture_local_file_path)
-            # only update the current model if successfully load both the config and weight
-            self.model = self.new_model
-            return "Successfully updated new weights and architecture"
 
         else:
             return "cannot download the json file"
@@ -281,6 +280,10 @@ class ClassificationRestService(RoheRestObject):
             image = None
         return image
 
+
+def load_minio_storage(storage_info):
+    minio_connector = MinioConnector(storage_info= storage_info)
+    return minio_connector
 
 
 if __name__ == '__main__': 
@@ -309,6 +312,19 @@ if __name__ == '__main__':
 
     config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
     config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
+
+
+    # load minio connector and ML Agent here
+    minio_connector = load_minio_storage(storage_info= config.get('minio_config', {})) 
+    MLAgent = ClassificationObject(files= config['model']['files'],
+                                    input_shape= config['model']['input_shape'],
+                                    model_from_config= True) 
+
+    model_lock = threading.Lock() 
+    config['minio_connector'] = minio_connector
+    config['MLAgent'] = MLAgent
+    config['lock'] = model_lock
+
     
     classificationService = RoheRestService(config)
     classificationService.add_resource(ClassificationRestService, '/inference_service')
