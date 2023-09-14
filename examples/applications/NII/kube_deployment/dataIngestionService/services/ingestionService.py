@@ -5,6 +5,7 @@ import json
 
 import argparse
 
+
 # set the ROHE to be in the system path
 def get_parent_dir(file_path, levels_up=1):
     file_path = os.path.abspath(file_path)  # Get the absolute path of the running file
@@ -29,6 +30,11 @@ class IngestionService(RoheObject):
         
         # ingestion object to deal with the ingestion process
         ingestion_config = config.get('ingestion_config', {})
+
+        # create multi threads to handle the upcomming message
+        self.max_thread = config.get('max_thread', 3)
+        self.thread_pool = ThreadPoolExecutor(self.max_thread)
+        
         self.IngestionAgent = IngestionObject(**ingestion_config) 
 
         # MQTT subscriber to get message from IoT devices
@@ -37,38 +43,51 @@ class IngestionService(RoheObject):
         # Minio Connector for uploading image
         self.minio_connector = MinioConnector(storage_info= config['minio_config'])
 
-        # create multi threads to handle the upcomming message
-        self.max_thread = config.get('max_thread', 3)
-        self.thread_pool = ThreadPoolExecutor(self.max_threads)
 
         # to notify the redis server - communicate with the processing stage
         self.redis_like_service_url = config['redis_server']['url']
 
 
     def message_processing(self, client, userdata, msg):
+        print(f'Receive message from mqtt broker: {msg}')
         self.thread_pool.submit(self._process_message, client, userdata, msg)
-
+        print("After submitting")
 
     def _process_message(self, client, userdata, msg):
+        print(f"Begin to process image: {msg}")
+        # payload template = {
+        #     'timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        #     'device_id': "camera01",
+        #     'image': image_b64,
+        #     'file_extension': file_extension,
+        #     'shape': None,
+        #     'dtype': None,
+        # }
         # Deserialize the incoming JSON message payload
         payload = json.loads(msg.payload.decode('utf-8'))
-
+        # print(f"This is the payload: {payload}")
         # go through the ingestion stage 
         ingestion_result = self.IngestionAgent.ingest(payload)
+        image = ingestion_result['image']
+        shape = image.shape
+
+        print(f"successfully get the ingestion result. This is the image shape: {shape}")
 
         # upload to cloud storage
         image_url = self.IngestionAgent.save_to_minio(minio_connector= self.minio_connector,
                                                       payload= payload)
         
         # notify task coordinator
-        if image_url:
+        if image_url is not None:
             # Prepare the payload for Redis-like service
             payload = {
-                "timestamp": ingestion_result.get("timestamp", ""),
-                "device_id": ingestion_result.get("device_id", ""),
-                "image_url": ingestion_result.get("image_url")
+                "request_id": ingestion_result.get("request_id"),
+                "timestamp": ingestion_result.get("timestamp"),
+                "device_id": ingestion_result.get("device_id"),
+                "image_url": image_url,
             }
 
+            print(f"About to send message to redis like server: {payload}")
             # Notify Redis-like service
             response = requests.post(self.redis_like_service_url, json=payload)
             if response.status_code == 200:

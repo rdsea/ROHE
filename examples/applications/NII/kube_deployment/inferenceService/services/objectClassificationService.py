@@ -27,6 +27,8 @@ from examples.applications.NII.utilities import MinioConnector
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 from lib import RoheRestObject, RoheRestService
 
+
+
 from datetime import datetime
 
 
@@ -37,14 +39,12 @@ class ClassificationRestService(RoheRestObject):
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
-        timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-        print(f"\n\nAT {timestamp}, THIS MESSSGE IS EXPECTED TO POP UP ONLY 1 TIME!\n\n")
 
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
         # set minio storage connector
-        self.minio_connector = config['minio_connector']
+        self.minio_connector = self.conf['minio_connector']
 
         #Init model configuration (architecture, weight file)
         ############################################################################################################################################
@@ -58,10 +58,10 @@ class ClassificationRestService(RoheRestObject):
         ############################################################################################################################################
 
         # set model handler module
-        self.MLAgent = config['MLAgent']
+        self.MLAgent: ClassificationObject = self.conf['MLAgent']
 
         # set model lock
-        self.model_lock = config['lock']
+        self.model_lock = self.conf['lock']
 
         self.post_command_handlers = {
             'predict': self._handle_predict_req,
@@ -95,14 +95,14 @@ class ClassificationRestService(RoheRestObject):
 
     def get(self):
         try:
-            response = self.handle_get_request(request)
+            response = self._handle_get_request(request)
             return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
         except Exception as e:
             print("Exception:", e)
             return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
 
-    def handle_get_request(self, request):
+    def _handle_get_request(self, request):
         return f"Hello from Rohe Object Classification Server. \nThis is the input shape: {self.MLAgent.input_shape}"
 
 
@@ -292,7 +292,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', type= int, help='default port', default=9000)
 
     parser.add_argument('--conf', type= str, help='configuration file', 
-    default= "examples/applications/NII/kube_deployment/inferenceService/configurations/inference_service.json")
+            default= "examples/applications/NII/kube_deployment/inferenceService/configurations/inference_service.json")
 
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 

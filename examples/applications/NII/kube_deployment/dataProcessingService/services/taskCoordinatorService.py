@@ -1,9 +1,10 @@
 import redis
-from flask import request, jsonify
+from flask import request
 import argparse
 import json
 
 import sys, os
+import logging
 
 
 # set the ROHE to be in the system path
@@ -30,11 +31,9 @@ class TaskCoordinator(RoheRestObject):
         self.conf = configuration
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
-        self.redis = self._setup_redis(self.conf['redis_server'])
+        # self.redis = self._setup_redis(self.conf['redis_server'])
+        self.redis = self.conf['redis']
 
-
-    def _setup_redis(self, redis_config):
-        redis.Redis(host= redis_config['host'], port=redis_config['port'], db= redis_config['db'])
 
     def post(self):
         """
@@ -55,7 +54,9 @@ class TaskCoordinator(RoheRestObject):
         elif command == 'complete':
             return self._complete_processing()
         else:
-            return jsonify({"error": "Invalid command"}), 400
+            # return jsonify({"error": "Invalid command"}), 400
+            # return json.dumps({"error": "Invalid command"}), 400, {'Content-Type': 'application/json'}
+            return json.dumps({"error": "Invalid command"}), 400
 
     def get(self):
         """
@@ -78,12 +79,15 @@ class TaskCoordinator(RoheRestObject):
         else:
             return json.dumps({"status": "no unprocessed images"}), 404, {'Content-Type': 'application/json'}
 
+    
     def _add_image(self):
-        image_info = {
-            'timestamp': request.form.get('timestamp'),
-            'device_id': request.form.get('device_id'),
-            'image_url': request.form.get('image_url')
-        }
+        # image_info = {
+        #     'request_id': request.form.get('request_id'),
+        #     'timestamp': request.form.get('timestamp'),
+        #     'device_id': request.form.get('device_id'),
+        #     'image_url': request.form.get('image_url'),
+        # }
+        image_info = self._get_image_info(request= request)
         if all(image_info.values()):
             serialized_image_info = utils.serialize(image_info)
             self.redis.lpush("unprocessed_images", serialized_image_info)
@@ -92,20 +96,44 @@ class TaskCoordinator(RoheRestObject):
             return json.dumps({"error": "Some required fields are missing"}), 400, {'Content-Type': 'application/json'}
 
     def _complete_processing(self):
-        image_id = request.form.get('image_id')
-        if image_id:
-            self.redis.lrem("processing_images", 0, image_id)
-            self.redis.lpush("processed_images", image_id)
-            return jsonify({"status": "success"}), 200
+        # image_info = {
+        #     'request_id': request.form.get('request_id'),
+        #     'timestamp': request.form.get('timestamp'),
+        #     'device_id': request.form.get('device_id'),
+        #     'image_url': request.form.get('image_url'),
+        # }
+        image_info = self._get_image_info(request= request)
+        logging.info(f"This is image info got")
+        if image_info:
+            print(f"This is the image info: {image_info}")
+            serialized_image_info = utils.serialize(image_info)
+            result = self.redis.lrem("processing_images", 0, serialized_image_info)
+            print(f"This is the result: {result}")
+            if result >= 1:
+                self.redis.lpush("processed_images", serialized_image_info)
+                return json.dumps({"status": "success"}), 200, {'Content-Type': 'application/json'}
+            return json.dumps({"error": "Image info is not valid. Or the image is already processed and report by another instance. Do not need to repeat"}), 400, {'Content-Type': 'application/json'}
         else:
-            return jsonify({"error": "Image ID is missing"}), 400
+            return json.dumps({"error": "Image info is missing"}), 400, {'Content-Type': 'application/json'}
 
+    def _get_image_info(self, request):
+        image_info = {
+            'request_id': request.form.get('request_id'),
+            'timestamp': request.form.get('timestamp'),
+            'device_id': request.form.get('device_id'),
+            'image_url': request.form.get('image_url'),
+        }
+        return image_info
     
+def setup_redis(redis_config):
+    return redis.Redis(host= redis_config['host'], port=redis_config['port'], db= redis_config['db'])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Task Coordinator Service")
     parser.add_argument('--port', type= int, help='default port', default=5000)
     parser.add_argument('--conf', type= str, help='configuration file', 
-    default= "examples/applications/NII/kube_deployment/dataProcessingService/configurations/task_coordinator.json")
+            default= "examples/applications/NII/kube_deployment/dataProcessingService/configurations/task_coordinator.json")
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 
     # Parse the parameters
@@ -121,6 +149,10 @@ if __name__ == '__main__':
     with open(config_file, 'r') as json_file:
         config = json.load(json_file)    
 
+    # initialize dependecy before passing to the restful server
+    redis = setup_redis(redis_config= config['redis_server'])
+
+    config['redis'] = redis
 
     taskCoordinatorService = RoheRestService(config)
     taskCoordinatorService.add_resource(TaskCoordinator, '/task_coordinator')

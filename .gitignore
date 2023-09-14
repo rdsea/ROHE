@@ -16,3 +16,6 @@ __pycache__/
 
 .env
 *.ipynb
+
+test_deployment/
+nii_models

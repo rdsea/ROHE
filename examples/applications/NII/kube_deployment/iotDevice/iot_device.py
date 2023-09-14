@@ -19,10 +19,10 @@ root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
 class IoTDevice:
-    def __init__(self, device_id, broker_address, topic):
+    def __init__(self, device_id, broker_info, topic):
         self.device_id = device_id
-        self.broker_address = broker_address
-        self.topic = topic
+        self.broker_info = broker_info
+        self.topic = broker_info['topic']
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
 
@@ -30,7 +30,8 @@ class IoTDevice:
         print(f"Connected with result code {rc}")
 
     def connect(self):
-        self.client.connect(self.broker_address, 1883, 60)
+        self.client.connect(self.broker_address['url'], self.broker_info['port'], 
+                            self.broker_info['keep_alive'])
 
     def disconnect(self):
         self.client.disconnect()
@@ -52,6 +53,7 @@ class IoTDevice:
         }
 
         self.client.publish(self.topic, json.dumps(payload))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Inference Service")

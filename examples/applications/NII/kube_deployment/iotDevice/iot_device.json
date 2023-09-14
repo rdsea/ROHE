@@ -1,6 +1,8 @@
 {   "device_id": "aaltosea-cam-01",
     "mqtt_config": {
-        "url": "",
-        "topic": "ingestion-topic"
+        "url": "localhost",
+        "port": 1883,
+        "keep_alive": 60,
+        "topic": "shared_topic/rohe/nii_case"
     }
 }

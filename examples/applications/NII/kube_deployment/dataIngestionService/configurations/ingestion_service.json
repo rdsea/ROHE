@@ -15,15 +15,15 @@
 
     "mqtt_config": {
         "broker_info": {
-            "url": "mqtt.eclipse.org",
+            "url": "localhost",
             "port": 1883,
-            "keepalive": 60
+            "keep_alive": 60
         },
-        "client_id": "",
-        "sub_topic": ""
+        "client_id": "server_01",
+        "sub_topic": "$share/ingestion_instances/shared_topic/rohe/nii_case/test"
     },
     "redis_server": {
-        "url": ""
+        "url": "http://localhost:5000/task_coordinator"
     }
 
 }

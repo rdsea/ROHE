@@ -4,3 +4,5 @@ python-dotenv>=1.0.0
 tensorflow==2.12.0
 flask
 flask_restful
+paho-mqtt
+redis

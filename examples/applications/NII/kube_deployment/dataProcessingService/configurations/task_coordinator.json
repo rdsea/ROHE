@@ -1,6 +1,6 @@
 {
     "redis_server": {
-        "host": "redis-service  ",
+        "host": "localhost",
         "port": 6379,
         "db": 0
     }

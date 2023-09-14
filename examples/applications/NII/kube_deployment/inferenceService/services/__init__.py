@@ -1,0 +1,1 @@
+from .objectClassificationService import ClassificationRestService

@@ -8,7 +8,7 @@ import random
 import argparse
 
 
-def send_predict_request(image_array, url='http://localhost:9000/inference_service'):
+def send_predict_request(image_array, url='http://edge-k3s-j6.cs.aalto.fi:9000/inference_service'):
     payload = {
         'command': 'predict',
         'metadata': json.dumps({'shape': '32,32,3', 'dtype': str(image_array.dtype)})
@@ -22,6 +22,8 @@ def main(config):
     test_ds = config['test_ds']
     rate = config['rate']  # Number of requests per second
     server_address = config['server_address']
+
+    print(f"This is server address: {server_address}")
     sleep_time = 1.0 / rate
 
     # # Create some dummy image data (32x32x3)
@@ -47,7 +49,8 @@ if __name__ == '__main__':
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for choosingg model to request")
     parser.add_argument('--server_address', type= str, help='default service address', 
-                        default= "http://localhost:9000/inference_service")
+                        # default= "http://127.0.0.1:39499/inference_service")
+                        default= "http://edge-k3s-j6.cs.aalto.fi:39499/inference_service")
     parser.add_argument('--test_ds', type= str, help='default test dataset path', 
                 default= "/home/vtn/aalto-internship/test_model/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type= int, help='default number of requests per second', default= 20)

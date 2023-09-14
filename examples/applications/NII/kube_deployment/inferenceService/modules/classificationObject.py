@@ -45,15 +45,23 @@ class ClassificationObject(RoheObject):
 
     def predict(self, image: np.ndarray) -> dict:
         try:
+            image = image[np.newaxis, ...]  # Add a batch dimension
             predicted_class_index, confidence_level = self._predict(image)
         except:
-            try:
-                image = image[np.newaxis, ...]  # Add a batch dimension
-                predicted_class_index, confidence_level = self._predict(image)
-            except:
-                # some other error that didn't handle yet
-                predicted_class_index = -1
-                confidence_level = -1
+            # some other error that didn't handle yet
+            predicted_class_index = -1
+            confidence_level = -1
+
+        # try:
+        #     predicted_class_index, confidence_level = self._predict(image)
+        # except:
+        #     try:
+        #         image = image[np.newaxis, ...]  # Add a batch dimension
+        #         predicted_class_index, confidence_level = self._predict(image)
+        #     except:
+        #         # some other error that didn't handle yet
+        #         predicted_class_index = -1
+        #         confidence_level = -1
 
         result = {"class": int(predicted_class_index), "confidence_level": float(confidence_level)}
 

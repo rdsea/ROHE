@@ -8,11 +8,18 @@
     },
 
     "redis_server": {
-        "url": ""
+        "url": "http://localhost:5000/task_coordinator"
     },
 
     "inference_server": {
-        "url": ""
+        "url": "http://localhost:9000/inference_service"
+    },
+
+    "minio_config": {
+        "endpoint_url": "http://128.214.254.126:9000",
+        "access_key": "",
+        "secret_key": "",
+        "bucket_name": "nii-application-image"
     }
 
 }
