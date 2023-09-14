@@ -1,6 +1,6 @@
 # FROM python:3.9
-# FROM arm64v8/python:3.8-slim-buster
-FROM python:3.8-slim-buster
+FROM arm64v8/python:3.8-slim-buster
+# FROM python:3.8-slim-buster
 # FROM nvcr.io/nvidia/l4t-ml:r32.6.1-py3
 
 

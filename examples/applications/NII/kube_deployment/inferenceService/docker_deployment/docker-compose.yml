@@ -1,7 +1,7 @@
 version: '3'
 services:
   nii_inference_server:
-    image: vtn13042000/nii_inference_service_intel:1.0.0
+    image: vtn13042000/nii_inference_service_dev:1.0.0
     ports:
       - "9000:9000"
     volumes:
