@@ -1,8 +1,8 @@
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
 import pymongo
-main_path = config_file = utils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
 from lib.restService import RoheRestObject, RoheRestService
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Mangement Service")
     parser.add_argument('--conf', help='configuration file', default=None)
     parser.add_argument('--path', help='default config path', default="/configurations/observation/observationConfig.json")
-    parser.add_argument('--port', help='default port', default=5010)
+    parser.add_argument('--port', help='default port', default=5011)
 
     # Parse the parameters
     args = parser.parse_args()
@@ -122,9 +122,9 @@ if __name__ == '__main__':
 
     # load configuration file
     if not config_file:
-        config_file = utils.get_parent_dir(__file__,2)+config_path
+        config_file = qoaUtils.get_parent_dir(__file__,2)+config_path
         print(config_file)
-    configuration = utils.load_config(config_file)
+    configuration = qoaUtils.load_config(config_file)
 
     observationService = RoheRestService(configuration)
     observationService.add_resource(RoheObservation, '/agent')

@@ -1,0 +1,39 @@
+{
+    "window":{
+        "interval":{
+            "type": 2,
+            "value": 3
+        },
+        "size":{
+            "type": 2,
+            "value": 100
+        }
+    },
+    "processing":{
+        "function": "dummy",
+        "parser": {
+            "name": "dummy",
+            "metric":{
+                "inference":["accuracy", "confidence"],
+                "data":[
+                    {
+                        "name": "image_width", 
+                        "stage": "Processing",
+                        "aggregate": "mean"
+                    },
+                    {
+                        "name": "image_height", 
+                        "stage": "Processing",
+                        "aggregate": "mean"
+                    }
+                ]
+            }
+            ,
+            "feature":[
+                ["accuracy"],
+                ["accuracy","confidence"],
+                ["image_width","image_height"]
+            ]
+        }      
+    }
+}

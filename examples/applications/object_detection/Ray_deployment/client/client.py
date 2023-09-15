@@ -3,7 +3,7 @@ from threading import Thread
 import os, random,json
 import numpy as np
 from qoa4ml.reports import Qoa_Client
-import qoa4ml.utils as qoa_utils
+import qoa4ml.qoaUtils as qoa_utils
 
 
 def init_env_variables():

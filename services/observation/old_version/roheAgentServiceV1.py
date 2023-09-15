@@ -1,8 +1,8 @@
 
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 import argparse
 import sys
-main_path = config_file = utils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from modules.observation.metricCollector.roheAgentV1 import Observability_Agent, Agent_Service
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--conf', help='configuration file', default="./conf.json")
     parser.add_argument('--port', help='default port', default=5000)
     args = parser.parse_args()
-    config = utils.load_config(args.conf)
+    config = qoaUtils.load_config(args.conf)
     port = int(args.port)
     agent = Observability_Agent(config)
 

@@ -5,7 +5,7 @@ import json, cv2, os
 import numpy as np
 import os, time, uuid, ray
 from qoa4ml.reports import Qoa_Client
-import qoa4ml.utils as qoa_utils
+import qoa4ml.qoaUtils as qoa_utils
 import aggregation
 from yolov8.yolov8 import Yolo8
 from yolov5.yolov5 import Yolo5

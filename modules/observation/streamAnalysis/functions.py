@@ -6,6 +6,10 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=log
 
 import traceback,sys
 
+def dummy_function(data):
+    print(data)
+    return None
+
 def train_isolation_forest(historical_data, feature, random_seed = 1, contamination = 0.05):
     # Train Isolation Forest model
     try:

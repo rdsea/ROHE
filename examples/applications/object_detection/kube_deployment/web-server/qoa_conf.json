@@ -1,0 +1,10 @@
+{
+    "client":{
+        "client_id": "aaltosea1",
+        "instance_name": "yolo web service",
+        "stage_id": "Web Service",
+        "method": "REST",
+        "application": "test",
+        "role": "ml"
+    }
+}

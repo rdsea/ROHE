@@ -1,0 +1,10 @@
+{
+    "client":{
+        "client_id": "aaltosea1",
+        "instance_name": "yolo inference",
+        "stage_id": "Inference",
+        "method": "REST",
+        "application": "test",
+        "role": "ml"
+    }
+}

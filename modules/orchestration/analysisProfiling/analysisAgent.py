@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import matplotlib
 
-from qoa4ml import utils
-lib_path = utils.get_parent_dir(__file__,2)
+from qoa4ml import qoaUtils
+lib_path = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(lib_path)
 from roheObject import RoheObject
 

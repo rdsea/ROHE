@@ -1,12 +1,12 @@
 
 import yaml, os
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 from jinja2 import Environment, FileSystemLoader
 
 
 
-temporary_folder = utils.get_parent_dir(__file__,3)+"/services/orchestration/temp"
-template_folder = utils.get_parent_dir(__file__,3)+"/templates"
+temporary_folder = qoaUtils.get_parent_dir(__file__,3)+"/services/orchestration/temp"
+template_folder = qoaUtils.get_parent_dir(__file__,3)+"/templates"
 jinja_env = Environment(loader=FileSystemLoader(template_folder))
 deployment = jinja_env.get_template("deployment_templates.yaml")
 

@@ -1,8 +1,15 @@
 import requests,time, argparse
 from threading import Thread
 import os, random
+import json
 
-
+parser = argparse.ArgumentParser(description="Data processing")
+parser.add_argument('--th', help='number concurrent thread', default=1)
+parser.add_argument('--sl', help='time sleep', default=1.0)
+args = parser.parse_args()
+concurrent = int(args.th)
+time_sleep = float(args.sl)
+url = 'http://127.0.0.1:5004/inference'
 
 
 def sender(num_thread):
@@ -13,26 +20,10 @@ def sender(num_thread):
         ran_file = random.choice(os.listdir("./image"))
         files = {'image': open("./image/"+ran_file, 'rb')}
         response = requests.post(url, files=files)
-        print("Thread - ",num_thread, " Response:" ,response.content)
+        print("Thread - ",num_thread, " Response:" ,json.loads(response.content))
         count += 1
-        if time_sleep == -1:
-            time.sleep(random.uniform(0.0, 0.95))
-        else:
-            time.sleep(time_sleep)
+        time.sleep(time_sleep)
 
-
-if __name__ == '__main__':
-    # Parse arguments
-    parser = argparse.ArgumentParser(description="Data processing")
-    parser.add_argument('--th', help='number concurrent thread', default=1)
-    parser.add_argument('--sl', help='time sleep', default=-1.0)
-    parser.add_argument('--url', help='time sleep', default='http://130.233.195.205:30004/inference')
-    
-    args = parser.parse_args()
-    concurrent = int(args.th)
-    time_sleep = float(args.sl)
-    url = float(args.url)
- 
-    for i in range(concurrent):
-        t = Thread(target=sender,args=[i])
-        t.start()
+for i in range(concurrent):
+    t = Thread(target=sender,args=[i])
+    t.start()

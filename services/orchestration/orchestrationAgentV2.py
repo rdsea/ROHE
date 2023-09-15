@@ -1,11 +1,11 @@
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 import argparse
 import sys
 import pymongo, time
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 
-main_path = config_file = utils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from modules.orchestration.roheOrchestrationAgent import RoheOrchestrationAgent
 
@@ -226,9 +226,9 @@ if __name__ == '__main__':
     config_path = args.path
     port = args.port
     if not config_file:
-        config_file = utils.get_parent_dir(__file__,2)+config_path
+        config_file = qoaUtils.get_parent_dir(__file__,2)+config_path
         print(config_file)
-    configuration = utils.load_config(config_file)
+    configuration = qoaUtils.load_config(config_file)
     rohe_agent = RoheOrchestrationAgent(configuration,False)
     configuration["agent"] = rohe_agent
     

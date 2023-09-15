@@ -74,7 +74,7 @@ class Yolo8(object):
                 prediction.append(detect_obj)
             return {self.param:prediction}, annotator.result()
 
-    def yolov8_inference(self, image):
+    def yolov_inference(self, image):
         annotator = Annotator(image, line_width=1)
         # Inference
         results = self.model.predict(image, stream=True)
