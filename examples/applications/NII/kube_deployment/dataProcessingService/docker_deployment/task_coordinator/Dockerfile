@@ -2,18 +2,18 @@
 FROM python:3.8-slim-buster
 
 
-WORKDIR /processing-service
+WORKDIR /task-coordinator-service
 
 # Copy only requirements.txt first to leverage Docker cache
-COPY ./requirements.txt /processing-service/requirements.txt
+COPY ./requirements.txt /task-coordinator-service/requirements.txt
 
 RUN apt-get update
 RUN pip3 install -r requirements.txt
 
 # Copy all other files
-COPY . /processing-service/
+COPY . /task-coordinator-service/
 
-EXPOSE 9000
+EXPOSE 5000
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 # CMD ["python", "app.py"]

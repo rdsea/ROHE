@@ -13,7 +13,6 @@ RUN pip3 install -r requirements.txt
 # Copy all other files
 COPY . /processing-service/
 
-EXPOSE 9000
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 # CMD ["python", "app.py"]

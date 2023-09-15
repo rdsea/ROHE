@@ -1,9 +1,9 @@
-
+import os
 import numpy as np
 from lib.roheObject import RoheObject
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
-
+import random
 class ProcessingObject(RoheObject):
     def __init__(self, config, log_level= 2):
         super().__init__()
@@ -12,7 +12,10 @@ class ProcessingObject(RoheObject):
         self.image_dim = config['image_dim']
         self.image_dim = get_image_dim_from_str(self.image_dim)
         self.width: int = int(self.image_dim[0])
-
+        
+        self.tmp_folder = "tmp_folder"
+        if not os.path.exists(self.tmp_folder):
+            os.mkdir(self.tmp_folder)
 
     def process(self, task, minio_connector: MinioConnector) -> dict:
         # task is a dictionary contain 4 key, v pairs
@@ -21,21 +24,27 @@ class ProcessingObject(RoheObject):
         #     'device_id': 
         #     'image_url': 
         # }
-
+        print(f"about to download image from minio: {task['image_url']}")
         # download image from minio storage
-        tmp_array_path = "./tmp_array.npy"
+        index = random.randint(0, 50000)
+        
+        tmp_array_path = f"{self.tmp_folder}/tmp_array_{index}.npy"
         success = minio_connector.download(remote_file_path= task['image_url'],
                                          local_file_path= tmp_array_path)
         if success:
             print("successfully download the image to local storage")
-        # if True:
-            processed_image = self._process(tmp_array_path)
-            processing_result = {
-                "processed_image": processed_image
-            }
-            return processing_result
         else:
+            print("Cannot download the image")
             return None
+        # if True:
+
+        processed_image = self._process(tmp_array_path)
+        processing_result = {
+            "processed_image": processed_image
+        }
+        return processing_result
+        # else:
+        #     return None
 
 
     def _process(self, tmp_array_path) -> np.ndarray:

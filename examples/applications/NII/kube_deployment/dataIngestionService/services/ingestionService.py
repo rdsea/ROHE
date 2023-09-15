@@ -63,7 +63,7 @@ class IngestionService(RoheObject):
         # print("After submitting")
 
     def _process_message(self, client, userdata, msg):
-        # print(f"Begin to process image: {msg}")
+        print(f"Begin to process image: {msg}")
         # payload template = {
         #     'timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
         #     'device_id': "camera01",
@@ -83,7 +83,7 @@ class IngestionService(RoheObject):
         
         image = ingestion_result['image']
         shape = image.shape
-        print(f"successfully get the ingestion result. This is the image shape: {shape}")
+        print(f"\nsuccessfully get the ingestion result. This is the image shape: {shape}")
 
         # print("about to get the image url")
         # # upload to cloud storage
@@ -94,7 +94,7 @@ class IngestionService(RoheObject):
             image_url = self.IngestionAgent.save_to_minio(minio_connector= self.minio_connector,
                                                         payload= ingestion_result)
         
-        print(f"This is the image url: {image_url}")
+        # print(f"This is the image url: {image_url}")
         
         # notify task coordinator
         if image_url is not None:
@@ -113,9 +113,9 @@ class IngestionService(RoheObject):
 
             response = requests.post(self.redis_like_service_url, data=payload)
             # print(f"This is the repsonse: {response}")
-            print(f"This is the redis server repsonse: {response.json()}")
+            # print(f"This is the redis server repsonse: {response.json()}")
             if response.status_code == 200:
-                print(f"Successfully notified Redis-like service for {payload}")
+                print(f"\nSuccessfully notified Redis-like service for {payload}\n\n")
                 return True
             else:
                 print(f"Failed to notify Redis-like service for {payload}")

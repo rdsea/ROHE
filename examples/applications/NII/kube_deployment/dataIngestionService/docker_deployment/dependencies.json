@@ -1,9 +1,9 @@
 {
     "relevant_folders": [
             "lib",
-            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/modules",
-            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/services",
-            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/configurations"
+            "examples/applications/NII/kube_deployment/dataIngestionService/modules",
+            "examples/applications/NII/kube_deployment/dataIngestionService/services",
+            "examples/applications/NII/kube_deployment/dataIngestionService/configurations"
     ],
     
     "relevant_files": [

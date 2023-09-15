@@ -28,7 +28,7 @@ from examples.applications.NII.kube_deployment.dataIngestionService.services.ing
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")
     parser.add_argument('--conf', type= str, help='configuration file', 
-            default= "examples/applications/NII/kube_deployment/dataIngestionService/configurations/ingestion_service.json")
+            default= "app.json")
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 
     # Parse the parameters

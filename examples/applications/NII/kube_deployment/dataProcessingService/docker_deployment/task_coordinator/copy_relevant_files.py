@@ -11,7 +11,6 @@ def ensure_directory_exists(directory):
         os.makedirs(directory)
         
 def copy_folder(src_folder, dst_folder):
-    ensure_directory_exists(dst_folder)
     if os.path.exists(dst_folder):
         shutil.rmtree(dst_folder)
     shutil.copytree(src_folder, dst_folder)
@@ -32,7 +31,7 @@ def get_parent_dir(file_path, levels_up=1):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('--conf', type= str, help='configuration file', 
-                        default= "config.json")
+                        default= "dependencies.json")
 
     args = parser.parse_args()
     config_file = args.conf
@@ -61,6 +60,7 @@ if __name__ == "__main__":
     for folder in relevant_folders:
         src = os.path.join(root_path, folder)
         dst = os.path.join(build_context, folder)
+        
 
         print(f"this is root path: {root_path}")
         print(f"This is source: {src}")

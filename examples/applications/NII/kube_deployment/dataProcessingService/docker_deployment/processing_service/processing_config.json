@@ -19,7 +19,7 @@
         "endpoint_url": "http://128.214.254.126:9000",
         "access_key": "",
         "secret_key": "",
-        "bucket_name": "nii-application-image"
+        "bucket_name": "nii-application-unprocessed-image"
     }
 
 }

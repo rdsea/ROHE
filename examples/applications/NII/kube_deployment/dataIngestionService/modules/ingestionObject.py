@@ -37,7 +37,7 @@ class IngestionObject(RoheObject):
         # upload to the cloud storage
         date_str = datetime.datetime.utcnow().strftime('%d-%m-%y')
         remote_file_path = f"{payload['device_id']}/{str(date_str)}/{file_name}"
-        print(f"This is the remote file path: {remote_file_path}")
+        # print(f"This is the remote file path: {remote_file_path}")
         success = minio_connector.upload(local_file_path= local_file_path,
                                     remote_file_path= remote_file_path)
         # after uploading to the cloud storage, erase the temp file
@@ -84,6 +84,7 @@ class IngestionObject(RoheObject):
         }
 
         # print(f"This is the result of ingestion: {result}")
+        print(f"Ingestion process complete")
 
         return result
 

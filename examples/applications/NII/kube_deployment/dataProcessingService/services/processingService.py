@@ -50,7 +50,7 @@ class ProcessingService(RoheObject):
     def _get_task_from_coordinator(self) -> dict:
         response = requests.get(self.task_coordinator_url)
         if response.status_code == 200:
-            print("Response Text:", response.text)
+            print("This is the source text from task coordinator:", response.text)
             response_dict = json.loads(response.text) 
             # response_dict = json.loads(json.loads(response.text))  # Double json.loads()
             # print(f"This is the response_dict: {response_dict}")  
@@ -58,9 +58,10 @@ class ProcessingService(RoheObject):
             try:
                 task = response_dict['image_info']
             except Exception as e:
-                print(e)
+                print(f"This is the error: {e}")
                 # attempt to double decode to make it to be a dict
                 task = json.loads(response_dict)['image_info']
+                print(f"The second attempt to load text: {task}")
             return task
         else:
             logging.info("No image to be processed yet")

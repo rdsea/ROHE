@@ -60,6 +60,7 @@ if __name__ == "__main__":
     for folder in relevant_folders:
         src = os.path.join(root_path, folder)
         dst = os.path.join(build_context, folder)
+        
 
         print(f"this is root path: {root_path}")
         print(f"This is source: {src}")
