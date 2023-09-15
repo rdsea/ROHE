@@ -31,7 +31,7 @@ def get_parent_dir(file_path, levels_up=1):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('--conf', type= str, help='configuration file', 
-                        default= "config.json")
+                        default= "dependencies.json")
 
     args = parser.parse_args()
     config_file = args.conf

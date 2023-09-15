@@ -22,10 +22,10 @@ up_level = 7
 root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
-from examples.applications.NII.kube_deployment.inferenceService.modules import ClassificationObject
-from examples.applications.NII.utilities import MinioConnector
+from examples.applications.NII.kube_deployment.inferenceService.modules.classificationObject import ClassificationObject
+from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
-from lib import RoheRestObject, RoheRestService
+from lib.restService import RoheRestObject, RoheRestService
 
 
 
@@ -135,6 +135,8 @@ class ClassificationRestService(RoheRestObject):
             
     def _check_dim(self, metadata) -> bool:
         original_shape = get_image_dim_from_str(metadata['shape'])
+        print(f"This is the shape of the received image: {original_shape}")
+        # print(f"This is the shape of the received image: {original_shape}")
         if original_shape == self.MLAgent.input_shape:
             return True
         return False

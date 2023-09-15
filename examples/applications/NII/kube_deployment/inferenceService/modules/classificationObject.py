@@ -3,7 +3,7 @@ import json
 import tensorflow as tf
 import numpy as np
 
-from lib import RoheObject
+from lib.roheObject import RoheObject
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 
 class ClassificationObject(RoheObject):

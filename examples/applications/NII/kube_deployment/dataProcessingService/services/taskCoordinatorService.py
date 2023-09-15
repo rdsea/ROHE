@@ -20,7 +20,7 @@ root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
 
-from lib import RoheRestObject, RoheRestService
+from lib.restService import RoheRestObject, RoheRestService
 import examples.applications.NII.utilities.utils as utils
 
 class TaskCoordinator(RoheRestObject):
@@ -49,6 +49,7 @@ class TaskCoordinator(RoheRestObject):
         :return: JSON response indicating the status of the command or an error message.
         """
         command = request.form.get('command')
+        print(f"This is the command get from the client: {command}")
         if command == 'add':
             return self._add_image()
         elif command == 'complete':
@@ -56,7 +57,7 @@ class TaskCoordinator(RoheRestObject):
         else:
             # return jsonify({"error": "Invalid command"}), 400
             # return json.dumps({"error": "Invalid command"}), 400, {'Content-Type': 'application/json'}
-            return json.dumps({"error": "Invalid command"}), 400
+            return json.dumps({"error": f"Invalid command as {command}"}), 400
 
     def get(self):
         """

@@ -24,10 +24,10 @@ sys.path.append(root_path)
 
 print(root_path)
 
-from lib import RoheRestService
-from examples.applications.NII.kube_deployment.inferenceService.modules import ClassificationObject
-from examples.applications.NII.kube_deployment.inferenceService.services import ClassificationRestService
-from examples.applications.NII.utilities import MinioConnector
+from lib.restService import RoheRestService
+from examples.applications.NII.kube_deployment.inferenceService.modules.classificationObject import ClassificationObject
+from examples.applications.NII.kube_deployment.inferenceService.services.objectClassificationService import ClassificationRestService
+from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 
 
 def load_minio_storage(storage_info):

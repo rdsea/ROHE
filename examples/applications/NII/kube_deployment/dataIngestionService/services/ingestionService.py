@@ -5,6 +5,11 @@ import json
 
 import argparse
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
+from threading import Lock
 
 # set the ROHE to be in the system path
 def get_parent_dir(file_path, levels_up=1):
@@ -18,9 +23,10 @@ up_level = 7
 root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
-from lib import RoheObject
-from examples.applications.NII.utilities import MqttSubscriber, MinioConnector
-from examples.applications.NII.kube_deployment.dataIngestionService.modules import IngestionObject
+from lib.roheObject import RoheObject
+from examples.applications.NII.utilities.mqttSubscriber import MqttSubscriber
+from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
+from examples.applications.NII.kube_deployment.dataIngestionService.modules.ingestionObject import IngestionObject
 
 class IngestionService(RoheObject):
     def __init__(self, config):
@@ -31,6 +37,17 @@ class IngestionService(RoheObject):
         # ingestion object to deal with the ingestion process
         ingestion_config = config.get('ingestion_config', {})
 
+
+        # # Minio Connector for uploading image
+        # self.minio_connector = MinioConnector(storage_info= config['minio_config'])
+        self.minio_connector: MinioConnector = config['minio_connector']
+
+        self.storage_lock: Lock = config['storage_lock']
+
+        # to notify the redis server - communicate with the processing stage
+        self.redis_like_service_url = config['redis_server']['url']
+        print(f"\n\n\n This is the address of redis server: {self.redis_like_service_url}")
+
         # create multi threads to handle the upcomming message
         self.max_thread = config.get('max_thread', 3)
         self.thread_pool = ThreadPoolExecutor(self.max_thread)
@@ -40,21 +57,13 @@ class IngestionService(RoheObject):
         # MQTT subscriber to get message from IoT devices
         self.mqtt_subscriber = MqttSubscriber(host_object=self, **config['mqtt_config']) 
 
-        # Minio Connector for uploading image
-        self.minio_connector = MinioConnector(storage_info= config['minio_config'])
-
-
-        # to notify the redis server - communicate with the processing stage
-        self.redis_like_service_url = config['redis_server']['url']
-
-
     def message_processing(self, client, userdata, msg):
-        print(f'Receive message from mqtt broker: {msg}')
+        # print(f'Receive message from mqtt broker: {msg}')
         self.thread_pool.submit(self._process_message, client, userdata, msg)
-        print("After submitting")
+        # print("After submitting")
 
     def _process_message(self, client, userdata, msg):
-        print(f"Begin to process image: {msg}")
+        # print(f"Begin to process image: {msg}")
         # payload template = {
         #     'timestamp': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
         #     'device_id': "camera01",
@@ -68,28 +77,43 @@ class IngestionService(RoheObject):
         # print(f"This is the payload: {payload}")
         # go through the ingestion stage 
         ingestion_result = self.IngestionAgent.ingest(payload)
+        if ingestion_result == None:
+            print("Fail to process the file. User file extension is not supported yet.")
+            return False
+        
         image = ingestion_result['image']
         shape = image.shape
-
         print(f"successfully get the ingestion result. This is the image shape: {shape}")
 
-        # upload to cloud storage
-        image_url = self.IngestionAgent.save_to_minio(minio_connector= self.minio_connector,
-                                                      payload= payload)
+        # print("about to get the image url")
+        # # upload to cloud storage
+        with self.storage_lock:
+            # print("Enter this block")
+            # self.IngestionAgent.save_to_minio(minio_connector= self.minio_connector,
+            #                                             payload= payload)
+            image_url = self.IngestionAgent.save_to_minio(minio_connector= self.minio_connector,
+                                                        payload= ingestion_result)
+        
+        print(f"This is the image url: {image_url}")
         
         # notify task coordinator
         if image_url is not None:
             # Prepare the payload for Redis-like service
             payload = {
+                "command": "add",
                 "request_id": ingestion_result.get("request_id"),
                 "timestamp": ingestion_result.get("timestamp"),
                 "device_id": ingestion_result.get("device_id"),
                 "image_url": image_url,
             }
 
-            print(f"About to send message to redis like server: {payload}")
+            # print(f"About to send message to redis like server: {payload}")
             # Notify Redis-like service
-            response = requests.post(self.redis_like_service_url, json=payload)
+            # print(f"This is the redis like server address: {self.redis_like_service_url}")
+
+            response = requests.post(self.redis_like_service_url, data=payload)
+            # print(f"This is the repsonse: {response}")
+            print(f"This is the redis server repsonse: {response.json()}")
             if response.status_code == 200:
                 print(f"Successfully notified Redis-like service for {payload}")
                 return True
@@ -121,6 +145,7 @@ if __name__ == '__main__':
     if relative_path:
         config_file = os.path.join(root_path, config_file)
 
+    storage_lock = Lock()
     # load configuration file
     with open(config_file, 'r') as json_file:
         config = json.load(json_file)    
@@ -128,5 +153,12 @@ if __name__ == '__main__':
     config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
     config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
 
+    # Minio Connector for uploading image
+    minio_connector = MinioConnector(storage_info= config['minio_config'])
+    config['minio_connector'] = minio_connector
+
+    config['storage_lock'] = storage_lock
+
+    print(f"This is the minio connector: {minio_connector}")
     service = IngestionService(config= config)
     service.run()

@@ -3,6 +3,6 @@
         "url": "localhost",
         "port": 1883,
         "keep_alive": 60,
-        "topic": "shared_topic/rohe/nii_case"
+        "topic": "shared_topic/rohe/nii_case/test"
     }
 }

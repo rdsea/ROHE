@@ -22,9 +22,9 @@ up_level = 7
 root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
-from examples.applications.NII.kube_deployment.dataProcessingService.modules import ProcessingObject
+from examples.applications.NII.kube_deployment.dataProcessingService.modules.processingObject import ProcessingObject
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
-from lib import RoheObject
+from lib.roheObject import RoheObject
 
 
 class ProcessingService(RoheObject):
@@ -46,18 +46,6 @@ class ProcessingService(RoheObject):
         self.max_request_period = config['processing_config']['max_request_period']
         self.request_period = self.min_request_period
 
-
-    # def _get_task_from_coordinator(self) -> dict:
-    #     response = requests.get(self.task_coordinator_url)
-    #     if response.status_code == 200:
-    #         response = json.loads(response.text)
-    #         # response = utils.deserialize(response)
-    #         print(f"This is the response: {response}")
-    #         print(f"This is the response type: {type(response)}")
-    #         return response['image_info']
-    #     else:
-    #         logging.info("No image to be processed yet")
-    #         return None
 
     def _get_task_from_coordinator(self) -> dict:
         response = requests.get(self.task_coordinator_url)

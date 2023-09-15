@@ -1,1 +1,1 @@
-from .objectClassificationService import ClassificationRestService
+# from .objectClassificationService import ClassificationRestService

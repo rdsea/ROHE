@@ -17,7 +17,7 @@ def delete_file(file_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Delete folders and files listed in the configuration file.")
-    parser.add_argument('--conf', type=str, help='Configuration file', default="config.json")
+    parser.add_argument('--conf', type=str, help='Configuration file', default="dependencies.json")
     args = parser.parse_args()
     config_file = args.conf
 

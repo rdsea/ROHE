@@ -1,0 +1,15 @@
+{
+    "relevant_folders": [
+            "lib",
+            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/modules",
+            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/services",
+            "/home/vtn/aalto-internship/ROHE/examples/applications/NII/kube_deployment/dataIngestionService/configurations"
+    ],
+    
+    "relevant_files": [
+            "examples/applications/NII/utilities/boto3StorageConnector.py",
+            "examples/applications/NII/utilities/minioStorageConnector.py",
+            "examples/applications/NII/utilities/mqttSubscriber.py",
+            "examples/applications/NII/utilities/utils.py"
+    ]
+}
