@@ -1,31 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nii-processing-server
+  name: nii-processing-server-deployment
+  labels:
+    app: nii-processing-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nii-processing
+      app: nii-processing-server
   template:
     metadata:
       labels:
-        app: nii-processing
+        app: nii-processing-server
     spec:
-      hostAliases:
-      - ip: "192.168.205.85"  # Replace with your host machine's IP address
-        hostnames:
-        - "host-machine"
       containers:
       - name: nii-processing-server
         image: vtn13042000/nii_processing_service_intel:1.0.0
         resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
           limits:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "250m"
+            memory: "128Mi"
         env:
         - name: minio_client_access_key
           value: "prJxdafe7L400AAXScc8"
@@ -42,4 +40,5 @@ spec:
       volumes:
       - name: processing-config
         hostPath:
-          path: ./processing_config.json
+          path: processing_config.json
+          type: File

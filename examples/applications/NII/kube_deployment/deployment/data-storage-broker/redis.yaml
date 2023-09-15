@@ -40,4 +40,3 @@ spec:
     - protocol: TCP
       port: 6379
       targetPort: 6379
-  type: NodePort  # Exposes the Service on each Node’s IP at a static port

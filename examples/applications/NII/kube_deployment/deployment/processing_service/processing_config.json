@@ -1,0 +1,25 @@
+{
+    "max_thread": 3,
+
+    "processing_config": {
+        "min_request_period": 1,
+        "max_request_period": 30,
+        "image_dim": "32,32,3"
+    },
+
+    "redis_server": {
+        "url": "http://192.168.205.85:5000/task_coordinator"
+    },
+
+    "inference_server": {
+        "url": "http://192.168.205.85:9000/inference_service"
+    },
+
+    "minio_config": {
+        "endpoint_url": "http://128.214.254.126:9000",
+        "access_key": "",
+        "secret_key": "",
+        "bucket_name": "nii-application-unprocessed-image"
+    }
+
+}
