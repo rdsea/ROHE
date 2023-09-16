@@ -19,10 +19,13 @@ The ORS is in $ROHE/services/observation
     - Run `python roheRegistrationServiceV2.py`
     - This service is used to register application and QoaClient
 
+### Start edge-inference-server
 
-- Start edge-inference-server
-    - Navigate to example/application/object_detection/kube_deployment/edge-inference-server
-    - Run `python server.py`
+- Navigate to examples/applications/object_detection/kube_deployment/edge-inference-server
+- Install dependencies for the inference server
+
+- Run `python server.py`
+
     - The QoAClient in this service will register with Observation Registration Server by default
 
 - Start pre-processing server
