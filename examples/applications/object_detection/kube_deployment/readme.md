@@ -1,9 +1,18 @@
 To run edge-inference-server, you must download yolov5 and yolov8 and unzip them in "lib" folder
 Link: https://drive.google.com/file/d/1oI8ahTMELdbdAoBWgqmPZnMjJ43hoCvJ/view?usp=drive_link, https://drive.google.com/file/d/1RyyuJwn9t1LpWt6QE25j13HrJZ3cCZwK/view?usp=drive_link
 
-- Install the environment with anaconda3 using environment.yml
+### Setting up Conda environment 
 
+- Install the environment with anaconda3 using environment.yml
+> Modify the environment.yml with your suitable prefix
+```
+conda env create  --file environment.yml
+```
 - Enable the environemnt with anaconda3
+
+### Running Observation Registration Service
+
+The ORS is in $ROHE/services/observation 
 
 - Start the Observation Registration Server: 
     - Navigate to services/observation/
