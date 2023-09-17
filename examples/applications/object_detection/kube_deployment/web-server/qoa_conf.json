@@ -1,8 +1,8 @@
 {
     "client":{
         "client_id": "aaltosea1",
-        "instance_name": "yolo web service",
-        "stage_id": "Web Service",
+        "instance_name": "yolo_web_service",
+        "stage_id": "Web_Service",
         "method": "REST",
         "application": "test",
         "role": "ml"

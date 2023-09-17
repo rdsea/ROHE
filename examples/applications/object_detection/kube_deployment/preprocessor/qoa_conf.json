@@ -1,8 +1,8 @@
 {
     "client":{
         "client_id": "aaltosea1",
-        "instance_name": "yolo processing",
-        "stage_id": "Image Processing",
+        "instance_name": "yolo_processing",
+        "stage_id": "Image_Processing",
         "method": "REST",
         "application": "test",
         "role": "ml"

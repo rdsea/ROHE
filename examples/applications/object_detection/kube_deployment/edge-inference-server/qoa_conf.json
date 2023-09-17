@@ -1,7 +1,7 @@
 {
     "client":{
         "client_id": "aaltosea1",
-        "instance_name": "yolo inference",
+        "instance_name": "yolo_inference",
         "stage_id": "Inference",
         "method": "REST",
         "application": "test",
