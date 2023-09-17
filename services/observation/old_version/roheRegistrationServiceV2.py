@@ -137,6 +137,3 @@ if __name__ == '__main__':
     rgistrationService = RoheRestService(configuration)
     rgistrationService.add_resource(RoheRegistration, '/registration')
     rgistrationService.run()
-
-    # api.add_resource(RoheRegistration, '/registration',resource_class_kwargs=configuration)
-    # app.run(debug=True, port=port, host="0.0.0.0")
