@@ -10,28 +10,25 @@
         }
     },
     "processing":{
-        "function": "dummy",
+        "function": "detect_local_outlier_factor",
         "parser": {
-            "name": "dummy",
+            "name": "objectDetectionParser",
             "metric":{
-                "inference":["accuracy", "confidence"],
                 "data":[
                     {
                         "name": "image_width", 
-                        "stage": "Processing",
+                        "stage": "Image_Processing",
                         "aggregate": "mean"
                     },
                     {
                         "name": "image_height", 
-                        "stage": "Processing",
+                        "stage": "Image_Processing",
                         "aggregate": "mean"
                     }
                 ]
             }
             ,
             "feature":[
-                ["accuracy"],
-                ["accuracy","confidence"],
                 ["image_width","image_height"]
             ]
         }      
