@@ -1,3 +1,4 @@
+import traceback
 import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
@@ -7,6 +8,8 @@ sys.path.append(main_path)
 from modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
 from lib.restService import RoheRestObject, RoheRestService
 from flask import jsonify, request
+
+DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.json"
 
 local_agent_list = {}
 
@@ -218,22 +221,24 @@ if __name__ == '__main__':
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Rohe Observation Service")
     parser.add_argument('--conf', help='configuration file', default=None)
-    parser.add_argument('--path', help='default config path', default="/configurations/observation/observationConfig.json")
+    #parser.add_argument('--path', help='default config path', default="/configurations/observation/observationConfig.json")
     parser.add_argument('--port', help='default port', default=5010)
 
     # Parse the parameters
     args = parser.parse_args()
     config_file = args.conf
-    config_path = args.path
+    #config_path = args.path
     port = int(args.port)
 
     # load configuration file
     if not config_file:
-        config_file = qoaUtils.get_parent_dir(__file__,2)+config_path
+        config_file = qoaUtils.get_parent_dir(__file__,2)+DEFAULT_CONFIG_PATH
         print(config_file)
-    configuration = qoaUtils.load_config(config_file)
-
-    observationService = RoheRestService(configuration)
-    observationService.add_resource(RoheObservation, '/agent')
-    observationService.add_resource(RoheRegistration, '/registration')
-    observationService.run(port=port)
+    try:
+        configuration = qoaUtils.load_config(config_file)
+        observationService = RoheRestService(configuration)
+        observationService.add_resource(RoheObservation, '/agent')
+        observationService.add_resource(RoheRegistration, '/registration')
+        observationService.run(port=port)
+    except:
+        traceback.print_exc()
