@@ -10,6 +10,12 @@ conda env create  --file environment.yml
 ```
 - Enable the environemnt with anaconda3
 
+### Note on local dependencies
+Currently some codes use $ROHE_ROOT_DIR/lib/*.py. Thus, the follow path may need to be set:
+```
+export PYTHONPATH=$ROHE_ROOT_DIR
+```
+
 ### Running Observation Registration Service
 
 The ORS is in $ROHE/services/observation 
