@@ -6,4 +6,6 @@
         "method": "REST",
         "application": "test",
         "role": "ml"
-    }}
+    },
+    "registration_url":"http://localhost:5010/registration"
+}

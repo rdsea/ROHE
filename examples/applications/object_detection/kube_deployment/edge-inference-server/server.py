@@ -13,13 +13,9 @@ qoa_conf_path = os.environ.get('QOA_CONF_PATH')
 if not qoa_conf_path:
     qoa_conf_path = "./qoa_conf.json"
 
-qoa_reg_link = os.environ.get('QOA_REG_LINK')
-if not qoa_reg_link:
-    qoa_reg_link = "http://localhost:5010/registration"
 
 qoa_conf = qoa_utils.load_config(qoa_conf_path)
-
-qoaClient = QoaClient(config_dict=qoa_conf, registration_url=qoa_reg_link)
+qoaClient = QoaClient(config_dict=qoa_conf)
 
 
 lib_level = os.environ.get('LIB_LEVEL')
@@ -77,8 +73,8 @@ class MLInferenceObject(ImageInferenceObject):
 if __name__ == '__main__': 
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Rohe Registration Service")
-    parser.add_argument('--conf', help='configuration file', default="./conf.json")
-    parser.add_argument('--port', help='default port', default=5002)
+    parser.add_argument('--conf', help='configuration file of ensemble ML compositon', default="./conf.json")
+    parser.add_argument('--port', help='default service port', default=5002)
     args = parser.parse_args()
 
     
