@@ -1,18 +1,5 @@
-from lib.yolov8.yolov8 import Yolo8
-from lib.yolov5.yolov5 import Yolo5
+from lib.yolo.modelLoader import YoloInference   
 from lib.restService import RoheRestService
-
-class YoloInference:
-    def __init__(self, param, version):
-        self.param = param
-        if version == 5:
-            self.model = Yolo5(param)
-        elif version == 8:
-            self.model = Yolo8(param)
-
-    def predict(self, image, report_list=[]):
-        prediction, pre_img = self.model.yolov_inference(image)
-        return {"prediction": prediction, "image": pre_img}, {}
     
 
 class YoloRestService(RoheRestService): 

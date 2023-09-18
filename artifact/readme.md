@@ -1,0 +1,1 @@
+This folder is used to stored artifacts: ML models

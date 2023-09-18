@@ -5,10 +5,6 @@ import argparse
 from dotenv import load_dotenv
 load_dotenv()
 import threading
-from qoa4ml import qoaUtils
-from qoa4ml.QoaClient import QoaClient
-
-
 
 # set the ROHE to be in the system path
 def get_parent_dir(file_path, levels_up=1):

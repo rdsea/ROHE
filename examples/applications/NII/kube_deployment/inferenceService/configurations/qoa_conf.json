@@ -1,0 +1,11 @@
+{ 
+    "client":{
+         "client_id": "aaltosea2",
+        "instance_name": "inference_service01",
+        "stage_id": "ML_Inference",
+        "method": "REST",
+        "application": "test",
+        "role": "ml"
+    },
+    "registration_url":"http://localhost:5010/registration"
+}

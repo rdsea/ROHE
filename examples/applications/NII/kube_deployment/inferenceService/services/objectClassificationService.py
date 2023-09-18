@@ -6,28 +6,30 @@ from dotenv import load_dotenv
 load_dotenv()
 from flask import request
 import threading
-
 from typing import Dict, Optional
-
+import qoa4ml.qoaUtils as qoa_utils
+from qoa4ml.QoaClient import QoaClient
 
 # set the ROHE to be in the system path
-def get_parent_dir(file_path, levels_up=1):
-    file_path = os.path.abspath(file_path)  # Get the absolute path of the running file
-    parent_path = file_path
-    for _ in range(levels_up):
-        parent_path = os.path.dirname(parent_path)
-    return parent_path
+lib_level = os.environ.get('LIB_LEVEL')
+if not lib_level:
+    lib_level = 6
 
-up_level = 7
-root_path = get_parent_dir(__file__, up_level)
-sys.path.append(root_path)
+main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+sys.path.append(main_path)
+
+qoa_conf_path = os.environ.get('QOA_CONF_PATH')
+if not qoa_conf_path:
+    qoa_conf_path = "./examples/applications/NII/kube_deployment/inferenceService/configurations/qoa_conf.json"
+
+qoa_conf = qoa_utils.load_config(qoa_conf_path)
+qoaClient = QoaClient(config_dict=qoa_conf)
+
 
 from examples.applications.NII.kube_deployment.inferenceService.modules.classificationObject import ClassificationObject
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 from lib.restService import RoheRestObject, RoheRestService
-
-
 
 from datetime import datetime
 
@@ -81,6 +83,8 @@ class ClassificationRestService(RoheRestObject):
         """
 
         try:
+            qoaClient.timer()  
+
             command = request.form.get('command')
             handler = self.post_command_handlers.get(command)
 
