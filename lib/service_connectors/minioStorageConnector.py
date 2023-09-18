@@ -1,17 +1,17 @@
-import os
+# import os
 import logging
 
 import boto3
 from botocore.client import Config
 
-from time import sleep
+# from time import sleep
 
 logging.getLogger(__name__)
 
-from .boto3StorageConnector import Boto3Connector, StorageInfo
+from lib.service_connectors.boto3StorageConnector import Boto3Connector, StorageInfo
 
 class MinioConnector(Boto3Connector):
-    time_sleep = 10
+    # time_sleep = 10
     def __init__(self, storage_info, parent= None):
         storage_info = StorageInfo(**storage_info)
         

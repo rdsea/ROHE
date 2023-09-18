@@ -1,37 +1,23 @@
-import os, sys
+import os
 import json
 import numpy as np
-import argparse
-from dotenv import load_dotenv
-load_dotenv()
 from flask import request
-import threading
 from typing import Dict, Optional
+
+
+from lib.NII.modules.classificationObject import NIIClassificationObject
+from lib.service_connectors.minioStorageConnector import MinioConnector
+from lib.restService import RoheRestObject
+
 import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient
-
-# set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 6
-
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
-sys.path.append(main_path)
 
 qoa_conf_path = os.environ.get('QOA_CONF_PATH')
 if not qoa_conf_path:
     qoa_conf_path = "./examples/applications/NII/kube_deployment/inferenceService/configurations/qoa_conf.json"
 
 qoa_conf = qoa_utils.load_config(qoa_conf_path)
-qoaClient = QoaClient(config_dict=qoa_conf)
-
-
-from examples.applications.NII.kube_deployment.inferenceService.modules.classificationObject import ClassificationObject
-from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
-from examples.applications.NII.utilities.utils import get_image_dim_from_str
-from lib.restService import RoheRestObject, RoheRestService
-
-from datetime import datetime
+# qoaClient = QoaClient(config_dict=qoa_conf)
 
 
 # class ClassificationRestService():
@@ -45,9 +31,6 @@ class ClassificationRestService(RoheRestObject):
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
-        # set minio storage connector
-        self.minio_connector = self.conf['minio_connector']
-
         #Init model configuration (architecture, weight file)
         ############################################################################################################################################
         # The REST AGENT should not manage ML model. We should separate REST and ML -> Use classificationObject in module to manage ML models
@@ -59,8 +42,11 @@ class ClassificationRestService(RoheRestObject):
         # - others: set/get weight, modify structure...
         ############################################################################################################################################
 
+        # set minio storage connector
+        self.minio_connector = self.conf['minio_connector']
+
         # set model handler module
-        self.MLAgent: ClassificationObject = self.conf['MLAgent']
+        self.MLAgent: NIIClassificationObject = self.conf['MLAgent']
 
         # set model lock
         self.model_lock = self.conf['lock']
@@ -83,7 +69,7 @@ class ClassificationRestService(RoheRestObject):
         """
 
         try:
-            qoaClient.timer()  
+            # qoaClient.timer()  
 
             command = request.form.get('command')
             handler = self.post_command_handlers.get(command)
@@ -223,7 +209,7 @@ class ClassificationRestService(RoheRestObject):
                 "architecture_file": request.form.get('architecture_url')
             }
             
-            new_model = self.MLAgent.load_model(files= files)
+            new_model = self.MLAgent.load_model_from_config(**files)
 
             with self.model_lock:
                 self.MLAgent.change_model(new_model)
@@ -292,46 +278,5 @@ def load_minio_storage(storage_info):
     return minio_connector
 
 
-if __name__ == '__main__': 
-    # init_env_variables()
-    parser = argparse.ArgumentParser(description="Argument for Inference Service")
-    parser.add_argument('--port', type= int, help='default port', default=9000)
-
-    parser.add_argument('--conf', type= str, help='configuration file', 
-            default= "examples/applications/NII/kube_deployment/inferenceService/configurations/inference_service.json")
-
-    parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
-
-    # Parse the parameters
-    args = parser.parse_args()
-
-    port = int(args.port)
-    config_file = args.conf
-    relative_path = args.relative_path
-
-    if relative_path:
-        config_file = os.path.join(root_path, config_file)
-
-    # load configuration file
-    with open(config_file, 'r') as json_file:
-        config = json.load(json_file)    
-
-    config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
-    config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
-
-
-    # load minio connector and ML Agent here
-    minio_connector = load_minio_storage(storage_info= config.get('minio_config', {})) 
-    MLAgent = ClassificationObject(files= config['model']['files'],
-                                    input_shape= config['model']['input_shape'],
-                                    model_from_config= True) 
-
-    model_lock = threading.Lock() 
-    config['minio_connector'] = minio_connector
-    config['MLAgent'] = MLAgent
-    config['lock'] = model_lock
-
-    
-    classificationService = RoheRestService(config)
-    classificationService.add_resource(ClassificationRestService, '/inference_service')
-    classificationService.run(port=port)
+def get_image_dim_from_str(str_obj) -> tuple:
+    return tuple(map(int, str_obj.split(',')))

@@ -93,3 +93,9 @@ def save_response_content(response, destination):
         for chunk in response.iter_content(CHUNK_SIZE):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
+
+def message_serialize(dictionary) -> str:
+    return json.dumps(dictionary)
+
+def message_deserialize(string_object) -> dict:
+    return json.loads(string_object.decode("utf-8"))

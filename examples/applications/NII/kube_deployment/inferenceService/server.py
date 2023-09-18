@@ -2,28 +2,29 @@
 import os, sys
 import json
 import argparse
+import threading
+import qoa4ml.qoaUtils as qoa_utils
+
 from dotenv import load_dotenv
 load_dotenv()
-import threading
+
+
 
 # set the ROHE to be in the system path
-def get_parent_dir(file_path, levels_up=1):
-    file_path = os.path.abspath(file_path)  # Get the absolute path of the running file
-    parent_path = file_path
-    for _ in range(levels_up):
-        parent_path = os.path.dirname(parent_path)
-    return parent_path
+lib_level = os.environ.get('LIB_LEVEL')
+if not lib_level:
+    lib_level = 5
 
-up_level = 6
-root_path = get_parent_dir(__file__, up_level)
-print(root_path)
-sys.path.append(root_path)
+main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+print(f"This if main path: {main_path}")
+sys.path.append(main_path)
+
 
 
 from lib.restService import RoheRestService
-from examples.applications.NII.kube_deployment.inferenceService.modules.classificationObject import ClassificationObject
-from examples.applications.NII.kube_deployment.inferenceService.services.objectClassificationService import ClassificationRestService
-from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
+from lib.NII.modules.classificationObject import NIIClassificationObject
+from lib.NII.services.objectClassificationService import ClassificationRestService
+from lib.service_connectors.minioStorageConnector import MinioConnector
 
 
 def load_minio_storage(storage_info):
@@ -49,7 +50,10 @@ if __name__ == '__main__':
     relative_path = args.relative_path
 
     if relative_path:
-        config_file = os.path.join(root_path, config_file)
+        # main_path = qoa_utils.get_parent_dir(__file__,lib_level + 1)
+        print(f"This is root path: {main_path}")
+        config_file = os.path.join(main_path, config_file)
+
 
     # load configuration file
     with open(config_file, 'r') as json_file:
@@ -62,7 +66,8 @@ if __name__ == '__main__':
     print(f"\n\nThis is config file: {config}\n\n")
     # load minio connector and ML Agent here
     minio_connector = load_minio_storage(storage_info= config.get('minio_config', {})) 
-    MLAgent = ClassificationObject(files= config['model']['files'],
+
+    MLAgent = NIIClassificationObject(model_config= config['model']['files'],
                                     input_shape= config['model']['input_shape'],
                                     model_from_config= True) 
 

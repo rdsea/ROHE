@@ -45,7 +45,8 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
     parser.add_argument('--server_address', type=str, help='default service address',
-                        default="http://127.0.0.1:39499/inference_service")
+                        default="http://127.0.0.1:9000/inference_service")
+                        # default="http://127.0.0.1:39499/inference_service")
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
                         default="/home/vtn/aalto-internship/test_model/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type=int, help='default number of requests per second', default=20)
