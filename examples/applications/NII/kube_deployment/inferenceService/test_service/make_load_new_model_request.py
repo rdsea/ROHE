@@ -12,7 +12,8 @@ parser.add_argument('--conf', type= str, help='model configuration file',
                     # default= "model_info.json")
                     default= "model_docker_info.json")
 parser.add_argument('--server_address', type= str, help='default service address', 
-                    default= "http://localhost:9000/inference_service")
+                    default= "http://localhost:9999/inference_service")
+                    # default= "http://localhost:9000/inference_service")
                     # default= "http://127.0.0.1:39499/inference_service")
 
 parser.add_argument('--rate', type= int, help='default number of requests per 60 seconds', default= 20)

@@ -62,6 +62,8 @@ if __name__ == '__main__':
     config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
     config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
 
+    config['model']['files']['architecture_file'] = os.getenv("architecture_file")
+    config['model']['files']['weights_file'] = os.getenv("weights_file")
 
     print(f"\n\nThis is config file: {config}\n\n")
     # load minio connector and ML Agent here

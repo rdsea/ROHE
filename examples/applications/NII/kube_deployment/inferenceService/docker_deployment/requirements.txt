@@ -1,9 +1,0 @@
-# boto3>=1.26.126
-boto3
-tensorflow
-# numpy ==1.22
-numpy
-python-dotenv
-flask
-flask_restful
-# paho-mqtt
