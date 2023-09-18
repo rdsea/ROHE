@@ -1,13 +1,12 @@
-To build the docker image, run the build_docker.sh script.
-
 ## Building the Docker Image
 
 ### 1. Navigate to the Project's Main Directory
 Make sure you are in the main directory of the project, which is called "ROHE".
 
 ### 2. Run the build_docker.sh script
-/home/vtn/aalto-internship/ROHE/examples/applications/object_classification/kube_deployment/inferenceService/build_docker.sh
-Note: The build_docker.sh script must be run from the main directory to ensure that the file and folder hierarchy in the Docker container matches the project structure. The script and the sample Dockerfile provide details on how to maintain this hierarchy. Any file added should also follow this copy pattern.
+`./examples/applications/object_classification/kube_deployment/inferenceService/build_docker.sh`
+
+- Note: The build_docker.sh script must be run from the main directory to ensure that the file and folder hierarchy in the Docker container matches the project structure. The script and the sample Dockerfile provide details on how to maintain this hierarchy. Any file added should also follow this copy pattern.
 
 ## Run the Docker Container
 ### 1. Edit docker-compose file
