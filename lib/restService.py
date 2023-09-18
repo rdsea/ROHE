@@ -1,7 +1,8 @@
-# import qoa4ml.utils as utils
-# import sys
-# main_path = config_file = utils.get_parent_dir(__file__,1)
-# sys.path.append(main_path)
+import qoa4ml.qoaUtils as qoaUtils
+import sys, json
+from flask import Response
+main_path = config_file = qoaUtils.get_parent_dir(__file__,1)
+sys.path.append(main_path)
 from lib.roheObject import RoheObject
 
 from flask import Flask, jsonify, request
@@ -37,10 +38,30 @@ class RoheRestObject(Resource, RoheObject):
             args = request.get_json(force=True)
         # get param from args here
         return jsonify({'status': args})
-
+    
+class ImageInferenceObject(RoheRestObject):
+    def __init__(self) -> None:
+        super().__init__()
+    
+    def post(self):
+        json_data = {}
+        try:
+            data = {}
+            data['image'] = request.files['image'].read()
+            if "report" in request.files:
+                data['report'] = json.loads(request.files['report'].read())
+            json_data = self.imageProcessing(data)
+        except Exception as e:
+            json_data = '{"error":"some error occurred in Rest processing service"}'
+            print(e)
+        result = json.dumps(json_data)
+        return Response(response=result, status=200)
+    
+    def imageProcessing(self, image):
+        return {}
 
 class RoheRestService(object): 
-    def __init__(self, config) -> None:
+    def __init__(self, config={}) -> None:
         super().__init__()
         self.app = Flask(__name__)
         self.api = Api(self.app)

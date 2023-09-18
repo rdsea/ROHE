@@ -1,0 +1,11 @@
+{
+    "client":{
+        "client_id": "aaltosea1",
+        "instance_name": "yolo_web_service",
+        "stage_id": "Web_Service",
+        "method": "REST",
+        "application": "test",
+        "role": "ml"
+    },
+    "registration_url":"http://localhost:5010/registration"
+}

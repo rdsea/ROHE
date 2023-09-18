@@ -5,6 +5,8 @@ import argparse
 from dotenv import load_dotenv
 load_dotenv()
 import threading
+from qoa4ml import qoaUtils
+from qoa4ml.QoaClient import QoaClient
 
 
 

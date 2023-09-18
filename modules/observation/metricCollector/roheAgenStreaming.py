@@ -1,5 +1,5 @@
 from qoa4ml.collector.amqp_collector import Amqp_Collector
-from qoa4ml import utils
+from qoa4ml import qoaUtils
 import pymongo
 from threading import Thread, Timer
 import json, sys, time
@@ -7,7 +7,7 @@ import uuid, pymongo
 import pandas as pd
 
 # Append syspath for dynamic import modules
-lib_path = utils.get_parent_dir(__file__,3)
+lib_path = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(lib_path)
 from lib.roheObject import RoheObject
 import modules.observation.streamAnalysis.functions as func
@@ -41,8 +41,9 @@ class RoheObservationAgent(RoheObject):
         
 
         # Inint processing configuration e.g., processing window (time/event), processing function, data parser
-        # self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
-        self.agent_config = utils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
+        # self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
+        # self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
+        self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfigDummy.json")
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
         """
@@ -95,25 +96,30 @@ class RoheObservationAgent(RoheObject):
         mess = json.loads(str(body.decode("utf-8")))
 
         # Get parser from configuration
-        parser = getattr(pars, self.proc_config["parser"]["name"])
-        # Parse data to DataFrame
-        df_mess = parser(mess, self.proc_config["parser"])
+        parser_name =  self.proc_config["parser"]["name"]
+        if parser_name == "dummy":
+            print(mess)
+        else:
+            parser = getattr(pars, self.proc_config["parser"]["name"])
+            # Parse data to DataFrame
+            df_mess = parser(mess, self.proc_config["parser"])
 
-        # Add metric report as dataframe to buffer - processing window
-        self.buffer.append(df_mess)
-        self.log(len(self.buffer.get()),2)
+            # Add metric report as dataframe to buffer - processing window
+            self.buffer.append(df_mess)
+            self.log(len(self.buffer.get()),2)
 
-        if self.insert_db:
-            # Insert raw data to databased if insert_db is set to True
-            insert_id = self.metric_collection.insert_one(mess)
-            self.log("Insert to database {}".format(insert_id), 2)
-        
-        # Check event trigger
-        if self.trigger["type"] == 2:
-            self.eventTrigger()
+            if self.insert_db:
+                # Insert raw data to databased if insert_db is set to True
+                insert_id = self.metric_collection.insert_one(mess)
+                self.log("Insert to database {}".format(insert_id), 2)
+            
+            # Check event trigger
+            if self.trigger["type"] == 2:
+                self.eventTrigger()
 
     # Function for processing window
     def windowProcessing(self):
+
         self.log("Start Window Processing")
         # Get data from buffer processing window
         data = self.buffer.get(dataframe=True)
@@ -121,14 +127,18 @@ class RoheObservationAgent(RoheObject):
         self.log(data, 1) # For Debugging
 
         # Load dynamic processing function from function configuration
-        procFunc = getattr(func, self.proc_config["function"])
-        feature_list = self.proc_config["parser"]["feature"]
+        function_name = self.proc_config["function"]
+        if function_name == "dummy":
+            pass
+        else:
+            procFunc = getattr(func, self.proc_config["function"])
+            feature_list = self.proc_config["parser"]["feature"]
 
-        # data, feature_list = parser(self.buffer, self.proc_config["parser"])
-        # 
-        for feature in feature_list:
-            result_df, model = procFunc(data, feature)
-            # self.log("\n"+str(result_df))
+            # data, feature_list = parser(self.buffer, self.proc_config["parser"])
+            # 
+            for feature in feature_list:
+                result_df, model = procFunc(data, feature)
+                # self.log("\n"+str(result_df))
 
     def eventTrigger(self):
         # Check trigger and reset counter

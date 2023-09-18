@@ -1,0 +1,11 @@
+{
+    "client":{
+        "client_id": "aaltosea1",
+        "instance_name": "yolo_processing",
+        "stage_id": "Image_Processing",
+        "method": "REST",
+        "application": "test",
+        "role": "ml"
+    },
+    "registration_url":"http://localhost:5010/registration"
+}

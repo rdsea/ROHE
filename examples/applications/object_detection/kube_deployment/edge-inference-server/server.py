@@ -1,101 +1,92 @@
-import os, time
-from unicodedata import category
-import uuid
-from flask import Flask, request
-from flask_restful import Resource, Api
-from flask_restful import reqparse
-from werkzeug.utils import secure_filename
-from darknet import get_tiny_yolo_detection
-import sys
-from qoa4ml.reports import Qoa_Client
-import qoa4ml.utils as qoa_utils
-from qoa4ml.collector.amqp_collector import Amqp_Collector
+import argparse
+from flask import request
+from flask import Response
+import sys, json, io, os
+import aggregation
+import numpy as np
+from PIL import Image
+import qoa4ml.qoaUtils as qoa_utils
+from qoa4ml.QoaClient import QoaClient
 
 
-UPLOAD_FOLDER = '/inference/temp'
-
-def get_node_name():
-    node_name = os.environ.get('NODE_NAME')
-    if not node_name:
-        print("NODE_NAME is not defined")
-        node_name = "Empty"
-    return node_name
-def get_instance_id():
-    pod_id = os.environ.get('POD_ID')
-    if not pod_id:
-        print("POD_ID is not defined")
-        pod_id = "Empty"
-    return pod_id
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-api = Api(app)
-
-######################################################################################################################################################
-# ------------ QoA Report ------------ #
-
-client = "./conf/client.json"
-connector = "./conf/connector.json"
-metric = "./conf/metrics.json"
-client_conf = qoa_utils.load_config(client)
-connector_conf = qoa_utils.load_config(connector)
-metric_conf = qoa_utils.load_config(metric)
-
-client_conf["node_name"] = get_node_name()
-client_conf["instance_id"] = get_instance_id()
+qoa_conf_path = os.environ.get('QOA_CONF_PATH')
+if not qoa_conf_path:
+    qoa_conf_path = "./qoa_conf.json"
 
 
-qoa_client = Qoa_Client(client_conf, connector_conf)
-qoa_client.add_metric(metric_conf["App-metric"], "App-metric")
-metrics = qoa_client.get_metric(category="App-metric")
-qoa_utils.proc_monitor_flag = True
-qoa_utils.process_monitor(client=qoa_client,interval=client_conf["interval"], metrics=metric_conf["Process-metric"],category="Process-metric")
-######################################################################################################################################################
+qoa_conf = qoa_utils.load_config(qoa_conf_path)
+qoaClient = QoaClient(config_dict=qoa_conf)
 
 
-# curl -F "image=@dog.jpg" localhost:5000/inference
-class MLInferenceService(Resource):
-    def post(self):
+lib_level = os.environ.get('LIB_LEVEL')
+if not lib_level:
+    lib_level = 5
+
+main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+sys.path.append(main_path)
+from lib.restService import ImageInferenceObject
+from lib.yolo import YoloRestService
+
+
+
+class MLInferenceObject(ImageInferenceObject):
+    def __init__(self, **kwargs) -> None:
+        super().__init__()
+        # Load configuration 
+        self.conf = kwargs
+        self.models = self.conf["models"]
+
+
+    def imageProcessing(self, data):  
+        try:    
+            qoaClient.timer()  
+            image = data['image'] 
+            pReport = data['report'] 
+            qoaClient.importPReport(pReport) 
+            json_data = {}     
         
-        ######################################################################################################################################################
-        # ------------ QoA Report ------------ #
-   
-        response_time = -1
-        errors = 0
-        start_time = time.time()
-
-        ######################################################################################################################################################
+            predictions = {}
+            # Load Image from request
+            image = np.array(Image.open(io.BytesIO(image)))
+            
+            # Prediction from model composition
+            for model in self.models:
+                result,report = model.predict(image)
+                predictions.update(result["prediction"])
+                
+            # Aggreagte result
+            json_data = aggregation.agg_max(predictions)
+            for ob in json_data:
+                key = list(ob.keys())[0]
+                object_name = ob[key]["name"]
+                confidence = ob[key]["confidence"]
+                # print(object_name, confidence)
+                qoaClient.observeInferenceMetric("confidence_"+object_name, confidence)
+            
+        except Exception as e:
+            json_data = '{"error":"some error occurred in Inference service"}'
+        qoaClient.timer()
+        report = qoaClient.report(submit=True)
+        return json_data
         
 
-        file = request.files['image']
-        if file.filename == '':
-            return {"error": "empty"}, 404
-        if file and file.filename:
-            try:
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                result = get_tiny_yolo_detection(file_path)
-                #result = {"succes": "OKAY"}
-                os.remove(file_path)
-                response = result, 200
-            except Exception as e:
-                print("error occured" + str(e))
-                sys.stdout.flush()
-                errors = 1
-                response = {"Inference error": str(e)}, 404
+if __name__ == '__main__': 
+    # init_env_variables()
+    parser = argparse.ArgumentParser(description="Argument for Rohe Registration Service")
+    parser.add_argument('--conf', help='configuration file of ensemble ML compositon', default="./conf.json")
+    parser.add_argument('--port', help='default service port', default=5002)
+    args = parser.parse_args()
 
-            ######################################################################################################################################################
-            # ------------ QoA Report ------------ #
-            end_time = time.time()
-            response_time = end_time - start_time
-            metrics['Responsetime'].set(response_time)
-            metrics['Timestamp'].set(end_time)
-            metrics['Errors'].set(errors)
-            qoa_client.report("App-metric")
-            ######################################################################################################################################################
-            return response
+    
+    # Serving port
+    port = int(args.port)
 
-api.add_resource(MLInferenceService, '/inference')
-if __name__ == '__main__':    
-    app.run(debug=True)
+    # Load configuration file
+    config_file = args.conf
+    configuration = qoa_utils.load_config(config_file)
+
+
+    # Load Rest service
+    inferenceService = YoloRestService(configuration)
+    inferenceService.add_resource(MLInferenceObject, '/inference')
+    inferenceService.run(port=port)

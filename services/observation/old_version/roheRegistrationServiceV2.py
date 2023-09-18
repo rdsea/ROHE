@@ -1,9 +1,9 @@
 
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
 import pymongo
-main_path = config_file = utils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from lib.restService import RoheRestObject, RoheRestService
 from flask import jsonify, request
@@ -130,13 +130,10 @@ if __name__ == '__main__':
     config_path = args.path
     port = int(args.port)
     if not config_file:
-        config_file = utils.get_parent_dir(__file__,2)+config_path
+        config_file = qoaUtils.get_parent_dir(__file__,2)+config_path
         print(config_file)
-    configuration = utils.load_config(config_file)
+    configuration = qoaUtils.load_config(config_file)
 
     rgistrationService = RoheRestService(configuration)
     rgistrationService.add_resource(RoheRegistration, '/registration')
     rgistrationService.run()
-
-    # api.add_resource(RoheRegistration, '/registration',resource_class_kwargs=configuration)
-    # app.run(debug=True, port=port, host="0.0.0.0")

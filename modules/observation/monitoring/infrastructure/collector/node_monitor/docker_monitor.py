@@ -1,6 +1,6 @@
 import docker, argparse, time
 from qoa4ml.reports import Qoa_Client
-import qoa4ml.utils as qoa_utils
+import qoa4ml.qoaUtils as qoa_utils
 
 
 if __name__ == '__main__':

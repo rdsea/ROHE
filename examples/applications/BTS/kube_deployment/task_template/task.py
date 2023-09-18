@@ -2,7 +2,7 @@ import argparse
 import json, os, uuid
 from Task_Handler import Task_Handler
 from qoa4ml.reports import Qoa_Client
-import qoa4ml.utils as qoa_utils
+import qoa4ml.qoaUtils as qoa_utils
 
 def get_node_name():
     node_name = os.environ.get('NODE_NAME')

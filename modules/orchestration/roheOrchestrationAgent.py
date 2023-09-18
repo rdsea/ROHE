@@ -1,11 +1,11 @@
 import pymongo
 from threading import Thread, Timer
 import time
-import qoa4ml.utils as utils
+import qoa4ml.qoaUtils as qoaUtils
 import pymongo, time
 import pandas as pd
 import argparse, random, sys
-lib_path = utils.get_parent_dir(__file__,2)
+lib_path = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(lib_path)
 from lib.roheObject import RoheObject
 
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     # TO DO: read from database
     parser.add_argument('--conf', help='Orchestrator configuration file', default="../configurations/orchestration/orchestrationConfig.json")
     args = parser.parse_args()
-    config = utils.load_config(args.conf)
+    config = qoaUtils.load_config(args.conf)
     print(config)
     agent = RoheOrchestrationAgent(config)
     

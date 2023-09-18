@@ -62,7 +62,7 @@ class Yolo5(object):
         return {self.param:prediction}, annotator.result()
 
 
-    def yolov5_inference(self, image):
+    def yolov_inference(self, image):
         # Images
         annotator = Annotator(np.asarray(image), line_width=1)
         # Inference
