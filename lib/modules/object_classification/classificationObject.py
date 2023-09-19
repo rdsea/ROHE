@@ -2,6 +2,7 @@
 import json
 import tensorflow as tf
 import numpy as np
+import qoa4ml.qoaUtils as qoa_utils
 
 from lib.modules.object_classification.roheClassificationObject import ClassificationObject
 
@@ -24,6 +25,9 @@ class NIIClassificationObject(ClassificationObject):
             raise ValueError("Now, only support load model from config files")
         
     def load_model_from_config(self, architecture_file, weights_file):
+        lib_path = qoa_utils.get_parent_dir(__file__,3)
+        architecture_file = lib_path+architecture_file
+        weights_file = lib_path+weights_file
         with open(architecture_file, 'r') as f:
             model_architecture = json.load(f)
             model = tf.keras.models.model_from_config(model_architecture)

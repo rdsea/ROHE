@@ -7,5 +7,5 @@
         "application": "test",
         "role": "ml"
     },
-    "registration_url":"http://localhost:5010/registration"
+    "registration_url":"http://130.233.87.14:5010/registration"
 }

@@ -5,9 +5,31 @@ import time
 from datetime import datetime
 import h5py
 import random
-import argparse
+import argparse, os
 import threading
 from concurrent.futures import ThreadPoolExecutor
+import pathlib
+
+def get_file_dir(file, to_string=True):
+    current_dir = pathlib.Path(file).parent.absolute()
+    if to_string:
+        return str(current_dir)
+    else:
+        return current_dir
+
+def get_parent_dir(file, parent_level=1, to_string=True):
+    current_dir = get_file_dir(file=file, to_string=False)
+    for i in range(parent_level):
+        current_dir = current_dir.parent.absolute()
+    if to_string:
+        return str(current_dir)
+    else:
+        return current_dir
+
+lib_level = os.environ.get('LIB_LEVEL')
+if not lib_level:
+    lib_level = 6
+main_path = config_file = get_parent_dir(__file__,lib_level)
 
 def send_predict_request(image_array, url, thread_id):
     payload = {
@@ -45,18 +67,18 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
     parser.add_argument('--server_address', type=str, help='default service address',
-                        default="http://127.0.0.1:9999/inference_service")
-                        # default="http://127.0.0.1:9000/inference_service")
+                        # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
+                        default="http://127.0.0.1:30005/inference_service")
                         # default="http://127.0.0.1:39499/inference_service")
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
-                        default="/home/vtn/aalto-internship/test_model/datasets/BDD100K-Classification/test.h5")
+                        default="/artifact/nii/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type=int, help='default number of requests per second', default=20)
 
     args = parser.parse_args()
 
     config = {
         'server_address': args.server_address,
-        'test_ds': args.test_ds,
+        'test_ds': main_path+args.test_ds,
         'rate': args.rate,
     }
 

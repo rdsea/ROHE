@@ -5,19 +5,10 @@ from flask import request
 from typing import Dict, Optional
 
 
-from lib.NII.modules.classificationObject import NIIClassificationObject
+from lib.modules.object_classification.classificationObject import NIIClassificationObject
 from lib.service_connectors.minioStorageConnector import MinioConnector
 from lib.services.restService import RoheRestObject
 
-import qoa4ml.qoaUtils as qoa_utils
-from qoa4ml.QoaClient import QoaClient
-
-qoa_conf_path = os.environ.get('QOA_CONF_PATH')
-if not qoa_conf_path:
-    qoa_conf_path = "./examples/applications/NII/kube_deployment/inferenceService/configurations/qoa_conf.json"
-
-qoa_conf = qoa_utils.load_config(qoa_conf_path)
-# qoaClient = QoaClient(config_dict=qoa_conf)
 
 
 # class ClassificationRestService():
@@ -27,6 +18,8 @@ class ClassificationRestService(RoheRestObject):
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
+        if 'qoaClient' in self.conf:
+            self.qoaClient = self.conf['qoaClient']
 
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
