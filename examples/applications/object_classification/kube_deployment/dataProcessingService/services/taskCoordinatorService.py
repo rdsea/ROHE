@@ -20,7 +20,7 @@ root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
 
-from lib.restService import RoheRestObject, RoheRestService
+from lib.services.restService import RoheRestObject, RoheRestService
 import examples.applications.NII.utilities.utils as utils
 
 class TaskCoordinator(RoheRestObject):

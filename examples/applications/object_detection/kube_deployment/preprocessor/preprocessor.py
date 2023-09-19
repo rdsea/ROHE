@@ -28,7 +28,7 @@ if not lib_level:
 
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
-from lib.restService import ImageInferenceObject, RoheRestService
+from lib.services.restService import ImageInferenceObject, RoheRestService
 logger = CustomLogger().get_logger()
 
 
@@ -72,7 +72,6 @@ class ProcessService(ImageInferenceObject):
             report = qoaClient.report()
             for i in range(10):
                 r = rq.post(url=f"http://{self.conf['url']}:{self.conf['port']}/inference", files = {'image' : image, 'report': json.dumps(report)})
-                # r = rq.post(url=f"http://{service_name}:{port}/inference", files = {'image': ('image.jpg', data, 'image/jpeg')})
                 if (r!= None): 
                     break
                 time.sleep(0.1)

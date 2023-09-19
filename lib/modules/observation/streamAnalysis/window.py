@@ -1,9 +1,9 @@
 from collections import deque
 import time, sys
 from qoa4ml import qoaUtils
-lib_path = qoaUtils.get_parent_dir(__file__,3)
+lib_path = qoaUtils.get_parent_dir(__file__,4)
 sys.path.append(lib_path)
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 import pandas as pd
 
 class EventBuffer(RoheObject):

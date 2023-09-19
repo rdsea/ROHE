@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 from lib.NII.modules.classificationObject import NIIClassificationObject
 from lib.service_connectors.minioStorageConnector import MinioConnector
-from lib.restService import RoheRestObject
+from lib.services.restService import RoheRestObject
 
 import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient

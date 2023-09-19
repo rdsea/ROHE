@@ -1,7 +1,7 @@
 # This file is used to define a module to manage ML model and inference
 
 from abc import ABC, abstractmethod
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 
 
 class ClassificationObject(RoheObject, ABC):

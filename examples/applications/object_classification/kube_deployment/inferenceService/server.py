@@ -21,7 +21,7 @@ sys.path.append(main_path)
 
 
 
-from lib.restService import RoheRestService
+from lib.services.restService import RoheRestService
 from lib.NII.modules.classificationObject import NIIClassificationObject
 from lib.NII.services.objectClassificationService import ClassificationRestService
 from lib.service_connectors.minioStorageConnector import MinioConnector

@@ -3,7 +3,7 @@ import json
 import tensorflow as tf
 import numpy as np
 
-from lib.roheClassificationObject import ClassificationObject
+from lib.modules.object_classification.roheClassificationObject import ClassificationObject
 
 
 class NIIClassificationObject(ClassificationObject):

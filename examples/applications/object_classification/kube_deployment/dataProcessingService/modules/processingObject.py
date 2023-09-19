@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 from examples.applications.NII.utilities.utils import get_image_dim_from_str
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 import random

@@ -5,9 +5,9 @@ from flask_restful import Api
 import matplotlib
 
 import sys
-main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(main_path)
-from modules.orchestration.analysisProfiling.analysisAgent import Analysis_Agent, Analysis_Service
+from lib.modules.orchestration.analysisProfiling.analysisAgent import Analysis_Agent, Analysis_Service
 
 app = Flask(__name__)
 api = Api(app)

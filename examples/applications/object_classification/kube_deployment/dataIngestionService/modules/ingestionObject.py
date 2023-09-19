@@ -9,7 +9,7 @@ import random
 import uuid
 from PIL import Image
 
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 
 class IngestionObject(RoheObject):

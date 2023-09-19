@@ -24,8 +24,8 @@ if not lib_level:
 
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
-from lib.restService import ImageInferenceObject
-from lib.yoloService import YoloRestService
+from lib.services.restService import ImageInferenceObject
+from lib.services.yoloService import YoloRestService
 
 
 

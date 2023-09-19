@@ -24,7 +24,7 @@ sys.path.append(root_path)
 
 from examples.applications.NII.kube_deployment.dataProcessingService.modules.processingObject import ProcessingObject
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 
 
 class ProcessingService(RoheObject):

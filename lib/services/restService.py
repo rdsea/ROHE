@@ -1,9 +1,9 @@
 import qoa4ml.qoaUtils as qoaUtils
 import sys, json
 from flask import Response
-main_path = config_file = qoaUtils.get_parent_dir(__file__,1)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api

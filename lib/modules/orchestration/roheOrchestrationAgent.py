@@ -7,12 +7,12 @@ import pandas as pd
 import argparse, random, sys
 lib_path = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(lib_path)
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 
 
 
-from modules.orchestration.resourceManagement.resource import Node, Service, Service_Queue
-from modules.orchestration.algorithm.priorityOrchestrate import orchestrate as prioriryOrchestrate
+from lib.modules.orchestration.resourceManagement.resource import Node, Service, Service_Queue
+from lib.modules.orchestration.algorithm.priorityOrchestrate import orchestrate as prioriryOrchestrate
 
 # def get_dict_at(dict, i):
 #     keys = list(dict.keys())

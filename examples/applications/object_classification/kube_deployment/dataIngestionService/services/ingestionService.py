@@ -23,7 +23,7 @@ up_level = 7
 root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
-from lib.roheObject import RoheObject
+from lib.modules.roheObject import RoheObject
 from examples.applications.NII.utilities.mqttSubscriber import MqttSubscriber
 from examples.applications.NII.utilities.minioStorageConnector import MinioConnector
 from examples.applications.NII.kube_deployment.dataIngestionService.modules.ingestionObject import IngestionObject

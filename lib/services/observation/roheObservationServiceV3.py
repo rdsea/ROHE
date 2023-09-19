@@ -3,10 +3,10 @@ import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
 import pymongo
-main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(main_path)
-from modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
-from lib.restService import RoheRestObject, RoheRestService
+from lib.modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
+from lib.services.restService import RoheRestObject, RoheRestService
 from flask import jsonify, request
 
 DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.json"
@@ -232,7 +232,7 @@ if __name__ == '__main__':
 
     # load configuration file
     if not config_file:
-        config_file = qoaUtils.get_parent_dir(__file__,2)+DEFAULT_CONFIG_PATH
+        config_file = main_path+DEFAULT_CONFIG_PATH
         print(config_file)
     try:
         configuration = qoaUtils.load_config(config_file)

@@ -18,7 +18,7 @@ root_path = get_parent_dir(__file__, up_level)
 sys.path.append(root_path)
 
 
-from lib.restService import RoheRestService
+from lib.services.restService import RoheRestService
 from examples.applications.NII.kube_deployment.dataProcessingService.services.taskCoordinatorService import TaskCoordinator
 
 def setup_redis(redis_config):

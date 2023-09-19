@@ -7,12 +7,12 @@ import uuid, pymongo
 import pandas as pd
 
 # Append syspath for dynamic import modules
-lib_path = qoaUtils.get_parent_dir(__file__,3)
+lib_path = qoaUtils.get_parent_dir(__file__,4)
 sys.path.append(lib_path)
-from lib.roheObject import RoheObject
-import modules.observation.streamAnalysis.functions as func
-import modules.observation.streamAnalysis.parser as pars
-from modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
+from lib.modules.roheObject import RoheObject
+import lib.modules.observation.streamAnalysis.functions as func
+import lib.modules.observation.streamAnalysis.parser as pars
+from lib.modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
 
 
 

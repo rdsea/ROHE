@@ -5,7 +5,7 @@ import argparse
 import pymongo
 main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from lib.restService import RoheRestObject, RoheRestService
+from lib.services.restService import RoheRestObject, RoheRestService
 from flask import jsonify, request
 
 

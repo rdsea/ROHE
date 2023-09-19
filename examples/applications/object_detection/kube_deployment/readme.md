@@ -1,20 +1,19 @@
 # Step to run object detection example
-To run edge-inference-server, you must download yolov5 and yolov8 and unzip them in "lib" folder
->Link to download: https://drive.google.com/file/d/1oI8ahTMELdbdAoBWgqmPZnMjJ43hoCvJ/view?usp=drive_link, https://drive.google.com/file/d/1RyyuJwn9t1LpWt6QE25j13HrJZ3cCZwK/view?usp=drive_link
-- Note: These 2 folders include Yolov5 and Yolov8 trained models (large files ~1GB) and their wrappers for a stable version of [Ultralytics](https://github.com/ultralytics)'s Yolo inference library.
+
+- Note: this example include Yolov5 and Yolov8 trained models (large files ~1GB) and their wrappers for a stable version of [Ultralytics](https://github.com/ultralytics)'s Yolo inference library.
 Make sure the structure is as follow:
 ```
+├── artifact
 ├── example
 │   ├── application
 │   │   ├── object_detection
 │   │   │   ├── ...
 ├── lib
-│   ├── yolov5         # Downloaded folder
-│   ├── yolov8         # Downloaded folder
-│   ├── yolo.py
+│   ├── externalLib
+│   ├── yolo
 │   ├── ...
-├── modules
-├── services
+│   ├── modules
+│   ├── services
 ├── ...
 └── .gitignore
 ```
@@ -71,6 +70,7 @@ $ pip install -r requirements.txt
 ```bash
 $ python server.py
 ```
+- The source code will clone Yolov5 as an external library (to folder `lib/externalLib`) if it does not exist, and download trained models to folder `artifact`.
 
 ### Start pre-processing server
 > Open another terminal console 

@@ -4,7 +4,7 @@ import argparse
 import sys
 main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from modules.observation.metricCollector.roheAgentV1 import Observability_Agent, Agent_Service
+from lib.modules.observation.metricCollector.roheAgentV1 import Observability_Agent, Agent_Service
 
 
 from flask import Flask, jsonify, request
