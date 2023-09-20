@@ -1,13 +1,12 @@
 import sys, os
-import argparse
 import json
+import argparse
+from threading import Lock
 
 from dotenv import load_dotenv
 load_dotenv()
 
-
 import qoa4ml.qoaUtils as qoa_utils
-from qoa4ml.QoaClient import QoaClient
 
 
 # set the ROHE to be in the system path
@@ -17,17 +16,20 @@ if not lib_level:
 
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
+root_path = main_path
 
-from lib.services.object_classification.processingService import ProcessingService
 from lib.service_connectors.minioStorageConnector import MinioConnector
+from lib.services.object_classification.ingestionService import IngestionService
 import lib.roheUtils as roheUtils
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Argument for Processing Service")
-    parser.add_argument('--conf', type= str, help='configuration file')
+    parser = argparse.ArgumentParser(description="Argument for Ingestion Service")
+    parser.add_argument('--conf', type= str, help='specify configuration file path')
+
     # Parse the parameters
     args = parser.parse_args()
+
     config_file = args.conf
 
     # yaml load configuration file
@@ -40,8 +42,12 @@ if __name__ == '__main__':
             config = roheUtils.load_yaml_config(file_path= config_file)
 
 
-    minio_connector = MinioConnector(storage_info= config.get('minio_config'))
+    storage_lock = Lock()
 
+    # Minio Connector for uploading image
+    minio_connector = MinioConnector(storage_info= config['minio_config'])
     config['minio_connector'] = minio_connector
-    service = ProcessingService(config)
+    config['storage_lock'] = storage_lock
+
+    service = IngestionService(config= config)
     service.run()

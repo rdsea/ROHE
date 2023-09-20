@@ -1,0 +1,22 @@
+model:
+  files:
+    architecture_file: "/artifact/nii/VGG16/3/6/repair/model.json"
+    weights_file: "/artifact/nii/VGG16/3/6/repair/model.h5"
+  input_shape: "32,32,3"
+
+minio_config:
+  endpoint_url: "http://128.214.254.126:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-inference-model"
+
+qoa_config:
+  client:
+    client_id: "aaltosea2"
+    instance_name: "inference_service01"
+    stage_id: "ML_Inference"
+    method: "REST"
+    application: "test"
+    role: "ml"
+  registration_url: "http://130.233.87.14:5010/registration"
+

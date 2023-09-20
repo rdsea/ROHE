@@ -4,3 +4,4 @@ pillow
 requests
 python-dotenv
 boto3
+qoa4ml
