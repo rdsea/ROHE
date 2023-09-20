@@ -9,6 +9,7 @@ from lib.modules.object_classification.classificationObject import NIIClassifica
 from lib.service_connectors.minioStorageConnector import MinioConnector
 from lib.services.restService import RoheRestObject
 
+from qoa4ml.QoaClient import QoaClient
 
 
 # class ClassificationRestService():
@@ -19,7 +20,7 @@ class ClassificationRestService(RoheRestObject):
         configuration = kwargs
         self.conf = configuration
         if 'qoaClient' in self.conf:
-            self.qoaClient = self.conf['qoaClient']
+            self.qoaClient: QoaClient = self.conf['qoaClient']
 
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
@@ -81,7 +82,7 @@ class ClassificationRestService(RoheRestObject):
         self.qoaClient.timer() 
         if command == "predict":
             try:
-                self.qoaClient.observeInferenceMetri("confidence", float(response['confidence_level']))
+                self.qoaClient.observeInferenceMetric("confidence", float(response['confidence_level']))
             except Exception as e:
                 print(e)
 
