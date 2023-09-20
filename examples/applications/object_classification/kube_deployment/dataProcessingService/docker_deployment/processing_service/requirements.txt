@@ -1,6 +1,0 @@
-boto3
-requests
-numpy
-python-dotenv
-flask
-flask_restful

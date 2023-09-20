@@ -16,3 +16,6 @@ modules/orchestration/temp/
 
 test_deployment/
 nii_models
+nii
+tmp_image_folder
+# tmp_folder

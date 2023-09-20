@@ -2,12 +2,14 @@ version: '3'
 services:
   nii_inference_server:
     image: rdsea/nii_inference_service_intel:1.0.1
+    # image: vtn13042000/nii_inference_service_intel:1.0.0
     ports:
       - "30005:30005"
     volumes:
-      - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact:/inference-server/artifact
-    environment:
-      minio_client_access_key: prJxdafe7L400AAXScc8
-      minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
-      architecture_file: /inference-server/data/VGG16/3/6/repair/model.json
-      weights_file: /inference-server/data/VGG16/3/6/repair/model.h5
+      # - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact:/inference-server/artifact
+      - /home/vtn/aalto-internship/ROHE/artifact:/inference-server/artifact
+    # environment:
+    #   minio_client_access_key: prJxdafe7L400AAXScc8
+    #   minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
+    #   architecture_file: /inference-server/data/VGG16/3/6/repair/model.json
+    #   weights_file: /inference-server/data/VGG16/3/6/repair/model.h5

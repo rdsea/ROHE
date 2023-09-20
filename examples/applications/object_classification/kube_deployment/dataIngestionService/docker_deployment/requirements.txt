@@ -1,6 +1,0 @@
-paho-mqtt
-numpy
-pillow
-requests
-python-dotenv
-boto3

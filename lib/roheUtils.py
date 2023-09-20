@@ -6,6 +6,7 @@ import logging
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 
+
 def get_dict_at(dict, i=0):
     try:
         keys = list(dict.keys())
@@ -90,8 +91,16 @@ def save_response_content(response, destination):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
+
+def load_yaml_config(file_path):
+    with open(file_path, 'r') as yaml_file:
+        config = yaml.safe_load(yaml_file)
+    return config
+
+
 def message_serialize(dictionary) -> str:
     return json.dumps(dictionary)
+
 
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
