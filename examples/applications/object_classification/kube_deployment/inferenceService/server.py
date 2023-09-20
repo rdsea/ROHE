@@ -21,14 +21,9 @@ if not lib_level:
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 import lib.roheUtils as rohe_utils
-from qoa4ml.QoaClient import QoaClient
 
-qoa_conf_path = os.environ.get('QOA_CONF_PATH')
-if not qoa_conf_path:
-    qoa_conf_path = main_path+"/examples/applications/object_classification/kube_deployment/inferenceService/configurations/qoa_conf.yaml"
 
-qoa_conf = rohe_utils.load_config(qoa_conf_path)
-qoaClient = QoaClient(config_dict=qoa_conf)
+
 
 
 from lib.services.restService import RoheRestService
@@ -47,7 +42,7 @@ if __name__ == '__main__':
                         default= 1)
 
     parser.add_argument('--conf', type= str, help='configuration file', 
-            default= "/inference_service.yaml")
+            default= "/configurations/inference_service.yaml")
 
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 
@@ -100,6 +95,7 @@ if __name__ == '__main__':
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
     config['qoaClient'] = QoaClient(config['qoa_config'])
+    print("test")
     
 
     classificationService = RoheRestService(config)
