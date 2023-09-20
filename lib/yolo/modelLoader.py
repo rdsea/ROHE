@@ -79,6 +79,7 @@ class Yolo5(object):
         self.lib_path = main_path+"/lib/externalLib/yolov5/"
         self.conf_path = main_path+"/configurations/yolo/yolo.json"
         self.conf = rohe_utils.load_config(self.conf_path)
+        rohe_utils.json_to_yaml(config_file)
         if not os.path.exists(self.lib_path):
             print("folder not exist -> creating new folder")
             os.makedirs(self.lib_path)
@@ -119,6 +120,7 @@ class Yolo8(object):
         self.artifact_path = main_path+"/artifact/yolo/"
         self.conf_path = main_path+"/configurations/yolo/yolo.json"
         self.conf = rohe_utils.load_config(self.conf_path)
+        rohe_utils.json_to_yaml(config_file)
         if not os.path.exists(self.artifact_path):
             file_url = self.conf["file_url"]
             gdown.cached_download(file_url, main_path+"/artifact/yolo.zip", postprocess=gdown.extractall)

@@ -39,6 +39,7 @@ class RoheRestObject(Resource, RoheObject):
         # get param from args here
         return jsonify({'status': args})
     
+    
 class ImageInferenceObject(RoheRestObject):
     def __init__(self) -> None:
         super().__init__()

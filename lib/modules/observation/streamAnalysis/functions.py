@@ -38,6 +38,7 @@ def train_local_outlier_factor(historical_data, feature, n_neighbors = 2, novelt
     # Train Local Ourlier Factor model
     try:
         model_lof = LocalOutlierFactor(n_neighbors=n_neighbors, novelty=novelty)
+        print(type(historical_data))
         model_lof.fit(historical_data[feature].values)
         return model_lof
     except Exception as e:

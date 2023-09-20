@@ -18,16 +18,14 @@ if not lib_level:
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 print(f"This if main path: {main_path}")
 sys.path.append(main_path)
-
-import qoa4ml.qoaUtils as qoa_utils
+import lib.roheUtils as rohe_utils
 from qoa4ml.QoaClient import QoaClient
 
 qoa_conf_path = os.environ.get('QOA_CONF_PATH')
 if not qoa_conf_path:
-    qoa_conf_path = "./examples/applications/object_classification/kube_deployment/inferenceService/configurations/qoa_conf.json"
+    qoa_conf_path = main_path+"/examples/applications/object_classification/kube_deployment/inferenceService/configurations/qoa_conf.yaml"
 
-qoa_conf = qoa_utils.load_config(qoa_conf_path)
-print(qoa_conf)
+qoa_conf = rohe_utils.load_config(qoa_conf_path)
 qoaClient = QoaClient(config_dict=qoa_conf)
 
 
@@ -48,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', type= int, help='default port', default=30005)
 
     parser.add_argument('--conf', type= str, help='configuration file', 
-            default= "examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.json")
+            default= "examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml")
 
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 
@@ -66,8 +64,8 @@ if __name__ == '__main__':
 
 
     # load configuration file
-    with open(config_file, 'r') as json_file:
-        config = json.load(json_file)    
+    config = rohe_utils.load_config(config_file)    
+    rohe_utils.json_to_yaml(config_file)
 
     # config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
     # config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")

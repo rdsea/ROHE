@@ -1,0 +1,8 @@
+client:
+  application: nii
+  client_id: aaltosea2
+  instance_name: inference_service01
+  method: REST
+  role: ml
+  stage_id: ML_Inference
+registration_url: http://0.0.0.0:5010/registration

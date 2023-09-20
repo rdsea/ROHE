@@ -29,25 +29,21 @@ def get_parent_dir(file, parent_level=1, to_string=True):
     else:
         return current_dir
     
-def load_config(file_path:str, format=0)->dict:
+def load_config(file_path:str)->dict:
     """
     file_path: file path to load config
-    format:
-        0 - json
-        1 - yaml
-        other - To Do
     """
     try:
-        if format == 0:
+        if 'json' in file_path:
             with open(file_path, "r") as f:
                 return json.load(f)
-        elif format == 1:
-            with open('file_path', 'r') as f:
+        if ('yaml' in file_path) or ('yml' in file_path):
+            with open(file_path, 'r') as f:
                 return yaml.safe_load(f)
         else:
             return None
-    except Exception as e:
-        return None
+    except yaml.YAMLError as exc:
+        print(exc)
     
 def to_json(file_path:str, conf:dict):
     """
@@ -99,3 +95,8 @@ def message_serialize(dictionary) -> str:
 
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
+
+def json_to_yaml(file_path):
+    config = load_config(file_path)
+    yaml_path = str(file_path)[:-4]+"yaml"
+    yaml_config = to_yaml(yaml_path,config)

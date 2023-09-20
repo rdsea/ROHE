@@ -55,12 +55,13 @@ def main(config):
     with h5py.File(test_ds, 'r') as f:
         X_test = np.array(f['images'])
 
-    index = random.randint(0, 50000)
-    image_data = X_test[index]
+
 
     with ThreadPoolExecutor(max_workers=rate) as executor:
         num_seconds = 100000
         for _ in range(num_seconds):
+            index = random.randint(0, 50000)
+            image_data = X_test[index]
             request_batch(image_data, server_address, rate, executor)
             time.sleep(1)
 

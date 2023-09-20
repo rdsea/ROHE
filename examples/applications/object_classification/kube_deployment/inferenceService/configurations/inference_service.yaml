@@ -1,0 +1,10 @@
+minio_config:
+  access_key: admin_user
+  bucket_name: nii-application-inference-model
+  endpoint_url: http://128.214.254.126:9000
+  secret_key: admin_pass
+model:
+  files:
+    architecture_file: /artifact/nii/VGG16/3/6/repair/model.json
+    weights_file: /artifact/nii/VGG16/3/6/repair/model.h5
+  input_shape: 32,32,3

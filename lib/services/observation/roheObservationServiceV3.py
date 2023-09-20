@@ -5,11 +5,18 @@ import argparse
 import pymongo
 main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(main_path)
-from lib.modules.observation.metricCollector.roheAgenStreaming import RoheObservationAgent
+# from lib.services.observation.roheAgenStreaming import RoheObservationAgent
 from lib.services.restService import RoheRestObject, RoheRestService
 from flask import jsonify, request
+import lib.roheUtils as rohe_utils
+import docker
 
-DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.json"
+docker_client = docker.from_env()
+def start_docker(image, app_name):
+    container = docker_client.containers.run(image, detach=True, environment={'APP_NAME':app_name})
+    return container
+
+DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.yaml"
 
 local_agent_list = {}
 
@@ -132,6 +139,10 @@ class RoheObservation(RoheRestObject):
         self.db = self.mongo_client[self.db_config["db_name"]]
         self.collection = self.db[self.db_config["collection"]]
         self.set_logger_level(int(self.conf["logging_level"]))
+
+    def update_app(self,metadata):
+        # update application configuration
+        return self.collection.insert_one(metadata)
     
     def get_app(self,app_name):
         # Create sorted pipepline to query application list
@@ -147,7 +158,7 @@ class RoheObservation(RoheRestObject):
         # Show list of agent and its status for debugging
         self.log("Agent: {}".format(local_agent_list), 1)
         for agent in local_agent_list:
-            self.log("{} - {} - {}".format(agent, local_agent_list[agent].status, local_agent_list[agent].insert_db), 1)
+            self.log("{}".format(agent), 1)
 
     
     def post(self):
@@ -162,6 +173,7 @@ class RoheObservation(RoheRestObject):
                 application_name = args["application"]
                 # Get application configuration from database
                 app = self.get_app(application_name)
+                print(app)
                 if app == None:
                     # Application has not been registered 
                     response[application_name] = "Application {} not exist".format(application_name)
@@ -176,31 +188,39 @@ class RoheObservation(RoheRestObject):
                             if metadata["_id"] in local_agent_list:
                                 # If agent is created locally
                                 agent = local_agent_list[metadata["_id"]]
-                                if agent.status == 0:
-                                    # if agent is ready
-                                    agent.start()
-                                elif agent.status == 2:
-                                    # if agent is stopped
-                                    agent.restart()
+                                if agent["status"] != 1:
+                                    agent["docker"] = start_docker(str(self.conf["agent_image"]), application_name)
+                                    agent["status"] = 1
                             else:
                                 # If agent is not found - create new agent and start
-                                agent_config = metadata["agent_config"]
-                                agent = RoheObservationAgent(agent_config)
+                                docker_agent = start_docker(str(self.conf["agent_image"]), application_name)
+                                agent = {"docker": docker_agent, "status": 1}
                                 local_agent_list[metadata["_id"]] = agent
-                                agent.start()
-
+                            if "stream_config" in args:
+                                metadata["appID"] = copy.deepcopy(metadata["_id"])
+                                metadata.pop("_id")
+                                metadata["agent_config"]["stream_config"] = args["stream_config"]
+                                self.update_app(metadata)
                             self.show_agent() # for debugging
                             # create a response
-                            response[application_name] = "Application agent for {} started ".format(application_name)
+                            response[application_name] = "Application agent for application '{}' started ".format(application_name)
+                        if command == "log":
+                            if metadata["_id"] in local_agent_list:
+                                agent = local_agent_list[metadata["_id"]]
+                                docker_agent = agent["docker"]
+                                print(docker_agent.logs(tail=20))
+
 
                         if command == "stop":
                             if metadata["_id"] in local_agent_list:
                                 # if agent exist locally
                                 agent = local_agent_list[metadata["_id"]]
-                                if agent.status == 1:
+                                if agent["status"] == 1:
                                     # if ageent is running
-                                    agent.stop()
-                                    self.show_agent() # for debugging
+                                    docker_agent = agent["docker"]
+                                    docker_agent.stop()
+                                    agent["status"] = 0
+                                    
                             # create a response
                             response[application_name] = "Application agent for {} stopped ".format(application_name)
                         if command == "delete":
@@ -213,6 +233,10 @@ class RoheObservation(RoheRestObject):
                             self.collection.delete_many({"app_name":application_name})
                             # create a response
                             response[application_name] = "Application agent for {} deleted ".format(application_name)
+                        if command == "kill_all_agent":
+                            for agent in list(local_agent_list.keys()):
+                                local_agent_list[agent]["status"] = 0
+                                local_agent_list[agent]["docker"].stop()
         # Return the response
         return jsonify({'status': "success", "response":response})
 
@@ -221,7 +245,6 @@ if __name__ == '__main__':
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Rohe Observation Service")
     parser.add_argument('--conf', help='configuration file', default=None)
-    #parser.add_argument('--path', help='default config path', default="/configurations/observation/observationConfig.json")
     parser.add_argument('--port', help='default port', default=5010)
 
     # Parse the parameters
@@ -235,7 +258,7 @@ if __name__ == '__main__':
         config_file = main_path+DEFAULT_CONFIG_PATH
         print(config_file)
     try:
-        configuration = qoaUtils.load_config(config_file)
+        configuration = rohe_utils.load_config(config_file)
         observationService = RoheRestService(configuration)
         observationService.add_resource(RoheObservation, '/agent')
         observationService.add_resource(RoheRegistration, '/registration')

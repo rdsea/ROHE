@@ -60,21 +60,26 @@ class ClassificationRestService(RoheRestObject):
         - load_new_model: Loads a new machine learning model for inference.
         - predict: download the image and returns a prediction.
         """
-
+        self.qoaClient.timer() 
         try:
-            # qoaClient.timer()  
+             
 
             command = request.form.get('command')
             handler = self.post_command_handlers.get(command)
 
             if handler:
                 response = handler(request)
-                return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+                self.qoaClient.timer()
+                result = json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
             else:
-                return json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
+                result = json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
+            
         except Exception as e:
             print("Exception:", e)
-            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
+            result = json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
+        self.qoaClient.timer() 
+        report = self.qoaClient.report(submit=True)
+        return result
 
     def get(self):
         try:
@@ -120,6 +125,8 @@ class ClassificationRestService(RoheRestObject):
         original_shape = get_image_dim_from_str(metadata['shape'])
         print(f"This is the shape of the received image: {original_shape}")
         # print(f"This is the shape of the received image: {original_shape}")
+        self.qoaClient.observeMetric("image_width", self.MLAgent.input_shape[0], 1)
+        self.qoaClient.observeMetric("image_height", self.MLAgent.input_shape[1], 1)
         if original_shape == self.MLAgent.input_shape:
             return True
         return False

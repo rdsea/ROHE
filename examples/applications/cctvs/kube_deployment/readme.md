@@ -6,7 +6,7 @@ Make sure the structure is as follow:
 ├── artifact
 ├── example
 │   ├── application
-│   │   ├── object_detection
+│   │   ├── cctvs
 │   │   │   ├── ...
 ├── lib
 │   ├── externalLib
@@ -58,7 +58,7 @@ $ ./startAgent.sh
 ### Start edge-inference-server
 > Open another terminal console 
 - Enable the environemnt with anaconda3
-- Navigate to examples/applications/object_detection/kube_deployment/edge-inference-server
+- Navigate to examples/applications/cctvs/kube_deployment/edge-inference-server
 
 - Environment setup (if conda env failed)
 ```bash
@@ -75,7 +75,7 @@ $ python server.py
 ### Start pre-processing server
 > Open another terminal console 
 - Enable the environemnt with anaconda3
-- Navigate to example/application/object_detection/kube_deployment/preprocessor
+- Navigate to example/application/cctvs/kube_deployment/preprocessor
 
 - Environment setup (if conda env failed)
 - Run pre-processing server: 
@@ -86,7 +86,7 @@ $ python preprocessor.py
 ### Start web server
 > Open another terminal console 
 - Enable the environemnt with anaconda3
-- Navigate to example/application/object_detection/kube_deployment/web-server
+- Navigate to example/application/cctvs/kube_deployment/web-server
 - Environment setup (if conda env failed)
 - Run web server:
 ```bash
@@ -97,7 +97,7 @@ $ python web_server.py
 
 ### Start client
 > Open another terminal console 
-- Navigate to example/application/object_detection/kube_deployment/client
+- Navigate to example/application/cctvs/kube_deployment/client
 - Run client:
 ```bash
 $ python client.py

@@ -1,10 +1,15 @@
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 from qoa4ml import qoaUtils
-import pymongo
+import pymongo, argparse
 from threading import Thread, Timer
-import json, sys, time
+import json, sys, time, os
 import uuid, pymongo
+import traceback
 import pandas as pd
+main_path = config_file = qoaUtils.get_parent_dir(__file__,4)
+sys.path.append(main_path)
+DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.yaml"
+
 
 # Append syspath for dynamic import modules
 lib_path = qoaUtils.get_parent_dir(__file__,4)
@@ -13,7 +18,17 @@ from lib.modules.roheObject import RoheObject
 import lib.modules.observation.streamAnalysis.functions as func
 import lib.modules.observation.streamAnalysis.parser as pars
 from lib.modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
+import lib.roheUtils as rohe_utils
 
+def get_app(collection, app_name):
+    # Create sorted pipepline to query application list
+    pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "app_name": {"$last": "$app_name"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+    app_list = list(collection.aggregate(pipeline))
+    for app in app_list:
+        # return app with its configuration
+        if app["app_name"] == app_name:
+            return app
+    return None
 
 
 class RoheObservationAgent(RoheObject):
@@ -41,9 +56,7 @@ class RoheObservationAgent(RoheObject):
         
 
         # Inint processing configuration e.g., processing window (time/event), processing function, data parser
-        # self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/sdnStreamConfig.json")
-        # self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfig.json")
-        self.agent_config = qoaUtils.load_config(lib_path+"/configurations/observation/example/agent/objectDetectionStreamConfigDummy.json")
+        self.agent_config = self.conf["stream_config"]
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
         """
@@ -171,3 +184,33 @@ class RoheObservationAgent(RoheObject):
         self.insert_db = True
         self.status = 1
     
+if __name__ == '__main__': 
+    # init_env_variables()
+    parser = argparse.ArgumentParser(description="Argument for Rohe Observation Agent")
+    parser.add_argument('--conf', help='configuration file', default=None)
+
+    # Parse the parameters
+    args = parser.parse_args()
+    config_file = args.conf
+
+    # load configuration file
+    if not config_file:
+        config_file = main_path+DEFAULT_CONFIG_PATH
+        print(config_file)
+    try:
+        
+        configuration = rohe_utils.load_config(config_file)
+        db_config = configuration["database"]
+        mongo_client = pymongo.MongoClient(db_config["url"])
+        db = mongo_client[db_config["db_name"]]
+        collection = db[db_config["collection"]]
+
+        app_name = os.environ.get('APP_NAME')
+        if not app_name:
+            app_name = "test"
+        agent_config = get_app(collection, app_name)['agent_config']
+        print(agent_config)
+        agent = RoheObservationAgent(agent_config)
+        agent.start()
+    except:
+        traceback.print_exc()

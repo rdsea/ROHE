@@ -121,8 +121,8 @@
     },
     "object_detection":{
         "inf":{
-            "dep_path": "../object_detection/deployment/inference/inf.yml",
-            "ser_path": "../object_detection/deployment/inference/inf-service.yml",
+            "dep_path": "../cctvs/deployment/inference/inf.yml",
+            "ser_path": "../cctvs/deployment/inference/inf-service.yml",
             "node":[
                 {
                     "node_name": "jet01",
@@ -152,8 +152,8 @@
             ]
         },
         "web":{
-            "dep_path": "../object_detection/deployment/web/web.yml",
-            "ser_path": "../object_detection/deployment/web/web-service.yml",
+            "dep_path": "../cctvs/deployment/web/web.yml",
+            "ser_path": "../cctvs/deployment/web/web-service.yml",
             "node":[
                 {
                     "node_name": "rasp02",
@@ -168,8 +168,8 @@
             ]
         },
         "proc":{
-            "dep_path": "../object_detection/deployment/proc/proc.yml",
-            "ser_path": "../object_detection/deployment/proc/proc-service.yml",
+            "dep_path": "../cctvs/deployment/proc/proc.yml",
+            "ser_path": "../cctvs/deployment/proc/proc-service.yml",
             "node":[
                 {
                     "node_name": "jet02",

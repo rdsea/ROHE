@@ -1,0 +1,4 @@
+version: '1'
+services:
+  nii_inference_server:
+    image: rdsea/rohe_stream_agent:1.0.0

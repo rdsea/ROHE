@@ -3,8 +3,8 @@
         "object_detection_web_service":{
             "service_name":"object_detection_web_service",
             "image": "rdsea/od_web:2.0",
-            "dep_path": "../object_detection/deployment/web/web.yml",
-            "ser_path": "../object_detection/deployment/web/web-service.yml",
+            "dep_path": "../cctvs/deployment/web/web.yml",
+            "ser_path": "../cctvs/deployment/web/web-service.yml",
             "cpu": 424,
             "accelerator": {
                 "gpu": 0
@@ -20,8 +20,8 @@
         "object_detection_imgproc_service":{
             "service_name":"object_detection_imgproc_service",
             "image": "rdsea/od_proc:2.0",
-            "dep_path": "../object_detection/deployment/proc/proc.yml",
-            "ser_path": "../object_detection/deployment/proc/proc-service.yml",
+            "dep_path": "../cctvs/deployment/proc/proc.yml",
+            "ser_path": "../cctvs/deployment/proc/proc-service.yml",
             "cpu": 933,
             "accelerator": {
                 "gpu": 0
@@ -37,8 +37,8 @@
         "object_detection_inference_service":{
             "service_name":"object_detection_inference_service",
             "image": "rdsea/od_inf:2.0",
-            "dep_path": "../object_detection/deployment/inference/inf.yml",
-            "ser_path": "../object_detection/deployment/inference/inf-service.yml",
+            "dep_path": "../cctvs/deployment/inference/inf.yml",
+            "ser_path": "../cctvs/deployment/inference/inf-service.yml",
             "cpu": 500,
             "accelerator": {
                 "gpu": 15
