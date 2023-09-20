@@ -18,7 +18,6 @@ RUN apt-get install -y gcc python3-dev
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-
 COPY ./lib /inference-server/lib
 
 # Copy all other files in the current directory to maintain its relative path in a subfolder
@@ -28,4 +27,6 @@ RUN mkdir /inference-server/artifact
 EXPOSE 30005
 
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
-CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py"]
+CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py", "--conf", "./examples/applications/object_classification/kube_deployment/inferenceService/inference_service.yaml"]
+# CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py", "--conf", "./examples/applications/object_classification/kube_deployment/inferenceService/inference_service.yaml", "--enable_qoa", "0"]
+
