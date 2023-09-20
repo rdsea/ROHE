@@ -28,7 +28,7 @@ def get_parent_dir(file, parent_level=1, to_string=True):
 
 lib_level = os.environ.get('LIB_LEVEL')
 if not lib_level:
-    lib_level = 6
+    lib_level = 5
 main_path = config_file = get_parent_dir(__file__,lib_level)
 
 def send_predict_request(image_array, url, thread_id):

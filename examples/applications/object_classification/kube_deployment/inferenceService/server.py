@@ -41,23 +41,22 @@ import lib.roheUtils as roheUtils
 if __name__ == '__main__': 
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Inference Service")
-    parser.add_argument('--conf', type= str, help='specify configuration file path')
-
     parser.add_argument('--port', type= int, help='default port', default=30005)
     parser.add_argument('--enable_qoa', type= int, choices= [0, 1], 
                         help='debugging feature - false when debugging the pipeline itself',
                         default= 1)
 
     parser.add_argument('--conf', type= str, help='configuration file', 
-            default= "examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml")
+            default= "/inference_service.yaml")
 
     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
 
+    current_path = qoa_utils.get_file_dir(__file__)
     # Parse the parameters
     args = parser.parse_args()
 
     port = int(args.port)
-    config_file = args.conf
+    config_file = current_path+args.conf
     enable_qoa = args.enable_qoa
 
     # # yaml load configuration file
@@ -72,16 +71,15 @@ if __name__ == '__main__':
     print(f"this is the path to config file: {config_file}")
     
     config = roheUtils.load_yaml_config(file_path= config_file)
-    print(f"This is the config: {config}")
+    # print(f"This is the config: {config}")
 
-    print("*" * 20)
-    print(f"This is qoa config: {config['qoa_config']}")
-    print("*" * 20)
-    print(f"this is the state of qoa: {enable_qoa}")
+    # print("*" * 20)
+    # print(f"This is qoa config: {config['qoa_config']}")
+    # print("*" * 20)
+    # print(f"this is the state of qoa: {enable_qoa}")
 
-    # load configuration file
+    # # load configuration file
     config = rohe_utils.load_config(config_file)    
-    rohe_utils.json_to_yaml(config_file)
 
     # config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
     # config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
@@ -101,6 +99,7 @@ if __name__ == '__main__':
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
+    config['qoaClient'] = QoaClient(config['qoa_config'])
     
 
     classificationService = RoheRestService(config)
