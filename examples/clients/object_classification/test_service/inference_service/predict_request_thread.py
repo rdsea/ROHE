@@ -55,7 +55,8 @@ def send_predict_request(image_array, image_label, url, thread_id):
         prediction = response['class']
 
     acc = int(prediction) == int(image_label)
-    print(f"Thread {thread_id}, at {timestamp}, Received response {response}. Acc= {acc}")
+    response['acc'] = acc
+    print(f"Thread {thread_id}, at {timestamp}, Received response {response}")
 
 
 def request_batch(images_data, images_label, server_address, rate, executor):

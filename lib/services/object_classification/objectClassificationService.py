@@ -77,8 +77,16 @@ class ClassificationRestService(RoheRestObject):
         except Exception as e:
             print("Exception:", e)
             result = json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
+        
         self.qoaClient.timer() 
+        if command == "predict":
+            try:
+                self.qoaClient.observeInferenceMetri("confidence", float(response['confidence_level']))
+            except Exception as e:
+                print(e)
+
         report = self.qoaClient.report(submit=True)
+
         return result
 
     def get(self):
