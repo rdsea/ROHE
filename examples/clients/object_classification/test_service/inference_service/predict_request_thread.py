@@ -31,21 +31,40 @@ if not lib_level:
     lib_level = 5
 main_path = config_file = get_parent_dir(__file__,lib_level)
 
-def send_predict_request(image_array, url, thread_id):
+def message_deserialize(string_object) -> dict:
+    return json.loads(string_object.decode("utf-8"))
+
+def send_predict_request(image_array, image_label, url, thread_id):
     payload = {
         'command': 'predict',
         'metadata': json.dumps({'shape': '32,32,3', 'dtype': str(image_array.dtype)})
     }
     files = {'image': ('image', image_array.tobytes(), 'application/octet-stream')}
 
-    # print(f"Thread {thread_id}, at {timestamp}, make a request.")
     response = requests.post(url, data=payload, files=files)
     timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-    print(f"Thread {thread_id}, at {timestamp}, Received response {response.json()}")
 
-def request_batch(image_data, server_address, rate, executor):
+    response_dict = json.loads(response.text) 
+
+    try:
+        response = response_dict['response']
+        prediction = response['class']
+    except Exception as e:
+        response_dict = json.loads(response_dict)
+        response = response_dict['response']
+        prediction = response['class']
+
+    acc = int(prediction) == int(image_label)
+    print(f"Thread {thread_id}, at {timestamp}, Received response {response}. Acc= {acc}")
+
+
+def request_batch(images_data, images_label, server_address, rate, executor):
     for i in range(rate):
-        executor.submit(send_predict_request, image_data, server_address, i)
+        executor.submit(send_predict_request, images_data[i], images_label[i], server_address, i)
+
+def retrieve_class_label(labels_encoding):
+    class_labels = np.argmax(labels_encoding, axis=1)
+    return class_labels
 
 def main(config):
     test_ds = config['test_ds']
@@ -54,22 +73,35 @@ def main(config):
 
     with h5py.File(test_ds, 'r') as f:
         X_test = np.array(f['images'])
+        y_test = np.array(f['labels'])
 
-
+        total_data = len(X_test)
 
     with ThreadPoolExecutor(max_workers=rate) as executor:
         num_seconds = 100000
-        for _ in range(num_seconds):
-            index = random.randint(0, 50000)
-            image_data = X_test[index]
-            request_batch(image_data, server_address, rate, executor)
+        start_index = 0
+        for i in range(num_seconds):
+            images_data = X_test[start_index: start_index + rate]
+            images_label = y_test[start_index: start_index + rate]
+            images_label = retrieve_class_label(images_label)
+
+
+            start_index = start_index + rate
+
+            request_batch(images_data, images_label, server_address, rate, executor)
             time.sleep(1)
+
+            if start_index + rate >= total_data:
+                print("This is the end of the dataset.")
+                print("about to reset the index into 0 to continue processing")
+                start_index = 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
     parser.add_argument('--server_address', type=str, help='default service address',
-                        # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
                         default="http://127.0.0.1:30005/inference_service")
+                        # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
                         # default="http://127.0.0.1:39499/inference_service")
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
                         default="/artifact/nii/datasets/BDD100K-Classification/test.h5")

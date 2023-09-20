@@ -27,6 +27,6 @@ RUN mkdir /inference-server/artifact
 EXPOSE 30005
 
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
-CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py", "--conf", "./examples/applications/object_classification/kube_deployment/inferenceService/inference_service.yaml"]
+CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py", "--conf", "./examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml"]
 # CMD ["python", "./examples/applications/object_classification/kube_deployment/inferenceService/server.py", "--conf", "./examples/applications/object_classification/kube_deployment/inferenceService/inference_service.yaml", "--enable_qoa", "0"]
 
