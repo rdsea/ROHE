@@ -14,8 +14,7 @@ modules/orchestration/temp/
 .env
 *.ipynb
 
-test_deployment/
-nii_models
-nii
-tmp_image_folder
-# tmp_folder
+# nii_models
+nii/
+tmp_image_folder/
+test_image/

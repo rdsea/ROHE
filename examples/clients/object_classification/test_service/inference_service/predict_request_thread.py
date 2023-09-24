@@ -4,32 +4,21 @@ import numpy as np
 import time
 from datetime import datetime
 import h5py
+import argparse
+import os, sys
 import random
-import argparse, os
-import threading
 from concurrent.futures import ThreadPoolExecutor
-import pathlib
 
-def get_file_dir(file, to_string=True):
-    current_dir = pathlib.Path(file).parent.absolute()
-    if to_string:
-        return str(current_dir)
-    else:
-        return current_dir
+import qoa4ml.qoaUtils as qoa_utils
 
-def get_parent_dir(file, parent_level=1, to_string=True):
-    current_dir = get_file_dir(file=file, to_string=False)
-    for i in range(parent_level):
-        current_dir = current_dir.parent.absolute()
-    if to_string:
-        return str(current_dir)
-    else:
-        return current_dir
 
+# set the ROHE to be in the system path
 lib_level = os.environ.get('LIB_LEVEL')
 if not lib_level:
     lib_level = 5
-main_path = config_file = get_parent_dir(__file__,lib_level)
+main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+sys.path.append(main_path)
+
 
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))

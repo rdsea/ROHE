@@ -1,6 +1,7 @@
 import json, psutil, time, os, yaml, logging
 from threading import Thread
 import traceback,sys, pathlib, requests
+import numpy as np
 
 import logging
 
@@ -105,7 +106,35 @@ def message_serialize(dictionary) -> str:
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
 
+
 def json_to_yaml(file_path):
     config = load_config(file_path)
     yaml_path = str(file_path)[:-4]+"yaml"
     yaml_config = to_yaml(yaml_path,config)
+
+
+
+def separate_ds_by_class(X, y):
+    """
+    Separates a multi-dimensional numpy array (X) and a 2D numpy array (y) into smaller arrays according to the class labels (y),
+    creating a nested dictionary with the separated X and y for each class label.
+    
+    :param X: Multi-dimensional numpy array, representing the dataset to be separated. Can have shape
+              (num_samples, height, width, channels) for RGB images or (num_samples, height, width) for grayscale images.
+    :param y: 2D numpy array of shape (num_samples, num_classes), representing the one-hot encoded class labels corresponding to the samples in X.
+    :return: dict, a nested dictionary where the outer keys are class labels, and the values are dictionaries with keys 'X' and 'y' 
+             representing subsets of X and corresponding rows of y belonging to each class.
+    """
+    
+    class_datasets = {}
+    class_labels = np.argmax(y, axis=1)
+    unique_class_labels = np.unique(class_labels)
+    
+    for label in unique_class_labels:
+        indices = np.where(class_labels == label)
+        class_datasets[label] = {
+            'X': X[indices],
+            'y': y[indices]
+        }
+        
+    return class_datasets
