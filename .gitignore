@@ -18,3 +18,4 @@ modules/orchestration/temp/
 nii/
 tmp_image_folder/
 test_image/
+lib/modules/profiling/result/
