@@ -4,10 +4,10 @@ import tensorflow as tf
 import numpy as np
 import qoa4ml.qoaUtils as qoa_utils
 
-from lib.modules.object_classification.roheClassificationObject import ClassificationObject
+from lib.modules.roheClassificationObject import ClassificationObject
 
 
-class NIIClassificationObject(ClassificationObject):
+class ClassificationObjectV1(ClassificationObject):
     def __init__(self, model_config: dict, input_shape: tuple = (32, 32, 3), log_level: int = 2, model_from_config = True):
         if type(input_shape) == str:
             input_shape = get_image_dim_from_str(input_shape)

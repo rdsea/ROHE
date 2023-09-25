@@ -33,13 +33,10 @@ if __name__ == '__main__':
     config_file = args.conf
 
     # yaml load configuration file
-    config = qoa_utils.load_config(file_path= config_file, format= 1)
+    config = roheUtils.load_config(file_path= config_file)
     if not config:
-        print("Something wrong with qoa_utils load config function. Second attempt to use rohe utils")
-        config = roheUtils.load_config(file_path= config_file, format= 1)
-        if not config:
-            print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
-            config = roheUtils.load_yaml_config(file_path= config_file)
+        print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
+        config = roheUtils.load_yaml_config(file_path= config_file)
 
 
     storage_lock = Lock()

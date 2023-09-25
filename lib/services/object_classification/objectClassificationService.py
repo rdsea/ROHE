@@ -5,7 +5,7 @@ from flask import request
 from typing import Dict, Optional
 
 
-from lib.modules.object_classification.classificationObject import NIIClassificationObject
+from lib.modules.object_classification.classificationObject import ClassificationObjectV1
 from lib.service_connectors.minioStorageConnector import MinioConnector
 from lib.services.restService import RoheRestObject
 
@@ -40,7 +40,7 @@ class ClassificationRestService(RoheRestObject):
         self.minio_connector = self.conf['minio_connector']
 
         # set model handler module
-        self.MLAgent: NIIClassificationObject = self.conf['MLAgent']
+        self.MLAgent: ClassificationObjectV1 = self.conf['MLAgent']
 
         # set model lock
         self.model_lock = self.conf['lock']

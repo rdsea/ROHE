@@ -2,7 +2,6 @@
 import os, sys
 import argparse
 import threading
-import qoa4ml.qoaUtils as qoa_utils
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,7 +19,7 @@ sys.path.append(main_path)
 
 
 from lib.services.restService import RoheRestService
-from lib.modules.object_classification.classificationObject import NIIClassificationObject
+from lib.modules.object_classification.classificationObject import ClassificationObjectV1
 from lib.services.object_classification.objectClassificationService import ClassificationRestService
 from lib.service_connectors.minioStorageConnector import MinioConnector
 import lib.roheUtils as roheUtils
@@ -49,7 +48,7 @@ if __name__ == '__main__':
 
     # load dependencies
     minio_connector = MinioConnector(storage_info= config['minio_config'])
-    MLAgent = NIIClassificationObject(model_config= config['model']['files'],
+    MLAgent = ClassificationObjectV1(model_config= config['model']['files'],
                                     input_shape= config['model']['input_shape'],
                                     model_from_config= True) 
     model_lock = threading.Lock() 
