@@ -1,4 +1,4 @@
-import logging, traceback,sys, copy
+import logging, traceback,sys, copy, os
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
@@ -286,6 +286,87 @@ def sdnParser(item, parser_conf):
             # concat new row data to result dataframe 
             swith_df = pd.concat([swith_df, dfi], ignore_index=True)
         return swith_df
+    except Exception as e:
+        logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))
+        traceback.print_exception(*sys.exc_info())
+        return None, None
+    
+def OCParser(item, parser_conf):
+    try:
+        metric_df = pd.DataFrame()
+        metric_list = parser_conf["metric"]
+        if "metadata" in item:
+            client_id = [item["metadata"]["client_id"]]
+            instance_name = [item["metadata"]["instance_name"]]
+            instances_id = [item["metadata"]["instances_id"]]
+            timestamp = [item["metadata"]["timestamp"]]
+            stage_id = [item["metadata"]["stage_id"]]
+            application = [item["metadata"]["application"]]
+            role = [item["metadata"]["role"]]
+        # Creat new row data
+        qoa_data = copy.deepcopy(item["quality"])
+        row_metric = {}
+        for category_key in list(metric_list.keys()):
+            if category_key in qoa_data:
+                category = metric_list[category_key]
+                for metric in category:
+                    max_value = -1
+                    if category_key == "inference":
+                        for instance_key in list(qoa_data[category_key].keys()):
+                            instance = qoa_data[category_key][instance_key]
+                            if metric["name"] in instance:
+                                if instance[metric["name"]]["value"] > max_value:
+                                    max_value = instance[metric["name"]]["value"]
+                    else:
+                        for stage_key in list(qoa_data[category_key].keys()):
+                            stage = qoa_data[category_key][stage_key]
+                            if metric["name"] in stage:
+                                for instance in list(stage[metric["name"]].keys()):
+                                    if metric["name"] == "responseTime":
+                                        value = stage[metric["name"]][instance][metric["name"]]
+                                    else:
+                                        value = stage[metric["name"]][instance]
+                                    if value > max_value:
+                                        max_value = value
+                    if max_value != -1:
+                        row_metric[metric["name"]] = [max_value]
+
+        metadata_dict = {"client_id":client_id,
+                    "instance_name":instance_name,
+                    "instances_id":instances_id,
+                    "timestamp":timestamp,
+                    "stage_id":stage_id,
+                    "application":application,
+                    "role":role}
+        result = copy.deepcopy(row_metric) 
+        row_metric.update(metadata_dict)
+        
+        dfi = pd.DataFrame(row_metric)
+        if role == ["client"]:
+            file_path = parser_conf["client"]
+        else:
+            file_path = parser_conf["mlProvider"]
+        # if file does not exist write header 
+        if not os.path.isfile(file_path):
+            dfi.to_csv(file_path, header='column_names')
+        else: # else it exists so append without writing the header
+            dfi.to_csv(file_path, mode='a', header=False)
+
+        
+        # for key in switches:
+        #     row_switch = {}
+        #     row_switch["switch"] = key
+        #     switch = switches[key]
+        #     row_switch.update(aggregate_switch(switch["FlowStats"], flowstat_config, "flow_"))
+        #     row_switch.update(aggregate_switch(switch["PortStats"], portstat_config, "port_"))
+        #     row_switch["agg_byte_count"] = [switch["Aggregate"]["byte_count"]]
+        #     row_switch["agg_packet_count"] = [switch["Aggregate"]["packet_count"]]
+        #     row_switch["agg_flow_count"] = [switch["Aggregate"]["flow_count"]]
+        #     row_switch.update(metadata_dict)
+        #     dfi = pd.DataFrame(row_switch)
+        #     # concat new row data to result dataframe 
+        #     swith_df = pd.concat([swith_df, dfi], ignore_index=True)
+        return result
     except Exception as e:
         logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))
         traceback.print_exception(*sys.exc_info())

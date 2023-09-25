@@ -9,6 +9,10 @@ import argparse, os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 import pathlib
+import qoa4ml.qoaUtils as qoa_utils
+from qoa4ml.QoaClient import QoaClient
+from qoa4ml import qoaUtils as qoa_utils
+
 
 def get_file_dir(file, to_string=True):
     current_dir = pathlib.Path(file).parent.absolute()
@@ -31,6 +35,10 @@ if not lib_level:
     lib_level = 5
 main_path = config_file = get_parent_dir(__file__,lib_level)
 
+def set_qoa_timer():
+    if "qoaclient" in globals():
+        qoaclient.timer()
+
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
 
@@ -40,8 +48,9 @@ def send_predict_request(image_array, image_label, url, thread_id):
         'metadata': json.dumps({'shape': '32,32,3', 'dtype': str(image_array.dtype)})
     }
     files = {'image': ('image', image_array.tobytes(), 'application/octet-stream')}
-
+    set_qoa_timer()
     response = requests.post(url, data=payload, files=files)
+    set_qoa_timer()
     timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
     response_dict = json.loads(response.text) 
@@ -55,7 +64,13 @@ def send_predict_request(image_array, image_label, url, thread_id):
         prediction = response['class']
 
     acc = int(prediction) == int(image_label)
-    response['acc'] = acc
+    response['accuracy'] = acc
+    if "qoaclient" in globals():
+        qoaclient.observeInferenceMetric("confidence", float(response['confidence_level']))
+        qoaclient.observeInferenceMetric("accuracy", int(acc))
+        qoaclient.observeInferenceMetric("predict_object", int(prediction))
+        qoaclient.observeMetric("class_object", int(image_label), 1)
+        qoaclient.report(submit=True)
     print(f"Thread {thread_id}, at {timestamp}, Received response {response}")
 
 
@@ -100,18 +115,24 @@ def main(config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
-    parser.add_argument('--server_address', type=str, help='default service address',
-                        default="http://127.0.0.1:30005/inference_service")
+    # parser.add_argument('--server_address', type=str, help='default service address',
+    #                     default="http://127.0.0.1:30005/inference_service")
                         # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
                         # default="http://127.0.0.1:39499/inference_service")
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
                         default="/artifact/nii/datasets/BDD100K-Classification/test.h5")
-    parser.add_argument('--rate', type=int, help='default number of requests per second', default=20)
+    parser.add_argument('--rate', type=int, help='default number of requests per second', default=100)
+    parser.add_argument('--conf', type=str, help='config file path', default="./config.yaml")
 
     args = parser.parse_args()
+    client_config = qoa_utils.load_config(args.conf)
+    server_address = client_config["server_address"]
+
+    global qoaclient 
+    qoaclient = QoaClient(client_config["qoa_config"])
 
     config = {
-        'server_address': args.server_address,
+        'server_address': client_config["server_address"],
         'test_ds': main_path+args.test_ds,
         'rate': args.rate,
     }

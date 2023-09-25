@@ -77,6 +77,13 @@ class NIIClassificationObject(ClassificationObject):
 
     def load_weights(self, weights_file):
         self.model.load_weights(weights_file)
+    
+    def get_model_metadata(self):
+        metadata = {}
+        metadata["no_layer"] = len(self.model.layers)
+        metadata["no_parameters"] = self.model.count_params()
+        # Todo: more metric
+        return(metadata)
 
 def get_image_dim_from_str(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))

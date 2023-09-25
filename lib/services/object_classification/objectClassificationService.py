@@ -134,8 +134,12 @@ class ClassificationRestService(RoheRestObject):
         original_shape = get_image_dim_from_str(metadata['shape'])
         print(f"This is the shape of the received image: {original_shape}")
         # print(f"This is the shape of the received image: {original_shape}")
-        self.qoaClient.observeMetric("image_width", self.MLAgent.input_shape[0], 1)
-        self.qoaClient.observeMetric("image_height", self.MLAgent.input_shape[1], 1)
+        self.qoaClient.observeMetric("image_width", original_shape[0], 1)
+        self.qoaClient.observeMetric("image_height", original_shape[1], 1)
+        
+        model_metadata = self.MLAgent.get_model_metadata()
+        for key in list(model_metadata.keys()):
+            self.qoaClient.observeInferenceMetric(key, model_metadata[key])
         if original_shape == self.MLAgent.input_shape:
             return True
         return False
@@ -213,6 +217,7 @@ class ClassificationRestService(RoheRestObject):
 
     def _handle_load_new_local_model_req(self, request: request):
         try:
+            print (request.form.get('weights_url'))
             files = {
                 "weights_file": request.form.get('weights_url'),
                 "architecture_file": request.form.get('architecture_url')
