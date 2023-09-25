@@ -1,0 +1,17 @@
+kafka:
+  address: 127.0.0.1:9092
+  topic_name: nii_case
+
+mongodb:
+  username: admin_user
+  password: admin_pass
+  host: localhost
+  port: 27017
+  database_name: nii_case
+  collection_name: inference_result_consumer
+
+aggregating:
+  time_limit: 5
+  min_messages: 10
+  valid_time: 60
+  max_threads: 10
