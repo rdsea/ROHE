@@ -42,11 +42,12 @@ class ClassificationObjectV1(ClassificationObject):
     def predict(self, image: np.ndarray) -> dict:
         try:
             image = image[np.newaxis, ...]  # Add a batch dimension
-            predicted_class_index, confidence_level = self._predict(image)
+            predicted_class_index, confidence_level, prediction = self._predict(image)
         except:
             # some other error that didn't handle yet
             predicted_class_index = -1
             confidence_level = -1
+            prediction = None
 
 #         # try:
 #         #     predicted_class_index, confidence_level = self._predict(image)
@@ -59,7 +60,9 @@ class ClassificationObjectV1(ClassificationObject):
 #         #         predicted_class_index = -1
 #         #         confidence_level = -1
 
-        result = {"class": int(predicted_class_index), "confidence_level": float(confidence_level)}
+        result = {"class": int(predicted_class_index), 
+                  "confidence_level": float(confidence_level), 
+                  "full_prediction": prediction}
 
         return result
     
@@ -67,7 +70,8 @@ class ClassificationObjectV1(ClassificationObject):
         prediction = self.model.predict(image)
         predicted_class_index = np.argmax(prediction)
         confidence_level = prediction[0, predicted_class_index]
-        return predicted_class_index, confidence_level
+        full_prediction = prediction.tolist()
+        return predicted_class_index, confidence_level, full_prediction
 
     def get_weights(self):
         return self.model.get_weights()

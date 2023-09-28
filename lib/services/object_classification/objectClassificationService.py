@@ -3,10 +3,14 @@ import json
 import numpy as np
 from flask import request
 from typing import Dict, Optional
+import random
 
 
 from lib.modules.object_classification.classificationObject import ClassificationObjectV1
 from lib.service_connectors.minioStorageConnector import MinioConnector
+from lib.service_connectors.mongoDBConnector import MongoDBConnector
+from lib.service_connectors.quixStreamProducer import KafkaStreamProducer
+
 from lib.services.restService import RoheRestObject
 
 from qoa4ml.QoaClient import QoaClient
@@ -25,6 +29,8 @@ class ClassificationRestService(RoheRestObject):
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
+        self.ensemble = self.conf['ensemble'] or False
+        print(f"This is the ensemble mode: {self.ensemble}")
         #Init model configuration (architecture, weight file)
         ############################################################################################################################################
         # The REST AGENT should not manage ML model. We should separate REST and ML -> Use classificationObject in module to manage ML models
@@ -42,6 +48,18 @@ class ClassificationRestService(RoheRestObject):
         # set model handler module
         self.MLAgent: ClassificationObjectV1 = self.conf['MLAgent']
 
+        # forwarding to the next stage
+        # either to mongodb or kafka topic
+        # depend on the configuration
+        if self.ensemble:
+            # set kafka streaming connector
+            self.kafka_producer: KafkaStreamProducer = self.conf['kafka_producer'] 
+        else:
+            print("mongo is chosen")
+            # set mongodb connector
+            self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
+
+        
         # set model lock
         self.model_lock = self.conf['lock']
 
@@ -122,6 +140,9 @@ class ClassificationRestService(RoheRestObject):
                 try:
                     with self.model_lock:
                         result = self.MLAgent.predict(image)
+                        # a function here to either publish to kafka topic
+                        # or write data to mongodb server
+                        self._publish_predict_request(info= request, prediction= result)
                         return result
                 except:
                     return "something wrong with the model"
@@ -130,6 +151,36 @@ class ClassificationRestService(RoheRestObject):
         else:
             return f"Image shape is not matched with the input shape of the model {self.MLAgent.input_shape} "
             
+    def _publish_predict_request(self, info, prediction):
+        message = self._generate_publish_message(info, prediction)
+        if self.ensemble:
+            self.kafka_producer.produce_values(message= message)
+        else:
+            # print(f"This is the published data: {message}, and its type: {type(message)}")
+            # Use the upload method to upload the data
+            try:
+                self.mongo_connector.upload([message])
+                print('Data uploaded successfully.')
+            except Exception as e:
+                print(f'Failed to upload data. Error: {e}')
+
+    def _generate_publish_message(self, info, prediction):
+        print(f"\n\n\n This is the prediction: {prediction}")
+        pred = prediction["full_prediction"]
+        index = random.randint(1, 10)  # Generate a random index for each message
+        random_id = random.randint(1, 200)
+        message = {
+            "request_id": f"request_{str(index)}",
+            # "prediction": np.array(pred).tolist(),
+            "prediction": pred,
+
+            # "prediction": np.array([0, 1, 2, 3, 4]).tolist(),
+            "pipeline_id": "pipeline_1",
+            "inference_model_id": f"model_{random_id}"
+        }
+        print(f"This is the message: {message}\n\n\n")
+        return message
+    
     def _check_dim(self, metadata) -> bool:
         original_shape = get_image_dim_from_str(metadata['shape'])
         print(f"This is the shape of the received image: {original_shape}")

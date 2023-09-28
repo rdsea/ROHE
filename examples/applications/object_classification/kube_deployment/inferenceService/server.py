@@ -22,6 +22,8 @@ from lib.services.restService import RoheRestService
 from lib.modules.object_classification.classificationObject import ClassificationObjectV1
 from lib.services.object_classification.objectClassificationService import ClassificationRestService
 from lib.service_connectors.minioStorageConnector import MinioConnector
+from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
+from lib.service_connectors.quixStreamProducer import KafkaStreamProducer
 import lib.roheUtils as roheUtils
 
 
@@ -55,10 +57,21 @@ if __name__ == '__main__':
     model_lock = threading.Lock() 
     qoa_client = QoaClient(config['qoa_config'])
 
+    if config['ensemble']:
+        kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+                                             topic_name= config['kafka']['topic'])
+        config['kafka_producer'] = kafka_producer
+    else:
+        mongodb_info = MongoDBInfo(**config['mongodb'])
+        mongo_connector = MongoDBConnector(db_info= mongodb_info)
+        config['mongo_connector'] = mongo_connector
+
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
     config['qoaClient'] = qoa_client
+
+    print(f"\n\nThis is config file: {config}\n\n")
     
     # start server
     classificationService = RoheRestService(config)

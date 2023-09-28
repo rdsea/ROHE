@@ -45,6 +45,8 @@ def send_predict_request(image_array, image_label, url, thread_id):
 
     response_dict = json.loads(response.text) 
 
+    print(f"This is the response: {response_dict}")
+    
     try:
         response = response_dict['response']
         prediction = response['class']
@@ -77,11 +79,13 @@ def main(config):
     rate = config['rate']
     server_address = config['server_address']
 
+    # print("Enter here")
     with h5py.File(test_ds, 'r') as f:
         X_test = np.array(f['images'])
         y_test = np.array(f['labels'])
 
         total_data = len(X_test)
+    print("Enter here")
 
     with ThreadPoolExecutor(max_workers=rate) as executor:
         num_seconds = 100000
@@ -109,22 +113,33 @@ if __name__ == '__main__':
                         default="http://127.0.0.1:30005/inference_service")
                         # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
                         # default="http://127.0.0.1:39499/inference_service")
+
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
                         default="/artifact/nii/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type=int, help='default number of requests per second', default=100)
     parser.add_argument('--conf', type=str, help='config file path', default="./config.yaml")
 
     args = parser.parse_args()
-    client_config = qoa_utils.load_config(args.conf)
-    server_address = client_config["server_address"]
 
-    global qoaclient 
-    qoaclient = QoaClient(client_config["qoa_config"])
+    try:
+        client_config = qoa_utils.load_config(args.conf)
+        print(f"This is client config: {client_config}")
+        if client_config == None:
+            client_config = {}
+    except:
+        client_config = {}
+
+    server_address = client_config.get("server_address") or "http://127.0.0.1:30005/inference_service"
+
+    if client_config != {}:
+        global qoaclient 
+        qoaclient = QoaClient(client_config["qoa_config"])
 
     config = {
-        'server_address': client_config["server_address"],
+        'server_address': server_address,
         'test_ds': main_path+args.test_ds,
         'rate': args.rate,
     }
+    print("This is the config: ", config)
 
     main(config=config)

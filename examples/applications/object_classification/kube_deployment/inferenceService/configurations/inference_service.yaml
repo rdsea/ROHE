@@ -10,6 +10,9 @@ minio_config:
   secret_key: "admin_pass"
   bucket_name: "nii-application-inference-model"
 
+ensemble: false
+# mongo_connector: null
+
 qoa_config:
   client:
     client_id: "aaltosea2"
@@ -20,3 +23,16 @@ qoa_config:
     role: "ml"
   registration_url: "http://0.0.0.0:5010/registration"
 
+mongodb:
+  username: admin_user
+  password: admin_pass
+  # host: localhost
+  host: 130.233.195.206
+  # host: 128.214.254.126
+  port: 27017
+  database_name: nii_case
+  collection_name: raw_prediction
+
+kafka:
+  address: 127.0.0.1:9092
+  topic_name: nii_case
