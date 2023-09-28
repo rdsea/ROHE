@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nii-inference-service
+spec:
+  selector:
+    app: nii-inference
+  ports:
+    - protocol: TCP
+      port: 30005
+      targetPort: 30005

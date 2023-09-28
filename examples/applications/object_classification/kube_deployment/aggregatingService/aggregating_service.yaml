@@ -5,7 +5,9 @@ kafka:
 mongodb:
   username: admin_user
   password: admin_pass
-  host: localhost
+  # host: localhost
+  host: 130.233.195.206
+  # host: 128.214.254.126
   port: 27017
   database_name: nii_case
   collection_name: inference_result_consumer

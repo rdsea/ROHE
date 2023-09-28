@@ -3,8 +3,8 @@ import os, sys
 import argparse
 import threading
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient
@@ -44,6 +44,7 @@ if __name__ == '__main__':
     if not config:
         print("Something wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
         config = roheUtils.load_yaml_config(file_path= config_file)
+        
     print(f"\n\nThis is config file: {config}\n\n")
 
     # load dependencies

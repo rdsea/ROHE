@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio-container
+        image: minio/minio:latest
+        args:
+        - server
+        - /data
+        env:
+        - name: MINIO_ROOT_USER
+          value: "admin_user"
+        - name: MINIO_ROOT_PASSWORD
+          value: "admin_pass"
+        ports:
+        - containerPort: 9000

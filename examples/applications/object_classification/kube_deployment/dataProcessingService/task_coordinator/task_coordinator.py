@@ -25,7 +25,7 @@ def setup_redis(redis_config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Task Coordinator Service")
     parser.add_argument('--port', type= int, help='default port', default=5000)
-    parser.add_argument('--conf', type= str, help='configuration file')
+    parser.add_argument('--conf', type= str, help='configuration file', default= 'task_coordinator.yaml')
 
 
     # Parse the parameters
@@ -33,16 +33,14 @@ if __name__ == '__main__':
     config_file = args.conf
     port = int(args.port)
 
-
-    # yaml load configuration file
-    config = qoa_utils.load_config(file_path= config_file, format= 1)
+    config = roheUtils.load_config(file_path= config_file)
     if not config:
-        print("Something wrong with qoa_utils load config function. Second attempt to use rohe utils")
-        config = roheUtils.load_config(file_path= config_file, format= 1)
-        if not config:
-            print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
-            config = roheUtils.load_yaml_config(file_path= config_file)
+        print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
+        config = roheUtils.load_yaml_config(file_path= config_file)
 
+    config['redis_server']['db'] = int(config['redis_server']['db'])
+
+    print(f"This is the config: {config}")
 
     # initialize dependecy before passing to the restful server
     redis = setup_redis(redis_config= config['redis_server'])

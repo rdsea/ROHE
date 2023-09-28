@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nii-processing-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nii-processing
+  template:
+    metadata:
+      labels:
+        app: nii-processing
+    spec:
+      containers:
+      - name: nii-processing-container
+        image: vtn13042000/processing:arm
+        volumeMounts:
+        - name: config-volume
+          mountPath: /processing-server/examples/applications/object_classification/kube_deployment/dataProcessingService/processing_service.yaml
+          subPath: processing_service.yaml
+      volumes:
+      - name: config-volume
+        configMap:
+          name: processing-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: processing-config
+data:
+  processing_service.yaml: |
+    max_thread: 3
+    processing_config:
+      min_request_period: 1
+      max_request_period: 30
+      image_dim: "32,32,3"
+
+    redis_server:
+      url: "http://task-coordinator-service:5000/task_coordinator"
+
+    inference_server:
+      url: "http://nii-inference-service:30005/inference_service"
+
+    minio_config:
+      endpoint_url: "http://minio-service:9000"
+      access_key: "admin_user"
+      secret_key: "admin_pass"
+      bucket_name: "nii-application-unprocessed-image"
+---

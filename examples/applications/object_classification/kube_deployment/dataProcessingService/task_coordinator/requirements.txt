@@ -1,0 +1,6 @@
+redis
+qoa4ml
+requests
+numpy
+flask
+flask_restful

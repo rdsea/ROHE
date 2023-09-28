@@ -105,8 +105,8 @@ def main(config):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
-    # parser.add_argument('--server_address', type=str, help='default service address',
-    #                     default="http://127.0.0.1:30005/inference_service")
+    parser.add_argument('--server_address', type=str, help='default service address',
+                        default="http://127.0.0.1:30005/inference_service")
                         # default="http://edge-k3s-j6.cs.aalto.fi:30005/inference_service")
                         # default="http://127.0.0.1:39499/inference_service")
     parser.add_argument('--test_ds', type=str, help='default test dataset path',

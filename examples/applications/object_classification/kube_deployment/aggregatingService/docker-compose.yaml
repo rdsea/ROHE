@@ -1,11 +1,11 @@
 version: '3'
 services:
   nii_task_coordinator:
-    image: vtn13042000/nii_task_coordinator_intel:1.0.0
+    image: vtn13042000/aggregate:arm_debug
     ports:
       - "5000:5000"
     volumes:
-      - ./task_coordinator.yaml:/task-coordinator/examples/applications/object_classification/kube_deployment/dataProcessingService/task_coordinator/task_coordinator.yaml
+      - ./aggregating_service.yaml:/aggregate-server/examples/applications/object_classification/kube_deployment/aggregatingService/aggregating_service.yaml
 
     # environment:
     #   minio_client_access_key: prJxdafe7L400AAXScc8

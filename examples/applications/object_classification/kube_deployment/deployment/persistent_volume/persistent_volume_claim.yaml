@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: inference-artifacts-pvc
+spec:
+  storageClassName: ""  # set to an empty string to use a specific, manually created PV
+  selector:
+    matchLabels:
+      type: local  # must match the label of your PV
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi

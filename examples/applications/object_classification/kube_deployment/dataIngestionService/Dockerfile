@@ -1,9 +1,9 @@
 
 # For Jetson Xavier AGX J6
-# FROM arm64v8/python:3.8-slim-buster
+FROM arm64v8/python:3.8-slim-buster
 
-# For testing
-FROM python:3.8-slim-buster
+# # For testing
+# FROM python:3.8-slim-buster
 
 
 WORKDIR /ingestion-server
@@ -12,6 +12,8 @@ WORKDIR /ingestion-server
 COPY ./examples/applications/object_classification/kube_deployment/dataIngestionService/requirements.txt /ingestion-server/requirements.txt
 
 RUN apt-get update
+RUN apt-get install -y gcc python3-dev
+RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 
 COPY ./lib /ingestion-server/lib

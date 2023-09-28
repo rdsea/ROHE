@@ -13,4 +13,4 @@ services:
       # - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact:/inference-server/artifact
       # - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
       - /home/vtn/aalto-internship/ROHE/artifact:/inference-server/artifact
-      - /home/vtn/aalto-internship/ROHE/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
+      - ./configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
