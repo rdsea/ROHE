@@ -13,23 +13,24 @@ minio_config:
 ensemble: false
 # mongo_connector: null
 
-qoa_config:
-  client:
-    client_id: "aaltosea2"
-    instance_name: "inference_service01"
-    stage_id: "ML_Inference"
-    method: "REST"
-    application: "test"
-    role: "ml"
-  registration_url: "http://0.0.0.0:5010/registration"
+# qoa_config:
+#   client:
+#     client_id: "aaltosea2"
+#     instance_name: "inference_service01"
+#     stage_id: "ML_Inference"
+#     method: "REST"
+#     application: "test"
+#     role: "ml"
+#   registration_url: "http://0.0.0.0:5010/registration"
 
 mongodb:
   username: admin_user
   password: admin_pass
   # host: localhost
-  host: 130.233.195.206
+  host: 130.233.195.205
   # host: 128.214.254.126
-  port: 27017
+  # port: 27017
+  port: 30017
   database_name: nii_case
   collection_name: raw_prediction
 

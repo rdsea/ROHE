@@ -48,4 +48,3 @@ data:
       access_key: "admin_user"
       secret_key: "admin_pass"
       bucket_name: "nii-application-unprocessed-image"
----

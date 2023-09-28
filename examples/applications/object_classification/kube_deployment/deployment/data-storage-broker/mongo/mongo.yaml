@@ -13,7 +13,7 @@ spec:
         app: mongodb
     spec:
       nodeSelector:
-        kubernetes.io/hostname: aaltosea-jet03-worker
+        kubernetes.io/hostname: aaltosea-jet06-worker
 
       containers:
       - name: mongodb-container

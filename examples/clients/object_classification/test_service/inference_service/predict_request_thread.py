@@ -120,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--conf', type=str, help='config file path', default="./config.yaml")
 
     args = parser.parse_args()
+    address = args.server_address
 
     try:
         client_config = qoa_utils.load_config(args.conf)
@@ -129,7 +130,8 @@ if __name__ == '__main__':
     except:
         client_config = {}
 
-    server_address = client_config.get("server_address") or "http://127.0.0.1:30005/inference_service"
+    server_address = client_config.get("server_address") or address
+    print(f"This is the server address: {server_address}")
 
     if client_config != {}:
         global qoaclient 

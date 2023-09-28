@@ -24,8 +24,10 @@ class ClassificationRestService(RoheRestObject):
         configuration = kwargs
         self.conf = configuration
         if 'qoaClient' in self.conf:
+            print(f"There is qoa enable in the server")
             self.qoaClient: QoaClient = self.conf['qoaClient']
-
+        else:
+            self.qoaClient = None
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
@@ -79,7 +81,8 @@ class ClassificationRestService(RoheRestObject):
         - load_new_model: Loads a new machine learning model for inference.
         - predict: download the image and returns a prediction.
         """
-        self.qoaClient.timer() 
+        if self.qoaClient:
+            self.qoaClient.timer() 
         try:
              
 
@@ -88,7 +91,8 @@ class ClassificationRestService(RoheRestObject):
 
             if handler:
                 response = handler(request)
-                self.qoaClient.timer()
+                if self.qoaClient:
+                    self.qoaClient.timer()
                 result = json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
             else:
                 result = json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
@@ -97,14 +101,17 @@ class ClassificationRestService(RoheRestObject):
             print("Exception:", e)
             result = json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
         
-        self.qoaClient.timer() 
+        if self.qoaClient:
+            self.qoaClient.timer() 
         if command == "predict":
             try:
-                self.qoaClient.observeInferenceMetric("confidence", float(response['confidence_level']))
+                if self.qoaClient:
+                    self.qoaClient.observeInferenceMetric("confidence", float(response['confidence_level']))
             except Exception as e:
                 print(e)
 
-        report = self.qoaClient.report(submit=True)
+        if self.qoaClient:
+            report = self.qoaClient.report(submit=True)
 
         return result
 
@@ -185,12 +192,14 @@ class ClassificationRestService(RoheRestObject):
         original_shape = get_image_dim_from_str(metadata['shape'])
         print(f"This is the shape of the received image: {original_shape}")
         # print(f"This is the shape of the received image: {original_shape}")
-        self.qoaClient.observeMetric("image_width", original_shape[0], 1)
-        self.qoaClient.observeMetric("image_height", original_shape[1], 1)
+        if self.qoaClient:
+            self.qoaClient.observeMetric("image_width", original_shape[0], 1)
+            self.qoaClient.observeMetric("image_height", original_shape[1], 1)
         
         model_metadata = self.MLAgent.get_model_metadata()
         for key in list(model_metadata.keys()):
-            self.qoaClient.observeInferenceMetric(key, model_metadata[key])
+            if self.qoaClient:
+                self.qoaClient.observeInferenceMetric(key, model_metadata[key])
         if original_shape == self.MLAgent.input_shape:
             return True
         return False

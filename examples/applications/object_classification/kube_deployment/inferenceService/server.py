@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--conf', type= str, help='configuration file', 
             default= "./configurations/inference_service.yaml")
-
+    
 
     # Parse the parameters
     args = parser.parse_args()
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                     input_shape= config['model']['input_shape'],
                                     model_from_config= True) 
     model_lock = threading.Lock() 
-    qoa_client = QoaClient(config['qoa_config'])
+
 
     if config['ensemble']:
         kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
@@ -69,7 +69,11 @@ if __name__ == '__main__':
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
-    config['qoaClient'] = qoa_client
+
+    if config.get('qoa_config'):
+        print(f"About to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        config['qoaClient'] = qoa_client
 
     print(f"\n\nThis is config file: {config}\n\n")
     

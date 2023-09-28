@@ -12,6 +12,8 @@ spec:
       labels:
         app: minio
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: aaltosea-jet01-worker
       containers:
       - name: minio-container
         image: minio/minio:latest

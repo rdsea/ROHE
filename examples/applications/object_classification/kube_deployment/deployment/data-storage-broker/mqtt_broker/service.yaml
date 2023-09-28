@@ -9,6 +9,9 @@ spec:
     - name: mqtt  
       protocol: TCP
       port: 1883
+      nodePort: 31083 
     - name: websockets 
       protocol: TCP
       port: 9001
+      nodePort: 31001 
+  type: NodePort
