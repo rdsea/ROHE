@@ -107,10 +107,14 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
         
         def aggregate_instances(group):
             return ','.join(group.values.tolist())
+
+        def pipeline_instances(group):
+            return ','.join(group.values.tolist())
     
         aggregated_df = df.groupby('request_id').agg({
             'prediction': mean_prediction,
-            'pipeline_id': 'first',
+            # 'pipeline_id': 'first',
+            'pipeline_id': pipeline_instances,
             'inference_model_id': aggregate_instances
         }).reset_index()
 

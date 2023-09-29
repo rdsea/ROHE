@@ -116,9 +116,11 @@ class ProcessingService(RoheObject):
         shape_str = ','.join(map(str, processing_result['processed_image'].shape))
 
         metadata = {
+            'request_id': processing_result['request_id'],
             'shape': shape_str,
             'dtype': str(processing_result['processed_image'].dtype)
         }
+        print(f"\n\n\n\n\nThis is the metadata: {metadata}")
         # Create a dictionary to include both command and metadata
         payload = {
             'command': 'predict',

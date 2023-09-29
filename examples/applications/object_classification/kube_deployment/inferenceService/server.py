@@ -51,20 +51,29 @@ if __name__ == '__main__':
 
     # load dependencies
     minio_connector = MinioConnector(storage_info= config['minio_config'])
-    MLAgent = ClassificationObjectV1(model_config= config['model']['files'],
-                                    input_shape= config['model']['input_shape'],
+    MLAgent = ClassificationObjectV1(model_info= config['model_info'],
+                                    input_shape= config['model_info']['input_shape'],
                                     model_from_config= True) 
     model_lock = threading.Lock() 
 
 
-    if config['ensemble']:
-        kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
-                                             topic_name= config['kafka']['topic'])
-        config['kafka_producer'] = kafka_producer
-    else:
-        mongodb_info = MongoDBInfo(**config['mongodb'])
-        mongo_connector = MongoDBConnector(db_info= mongodb_info)
-        config['mongo_connector'] = mongo_connector
+    # if config['ensemble']:
+    #     kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+    #                                          topic_name= config['kafka']['topic_name'])
+    #     config['kafka_producer'] = kafka_producer
+        
+    # else:
+    #     mongodb_info = MongoDBInfo(**config['mongodb'])
+    #     mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    #     config['mongo_connector'] = mongo_connector
+
+    kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+                                        topic_name= config['kafka']['topic_name'])
+    config['kafka_producer'] = kafka_producer
+    
+    mongodb_info = MongoDBInfo(**config['mongodb'])
+    mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    config['mongo_connector'] = mongo_connector
 
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent

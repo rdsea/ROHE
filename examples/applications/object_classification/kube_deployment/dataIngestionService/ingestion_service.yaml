@@ -12,11 +12,14 @@ minio_config:
 
 mqtt_config:
   broker_info:
-    url: host-machine
+    # url: host-machine
+    url: localhost
     port: 1883
     keep_alive: 60
   client_id: "server_01"
   sub_topic: "$share/ingestion_instances/shared_topic/rohe/nii_case/test"
 
 redis_server:
-  url: "http://192.168.205.85:5000/task_coordinator"
+  # url: "http://192.168.205.85:5000/task_coordinator"
+  url: "http://localhost:5000/task_coordinator"
+

@@ -24,7 +24,7 @@ config_file = args.conf
 server_address = args.server_address
 rate = args.rate
 
-sleeping_time = 600
+sleeping_time = 5
 # load configuration file
 with open(config_file, 'r') as json_file:
     config: dict = json.load(json_file)   

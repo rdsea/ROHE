@@ -2,19 +2,18 @@
 
 from abc import ABC, abstractmethod
 from .roheObject import RoheObject
-
+import tensorflow as tf
 
 class ClassificationObject(RoheObject, ABC):
-    def __init__(self, model_config: dict, input_shape: tuple, log_level= 2):
+    def __init__(self, model_info: dict, input_shape: tuple, log_level= 2):
         super() .__init__()
         self.set_logger_level(logging_level= log_level)
-        
-        self.input_shape= input_shape
-        self.model = self.load_init_model(model_files= model_config)
 
+        self.input_shape = input_shape
+        self.model: tf.keras.Model = self.load_init_model(model_info= model_info)
 
     @abstractmethod
-    def load_init_model(self, model_files):
+    def load_init_model(self, model_info) -> tf.keras.Model:
         pass
         
     @abstractmethod
