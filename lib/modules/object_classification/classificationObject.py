@@ -40,7 +40,7 @@ class ClassificationObjectV1(ClassificationObject):
 
         return new_dict
 
-    def get_model_files(self, model_id):
+    def get_model_files(self, model_id: str) -> dict:
         return self.model_info[model_id]['files']
     
     def set_model_id(self, model_id):

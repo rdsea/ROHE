@@ -294,16 +294,24 @@ class ClassificationRestService(RoheRestObject):
 
     def _handle_load_new_local_model_req(self, request: request):
         try:
-            print (request.form.get('weights_url'))
-            files = {
-                "weights_file": request.form.get('weights_url'),
-                "architecture_file": request.form.get('architecture_url')
-            }
+            # print (request.form.get('weights_url'))
+            # files = {
+            #     "weights_file": request.form.get('weights_url'),
+            #     "architecture_file": request.form.get('architecture_url')
+            # }
+            chosen_model_id: str = request.form.get('model_id')
+            files = self.MLAgent.get_model_files(chosen_model_id)
+            # files = {
+            #     "weights_file": request.form.get('weights_url'),
+            #     "architecture_file": request.form.get('architecture_url')
+            # }
             
             new_model = self.MLAgent.load_model_from_config(**files)
 
             with self.model_lock:
                 self.MLAgent.change_model(new_model)
+                self.MLAgent.set_model_id(chosen_model_id)
+                print(f"\n\n\nThis is the current model id: {self.MLAgent.get_model_id()}")
             
             return "Local file case. Sucessfully change the model"
                 
