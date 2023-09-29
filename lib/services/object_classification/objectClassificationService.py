@@ -16,6 +16,16 @@ from lib.services.restService import RoheRestObject
 from qoa4ml.QoaClient import QoaClient
 
 
+class EnsembleState():
+    def __init__(self, mode: bool):
+        self.mode = mode
+        
+    def change_mode(self, mode: bool):
+        self.mode = mode
+
+    def get_mode(self) -> bool:
+        return self.mode
+    
 # class ClassificationRestService():
 class ClassificationRestService(RoheRestObject):
     def __init__(self, **kwargs):
@@ -31,10 +41,12 @@ class ClassificationRestService(RoheRestObject):
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 
-        self.ensemble = self.conf['ensemble'] or False
+        # self.ensemble = self.conf['ensemble'] or False
+        self.ensemble_controller: EnsembleState = self.conf['ensemble_controller']
+        print(f"This is the current ensemble mode: {self.ensemble_controller.get_mode()}")
         self.pipeline_id = self.conf.get('pipeline_id') or "pipeline_sample"
 
-        print(f"This is the ensemble mode: {self.ensemble}")
+        # print(f"This is the ensemble mode: {self.ensemble}")
         #Init model configuration (architecture, weight file)
         ############################################################################################################################################
         # The REST AGENT should not manage ML model. We should separate REST and ML -> Use classificationObject in module to manage ML models
@@ -51,18 +63,6 @@ class ClassificationRestService(RoheRestObject):
 
         # set model handler module
         self.MLAgent: ClassificationObjectV1 = self.conf['MLAgent']
-
-        # # forwarding to the next stage
-        # # either to mongodb or kafka topic
-        # # depend on the configuration
-        # if self.ensemble:
-        #     print("choose the ensemble mode")
-        #     # set kafka streaming connector
-        #     self.kafka_producer: KafkaStreamProducer = self.conf['kafka_producer'] 
-        # else:
-        #     print("mongo is chosen")
-        #     # set mongodb connector
-        #     self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
 
         # initialized both
         # to be flexible to switch mode 
@@ -81,9 +81,9 @@ class ClassificationRestService(RoheRestObject):
             'predict': self._handle_predict_req,
             'load_new_weights': self._handle_load_new_weights_req,
             'load_new_model': self._handle_load_new_model_req,
+            'change_ensemble_mode': self._handle_change_ensemble_mode,
         }
 
-    
     def post(self):
         """
         Handles POST requests for the inference service.
@@ -172,10 +172,16 @@ class ClassificationRestService(RoheRestObject):
             
     def _publish_predict_request(self, request_info, prediction):
         message = self._generate_publish_message(request_info, prediction)
-        if self.ensemble:
-            print("About to send message to kafka topic")
+        # if self.ensemble == True:
+        mode = self.ensemble_controller.get_mode() == True
+        print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.get_mode()}")
+        if mode:
+            print(f"mode when entering kafka: {mode}")
+            # print("About to send message to kafka topic")
             self.kafka_producer.produce_values(message= message)
         else:
+            print(f"mode when entering kafka: {mode}")
+            # print("About to publish to mongodb")
             # print(f"This is the published data: {message}, and its type: {type(message)}")
             # Use the upload method to upload the data
             try:
@@ -195,7 +201,8 @@ class ClassificationRestService(RoheRestObject):
             "pipeline_id": self.pipeline_id,
             "inference_model_id": self.MLAgent.get_model_id(),
         }
-        if self.ensemble:
+        # if self.ensemble:
+        if self.ensemble_controller.get_mode() == True:
             message = self._proccess_message_for_ensemble(message= message)
 
         print(f"This is the message: {message}\n\n\n")
@@ -291,6 +298,32 @@ class ClassificationRestService(RoheRestObject):
             return self._handle_load_new_local_model_req(request)
         # else:
         #     return self._handle_load_new_remote_model_req(request)
+
+
+    def _handle_change_ensemble_mode(self, request: request):
+        try:
+            ensemble_mode = request.form.get('ensemble_mode')
+            # ensemble_mode = request.form.get('ensemble_mode')
+            ensemble_mode = ensemble_mode.lower() == 'true'
+
+            # ensemble_mode= bool(request.form.get('ensemble_mode'))
+            print(f"\n\n\n\nThis is the request ensemble mode: {ensemble_mode}")     
+            message = f"Successfully change the ensemble mode from {self.ensemble_controller.get_mode()} to {ensemble_mode}"
+            with self.model_lock:
+                print(f"Mode before changing: {self.ensemble_controller.get_mode()}")
+                self.ensemble_controller.change_mode(ensemble_mode)
+                # print(f"The current ensemble mode after making request: {self.ensemble_controller.get_mode()}\n\n\n")
+                print(f"Mode after changing: {self.ensemble_controller.get_mode()}")
+
+            return message
+                
+        except Exception as e:
+            return f"Local model case. Failed to update new weights or architecture: {str(e)}"
+
+    # def _get_ensemble_mode(self) -> bool:
+    #     return self.ensemble
+    # def _change_ensemble_mode(self, mode: bool):
+    #     self.ensemble = mode
 
     def _handle_load_new_local_model_req(self, request: request):
         try:

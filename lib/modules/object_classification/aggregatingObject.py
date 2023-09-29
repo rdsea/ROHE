@@ -80,13 +80,18 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
                         'data': group_list,
                         'timer': time.time()  # Current timestamp
                     }
-                
-                self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
+
+                # self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
+
+            for req_id, info in self.buffer_dict.items():
+                self.executor.submit(self.check_and_process, req_id, info)
 
     def check_and_process(self, req_id, buffer_data):
         # Check the conditions: Time elapsed or minimum number of messages reached
-        elapsed_time = time.time() - buffer_data['timer']
+        elapsed_time = float(time.time() - buffer_data['timer'])
         num_messages = len(buffer_data['data'])
+        print(f"This is the elapse time: {elapsed_time} and type of it: {type(elapsed_time)}, this is the num message: {num_messages}")
+        print(f"this is the result of time buffer: {elapsed_time >= self.time_limit}")
         
         if elapsed_time >= self.time_limit or num_messages >= self.min_messages:
             print(f"Request_id: {req_id}, elapsed time: {elapsed_time}, current messages: {num_messages} ")

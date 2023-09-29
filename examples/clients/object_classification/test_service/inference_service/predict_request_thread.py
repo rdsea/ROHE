@@ -32,10 +32,12 @@ def set_qoa_timer():
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
 
-def send_predict_request(image_array, image_label, url, thread_id):
+def send_predict_request(request_id, image_array, image_label, url, thread_id):
     payload = {
         'command': 'predict',
-        'metadata': json.dumps({'shape': '32,32,3', 'dtype': str(image_array.dtype)})
+        'metadata': json.dumps({'shape': '32,32,3', 'dtype': str(image_array.dtype)}),
+        'request_id': request_id, 
+
     }
     files = {'image': ('image', image_array.tobytes(), 'application/octet-stream')}
     set_qoa_timer()
@@ -66,9 +68,9 @@ def send_predict_request(image_array, image_label, url, thread_id):
     print(f"Thread {thread_id}, at {timestamp}, Received response {response}")
 
 
-def request_batch(images_data, images_label, server_address, rate, executor):
+def request_batch(images_data, images_label, request_id, server_address, rate, executor):
     for i in range(rate):
-        executor.submit(send_predict_request, images_data[i], images_label[i], server_address, i)
+        executor.submit(send_predict_request,request_id[i], images_data[i], images_label[i], server_address, i)
 
 def retrieve_class_label(labels_encoding):
     class_labels = np.argmax(labels_encoding, axis=1)
@@ -90,6 +92,8 @@ def main(config):
     with ThreadPoolExecutor(max_workers=rate) as executor:
         num_seconds = 100000
         start_index = 0
+        request_id = [f"request_{i}" for i in range(rate)]
+        print(f"this is the request id: {request_id}")
         for i in range(num_seconds):
             images_data = X_test[start_index: start_index + rate]
             images_label = y_test[start_index: start_index + rate]
@@ -98,7 +102,7 @@ def main(config):
 
             start_index = start_index + rate
 
-            request_batch(images_data, images_label, server_address, rate, executor)
+            request_batch(images_data, images_label, request_id, server_address, rate, executor)
             time.sleep(1)
 
             if start_index + rate >= total_data:
@@ -116,7 +120,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--test_ds', type=str, help='default test dataset path',
                         default="/artifact/nii/datasets/BDD100K-Classification/test.h5")
-    parser.add_argument('--rate', type=int, help='default number of requests per second', default=100)
+    parser.add_argument('--rate', type=int, help='default number of requests per second', default=20)
     parser.add_argument('--conf', type=str, help='config file path', default="./config.yaml")
 
     args = parser.parse_args()

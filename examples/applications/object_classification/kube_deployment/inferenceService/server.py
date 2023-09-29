@@ -20,7 +20,7 @@ sys.path.append(main_path)
 
 from lib.services.restService import RoheRestService
 from lib.modules.object_classification.classificationObject import ClassificationObjectV1
-from lib.services.object_classification.objectClassificationService import ClassificationRestService
+from lib.services.object_classification.objectClassificationService import ClassificationRestService, EnsembleState
 from lib.service_connectors.minioStorageConnector import MinioConnector
 from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
 from lib.service_connectors.quixStreamProducer import KafkaStreamProducer
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     #     mongodb_info = MongoDBInfo(**config['mongodb'])
     #     mongo_connector = MongoDBConnector(db_info= mongodb_info)
     #     config['mongo_connector'] = mongo_connector
-
+    ensemble_controller = EnsembleState(config['ensemble'])
     kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
                                         topic_name= config['kafka']['topic_name'])
     config['kafka_producer'] = kafka_producer
@@ -78,6 +78,8 @@ if __name__ == '__main__':
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
+    config['ensemble_controller'] = ensemble_controller
+    
 
     if config.get('qoa_config'):
         print(f"About to load qoa client: {config['qoa_config']}")

@@ -21,15 +21,22 @@ server_address = args.server_address
 rate = args.rate
 sleeping_time = 30
 
-model_list = ['vgg','vgg_0','vgg_2_7','vgg_2_12','vgg_3_6','vgg_6', 'vgg_6_7', 'vgg_7', 'vgg_7_6']
 
+# for model in model_list:
+# while True:
+for i in range(20):
+    if i % 2 == 0:
+        ensemble_mode = True
+    else:
+        ensemble_mode = False
 
-for model in model_list:
+    print(f"This is the ensemble mode: {ensemble_mode}")
     # Prepare payload
     payload = {
-        'command': 'load_new_model',
+        'command': 'change_ensemble_mode',
         'local_file': True,
-        'model_id': model
+        'ensemble_mode': ensemble_mode,
+
     }
 
     # Make POST request to load new model
@@ -38,7 +45,7 @@ for model in model_list:
         response_json = response.json()
         timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        print(f"At {timestamp}, this is the result of call for model {model}")
+        print(f"At {timestamp}, this is the result of call for ensemble mode of {ensemble_mode}")
         if response.status_code == 200:
             # print(f"Success: {response_json.get('response')}")
             print(f"Success: {response_json}")

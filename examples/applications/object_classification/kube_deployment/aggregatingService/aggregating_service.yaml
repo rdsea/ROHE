@@ -15,12 +15,12 @@ mongodb:
   # collection_name: inference_result_consumer
   # collection_name: ensemble_result
   # collection_name: try
-  collection_name: true_one_inference
+  collection_name: ensemble
 
 
 
 aggregating:
-  time_limit: 5
-  min_messages: 10
+  time_limit: 3
+  min_messages: 3
   valid_time: 60
   max_threads: 10

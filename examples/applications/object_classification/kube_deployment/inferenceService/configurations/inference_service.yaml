@@ -47,8 +47,8 @@ minio_config:
   secret_key: "admin_pass"
   bucket_name: "nii-application-inference-model"
 
-ensemble: false
-# ensemble: true
+# ensemble: false
+ensemble: true
 
 # qoa_config:
 #   client:
@@ -69,7 +69,7 @@ mongodb:
   # port: 30017
   database_name: nii_case
   # collection_name: raw_prediction
-  collection_name: raw_prediction_1
+  collection_name: raw_prediction
 
 
 kafka:
