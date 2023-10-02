@@ -15,4 +15,5 @@ qoa_config:
         exchange_type: topic
         out_routing_key: nii.inference2
   registration_url: "http://0.0.0.0:5010/registration"
-server_address: "http://127.0.0.1:30005/inference_service"
+
+server_address: "http://localhost:30005/inference_service"

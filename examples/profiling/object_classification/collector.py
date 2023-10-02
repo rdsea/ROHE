@@ -27,7 +27,7 @@ class Collector(object):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Node Monitoring")
     parser.add_argument('--conf', help='configuration file', default="/collector.json")
-    parser.add_argument('--t', help='profiling time', default=600)
+    parser.add_argument('--t', help='profiling time', default=30)
     args = parser.parse_args()
 
     profiling_time = args.t
@@ -44,6 +44,7 @@ if __name__ == '__main__':
 
     # Start collector
     collector.start()
+
     count = 0
 
     # Create folder to save raw data
