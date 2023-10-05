@@ -49,6 +49,7 @@ def preprocess_df(df: pd.DataFrame):
     processed_df.reset_index(drop=True, inplace=True)
 
     return processed_df
+
 def make_inference_report(dataframe: pd.DataFrame, model_id: str):
     dataframe = dataframe.copy(deep= True)
     # # Drop rows where 'role' column has missing values
@@ -297,7 +298,7 @@ if __name__ == '__main__':
     profile_folder_path = args.profile_folder
     profile_folder_path = os.path.join(main_path, profile_folder_path)
 
-    subfolders = get_subfolders(profile_folder_path)  # Assuming you have get_subfolders function as defined before
+    subfolders = get_subfolders(profile_folder_path)
     folder_name = get_target_folder_name(profile_folder_path)
 
     dfs = []
