@@ -1,0 +1,55 @@
+# Messaging Configuration
+messaging:
+  kafka:
+    address: "127.0.0.1:9092"
+    topic_name: "nii_case"
+
+# Database Configuration
+storage:
+  mongodb:
+    username: "admin_user"
+    password: "admin_pass"
+    host: "localhost"
+    port: 27017
+    database_name: "nii_case"
+    collection_name: "ensemble"
+
+# Aggregating Service Configuration
+aggregating_service:
+  # Maximum concurrent threads for processing
+  max_threads: 10
+  # Validity period for a request ID in seconds. Older IDs are removed.
+  valid_time: 60
+  # config window time for aggregating message
+  time_limit: 3
+  min_messages: 3
+
+  # Name of the function used for aggregation.
+  function: "average_probability" 
+
+# Existing aggregation functions metadata
+aggregation_functions:
+  description: "all aggregate functions need a dictionary that store all the prediction from various pipeliens as input, plus other specific params for the function to work "
+  average_probability:
+    module_path: ""
+    description: "Takes the average of probabilities and selects the highest class."
+    parameters: 
+    - 
+    applicable_pipelines: ["pipeline_1", "pipeline_2"]
+  
+  weighted_average:
+    module_path: ""
+    description: "Takes a weighted average based on model confidence or other metrics."
+    parameters: 
+    - model_weights
+
+    applicable_pipelines: ["pipeline_2", "pipeline_3"]
+  
+  max_probability:
+    module_path: ""
+    description: "Selects the class with maximum probability across all messages."
+    parameters:
+    - 
+    applicable_pipelines: ["pipeline_3"]
+  
+  # other aggregation functions can be added 

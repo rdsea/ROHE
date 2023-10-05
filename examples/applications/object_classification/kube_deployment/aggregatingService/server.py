@@ -17,6 +17,8 @@ from lib.service_connectors.mongoDBConnector import MongoDBInfo
 from lib.services.object_classification.aggregatingService import AggregatingService
 import lib.roheUtils as roheUtils
 
+from aggregating_function import average_probability
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Argument for Inference Service")
     parser.add_argument('--conf', type= str, help='configuration file', 
@@ -43,6 +45,7 @@ if __name__ == "__main__":
 
     service = AggregatingService(kafka_address= config['kafka']['address'], 
                                  topic_name= config['kafka']['topic_name'], 
+                                 aggregate_function= average_probability,
                                  mongodb_info= mongodb_info,
                                  agg_config= config['aggregating'])
     service.start_service()
