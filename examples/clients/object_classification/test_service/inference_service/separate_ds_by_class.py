@@ -47,6 +47,7 @@ if __name__ == '__main__':
         file_path = os.path.join(save_folder, file_name)
 
         with h5py.File(file_path, 'w') as hf:
+            print(f"This is the len of the ds of label {class_label}: {len(class_data['X'])}")
             hf.create_dataset('images', data=class_data['X'])
             hf.create_dataset('labels', data=class_data['y'])
 

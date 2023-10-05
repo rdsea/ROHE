@@ -26,12 +26,13 @@ sys.path.append(main_path)
 
 
 
-class InferenceServiceClient:
-    def __init__(self, config):
+class InferenceServiceClientV2:
+    def __init__(self, config, dataset: dict):
         self.config = config
         self.server_address = config['server_address']
-        self.test_ds = config['test_ds']
-        self.rate = config['rate']
+        # self.test_ds = config['test_ds']
+        self.dataset = dataset
+        self.rate: int = config['rate']
         self.qoaclient = QoaClient(config["qoa_config"])
 
     def set_qoa_timer(self):
@@ -83,44 +84,39 @@ class InferenceServiceClient:
         class_labels = np.argmax(labels_encoding, axis=1)
         return class_labels
     
-    def main(self, runtime):
-        test_ds: str = self.config['test_ds']
-        rate: int = int(self.config['rate'])
-        # server_address = config['server_address']
+    def main(self):
+        X_test = self.dataset['X']
+        y_test = self.dataset['y']
 
-        with h5py.File(test_ds, 'r') as f:
-            X_test = np.array(f['images'])
-            y_test = np.array(f['labels'])
-
-            total_data = len(X_test)
-            print(f"This is the total data used: {total_data}")
-
+        total_sample = len(X_test)
         with ThreadPoolExecutor(max_workers=self.rate) as executor:
-            start_index = 0
-            # while True:
-            for i in range(runtime):
-                images_data = X_test[start_index: start_index + rate]
-                images_label = y_test[start_index: start_index + rate]
+            for start_index in range(0, total_sample, 100):
+            # for start_index in range(26550, total_sample, 100):
+            # for start_index in range(0, 310, self.rate):
+                print(f"Start index now: {start_index}")
+                end_index = start_index + self.rate
+                end_index = min(end_index, total_sample - 1)
+                # images_data = X_test[start_index: start_index + self.rate]
+                # images_label = y_test[start_index: start_index + self.rate]
+
+                images_data = X_test[start_index: end_index]
+                images_label = y_test[start_index: end_index]
                 images_label = self.retrieve_class_label(images_label)
-                start_index = start_index + rate
 
                 self.request_batch(images_data, images_label, executor)
+
                 # send x request every 1 second
                 time.sleep(1)
 
-                if start_index + rate >= total_data:
-                    print(f"This is the end of the dataset. start index = {start_index}")
-                    print("about to reset the index into 0 to continue processing")
-                    start_index = 0
-                else:
-                    print(f"Start index now: {start_index}")
 
-            executor.shutdown(wait=True) 
+        #     # executor.shutdown(wait=True) 
+        # print("time to exit")
+        # exit(0)
             
 
 
-    def run(self, runtime: int = 100000):
-        self.main(runtime)
+    def run(self):
+        self.main()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for choosing model to request")
@@ -131,12 +127,25 @@ if __name__ == '__main__':
     args = parser.parse_args()
     client_config = qoa_utils.load_config(args.conf)
     server_address = client_config["server_address"]
+
+    dataset_path = main_path + args.test_ds
+    with h5py.File(dataset_path, 'r') as f:
+        X_test = np.array(f['images'])
+        y_test = np.array(f['labels'])
+        dataset = {
+            'X': X_test,
+            'y': y_test,
+        }
+        total_data = len(X_test)
+        print(f"This is the total data used: {total_data}")
+
+
     config = {
         'server_address': server_address,
-        'test_ds': main_path + args.test_ds,
+        # 'dataset': dataset,
         'rate': args.rate,
         'qoa_config': client_config["qoa_config"],
     }
 
-    client = InferenceServiceClient(config=config)
-    client.run(runtime= 10)
+    client = InferenceServiceClientV2(config=config, dataset= dataset)
+    client.run()

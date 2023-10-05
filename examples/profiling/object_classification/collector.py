@@ -19,6 +19,7 @@ class Collector(object):
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
         result = OCParser(mess, self.config["parser_config"])
+        # temp = result
         # print(result)
     
     def stop(self):
