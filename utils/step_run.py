@@ -27,4 +27,4 @@ if __name__ == '__main__':
 
         profilingDeploy(profiling_config["k3s_host"],profiling_config["k3s_port"], profiling_config["namespace"], profiling_config["profiling_time"], \
                         profiling_config["profiling_scales"], profiling_config["user_config"], key=None)
-        
+
