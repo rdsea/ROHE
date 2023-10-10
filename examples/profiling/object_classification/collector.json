@@ -1,0 +1,58 @@
+{
+    "collector":{
+        "end_point": "195.148.22.62",
+        "exchange_name": "nii_inference",
+        "exchange_type": "topic",
+        "in_routing_key": "nii.#",
+        "in_queue":"collector_1"
+    },
+    "parser_config": {
+        "name": "OCPParser",
+        "metric":{
+            "performance":[
+                {
+                    "name": "responseTime", 
+                    "aggregate": "sum"
+                }
+            ],
+            "data":[
+                {
+                    "name": "image_width", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "image_height", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "class_object", 
+                    "aggregate": "max"
+                }
+            ],
+            "inference":[
+                {
+                    "name": "no_layer", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "no_parameters", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "confidence", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "accuracy", 
+                    "aggregate": "max"
+                },
+                {
+                    "name": "predict_object", 
+                    "aggregate": "max"
+                }
+            ]
+        },
+        "client": "/client.csv",
+        "mlProvider": "/provider.csv"
+    }
+}

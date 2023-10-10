@@ -103,8 +103,10 @@ class ClassificationRestService(RoheRestObject):
 
             if handler:
                 response = handler(request)
+
                 if self.qoaClient:
                     self.qoaClient.timer()
+                    
                 result = json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
             else:
                 result = json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
@@ -122,8 +124,11 @@ class ClassificationRestService(RoheRestObject):
             except Exception as e:
                 print(e)
 
+
         if self.qoaClient:
             report = self.qoaClient.report(submit=True)
+#             print(report)
+
 
         return result
 

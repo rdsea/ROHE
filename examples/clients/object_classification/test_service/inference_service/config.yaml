@@ -1,0 +1,19 @@
+qoa_config:
+  client:
+    client_id: "aaltosea_client"
+    instance_name: "Client01"
+    stage_id: "Client"
+    method: "REST"
+    application: "test"
+    role: "client"
+  connector:
+    amqp_connector:
+      class: amqp
+      conf:
+        end_point: 195.148.22.62
+        exchange_name: nii_inference
+        exchange_type: topic
+        out_routing_key: nii.inference2
+  registration_url: "http://0.0.0.0:5010/registration"
+
+server_address: "http://localhost:30005/inference_service"

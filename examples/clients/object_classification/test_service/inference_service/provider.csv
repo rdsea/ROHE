@@ -1,0 +1,16 @@
+,responseTime,client_id,instance_name,instances_id,timestamp,stage_id,application,role
+0,0.15784859657287598,aaltosea2,inference_service01,81605bd4-4290-4478-8383-8d0a774140b4,1696434623.3713856,ML_Inference,test,ml
+0,0.16824889183044434,aaltosea2,inference_service01,a94fac30-8afd-46cc-a344-2a0e7a34dbc5,1696434715.700598,ML_Inference,test,ml
+0,0.16363143920898438,aaltosea2,inference_service01,baf9019b-346b-45fd-9f8b-24e82744638c,1696436137.813451,ML_Inference,test,ml
+0,0.1659069061279297,aaltosea2,inference_service01,c10b3ecb-4b88-483a-bbb9-629d0093d559,1696436202.9962327,ML_Inference,test,ml
+0,0.16564679145812988,aaltosea2,inference_service01,fe8a5bb7-05bf-458b-a116-7782894ec533,1696437587.1964705,ML_Inference,test,ml
+0,0.17417216300964355,aaltosea2,inference_service01,4857b82a-0b49-42d9-a1df-81df628dd5a0,1696438312.107161,ML_Inference,test,ml
+0,0.19241786003112793,aaltosea2,inference_service01,4857b82a-0b49-42d9-a1df-81df628dd5a0,1696439559.6215274,ML_Inference,test,ml
+0,0.19553351402282715,aaltosea2,inference_service01,0ef5a208-00ee-4138-9913-446da1901b5d,1696441204.6311638,ML_Inference,test,ml
+0,0.2045738697052002,aaltosea2,inference_service01,0ef5a208-00ee-4138-9913-446da1901b5d,1696442453.0953329,ML_Inference,test,ml
+0,0.20606470108032227,aaltosea2,inference_service01,0d8371bf-31f1-49c7-8152-54c7f2f879c2,1696443982.0665905,ML_Inference,test,ml
+0,0.20210933685302734,aaltosea2,inference_service01,dcf000a8-4585-439c-b1e6-bddec29166ef,1696471997.1758823,ML_Inference,test,ml
+0,0.2054605484008789,aaltosea2,inference_service01,a8f6d5ad-4fe7-4db9-a77f-0a8193ff02e0,1696472841.7242534,ML_Inference,test,ml
+0,0.19394254684448242,aaltosea2,inference_service01,9d96c7de-d54b-4b3f-b836-39f0a8785dfa,1696474047.9248784,ML_Inference,test,ml
+0,0.16854000091552734,aaltosea2,inference_service01,3019d672-cd52-4f54-95de-d2e0a9a4f574,1696475300.2032015,ML_Inference,test,ml
+0,0.19554615020751953,aaltosea2,inference_service01,576412ac-7468-48c6-bff4-16620d44fcf5,1696476549.3186345,ML_Inference,test,ml
