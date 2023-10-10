@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nii-inference-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nii-inference
+  template:
+    metadata:
+      labels:
+        app: nii-inference
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aaltosea-jet06-worker
+      containers:
+      - name: nii-inference-container
+        # image: vtn13042000/inference:arm_debug
+        image: vtn13042000/inference:arm
+        ports:
+        - containerPort: 30005
+        volumeMounts:
+        - name: config-volume
+          mountPath: /inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
+          subPath: inference_service.yaml
+        - name: artifact-volume
+          mountPath: /inference-server/artifact
+      volumes:
+      - name: config-volume
+        configMap:
+          name: inference-config
+      - name: artifact-volume
+        persistentVolumeClaim:
+          claimName: inference-artifacts-pvc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inference-config
+data:
+  inference_service.yaml: |
+    model:
+      files:
+        architecture_file: "/artifact/nii/VGG16/0/repair/model.json"
+        weights_file: "/artifact/nii/VGG16/0/repair/model.h5"
+      input_shape: "32,32,3"
+    minio_config:
+      endpoint_url: "http://minio-service:9000"
+      access_key: "admin_user"
+      secret_key: "admin_pass"
+      bucket_name: "nii-application-inference-model"
+    qoa_config:
+      client:
+        client_id: "aaltosea2"
+        instance_name: "inference_service02"
+        stage_id: "ML_Inference"
+        method: "REST"
+        application: "test"
+        role: "ml"
+      registration_url: "http://0.0.0.0:5010/registration"

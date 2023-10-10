@@ -1,0 +1,29 @@
+# persistence:
+#   size: 8Gi
+#   enabled: true
+# logPersistence:
+#   size: 8Gi
+#   enabled: true
+# replicaCount: 3
+# volumePermissions:
+#   enabled: true
+# auth:
+#   clientProtocol: plaintext
+# allowPlaintextListener: true
+# # listeners: PLAINTEXT://0.0.0.0:9092
+# advertisedListeners: PLAINTEXT://:9092
+# listenerSecurityProtocolMap: PLAINTEXT:PLAINTEXT
+# interBrokerListenerName: "PLAINTEXT"
+# serviceAccount:
+#   create: true
+# rbac:
+#   create: true
+# image:
+#   tag: latest
+auth:
+  enabled: false
+
+allowPlaintextListener: true
+
+# listeners: PLAINTEXT://:9092
+advertisedListeners: PLAINTEXT://:9092

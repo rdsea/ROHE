@@ -9,6 +9,7 @@ import time
 from lib.service_connectors.quixStreamConsumer import KafkaStreamListener
 from lib.service_connectors.mongoDBConnector import MongoDBConnector
 
+from typing import Callable
 
 class TimeBuffer:
     def __init__(self, window_size=60, lock: Lock = None):
@@ -36,11 +37,15 @@ class TimeBuffer:
 
 
 class KafkaStreamAggregatingListener(KafkaStreamListener):
-    def __init__(self, kafka_address: str, topic_name: str, lock: Lock = None, config: dict = None, db_connector: MongoDBConnector = None):
+    def __init__(self, kafka_address: str, topic_name: str, 
+                 aggregate_function: Callable, lock: Lock = None, 
+                 config: dict = None, db_connector: MongoDBConnector = None):
         super().__init__(kafka_address, topic_name)
         # print("Enter this initial block")
         self.lock = lock or Lock()
         self.config = config or {}
+
+        self.aggregate_function = aggregate_function
 
         self.time_limit: int = self.config.get('time_limit') or 5  # in second
         self.min_messages: int = self.config.get('min_messages') or 10
@@ -80,54 +85,44 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
                         'data': group_list,
                         'timer': time.time()  # Current timestamp
                     }
-                
-                self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
+                    # test aggregate function
+                    self.buffer_dict[req_id]['data'].extend(group_list)
 
+
+                # self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
+
+            for req_id, info in self.buffer_dict.items():
+                self.executor.submit(self.check_and_process, req_id, info)
+
+    # def check_and_process(self, req_id, buffer_data):
     def check_and_process(self, req_id, buffer_data):
+
         # Check the conditions: Time elapsed or minimum number of messages reached
-        elapsed_time = time.time() - buffer_data['timer']
+        elapsed_time = float(time.time() - buffer_data['timer'])
         num_messages = len(buffer_data['data'])
+        print(f"This is the elapse time: {elapsed_time} and type of it: {type(elapsed_time)}, this is the num message: {num_messages}")
+        print(f"this is the result of time buffer: {elapsed_time >= self.time_limit}")
         
         if elapsed_time >= self.time_limit or num_messages >= self.min_messages:
             print(f"Request_id: {req_id}, elapsed time: {elapsed_time}, current messages: {num_messages} ")
-            self.aggregating_process(req_id, buffer_data['data'])
+            self.aggregating_process(buffer_data['data'])
             self.buffer_dict.pop(req_id, None)
             self.already_processed_ids.append(req_id)
 
         
-    def aggregating_process(self, req_id, data):
-        # Perform the aggregating process on the data
-        # Convert list of dicts back to DataFrame for aggregations
-        df = pd.DataFrame(data)
-        print(f"Request ID : {req_id}, len of the dataframe: {len(df)}")
+    def aggregating_process(self, data: list):
+        aggregated_result: dict = self.aggregate_function(data)
         
-        def mean_prediction(group):
-            arrays = group.values.tolist()
-            return np.mean(np.array(arrays), axis=0)
-        
-        def aggregate_instances(group):
-            return ','.join(group.values.tolist())
-    
-        aggregated_df = df.groupby('request_id').agg({
-            'prediction': mean_prediction,
-            'pipeline_id': 'first',
-            'inference_model_id': aggregate_instances
-        }).reset_index()
-
-        # Display the aggregated results
-        for index, row in aggregated_df.iterrows():
-            print(f"Request ID: {row['request_id']}, Aggregate Prediction: {row['prediction']}, "
-                  f"Pipeline ID: {row['pipeline_id']}, Inference Instances: {row['inference_model_id']}")
-        
-        print("End of aggregating process\n\n\n\n")
-
         # return aggregated_df
         if self.db_connector:
-            self._save_to_db(data= aggregated_df)
+            print("about to upload data")
+            self._save_to_db(data= aggregated_result)
 
 
-    def _save_to_db(self, data: pd.DataFrame):
+    def _save_to_db(self, data: dict):
         # Convert any numpy arrays to lists
-        data = data.applymap(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
+        # data = data.applymap(lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
+
+        print(f"This is the upload data: {data}")
         
         self.db_connector.upload(data= data)

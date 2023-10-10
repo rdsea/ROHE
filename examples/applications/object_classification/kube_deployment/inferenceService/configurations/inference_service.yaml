@@ -1,8 +1,123 @@
-model:
-  files:
-    architecture_file: "/artifact/nii/VGG16/0/repair/model.json"
-    weights_file: "/artifact/nii/VGG16/0/repair/model.h5"
+# pipeline_id: "pipeline_1" #not static, just for testing ()
+
+# input_shape: "32,32,3"
+# # add more configuration (params)
+# # for generalization
+# # nu of layer
+# # num of params
+# # trainable params
+
+# models:
+#   vgg:
+#     folder: "/artifact/nii/VGG16/repair"
+
+#   vgg_0:
+#     folder: "/artifact/nii/VGG16/0/repair"
+
+#   vgg_2_7:
+#     folder: "/artifact/nii/VGG16/2/7/repair"
+
+#   vgg_2_12:
+#     folder: "/artifact/nii/VGG16/2/12/repair"
+
+#   vgg_3_6:
+#     folder: "/artifact/nii/VGG16/3/6/repair"
+
+#   vgg_6:
+#     folder: "/artifact/nii/VGG16/6/repair"
+
+#   vgg_6_7:
+#     folder: "/artifact/nii/VGG16/6/7/repair"
+
+#   vgg_7:
+#     folder: "/artifact/nii/VGG16/7/repair"
+
+#   vgg_7_6:
+#     folder: "/artifact/nii/VGG16/7/6/repair"
+
+# model_info:
+#   chosen_model_id: "vgg_0"
+#   files_name:
+#     architecture_file: "model.json"
+#     weights_file: "model.h5"
+    
+# minio_config:
+#   endpoint_url: "http://128.214.254.126:9000"
+#   access_key: "admin_user"
+#   secret_key: "admin_pass"
+#   bucket_name: "nii-application-inference-model"
+
+# # ensemble: false
+# ensemble: true
+
+# # qoa_config:
+# #   client:
+# #     client_id: "aaltosea2"
+# #     instance_name: "inference_service01"
+# #     stage_id: "ML_Inference"
+# #     method: "REST"
+# #     application: "test"
+# #     role: "ml"
+# #   registration_url: "http://0.0.0.0:5010/registration"
+
+# mongodb:
+#   username: admin_user
+#   password: admin_pass
+#   host: localhost
+#   port: 27017
+#   # host: 130.233.195.205
+#   # port: 30017
+#   database_name: nii_case
+#   # collection_name: raw_prediction
+#   collection_name: raw_prediction
+
+
+# kafka:
+#   address: 127.0.0.1:9092
+#   topic_name: nii_case
+
+pipeline_id: "pipeline_1"
+
+model_info:
+  chosen_model_id: "vgg_0"
+  files_name:
+    architecture_file: "model.json"
+    weights_file: "model.h5"
   input_shape: "32,32,3"
+  models:
+    vgg:
+      folder: "/artifact/nii/VGG16/repair"
+
+    vgg_0:
+      folder: "/artifact/nii/VGG16/0/repair"
+
+    vgg_2_7:
+      folder: "/artifact/nii/VGG16/2/7/repair"
+
+    vgg_2_12:
+      folder: "/artifact/nii/VGG16/2/12/repair"
+
+    vgg_3_6:
+      folder: "/artifact/nii/VGG16/3/6/repair"
+
+    vgg_6:
+      folder: "/artifact/nii/VGG16/6/repair"
+
+    vgg_6_7:
+      folder: "/artifact/nii/VGG16/6/7/repair"
+
+    vgg_7:
+      folder: "/artifact/nii/VGG16/7/repair"
+
+    vgg_7_6:
+      folder: "/artifact/nii/VGG16/7/6/repair"
+
+# model:
+#   model_id: vgg_0
+#   # files:
+#   #   architecture_file: "/artifact/nii/VGG16/0/repair/model.json"
+#   #   weights_file: "/artifact/nii/VGG16/0/repair/model.h5"
+#   input_shape: "32,32,3"
 
 minio_config:
   endpoint_url: "http://128.214.254.126:9000"
@@ -10,21 +125,23 @@ minio_config:
   secret_key: "admin_pass"
   bucket_name: "nii-application-inference-model"
 
-qoa_config:
-  client:
-    client_id: "aaltosea2"
-    instance_name: "inference_service01"
-    stage_id: "ML_Inference"
-    method: "REST"
-    application: "test"
-    role: "ml"
-  connector:
-    amqp_connector:
-      class: amqp
-      conf:
-        end_point: 195.148.22.62
-        exchange_name: nii_inference
-        exchange_type: topic
-        out_routing_key: nii.inference1
-  registration_url: "http://0.0.0.0:5010/registration"
 
+# ensemble: false
+ensemble: true
+
+
+mongodb:
+  username: admin_user
+  password: admin_pass
+  host: localhost
+  port: 27017
+  # host: 130.233.195.205
+  # port: 30017
+  database_name: nii_case
+  # collection_name: raw_prediction
+  collection_name: raw_prediction
+
+
+kafka:
+  address: 127.0.0.1:9092
+  topic_name: nii_case

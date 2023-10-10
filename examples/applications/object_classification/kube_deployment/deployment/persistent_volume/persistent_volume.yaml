@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: inference-artifacts-pv
+  labels:
+    type: local  # this is a label
+spec:
+  storageClassName: "" 
+  capacity:
+    storage: 8Gi 
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /home/aaltosea/nii_case/artifact

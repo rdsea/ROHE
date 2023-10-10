@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-bucket-creation
+spec:
+  template:
+    spec:
+      containers:
+      - name: minio-mc
+        image: minio/mc
+        command:
+        - /bin/sh
+        - -c
+        - >
+          mc alias set myminio http://minio-service:9000 admin_user admin_pass &&
+          mc mb myminio/nii-application-inference-model &&
+          mc mb myminio/nii-application-unprocessed-image
+      restartPolicy: OnFailure

@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./task_coordinator.json:/task-coordinator-service/task_coordinator.json
+      - ./task_coordinator.yaml:/task-coordinator/examples/applications/object_classification/kube_deployment/dataProcessingService/task_coordinator/task_coordinator.yaml
 
     # environment:
     #   minio_client_access_key: prJxdafe7L400AAXScc8

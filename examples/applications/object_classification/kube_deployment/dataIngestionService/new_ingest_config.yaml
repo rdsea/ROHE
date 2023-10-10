@@ -1,0 +1,30 @@
+# Ingestion Service Configuration
+
+# General Configuration
+general:
+  max_thread: 3
+  ingestion_format: "npy"
+  temporary_storage_folder: "tmp_image_folder"
+
+# Storage Configuration
+storage:
+  minio:
+    endpoint_url: "http://128.214.254.126:9000"
+    access_key: "admin_user"
+    secret_key: "admin_pass"
+    bucket_name: "nii-application-unprocessed-image"
+
+# Messaging Configuration
+messaging:
+  mqtt:
+    broker:
+      url: "localhost"
+      port: 1883
+      keep_alive_interval: 60  # in seconds
+    client:
+      id: "server_01"
+      shared_subscription_topic: "$share/ingestion_instances/shared_topic/rohe/nii_case/test"
+
+# Redis-based HTTP Server Configuration
+redis_http_server:
+  endpoint_url: "http://localhost:5000/task_coordinator"

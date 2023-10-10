@@ -8,7 +8,7 @@ redis_server:
   url: "http://localhost:5000/task_coordinator"
 
 inference_server:
-  url: "http://localhost:9000/inference_service"
+  url: "http://localhost:30005/inference_service"
 
 minio_config:
   endpoint_url: "http://128.214.254.126:9000"

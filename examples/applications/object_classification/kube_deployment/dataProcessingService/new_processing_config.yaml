@@ -1,0 +1,25 @@
+# General processing configuration
+processing_config:
+  max_thread: 3
+  min_request_period: 1
+  max_request_period: 30
+  image_dim: "32,32,3"
+
+# Communication endpoints
+endpoints:
+  redis_server: 
+    url: "http://localhost:5000/task_coordinator"
+  minio_config:
+    endpoint_url: "http://128.214.254.126:9000"
+    access_key: "admin_user"
+    secret_key: "admin_pass"
+    bucket_name: "nii-application-unprocessed-image"
+
+# Inference strategy
+inference_strategy:
+  type: "all" # or "specific"
+  
+  # If type is 'specific', define the specific model types to send requests to
+  specific_server: 
+    - "pipeline_1_vgg_0"
+    - "pipeline_2_vgg_2_7"
