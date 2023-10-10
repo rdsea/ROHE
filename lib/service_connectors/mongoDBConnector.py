@@ -43,19 +43,35 @@ class MongoDBConnector():
 
             raise e
     
-    def upload(self, data: Any):
+    # def upload(self, data: Any):
+    #     try:
+    #         if isinstance(data, pd.DataFrame):
+    #             data = data.to_dict(orient='records')
+                
+    #         elif not isinstance(data, list):
+    #             raise TypeError("Unsupported data type for upload. Supported types are: pandas DataFrame or List of Dictionaries.")
+            
+    #         self._collection.insert_many(data)
+    #     except Exception as e:
+    #         logging.error(e)
+    #         raise e
+    
+    def upload(self, data: any):
         try:
             if isinstance(data, pd.DataFrame):
                 data = data.to_dict(orient='records')
                 
+            elif isinstance(data, dict):
+                data = [data]  # Convert the dictionary to a list of one dictionary
+                
             elif not isinstance(data, list):
-                raise TypeError("Unsupported data type for upload. Supported types are: pandas DataFrame or List of Dictionaries.")
+                raise TypeError("Unsupported data type for upload. Supported types are: pandas DataFrame, List of Dictionaries, or Dictionary.")
             
             self._collection.insert_many(data)
         except Exception as e:
             logging.error(e)
             raise e
-    
+
     def download(self, query: Optional[dict] = None) -> pd.DataFrame:
         try:
             query = query or {}  # If no query is provided, fetch all documents

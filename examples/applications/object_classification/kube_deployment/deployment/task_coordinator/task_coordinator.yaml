@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-coordinator-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-coordinator
+  template:
+    metadata:
+      labels:
+        app: task-coordinator
+    spec:
+      containers:
+        - name: task-coordinator-container
+          image: vtn13042000/task_coordinator:arm
+          volumeMounts:
+            - name: config-volume
+              mountPath: /task-coordinator/examples/applications/object_classification/kube_deployment/dataProcessingService/task_coordinator/task_coordinator.yaml
+              subPath: task_coordinator.yaml
+          ports:
+            - containerPort: 5000
+      volumes:
+        - name: config-volume
+          configMap:
+            name: task-coordinator-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-coordinator-config
+data:
+  task_coordinator.yaml: |
+    redis_server:
+      host: redis-service
+      port: 6379
+      db: 0
+---

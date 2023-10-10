@@ -42,8 +42,10 @@ class ProcessingObject(RoheObject):
 
         processed_image = self._process(tmp_array_path)
         processing_result = {
+            "request_id": task['request_id'],
             "processed_image": processed_image
         }
+        print(f"\n\n\nThis is the request id: {processing_result['request_id']}")
         return processing_result
         # else:
         #     return None

@@ -1,0 +1,13 @@
+version: '3'
+services:
+  nii_task_coordinator:
+    image: vtn13042000/aggregate:arm_debug
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./aggregating_service.yaml:/aggregate-server/examples/applications/object_classification/kube_deployment/aggregatingService/aggregating_service.yaml
+
+    # environment:
+    #   minio_client_access_key: prJxdafe7L400AAXScc8
+    #   minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
+

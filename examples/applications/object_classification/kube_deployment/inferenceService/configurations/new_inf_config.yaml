@@ -1,0 +1,99 @@
+# Ensemble Configuration
+ensemble: true
+
+# storage configuration
+storage:
+  minio:
+    endpoint_url: http://128.214.254.126:9000
+    access_key: admin_user
+    secret_key: admin_pass
+    bucket_name: nii-application-inference-model
+
+  mongodb:
+    username: admin_user
+    password: admin_pass
+    host: localhost
+    port: 27017
+    database_name: nii_case
+    collection_name: raw_prediction
+
+# messaging configuration
+messaging:
+  kafka:
+    address: 127.0.0.1:9092
+    topic_name: nii_case
+
+# service quality monitor config
+service_quality_config:
+  qoa_config:
+    client:
+      client_id: "aaltosea2"
+      instance_name: "inference_service01"
+      stage_id: "ML_Inference"
+      method: "REST"
+      application: "test"
+      role: "ml"
+    registration_url: "http://0.0.0.0:5010/registration"
+
+# general model configuration
+model_config:
+  chosen_model_type: objec_classification_1 
+  chosen_model_id: vgg_0
+
+  # shared parameters (common for all ML models)
+  inference_timeout: 5000   # Time in milliseconds before inference times out
+  inference_backend: "tensorflow"  # Backend used for inference, e.g: tensorflow, pyTorch, etc.
+  default_threshold: null   
+    # option:
+    # - null: make decision with whatever the largest probability
+    # - specify the threshold to make decision (e.g: 0.5) 
+  preferred_device: null    # gpu, 'cpu', or null
+  # other params
+
+  
+  # model type with their details
+  model_type:
+    # every model must have
+      # input_shape
+      # architecture_file
+      # weights_file
+    object_classification_bdd100k:
+      description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
+      input_shape: "32,32,3"
+      architecture_file: "model.json"
+      weights_file: "model.h5"
+      output_labels:
+        - bicycle
+        - bus
+        - car
+        - motorcycle
+        - other person
+        - other vehicle
+        - pedestrian
+        - rider
+        - traffic light
+        - traffic sign
+        - trailer
+        - train
+        - truck
+
+      # Model variants within this model type
+      variants:
+        vgg:
+          path: /artifact/nii/VGG16/repair
+        vgg_0:
+          path: /artifact/nii/VGG16/0/repair
+        vgg_2_7:
+          path: /artifact/nii/VGG16/2/7/repair
+        vgg_2_12:
+          path: /artifact/nii/VGG16/2/12/repair
+        vgg_3_6:
+          path: /artifact/nii/VGG16/3/6/repair
+        vgg_6:
+          path: /artifact/nii/VGG16/6/repair
+        vgg_6_7:
+          path: /artifact/nii/VGG16/6/7/repair
+        vgg_7:
+          path: /artifact/nii/VGG16/7/repair
+        vgg_7_6:
+          path: /artifact/nii/VGG16/7/6/repair

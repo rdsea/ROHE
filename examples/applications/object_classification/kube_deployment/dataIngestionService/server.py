@@ -25,7 +25,8 @@ import lib.roheUtils as roheUtils
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")
-    parser.add_argument('--conf', type= str, help='specify configuration file path')
+    parser.add_argument('--conf', type= str, help='specify configuration file path', 
+                        default= 'ingestion_service.yaml')
 
     # Parse the parameters
     args = parser.parse_args()
@@ -38,7 +39,10 @@ if __name__ == '__main__':
         print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
         config = roheUtils.load_yaml_config(file_path= config_file)
 
-
+    config['max_thread'] = int(config['max_thread'])
+    config['mqtt_config']['broker_info']['keep_alive'] = int(config['mqtt_config']['broker_info']['keep_alive'])
+    
+    print(f"This is the config: {config}")
     storage_lock = Lock()
 
     # Minio Connector for uploading image

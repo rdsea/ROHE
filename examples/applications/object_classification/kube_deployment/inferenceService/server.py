@@ -3,8 +3,8 @@ import os, sys
 import argparse
 import threading
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient
@@ -20,8 +20,10 @@ sys.path.append(main_path)
 
 from lib.services.restService import RoheRestService
 from lib.modules.object_classification.classificationObject import ClassificationObjectV1
-from lib.services.object_classification.objectClassificationService import ClassificationRestService
+from lib.services.object_classification.objectClassificationService import ClassificationRestService, EnsembleState
 from lib.service_connectors.minioStorageConnector import MinioConnector
+from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
+from lib.service_connectors.quixStreamProducer import KafkaStreamProducer
 import lib.roheUtils as roheUtils
 
 
@@ -32,7 +34,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--conf', type= str, help='configuration file', 
             default= "./configurations/inference_service.yaml")
-
+    
 
     # Parse the parameters
     args = parser.parse_args()
@@ -44,20 +46,47 @@ if __name__ == '__main__':
     if not config:
         print("Something wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
         config = roheUtils.load_yaml_config(file_path= config_file)
+        
     print(f"\n\nThis is config file: {config}\n\n")
 
     # load dependencies
     minio_connector = MinioConnector(storage_info= config['minio_config'])
-    MLAgent = ClassificationObjectV1(model_config= config['model']['files'],
-                                    input_shape= config['model']['input_shape'],
+    MLAgent = ClassificationObjectV1(model_info= config['model_info'],
+                                    input_shape= config['model_info']['input_shape'],
                                     model_from_config= True) 
     model_lock = threading.Lock() 
-    qoa_client = QoaClient(config['qoa_config'])
+
+
+    # if config['ensemble']:
+    #     kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+    #                                          topic_name= config['kafka']['topic_name'])
+    #     config['kafka_producer'] = kafka_producer
+        
+    # else:
+    #     mongodb_info = MongoDBInfo(**config['mongodb'])
+    #     mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    #     config['mongo_connector'] = mongo_connector
+    ensemble_controller = EnsembleState(config['ensemble'])
+    kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+                                        topic_name= config['kafka']['topic_name'])
+    config['kafka_producer'] = kafka_producer
+    
+    mongodb_info = MongoDBInfo(**config['mongodb'])
+    mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    config['mongo_connector'] = mongo_connector
 
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent
     config['lock'] = model_lock
-    config['qoaClient'] = qoa_client
+    config['ensemble_controller'] = ensemble_controller
+    
+
+    if config.get('qoa_config'):
+        print(f"About to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        config['qoaClient'] = qoa_client
+
+    print(f"\n\nThis is config file: {config}\n\n")
     
     # start server
     classificationService = RoheRestService(config)

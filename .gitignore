@@ -21,4 +21,5 @@ test_image/
 lib/modules/profiling/result/
 
 examples/clients/object_classification/test_service/inference_service/raw_data/
+
 examples/profiling/object_classification/raw_data

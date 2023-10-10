@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nii-ingestion-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nii-ingestion-server
+  template:
+    metadata:
+      labels:
+        app: nii-ingestion-server
+    spec:
+      containers:
+      - name: nii-ingestion-server
+        image: vtn13042000/ingestion:arm
+        volumeMounts:
+        - name: config-volume
+          mountPath: /ingestion-server/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml
+          subPath: config.yaml
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ingestion-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingestion-config
+data:
+  config.yaml: |
+    ingestion_config:
+      file_extension: "npy"
+      tmp_image_folder: "tmp_image_folder"
+    max_thread: 3
+    minio_config:
+      endpoint_url: "http://minio-service:9000"
+      access_key: "admin_user"
+      secret_key: "admin_pass"
+      bucket_name: "nii-application-unprocessed-image"
+    mqtt_config:
+      broker_info:
+        url: mqtt-broker
+        port: 1883
+        keep_alive: 60
+      client_id: "server_01"
+      sub_topic: "$share/ingestion_instances/shared_topic/rohe/nii_case/test"
+    redis_server:
+      url: "http://task-coordinator-service:5000/task_coordinator"
