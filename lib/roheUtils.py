@@ -138,3 +138,48 @@ def separate_ds_by_class(X, y):
         }
         
     return class_datasets
+
+def make_folder(temp_path):
+    try:
+        if os.path.exists(temp_path):
+            # To do:
+            # Log event
+            pass
+        else:
+            # To do:
+            # Log event
+            os.makedirs(temp_path)
+        return True
+    except:
+        # To do:
+        # Log event
+        return False
+    
+def load_qoa_conf_env(qoa_conf):
+    client_id = os.environ.get('CLIENT_ID')
+    if not client_id:
+        client_id = "rohe_test"
+
+    instance_name = os.environ.get('INSTANCE_NAME')
+    if not instance_name:
+        instance_name = "rohe_test_isntance"
+
+    stage_id = os.environ.get('STAGE_ID')
+    if not stage_id:
+        stage_id = "rohe_test_stage"
+
+    method = os.environ.get('METHOD')
+    if not method:
+        method = "rohe_test_method"
+
+    role = os.environ.get('ROLE')
+    if not role:
+        role = "rohe_test_role"
+
+    qoa_conf["client_id"] = client_id
+    qoa_conf["instance_name"] = instance_name
+    qoa_conf["stage_id"] = stage_id
+    qoa_conf["method"] = method
+    qoa_conf["role"] = role
+
+    return qoa_conf

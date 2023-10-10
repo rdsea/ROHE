@@ -7,7 +7,7 @@ from flask_restful import Resource, Api
 
 main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(main_path)
-from lib.modules.orchestration.roheOrchestrationAgent import RoheOrchestrationAgent
+from lib.modules.orchestration.service import RoheOrchestrationAgent
 
 
 

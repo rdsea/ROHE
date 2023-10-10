@@ -5,13 +5,13 @@ import argparse
 main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 # from lib.services.observation.roheAgenStreaming import RoheObservationAgent
-from lib.services.restService import RoheRestService
+from lib.modules.restService.roheService import RoheRestService
 import lib.roheUtils as rohe_utils
-from lib.services.observation.roheObservation import RoheObservation, RoheRegistration
+from lib.modules.observation.services.roheObservation import RoheObservation, RoheRegistration
 
 
 
-DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.yaml"
+DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
 
 if __name__ == '__main__': 
     # init_env_variables()

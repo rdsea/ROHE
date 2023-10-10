@@ -5,7 +5,7 @@ import pymongo, time
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 
-main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
 from lib.modules.orchestration.roheOrchestrationAgent import RoheOrchestrationAgent
 from lib.services.orchestration.orchestration import RoheOrchestrationService

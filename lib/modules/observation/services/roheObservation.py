@@ -3,12 +3,11 @@ import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
 import pymongo
-main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,4)
 sys.path.append(main_path)
 # from lib.services.observation.roheAgenStreaming import RoheObservationAgent
-from lib.services.restService import RoheRestObject, RoheRestService
+from lib.modules.restService.roheService import RoheRestObject
 from flask import jsonify, request
-import lib.roheUtils as rohe_utils
 import docker
 
 
@@ -115,7 +114,7 @@ class RoheRegistration(RoheRestObject):
                     if "instance_name" in args:
                         i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["instance_name"]
                     i_config["out_routing_key"] = i_config["out_routing_key"]+".client"+str(metadata["client_count"])
-                response["application_id"] = metadata["appID"]
+                response["appID"] = metadata["appID"]
                 response["connector"] = connector
                 
 
@@ -135,10 +134,12 @@ class RoheObservation(RoheRestObject):
         self.collection = self.db[self.db_config["collection"]]
         self.set_logger_level(int(self.conf["logging_level"]))
         self.docker_client = docker.from_env()
-        self.local_agent_list = {}
+        if "agent_dict" not in globals():
+            global agent_dict 
+            agent_dict = {}
 
     def start_docker(self, image, app_name):
-        container = self.docker_client.containers.run(image, detach=True, environment={'APP_NAME':app_name})
+        container = self.docker_client.containers.run(image,remove=True, detach=True, environment={'APP_NAME':app_name})
         return container
 
     def update_app(self,metadata):
@@ -157,8 +158,8 @@ class RoheObservation(RoheRestObject):
     
     def show_agent(self):
         # Show list of agent and its status for debugging
-        self.log("Agent: {}".format(self.local_agent_list), 1)
-        for agent in self.local_agent_list:
+        self.log("Agent: {}".format(agent_dict), 1)
+        for agent in agent_dict:
             self.log("{}".format(agent), 1)
 
     
@@ -186,9 +187,9 @@ class RoheObservation(RoheRestObject):
                         metadata = app
                         if command == "start":
                             # Check agent of the application status
-                            if metadata["_id"] in self.local_agent_list:
+                            if metadata["_id"] in agent_dict:
                                 # If agent is created locally
-                                agent = self.local_agent_list[metadata["_id"]]
+                                agent = agent_dict[metadata["_id"]]
                                 if agent["status"] != 1:
                                     agent["docker"] = self.start_docker(str(self.conf["agent_image"]), application_name)
                                     agent["status"] = 1
@@ -196,7 +197,7 @@ class RoheObservation(RoheRestObject):
                                 # If agent is not found - create new agent and start
                                 docker_agent = self.start_docker(str(self.conf["agent_image"]), application_name)
                                 agent = {"docker": docker_agent, "status": 1}
-                                self.local_agent_list[metadata["_id"]] = agent
+                                agent_dict[metadata["_id"]] = agent
                             if "stream_config" in args:
                                 metadata["appID"] = copy.deepcopy(metadata["_id"])
                                 metadata.pop("_id")
@@ -206,16 +207,17 @@ class RoheObservation(RoheRestObject):
                             # create a response
                             response[application_name] = "Application agent for application '{}' started ".format(application_name)
                         if command == "log":
-                            if metadata["_id"] in self.local_agent_list:
-                                agent = self.local_agent_list[metadata["_id"]]
+                            if metadata["_id"] in agent_dict:
+                                agent = agent_dict[metadata["_id"]]
                                 docker_agent = agent["docker"]
+                                
                                 print(docker_agent.logs(tail=20))
 
 
                         if command == "stop":
-                            if metadata["_id"] in self.local_agent_list:
+                            if metadata["_id"] in agent_dict:
                                 # if agent exist locally
-                                agent = self.local_agent_list[metadata["_id"]]
+                                agent = agent_dict[metadata["_id"]]
                                 if agent["status"] == 1:
                                     # if ageent is running
                                     docker_agent = agent["docker"]
@@ -225,9 +227,9 @@ class RoheObservation(RoheRestObject):
                             # create a response
                             response[application_name] = "Application agent for {} stopped ".format(application_name)
                         if command == "delete":
-                            if metadata["_id"] in self.local_agent_list:
+                            if metadata["_id"] in agent_dict:
                                 # if agent exist locally
-                                self.local_agent_list.pop(metadata["_id"])
+                                agent_dict.pop(metadata["_id"])
                                 # To do: 
                                 # kill the agent
                             # Delete the application from databased
@@ -235,8 +237,8 @@ class RoheObservation(RoheRestObject):
                             # create a response
                             response[application_name] = "Application agent for {} deleted ".format(application_name)
                         if command == "kill_all_agent":
-                            for agent in list(self.local_agent_list.keys()):
-                                self.local_agent_list[agent]["status"] = 0
-                                self.local_agent_list[agent]["docker"].stop()
+                            for agent in list(agent_dict.keys()):
+                                agent_dict[agent]["status"] = 0
+                                agent_dict[agent]["docker"].stop()
         # Return the response
         return jsonify({'status': "success", "response":response})

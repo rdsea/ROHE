@@ -1,0 +1,35 @@
+application: sdn
+command: start
+stream_config:
+  window:
+    interval:
+      type: 2
+      value: 3
+    size:
+      type: 2
+      value: 100
+  processing:
+    function: sdn_detect_local_outlier_factor
+    parser:
+      name: sdnParser
+      metric:
+        port:
+        - name: rx_packets
+          aggregate: sum
+        - name: rx_bytes
+          aggregate: sum
+        - name: rx_errors
+          aggregate: sum
+        - name: tx_packets
+          aggregate: sum
+        - name: tx_bytes
+          aggregate: sum
+        - name: tx_errors
+          aggregate: sum
+        flow:
+        - name: packet_count
+          aggregate: sum
+        - name: byte_count
+          aggregate: sum
+      feature:
+      - - agg_packet_count
