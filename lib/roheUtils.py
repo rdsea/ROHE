@@ -61,9 +61,7 @@ def to_yaml(file_path:str, conf:dict):
     with open(file_path, "w") as f:
         yaml.dump(conf, f)
 
-def download_file_from_google_drive(id, destination):
-    URL = "https://docs.google.com/uc?export=download&confirm=1"
-
+def download_file_from_google_drive(id, destination,URL="https://docs.google.com/uc?export=download&confirm=1"):
     session = requests.Session()
 
     response = session.get(URL, params={"id": id}, stream=True)
@@ -84,8 +82,7 @@ def get_confirm_token(response):
     return None
 
 
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
+def save_response_content(response, destination,CHUNK_SIZE = 32768):
 
     with open(destination, "wb") as f:
         for chunk in response.iter_content(CHUNK_SIZE):
