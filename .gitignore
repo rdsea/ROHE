@@ -1,7 +1,6 @@
 test/
 modules/orchestration/temp/
 *.DS_Store
-*.jpg
 *.pt
 *.pyc
 

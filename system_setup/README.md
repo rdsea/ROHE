@@ -7,7 +7,7 @@ This project contains information about setup experiment for edge-cloud ML servi
   - Ubuntu (default [image](https://developer.nvidia.com/jetson-nano-sd-card-image))
 
 <p align = "center">
-<img src = "./img/k3s_edge.jpg">
+<img src = "../documents/img/k3s_edge.jpg">
 </p>
 <p align = "center">
 Fig.1 - Edge Cluster - Raspberry Pi & Jetson Boards
