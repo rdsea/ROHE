@@ -2,7 +2,7 @@
 
 ## High-level view
 
-![ROHE services](documents/img/archietecture.png)
+![ROHE services](documents/img/architecture.png)
 
 ## Orchestration Module
 ## 1. Resource
