@@ -1,4 +1,10 @@
-# Orchestration Module
+# ROHE
+
+## High-level view
+
+![ROHE services](documents/img/architecture.png)
+
+## Orchestration Module
 ## 1. Resource
 The framework manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
 - Node: physical node
