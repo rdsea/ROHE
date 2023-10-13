@@ -1,7 +1,7 @@
 from qoa4ml import qoaUtils as qoa_utils
 import argparse, requests, json
 import os, sys
-main_path = config_file = qoa_utils.get_parent_dir(__file__,2)
+main_path = config_file = qoa_utils.get_parent_dir(__file__,1)
 sys.path.append(main_path)
 import lib.roheUtils as rohe_utils
 temp_path = main_path+"/temp"

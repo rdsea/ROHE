@@ -38,7 +38,6 @@ def train_local_outlier_factor(historical_data, feature, n_neighbors = 2, novelt
     # Train Local Ourlier Factor model
     try:
         model_lof = LocalOutlierFactor(n_neighbors=n_neighbors, novelty=novelty)
-        print(type(historical_data))
         model_lof.fit(historical_data[feature].values)
         return model_lof
     except Exception as e:
@@ -74,6 +73,7 @@ def sdn_detect_isolation_forest(data, feature):
 def sdn_detect_local_outlier_factor(data, feature):
     dfs = {k:v for k, v in data.groupby('switch')}
     sdn_shift_feature = ["agg_byte_count", "agg_packet_count","flow_packet_count", "flow_byte_count"]
+    final_df = pd.DataFrame()
     for key in dfs:
         df = copy.deepcopy(dfs[key])
         for metric in sdn_shift_feature:
@@ -81,4 +81,6 @@ def sdn_detect_local_outlier_factor(data, feature):
         df = df.iloc[1:]
         dfs[key], model = detect_local_outlier_factor(df, feature)
         logging.debug(dfs[key])
-    return dfs,  model
+        final_df = pd.concat([final_df, dfs[key]], ignore_index=True)
+    print(final_df)
+    return final_df,  model

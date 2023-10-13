@@ -9,6 +9,10 @@ sys.path.append(main_path)
 from lib.modules.restService.roheService import RoheRestObject
 from flask import jsonify, request
 import docker
+DEFAULT_DOCKER_MOUNT = {main_path+"/core":{"bind":"/agent/core", "mode":"ro"},
+                        main_path+"/lib":{"bind":"/agent/lib", "mode":"ro"},
+                        main_path+"/config":{"bind":"/agent/configurations", "mode":"ro"},
+                        main_path+"/temp/agent/":{"bind":"/agent/data/", "mode":"rw"}}
 
 
 
@@ -139,7 +143,7 @@ class RoheObservation(RoheRestObject):
             agent_dict = {}
 
     def start_docker(self, image, app_name):
-        container = self.docker_client.containers.run(image,remove=True, detach=True, environment={'APP_NAME':app_name})
+        container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':app_name})
         return container
 
     def update_app(self,metadata):

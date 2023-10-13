@@ -250,7 +250,7 @@ def aggregate_switch(switch, config, prefix):
 
 def sdnParser(item, parser_conf):
     try:
-        swith_df = pd.DataFrame()
+        switch_df = pd.DataFrame()
         metric_list = parser_conf["metric"]
         if "flow" in metric_list:
             flowstat_config = metric_list["flow"]
@@ -284,8 +284,8 @@ def sdnParser(item, parser_conf):
             row_switch.update(metadata_dict)
             dfi = pd.DataFrame(row_switch)
             # concat new row data to result dataframe 
-            swith_df = pd.concat([swith_df, dfi], ignore_index=True)
-        return swith_df
+            switch_df = pd.concat([switch_df, dfi], ignore_index=True)
+        return switch_df
     except Exception as e:
         logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))
         traceback.print_exception(*sys.exc_info())
@@ -365,7 +365,7 @@ def OCParser(item, parser_conf):
         #     row_switch.update(metadata_dict)
         #     dfi = pd.DataFrame(row_switch)
         #     # concat new row data to result dataframe 
-        #     swith_df = pd.concat([swith_df, dfi], ignore_index=True)
+        #     switch_df = pd.concat([switch_df, dfi], ignore_index=True)
         return result
     except Exception as e:
         logging.error("Error {} while parsing data in objectDetectionParser: {}".format(type(e),e.__traceback__))

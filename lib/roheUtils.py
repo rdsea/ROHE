@@ -180,3 +180,6 @@ def load_qoa_conf_env(qoa_conf):
     qoa_conf["role"] = role
 
     return qoa_conf
+
+def df_to_csv(file_path, df):
+    df.to_csv(file_path, mode='a', header=not os.path.exists(file_path))

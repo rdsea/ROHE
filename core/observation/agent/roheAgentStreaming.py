@@ -6,9 +6,10 @@ import json, sys, time, os
 import uuid, pymongo
 import traceback
 import pandas as pd
-main_path = config_file = qoaUtils.get_parent_dir(__file__,4)
+main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(main_path)
-DEFAULT_CONFIG_PATH="/configurations/observation/observationConfig.yaml"
+DEFAULT_CONFIG_PATH="/configurations/observationConfig.yaml"
+DEFAULT_DATA_PATH = "/agent/data/"
 
 
 # Append syspath for dynamic import modules
@@ -35,6 +36,8 @@ class RoheObservationAgent(RoheObject):
     def __init__(self, configuration, mg_db=False, log_lev=2):
         super().__init__(logging_level=log_lev)
         self.conf = configuration
+        self.app_name = configuration["app_name"]
+        self.temp_path = DEFAULT_DATA_PATH+self.app_name
         # Init Metric collector 
         colletor_conf = self.conf["collector"]
         self.collector = Amqp_Collector(colletor_conf['amqp_collector']['conf'], host_object=self)
@@ -151,6 +154,9 @@ class RoheObservationAgent(RoheObject):
             # 
             for feature in feature_list:
                 result_df, model = procFunc(data, feature)
+                rohe_utils.make_folder(self.temp_path)
+                file_path = self.temp_path+"/"+str(feature)+".csv"
+                rohe_utils.df_to_csv(file_path, result_df)
                 # self.log("\n"+str(result_df))
 
     def eventTrigger(self):
@@ -209,6 +215,7 @@ if __name__ == '__main__':
         if not app_name:
             app_name = "test"
         agent_config = get_app(collection, app_name)['agent_config']
+        agent_config["app_name"] = app_name
         print(agent_config)
         agent = RoheObservationAgent(agent_config)
         agent.start()
