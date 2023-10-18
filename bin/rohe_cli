@@ -7,6 +7,7 @@ for rohe cli
 You can add a new parameter like --conf_path which receive the full path of the configuration, no 
 """
 import json
+from pathlib import Path
 import click
 import requests 
 from qoa4ml import qoaUtils as qoa_utils
@@ -15,8 +16,8 @@ import sys
 import lib.roheUtils as rohe_utils
 main_path = config_file = qoa_utils.get_parent_dir(__file__,1)
 sys.path.append(main_path)
-temp_path = main_path+"/temp"
-conf_path = main_path+"/examples/agentConfig/"
+#temp_path = main_path+"/temp"
+#conf_path = main_path+"/examples/agentConfig/"
 headers = {
     'Content-Type': 'application/json'
 }
@@ -24,14 +25,15 @@ headers = {
 @click.command()
 @click.option('--app', help='application name', default="test")
 @click.option('--url', help='registration url', default="http://localhost:5010/registration")
-def register_app(app,url):
+@click.option('--output_dir', help='output_file, make sure the directory exists')
+def register_app(app,url,output_dir):
     res_data = {"application": app}
     response = requests.request("POST", url, headers=headers, data=json.dumps(res_data))
     res_data["appID"] = response.json()["response"]["appID"]
     qoa_conf = {"client":res_data, "registration_url":url}
     qoa_conf["client"] = rohe_utils.load_qoa_conf_env(qoa_conf["client"]) 
-    if rohe_utils.make_folder(temp_path):
-        temp_path += ("/"+app)
+    if Path(output_dir).exists():
+        temp_path = output_dir + ("/"+app)
         if rohe_utils.make_folder(temp_path):
             file_path = temp_path+"/qoa_config.yaml"
             rohe_utils.to_yaml(file_path, qoa_conf)
