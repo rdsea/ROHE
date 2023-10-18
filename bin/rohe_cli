@@ -3,6 +3,9 @@
 for rohe cli
 """
 #TODO: remove main_path,temp_path, ... as they are just example
+"""
+You can add a new parameter like --conf_path which receive the full path of the configuration, no 
+"""
 import json
 import click
 import requests 
@@ -25,10 +28,10 @@ def register_app(app,url):
     res_data = {"application": app}
     response = requests.request("POST", url, headers=headers, data=json.dumps(res_data))
     res_data["appID"] = response.json()["response"]["appID"]
-    qoa_conf = {"client":res_data, "registration_url":args.url}
+    qoa_conf = {"client":res_data, "registration_url":url}
     qoa_conf["client"] = rohe_utils.load_qoa_conf_env(qoa_conf["client"]) 
     if rohe_utils.make_folder(temp_path):
-        temp_path += ("/"+args.app)
+        temp_path += ("/"+app)
         if rohe_utils.make_folder(temp_path):
             file_path = temp_path+"/qoa_config.yaml"
             rohe_utils.to_yaml(file_path, qoa_conf)
@@ -37,20 +40,20 @@ def register_app(app,url):
 @click.command()
 @click.option('--app', help='application name', default="dummy")
 @click.option('--url', help='registration url', default="http://localhost:5010/agent")
-
-def start_obsagent(app,url):
-    config_file_path = conf_path+app+"/start.yaml"
-    config_file = qoa_utils.load_config(config_file_path)
+@click.option('--conf_file_path', help='configuration file')
+def start_obsagent(app,url,conf_file_path):
+    #config_file_path = conf_path+app+"/start.yaml"
+    config_file = qoa_utils.load_config(conf_file_path)
     response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
     print(response.json())
-
 
 @click.command()
 @click.option('--app', help='application name', default="dummy")
 @click.option('--url', help='registration url', default="http://localhost:5010/agent")
-def stop_obsagent(app,url):
-    config_file_path = conf_path+app+"/stop.yaml"
-    config_file = qoa_utils.load_config(config_file_path)
+@click.option('--conf_file_path', help='configuration file')
+def stop_obsagent(app,url,conf_file_path):
+    ##config_file_path = conf_path+app+"/stop.yaml"
+    config_file = qoa_utils.load_config(conf_file_path)
     response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
     print(response.json())
 
