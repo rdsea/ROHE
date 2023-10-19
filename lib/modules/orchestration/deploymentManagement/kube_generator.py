@@ -2,11 +2,14 @@
 import yaml, os
 import qoa4ml.qoaUtils as qoaUtils
 from jinja2 import Environment, FileSystemLoader
-
-
-
-temporary_folder = qoaUtils.get_parent_dir(__file__,3)+"/services/orchestration/temp"
-template_folder = qoaUtils.get_parent_dir(__file__,3)+"/templates"
+rohe_dir=os.getenv("ROHE_DIR")
+if (rohe_dir is None):
+    print(f'ROHE DIR is not set. Assume the current dir')
+    rohe_dir="."
+rohe_config_path=os.path.join(rohe_dir,"config","rohe.yaml")
+rohe_conf=qoaUtils.load_config(rohe_config_path)
+temporary_folder = rohe_conf["ROHE_TEMP_DIR"]##qoaUtils.get_parent_dir(__file__,3)+"/services/orchestration/temp"
+template_folder = os.path.join(rohe_dir,"templates")#qoaUtils.get_parent_dir(__file__,3)+"/templates"
 jinja_env = Environment(loader=FileSystemLoader(template_folder))
 deployment = jinja_env.get_template("deployment_templates.yaml")
 
