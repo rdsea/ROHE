@@ -1,9 +1,8 @@
 import traceback
-import qoa4ml.qoaUtils as qoaUtils
 import sys
 import argparse
-main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
-sys.path.append(main_path)
+#main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
+#sys.path.append(main_path)
 # from lib.services.observation.roheAgenStreaming import RoheObservationAgent
 from lib.modules.restService.roheService import RoheRestService
 import lib.roheUtils as rohe_utils
@@ -11,7 +10,7 @@ from lib.modules.observation.services.roheObservation import RoheObservation, Ro
 
 
 
-DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
+#DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
 
 if __name__ == '__main__': 
     # init_env_variables()
@@ -27,8 +26,10 @@ if __name__ == '__main__':
 
     # load configuration file
     if not config_file:
-        config_file = main_path+DEFAULT_CONFIG_PATH
-        print(config_file)
+        #config_file = main_path+DEFAULT_CONFIG_PATH
+        #print(config_file)
+        print(f'Error with configuration file config_file={config_file}')
+        sys.exit(1)
     try:
         configuration = rohe_utils.load_config(config_file)
         observationService = RoheRestService(configuration)
