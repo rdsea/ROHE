@@ -27,6 +27,10 @@ Pre-deployment:
 - message broker: connection (amqp - rabbitmq)
 - Prometheus, Graphana (optional)
 
+Edit "config/rohe.yaml" if needed and set ROHE_DIR to the /path/to/ROHE_ROOT
+```
+$export ROHE_DIR=`pwd`
+```
 
 Step 1:
 - Edit configuration: 
