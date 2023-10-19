@@ -34,7 +34,11 @@ Step 1:
     - Orchestration configuration
 
 Step 2: 
-- Start Observation service
+- Start Observation service. Assume that you are in the ROHE_ROOT:
+```
+ $export PYTHONPATH=`pwd`
+ $python core/observation/roheObservationService.py --conf config/observationConfig.yaml
+```
     - Run start_observation: file -> url
 
 Step 3:
