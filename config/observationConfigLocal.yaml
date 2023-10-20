@@ -2,7 +2,7 @@ collector:
   amqp_collector:
     class: amqp
     conf:
-      end_point: 195.148.22.62
+      end_point: localhost
       exchange_name: exchange_name
       exchange_type: topic
       in_queue: collector_1
@@ -11,14 +11,14 @@ connector:
   amqp_connector:
     class: amqp
     conf:
-      end_point: 195.148.22.62
+      end_point: localhost
       exchange_name: exchange_name
       exchange_type: topic
       out_routing_key: out_routing_key
 database:
   collection: registration
   db_name: rohe_observation
-  url: mongodb://195.148.22.62:27017/
+  url: mongodb://localhost:27017/
 false_rate: 3
 logging_level: 2
 output_folder: /results/

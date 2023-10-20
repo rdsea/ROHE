@@ -9,10 +9,10 @@
     ],
     "resources": {
         "service": [
-            {"id": "request", "serviceapis": "mptt", "machinetypes": ["small", "normal"], "processortypes": ["CPU"]}
+            {"id": "request", "serviceapis": "mptt", "machinetypes": ["edge", "cloud"], "processortypes": ["CPU"]}
         ],
         "data": [
-            {"id": "BTS", "datatypes": "plain_text", "formats": "csv"}
+            {"id": "nii", "datatypes": "image", "formats": "h5"}
         ],
         "mlmodels":[
             {"id": "ml_inference", "mlinfrastructures": "tensorflow", "modelclasses": ["RNN", "LR"], "inferencemodes": "dynamic"},
@@ -26,18 +26,18 @@
                 "composition":{
                     "agg_max": {
                         "method": "agg_max",
-                        "source":["yolo8s", "yolo5x"]
+                        "source":["vgg_0", "vgg_3"]
                     },
                     "yolo8s":{
-                        "method":"yolo8s inference",
+                        "method":"vgg_3",
                         "source":["data_processing"]
                     },
                     "yolo5x":{
-                        "method":"yolo5x inference",
+                        "method":"vgg_0",
                         "source":["data_processing"]
                     },
                     "data_processing":{
-                        "method": "sharpen",
+                        "method": "REST",
                         "source":["data_ingestion"]
                     },
                     "data_ingestion":{
@@ -51,48 +51,37 @@
 
     "quality": {
         "services": [
-            {"ResponseTime":{
-                "id":2,
-                "attributenames":"ResponseTimeNormalDevices",
-                "operators":"max",
-                "class": ["performance"],
-                "constraint":[
-                    {"condition":{
-                        "resource_tier": ["edge"],
+            {
+                "ResponseTime":{
+                    "id":2,
+                    "attributenames":"ResponseTimeCloudDevices",
+                    "operators":"max",
+                    "class": ["performance"],
+                    "condition":{
+                        "resource_tier": ["cloud"],
                         "model_tier":2
                     },
                     "stage":"none",
                     "unit":"s",
                     "value":0.5,
-                    "subject":"violation"},
-                    {"condition":{
-                        "resource_tier": ["fog"],
+                    "subject":"violation"
+                }
+            },
+            {
+                "ResponseTime":{
+                    "id":2,
+                    "attributenames":"ResponseTimeEdgeDevices",
+                    "operators":"max",
+                    "class": ["performance"],
+                    "condition":{
+                        "resource_tier": ["edge"],
                         "model_tier":3
                     },
                     "stage":"none",
                     "unit":"s",
                     "value":0.4,
-                    "subject":"violation"},
-                    {"condition":{
-                        "resource_tier": ["cloud"],
-                        "model_tier":4
-                    },
-                    "stage":"none",
-                    "unit":"s",
-                    "value":0.3,
-                    "subject":"violation"}
-                ]
-                    
-                }
-            },
-            {"Reliability":{
-                "id":3,
-                "attributenames":"ReliabilityNormalDevices",
-                "operators":"min",
-                "unit":"percentage",
-                "value":90, 
-                "class": ["performance"], 
-                "machinetypes": ["normal"]}
+                    "subject":"violation"
+                }        
             }
         ],
         "data":[
@@ -171,78 +160,70 @@
         "mlmodels": [
             {"Accuracy":{
                 "id":11,
-                "attributenames":"AccuracySmallDevices",
+                "attributenames":"AccuracyEdgeDevices",
                 "operators":"min",
                 "unit":"percentage",
                 "value":80, 
                 "class": ["Accuracy"], 
-                "machinetypes": ["small"]}
+                "machinetypes": ["edge"]}
             },
             {"Accuracy":{
                 "id":12,
-                "attributenames":"AccuracyNormalDevices",
+                "attributenames":"AccuracyCloudDevices",
                 "operators":"min",
                 "unit":"percentage",
                 "value":95, 
                 "class": ["Accuracy"], 
-                "machinetypes": ["normal"]}
+                "machinetypes": ["cloud"]}
             },
-            {"Confidence":{
-                "id":13,
-                "attributenames":"ConfidenceSmallDevices",
-                "operators":"min",
-                "constraint":[
-                    {"condition":{
+            {
+                "Confidence":{
+                    "id":13,
+                    "attributenames":"ConfidenceEdgeDevices",
+                    "operators":"min",
+                    "condition":{
                         "resource_tier": ["edge"],
                         "model_tier":2
                     },
                     "stage":"none",
                     "unit":"none",
                     "value":0.7,
-                    "subject":"violation"},
-                    {"condition":{
+                    "subject":"violation",
+                    "class": ["Confidence"]
+                }
+            },
+            {
+                "Confidence":{
+                    "id":13,
+                    "attributenames":"ConfidenceCloudDevices",
+                    "operators":"min",
+                    "condition":{
+                        "resource_tier": ["cloud"],
+                        "model_tier":2
+                    },
+                    "stage":"none",
+                    "unit":"none",
+                    "value":0.7,
+                    "subject":"violation",
+                    "class": ["Confidence"]
+                }
+            },
+            {
+                "Confidence":{
+                    "id":13,
+                    "attributenames":"ConfidenceEdgeDevices",
+                    "operators":"min",
+                    "condition":{
                         "resource_tier": ["edge"],
                         "model_tier":2
                     },
                     "stage":"none",
                     "unit":"none",
-                    "value":0.75,
-                    "subject":"warning"},
-                    {"condition":{
-                        "resource_tier": ["fog"],
-                        "model_tier":3
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.75,
-                    "subject":"violation"},
-                    {"condition":{
-                        "resource_tier": ["fog"],
-                        "model_tier":3
-                    },
-                    "stage":"none",
-                    "unit":"none",
                     "value":0.8,
-                    "subject":"warning"},
-                    {"condition":{
-                        "resource_tier": ["cloud"],
-                        "model_tier":4
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.8,
-                    "subject":"violation"},
-                    {"condition":{
-                        "resource_tier": ["cloud"],
-                        "model_tier":4
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.85,
-                    "subject":"warning"}
-                ],
-                "class": ["Confidence"]
-            }}
+                    "subject":"warning",
+                    "class": ["Confidence"]
+                }
+            }
         ]   
     },
     "security": {

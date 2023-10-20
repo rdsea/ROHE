@@ -220,7 +220,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Rohe Orchestration Service")
     parser.add_argument('--port', help='server port', default=5002)
     parser.add_argument('--conf', help='configuration file', default=None)
-    parser.add_argument('--path', help='default config path', default="/configurations/orchestration/orchestrationConfig.json")
+    parser.add_argument('--path', help='default config path', default="/configurations/orchestration/orchestrationConfigLocal.json")
     args = parser.parse_args()
     config_file = args.conf
     config_path = args.path
