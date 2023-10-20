@@ -86,31 +86,31 @@ model_info:
   input_shape: "32,32,3"
   models:
     vgg:
-      folder: "/artifact/nii/VGG16/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/repair"
 
     vgg_0:
-      folder: "/artifact/nii/VGG16/0/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/0/repair"
 
     vgg_2_7:
-      folder: "/artifact/nii/VGG16/2/7/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/2/7/repair"
 
     vgg_2_12:
-      folder: "/artifact/nii/VGG16/2/12/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/2/12/repair"
 
     vgg_3_6:
-      folder: "/artifact/nii/VGG16/3/6/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/3/6/repair"
 
     vgg_6:
-      folder: "/artifact/nii/VGG16/6/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/6/repair"
 
     vgg_6_7:
-      folder: "/artifact/nii/VGG16/6/7/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/6/7/repair"
 
     vgg_7:
-      folder: "/artifact/nii/VGG16/7/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/7/repair"
 
     vgg_7_6:
-      folder: "/artifact/nii/VGG16/7/6/repair"
+      folder: "/home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/7/6/repair"
 
 # model:
 #   model_id: vgg_0

@@ -37,7 +37,7 @@ service_quality_config:
 
 # general model configuration
 model_config:
-  chosen_model_type: objec_classification_1 
+  chosen_model_type: object_classification_bdd100k
   chosen_model_id: vgg_0
 
   # shared parameters (common for all ML models)
@@ -58,6 +58,7 @@ model_config:
       # architecture_file
       # weights_file
     object_classification_bdd100k:
+    # group models that have the same metadata (param needed to load model)
       description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
       input_shape: "32,32,3"
       architecture_file: "model.json"
@@ -97,3 +98,39 @@ model_config:
           path: /artifact/nii/VGG16/7/repair
         vgg_7_6:
           path: /artifact/nii/VGG16/7/6/repair
+
+  object_classification:
+
+  # unique features
+  - data_set: 
+    # - abc_1
+    description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
+    input_shape: "32,32,3"
+    architecture_file: "model.json"
+    weights_file: "model.h5"
+    output_labels:
+      - bicycle
+      - bus
+      - car
+      - motorcycle
+      - other person
+      - other vehicle
+      - pedestrian
+      - rider
+      - traffic light
+      - traffic sign
+      - trailer
+      - train
+      - truck
+
+  - data_set: 
+    name: abc_2
+    description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
+    input_shape: "64,64,3"
+    architecture_file: "model_1.json"
+    weights_file: "model_1.h5"
+    output_labels:
+      - person
+      - cat
+      - dog
+      - mouse
