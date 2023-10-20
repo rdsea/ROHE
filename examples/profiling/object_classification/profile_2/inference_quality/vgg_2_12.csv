@@ -1,0 +1,2 @@
+class,accuracy,min_confidence,avg_confidence,percentage_confidence_over_50,avg_confidence_correct_prediction,avg_confidence_incorrect_prediction,min_response_time,avg_response_time,max_response_time,class_label
+0,0.7162048698572628,0.233856201171875,0.8508013111518072,0.9462636439966414,0.8837414593867093,0.7676712920856194,0.000425100326538,0.0019119824810652146,0.049234390258789,bicycle

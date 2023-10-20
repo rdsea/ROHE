@@ -2,22 +2,22 @@ import os
 import pandas as pd
 
 
+class_label_dict = {
+    0: "bicycle",
+    1: "bus",
+    2: "car",
+    3: "motorcycle",
+    4: "other person",
+    5: "other vehicle",
+    6: "pedestrian",
+    7: "rider",
+    8: "traffic light",
+    9: "traffic sign",
+    10: "trailer",
+    11: "train",
+    12: "truck"
+}
 def get_class_label_dict() -> dict:
-    class_label_dict = {
-        0: "bicycle",
-        1: "bus",
-        2: "car",
-        3: "motorcycle",
-        4: "other person",
-        5: "other vehicle",
-        6: "pedestrian",
-        7: "rider",
-        8: "traffic light",
-        9: "traffic sign",
-        10: "trailer",
-        11: "train",
-        12: "truck"
-    }
     return class_label_dict
 
 def get_subfolders(path) -> list:
@@ -101,77 +101,15 @@ def get_throughtput_info(dataframe: pd.DataFrame,
 
     # Create a final DataFrame with the calculated metrics
     report = {
-        'avg_throughput(req/s)': avg_throughput,
-        'min_throughput(req/s)': min_throughput,
-        'max_throughput(req/s)': max_throughput,
+        'avg_throughput': avg_throughput,
+        'min_throughput': min_throughput,
+        'max_throughput': max_throughput,
         'runtime': runtime,
     }
 
     return report
 
 
-def get_risk_levels_info(dataframe: pd.DataFrame,
-                         class_label_dict: dict) -> dict:
-    dataframe = dataframe.copy(deep= True)
-
-
-    def map_label(class_object):
-        return class_label_dict.get(class_object, "Unknown")
-    
-    def misclassification_num(df, true_label, false_label=None):
-        subset = df[df['label'] == true_label]
-        if false_label:
-            misclassified = subset[subset['predict_label'] == false_label]
-        else:
-            misclassified = subset[subset['predict_label'] != true_label]
-        if len(subset) == 0:
-            return 0
-        return len(misclassified)
-
-    def calculate_risk_level(df):
-        df['label'] = df['class_object'].map(map_label)
-        df['predict_label'] = df['predict_object'].map(map_label)
-        
-        # Risk Level 1
-        miss_ped_num = misclassification_num(df, "pedestrian")
-        miss_car_as_rider_num = misclassification_num(df, "car", "rider")
-        total_ped = len(df[df['label'] == "pedestrian"])
-        total_car = len(df[df['label'] == "car"])
-        risk_level_1 = (miss_ped_num + miss_car_as_rider_num) / (total_ped + total_car)
-        print(f"risk level 1: {risk_level_1}")
-        print(f"This is total missclassify number for risk level 1: {miss_ped_num + miss_car_as_rider_num} and total object is : {total_ped + total_car}")
-        
-        # Risk Level 2
-        miss_rider_num = misclassification_num(df, "rider")
-        miss_car_as_truck_num = misclassification_num(df, "car", "truck")
-        miss_bicycle_num = misclassification_num(df, "bicycle")
-        total_rider = len(df[df['label'] == "rider"])
-        total_truck = len(df[df['label'] == "truck"])
-        total_bicycle = len(df[df['label'] == "bicycle"])
-        risk_level_2 = (miss_rider_num + miss_car_as_truck_num + miss_bicycle_num) / (total_rider + total_truck + total_bicycle)
-        print(f"risk level 2: {risk_level_2}")
-
-        print(f"This is total missclassify number for risk level 2: {miss_rider_num + miss_car_as_truck_num + miss_bicycle_num} and total object is {total_rider + total_truck + total_bicycle}")
-        
-        # Risk Level 3
-        miss_ped_num_rider = misclassification_num(df, "pedestrian", "rider")
-        miss_rider_as_ped_num = misclassification_num(df, "rider", "pedestrian")
-        miss_motor_as_ped_num = misclassification_num(df, "motorcycle", "pedestrian")
-        total_motorcycle = len(df[df['label'] == "motorcycle"])
-        risk_level_3 = (miss_ped_num_rider + miss_rider_as_ped_num + miss_motor_as_ped_num) / (total_ped + total_rider + total_motorcycle)
-        print(f"risk level 3: {risk_level_3}")
-
-        print(f"This is total missclassify number for risk level 3: {miss_ped_num_rider + miss_rider_as_ped_num + miss_motor_as_ped_num} and total object is {total_ped + total_rider + total_motorcycle}")
-        
-        return {
-            'risk_level_1(%)': risk_level_1 * 100,
-            'risk_level_2(%)': risk_level_2 * 100, 
-            'risk_level_3(%)': risk_level_3 * 100
-        }
-    
-    report = calculate_risk_level(dataframe)
-
-    return report
 
 def get_model_info_from_provider(dataframe: pd.DataFrame) -> dict:
     '''
@@ -199,13 +137,17 @@ def get_model_info_from_provider(dataframe: pd.DataFrame) -> dict:
     return result
 
 
-def get_label_distribution(dataframe: pd.DataFrame, separator: str = "-") -> dict:
+def get_label_distribution(dataframe: pd.DataFrame, class_label_dict: dict) -> dict:
     label_dist = dataframe['class_object'].value_counts().to_dict()
 
-    label_dist_value = separator.join(map(str, label_dist.values()))
+    label_dist = {class_label_dict[key]: value for key, value in label_dist.items()}
+
+    print(f"\n\n\nThis is label dict: {label_dist}")
+    
     label_dist = {"total_sample": len(dataframe),
-                "label_dist": label_dist_value, }
+                "label_dist": label_dist}
     return label_dist
+
 
 def get_inference_quality_info(dataframe: pd.DataFrame,
                           class_label_dict: dict) -> pd.DataFrame:
@@ -216,6 +158,8 @@ def get_inference_quality_info(dataframe: pd.DataFrame,
 
     # For avg_confidence_correct_prediction
     correct_predictions = dataframe[dataframe['accuracy'] == 1]
+    # print(f"\n\n\nThis is the average not by class: {correct_predictions['confidence'].mean()}, this is the type: {type(correct_predictions['confidence'].mean())}")
+
     avg_confidence_correct = correct_predictions.groupby('class_object')['confidence'].mean()
 
     # For avg_confidence_incorrect_prediction
@@ -227,7 +171,10 @@ def get_inference_quality_info(dataframe: pd.DataFrame,
     total_counts = dataframe.groupby('class_object').size()
     percent_conf_over_50 = (conf_over_50 / total_counts)
 
-    # Create a new DataFrame to hold the calculated metrics
+
+    print(f"\n\n\nThis is percent conf over 50: {percent_conf_over_50}, the type is: {type(percent_conf_over_50)}")    # Create a new DataFrame to hold the calculated metrics
+    print(f"\n\n\nThis is confidence metric: {grouped['confidence'].min()}, the type is: {type(grouped['confidence'].min())}")    # Create a new DataFrame to hold the calculated metrics
+
     model_quality = pd.DataFrame({
         'accuracy': grouped['accuracy'].sum() / grouped['accuracy'].count(),  
         'min_confidence': grouped['confidence'].min(),
@@ -249,3 +196,36 @@ def get_inference_quality_info(dataframe: pd.DataFrame,
     model_quality['class_label'] = model_quality['class'].map(class_label_dict)
 
     return model_quality
+
+
+def get_overall_inference_quality_info(dataframe: pd.DataFrame) -> dict:
+    dataframe = dataframe.copy(deep= True)
+
+    # For avg_confidence_correct_prediction
+    correct_predictions = dataframe[dataframe['accuracy'] == 1]
+    avg_confidence_correct = correct_predictions['confidence'].mean()
+
+    # For avg_confidence_incorrect_prediction
+    incorrect_predictions = dataframe[dataframe['accuracy'] == 0]
+    avg_confidence_incorrect = incorrect_predictions['confidence'].mean()
+
+
+    # For percentage_confidence_over_50
+    conf_over_50 = len(dataframe[dataframe['confidence'] > 0.5])
+    total_counts = len(dataframe)
+    percent_conf_over_50 = (conf_over_50 / total_counts)
+
+    result = {
+        'accuracy': dataframe['accuracy'].sum() / dataframe['accuracy'].count(),  
+        'min_confidence': dataframe['confidence'].min(),
+        'avg_confidence': dataframe['confidence'].mean(), 
+        'percentage_confidence_over_50': percent_conf_over_50,
+        'avg_confidence_correct_prediction': avg_confidence_correct,
+        'avg_confidence_incorrect_prediction': avg_confidence_incorrect,
+        'min_response_time': dataframe['responseTime'].min(),
+        'avg_response_time': dataframe['responseTime'].mean(), 
+        'max_response_time': dataframe['responseTime'].max(),
+    }
+
+
+    return result

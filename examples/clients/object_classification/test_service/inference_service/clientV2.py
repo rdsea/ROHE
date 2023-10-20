@@ -90,7 +90,7 @@ class InferenceServiceClientV2:
 
         total_sample = len(X_test)
         with ThreadPoolExecutor(max_workers=self.rate) as executor:
-            for start_index in range(0, total_sample, 100):
+            for start_index in range(0, total_sample, self.rate):
             # for start_index in range(26550, total_sample, 100):
             # for start_index in range(0, 310, self.rate):
                 print(f"Start index now: {start_index}")

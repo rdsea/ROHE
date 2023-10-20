@@ -18,7 +18,11 @@ storage:
 aggregating_service:
   # Maximum concurrent threads for processing
   max_threads: 10
+  # need to be specify for each function
+  # move later
   # Validity period for a request ID in seconds. Older IDs are removed.
+  # change name of this param
+  # keep_alive
   valid_time: 60
   # config window time for aggregating message
   time_limit: 3
@@ -34,7 +38,11 @@ aggregation_functions:
     module_path: ""
     description: "Takes the average of probabilities and selects the highest class."
     parameters: 
-    - 
+    # add specific params for each function
+    - min_message_requirement: 2
+    # search for time parser
+    - window_time: 5
+    # modify to be more general (like using * (regrex))
     applicable_pipelines: ["pipeline_1", "pipeline_2"]
   
   weighted_average:

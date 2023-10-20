@@ -24,7 +24,7 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
 
-from examples.profiling.object_classification.collector import Collector
+from core.profiling.collector import Collector
 import lib.roheUtils as roheUtils
 
 # global qoaclient 

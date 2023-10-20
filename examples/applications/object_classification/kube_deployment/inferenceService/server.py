@@ -18,7 +18,7 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
 
-from lib.services.restService import RoheRestService
+from lib.modules.restService.roheService import RoheRestService
 from lib.modules.object_classification.classificationObject import ClassificationObjectV1
 from lib.services.object_classification.objectClassificationService import ClassificationRestService, EnsembleState
 from lib.service_connectors.minioStorageConnector import MinioConnector

@@ -14,12 +14,10 @@ modules/orchestration/temp/
 .env
 *.ipynb
 
-# nii_models
-nii/
+artifact
 tmp_image_folder/
 test_image/
-lib/modules/profiling/result/
 
-examples/clients/object_classification/test_service/inference_service/raw_data/
+examples/profiling/object_classification/result
+core/profiling/result
 
-examples/profiling/object_classification/raw_data
