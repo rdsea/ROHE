@@ -1,0 +1,2 @@
+#provide configuration for rohe
+ROHE_TEMP_DIR: /tmp/rohe
