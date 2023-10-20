@@ -27,6 +27,10 @@ Pre-deployment:
 - message broker: connection (amqp - rabbitmq)
 - Prometheus, Graphana (optional)
 
+Edit "config/rohe.yaml" if needed and set ROHE_DIR to the /path/to/ROHE_ROOT
+```
+$export ROHE_DIR=`pwd`
+```
 
 Step 1:
 - Edit configuration: 
@@ -34,7 +38,11 @@ Step 1:
     - Orchestration configuration
 
 Step 2: 
-- Start Observation service
+- Start Observation service. Assume that you are in the ROHE_ROOT:
+```
+ $export PYTHONPATH=`pwd`
+ $python core/observation/roheObservationService.py --conf config/observationConfig.yaml
+```
     - Run start_observation: file -> url
 
 Step 3:
