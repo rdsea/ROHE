@@ -1,18 +1,17 @@
+
+
 import os
 import json
 import numpy as np
 from flask import request
 from typing import Dict, Optional
 
-
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
 from app.modules.service_connectors.broker_connectors.quixStreamProducer import KafkaStreamProducer
 from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
 from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector
 
-from lib.modules.restService.roheService import RoheRestObject
-
-from qoa4ml.QoaClient import QoaClient
+from .restful_service_module import ServiceController
 
 
 class EnsembleState():
@@ -25,56 +24,22 @@ class EnsembleState():
     def get_mode(self) -> bool:
         return self.mode
     
-# class ClassificationRestService():
-class ClassificationRestService(RoheRestObject):
-    def __init__(self, **kwargs):
-        super().__init__()
-        # to get configuration for resource
-        configuration = kwargs
-        self.conf = configuration
-        if 'qoaClient' in self.conf:
-            print(f"There is qoa enable in the server")
-            self.qoaClient: QoaClient = self.conf['qoaClient']
-        else:
-            self.qoaClient = None
-        log_lev = self.conf.get('log_lev', 2)
-        self.set_logger_level(logging_level= log_lev)
+class InferenceServiceController(ServiceController):
+    def __init__(self, config):
+        super().__init__(config)
+        self.qoaClient = self.conf.get('qoaClient')
 
-        # self.ensemble = self.conf['ensemble'] or False
+        self.MLAgent: ClassificationObjectV1 = self.conf.get('MLAgent')
         self.ensemble_controller: EnsembleState = self.conf['ensemble_controller']
-        print(f"This is the current ensemble mode: {self.ensemble_controller.get_mode()}")
-        self.pipeline_id = self.conf.get('pipeline_id') or "pipeline_sample"
-
-        # print(f"This is the ensemble mode: {self.ensemble}")
-        #Init model configuration (architecture, weight file)
-        ############################################################################################################################################
-        # The REST AGENT should not manage ML model. We should separate REST and ML -> Use classificationObject in module to manage ML models
-        # for example:
-        # self.MLAgent = classificationObject()
-        # later usage:
-        # - get LOAD command from post: self.MLAgent.load(...)
-        # - get INFERENCE command from post: self.MLAgent.inference(...)
-        # - others: set/get weight, modify structure...
-        ############################################################################################################################################
-
-        # set minio storage connector
         self.minio_connector: MinioConnector = self.conf['minio_connector']
-
-        # set model handler module
-        self.MLAgent: ClassificationObjectV1 = self.conf['MLAgent']
-
-        # initialized both
-        # to be flexible to switch mode 
-        # between send to kafka topic
-        # and send to mongodb 
-        # set kafka streaming connector
         self.kafka_producer: KafkaStreamProducer = self.conf['kafka_producer'] 
-        # set mongodb connector
         self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
         
 
         # set model lock
         self.model_lock = self.conf['lock']
+        self.pipeline_id = self.conf.get('pipeline_id') or "pipeline_sample"
+
 
         self.post_command_handlers = {
             'predict': self._handle_predict_req,
@@ -83,30 +48,33 @@ class ClassificationRestService(RoheRestObject):
             'change_ensemble_mode': self._handle_change_ensemble_mode,
         }
 
-    def post(self):
-        """
-        Handles POST requests for the inference service.
-
-        Command Descriptions:
-        - load_new_weights: Loads a new set of weights for the model.
-        - load_new_model: Loads a new machine learning model for inference.
-        - predict: download the image and returns a prediction.
-        """
-        if self.qoaClient:
-            self.qoaClient.timer() 
+    def get_command_handler(self, request):
         try:
-             
+            response = self._handle_get_request(request)
+            # print(f"This is response: {response}")
+            return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
+    def _handle_get_request(self, request):
+        return f"Hello from Rohe Object Classification Server. This is the input shape: {self.MLAgent.input_shape}"
+
+
+    def post_command_handler(self, request):
+        try:
             command = request.form.get('command')
             handler = self.post_command_handlers.get(command)
 
             if handler:
                 response = handler(request)
+                print(f"\n\nThis is the response: {response}")
 
                 if self.qoaClient:
                     self.qoaClient.timer()
                     
                 result = json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+                print(f"This is the result: {result}")
             else:
                 result = json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
             
@@ -114,8 +82,6 @@ class ClassificationRestService(RoheRestObject):
             print("Exception:", e)
             result = json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
         
-        if self.qoaClient:
-            self.qoaClient.timer() 
         if command == "predict":
             try:
                 if self.qoaClient:
@@ -130,27 +96,33 @@ class ClassificationRestService(RoheRestObject):
 
 
         return result
-
-    def get(self):
+    
+    def put_command_handler(self, request):
         try:
-            response = self._handle_get_request(request)
+            response = self._handle_put_request(request)
+            # print(f"This is response: {response}")
             return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
         except Exception as e:
             print("Exception:", e)
             return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
+    def _handle_put_request(self, request):
+        return f"Does not support this operation yet"
 
-    def _handle_get_request(self, request):
-        return f"Hello from Rohe Object Classification Server. \nThis is the input shape: {self.MLAgent.input_shape}"
+    
+    def delete_command_handler(self, request):
+        try:
+            response = self._handle_delete_request(request)
+            # print(f"This is response: {response}")
+            return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
+
+    def _handle_delete_request(self, request):
+        return f"Does not support this operation yet"
 
 
-    # # Convert the numpy array to bytes
-    # image_bytes = image_np.tobytes()
-    # # Metadata and command
-    # metadata = {'shape': '32,32,3', 'dtype': str(image_np.dtype)}
-    # payload = {'command': 'predict', 'metadata': json.dumps(metadata)}
-    # files = {'image': ('image', image_bytes, 'application/octet-stream')}
-    # requests.post('http://server-address/api-name', data=payload, files=files)
     def _handle_predict_req(self, request: request):
         metadata = self._get_image_meta_data(request= request)
         matched_dim = self._check_dim(metadata= metadata)
@@ -178,6 +150,7 @@ class ClassificationRestService(RoheRestObject):
         message = self._generate_publish_message(request_info, prediction)
         # if self.ensemble == True:
         mode = self.ensemble_controller.get_mode() == True
+        # print(f"This is the mode: {mode}")
         print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.get_mode()}")
         if mode:
             print(f"mode when entering kafka: {mode}")
@@ -205,8 +178,9 @@ class ClassificationRestService(RoheRestObject):
             "pipeline_id": self.pipeline_id,
             "inference_model_id": self.MLAgent.get_model_id(),
         }
-        # if self.ensemble:
+
         if self.ensemble_controller.get_mode() == True:
+            print("process message for kafka ensemble")
             message = self._proccess_message_for_ensemble(message= message)
 
         print(f"This is the message: {message}\n\n\n")
@@ -269,39 +243,12 @@ class ClassificationRestService(RoheRestObject):
         os.remove(local_file_path) 
         return "successfully update new weights"
 
-    # def _handle_load_new_remote_weights_req(self, request: request):
-    #     remote_file_path = request.form.get('weights_url')
-    #     local_file_path = './tmp_weights_file.h5'
-    #     success = self.minio_connector.download(remote_file_path= remote_file_path,
-    #                                                      local_file_path= local_file_path)
-    #     if success:
-    #         try:
-    #             with self.model_lock:
-    #                 self.MLAgent.load_weights(local_file_path)
-    #         # after loading the weight, delete the local file
-    #         except:
-    #             os.remove(local_file_path)
-    #             return "fail to update new weights (layers doesn't match)"
-
-    #         os.remove(local_file_path) 
-    #         return "successfully update new weights"
-    #     else:
-    #         return "cannot download the files"
-
-    # payload = {
-    #     'command': 'modify_weights',
-    #     'local_file': True, 
-    #     'weights_url': 'weight-file-name.h5',
-    #     'architecture_url': 'architecture-file-name.json'
-    # }
     # # Send POST request
     # response = requests.post('http://server-address/api-name', json=payload)
     def _handle_load_new_model_req(self, request: request):
         local_file = request.form.get('local_file')
         if local_file:
             return self._handle_load_new_local_model_req(request)
-        # else:
-        #     return self._handle_load_new_remote_model_req(request)
 
 
     def _handle_change_ensemble_mode(self, request: request):
@@ -324,24 +271,11 @@ class ClassificationRestService(RoheRestObject):
         except Exception as e:
             return f"Local model case. Failed to update new weights or architecture: {str(e)}"
 
-    # def _get_ensemble_mode(self) -> bool:
-    #     return self.ensemble
-    # def _change_ensemble_mode(self, mode: bool):
-    #     self.ensemble = mode
 
     def _handle_load_new_local_model_req(self, request: request):
         try:
-            # print (request.form.get('weights_url'))
-            # files = {
-            #     "weights_file": request.form.get('weights_url'),
-            #     "architecture_file": request.form.get('architecture_url')
-            # }
             chosen_model_id: str = request.form.get('model_id')
             files = self.MLAgent.get_model_files(chosen_model_id)
-            # files = {
-            #     "weights_file": request.form.get('weights_url'),
-            #     "architecture_file": request.form.get('architecture_url')
-            # }
             
             new_model = self.MLAgent.load_model_from_config(**files)
 
@@ -355,50 +289,6 @@ class ClassificationRestService(RoheRestObject):
         except Exception as e:
             return f"Local model case. Failed to update new weights or architecture: {str(e)}"
 
-
-    # def _handle_load_new_remote_model_req(self, request: request):
-    #     # Download weights file
-    #     weight_remote_file_path = request.form.get('weights_url')
-    #     weight_local_file_path = './tmp_weights_file.h5'
-    #     success = self.minio_connector.download(remote_file_path=weight_remote_file_path,
-    #                                                 local_file_path=weight_local_file_path)
-    #     if not success:
-    #         return "cannot download the weights file"
-    #     # Download architecture file
-    #     architecture_remote_file_path = request.form.get('architecture_url')
-    #     architecture_local_file_path = './tmp_architecture_file.json'
-    #     success = self.minio_connector.download(remote_file_path=architecture_remote_file_path,
-    #                                                     local_file_path=architecture_local_file_path)
-    #     if success:
-    #         try:
-    #             files = {
-    #                 "architecture_file": architecture_local_file_path,
-    #                 "weights_file": weight_local_file_path
-    #             }
-    #             new_model = self.MLAgent.load_model(files= files)
-    #             with self.model_lock:
-    #                 self.MLAgent.change_model(new_model)
-                
-    #             # Cleanup
-    #             os.remove(weight_local_file_path)
-    #             os.remove(architecture_local_file_path)
-
-    #             return "Remote case. Successfully change the model"
-
-    #         except Exception as e:
-    #             # Cleanup and return failure
-    #             os.remove(weight_local_file_path)
-    #             os.remove(architecture_local_file_path)
-    #             return f"Failed to update new weights or architecture: {str(e)}"
-
-
-    #     else:
-    #         return "cannot download the json file"
-
-    # this function is for the situation when the minio server change (when scaling)
-    # now, focus on implementation a fixed one first
-    # def download_minio_weights_file(minio_config, url):
-    #     pass
 
     def _retrieve_image(self, binary_encoded, dtype):
         try:
@@ -416,3 +306,4 @@ def load_minio_storage(storage_info):
 
 def get_image_dim_from_str(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))
+

@@ -23,7 +23,7 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
 
-from lib.service_connectors.mqttPublisher import MqttPublisher
+from app.modules.service_connectors.broker_connectors.mqttPublisher import MqttPublisher
 
 
 def get_file_extension(file_path):

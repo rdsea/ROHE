@@ -1,25 +1,32 @@
-import redis
-from flask import request
-import json
+
+
+from flask import json, request
 import logging
 
-
-from lib.modules.restService.roheService import RoheRestObject, RoheRestService
 import lib.roheUtils as roheUtils
 
-class TaskCoordinator(RoheRestObject):
-    def __init__(self, **kwargs):
-        super().__init__()
-        # to get configuration for resource
-        configuration = kwargs
-        self.conf = configuration
-        log_lev = self.conf.get('log_lev', 2)
-        self.set_logger_level(logging_level= log_lev)
-        # self.redis = self._setup_redis(self.conf['redis_server'])
+
+from .restful_service_module import ServiceController
+
+
+class TaskCoordinatorServiceController(ServiceController):
+    def __init__(self, config):
+        super().__init__(config)
         self.redis = self.conf['redis']
 
+    def get_command_handler(self, request):
+        return self._claim_image()
 
-    def post(self):
+    def _claim_image(self):
+        serialized_image_info = self.redis.rpoplpush("unprocessed_images", "processing_images")
+        if serialized_image_info:
+            image_info = roheUtils.message_deserialize(serialized_image_info)
+            return json.dumps({"image_info": image_info}), 200, {'Content-Type': 'application/json'}
+        else:
+            return json.dumps({"status": "no unprocessed images"}), 404, {'Content-Type': 'application/json'}
+
+    
+    def post_command_handler(self, request):
         """
         Handles POST requests to coordinate tasks between the ingestion and processing instances.
 
@@ -35,37 +42,15 @@ class TaskCoordinator(RoheRestObject):
         command = request.form.get('command')
         print(f"This is the command get from the client: {command}")
         if command == 'add':
-            return self._add_image()
+            return self._add_image(request)
         elif command == 'complete':
-            return self._complete_processing()
+            return self._complete_processing(request)
         else:
             # return jsonify({"error": "Invalid command"}), 400
             # return json.dumps({"error": "Invalid command"}), 400, {'Content-Type': 'application/json'}
             return json.dumps({"error": f"Invalid command as {command}"}), 400
 
-    def get(self):
-        """
-        Handles GET requests from the processing instances to claim an image for processing.
-
-        Functionality:
-        - Moves an image metadata from the unprocessed_images list to the processing_images list in Redis.
-        - Claims the image for a specific processing instance.
-
-        :return: JSON response containing the claimed image or a status indicating no unprocessed images.
-        """
-        return self._claim_image()
-
-
-    def _claim_image(self):
-        serialized_image_info = self.redis.rpoplpush("unprocessed_images", "processing_images")
-        if serialized_image_info:
-            image_info = roheUtils.message_deserialize(serialized_image_info)
-            return json.dumps({"image_info": image_info}), 200, {'Content-Type': 'application/json'}
-        else:
-            return json.dumps({"status": "no unprocessed images"}), 404, {'Content-Type': 'application/json'}
-
-    
-    def _add_image(self):
+    def _add_image(self, request: request):
         # image_info = {
         #     'request_id': request.form.get('request_id'),
         #     'timestamp': request.form.get('timestamp'),
@@ -80,7 +65,7 @@ class TaskCoordinator(RoheRestObject):
         else:
             return json.dumps({"error": "Some required fields are missing"}), 400, {'Content-Type': 'application/json'}
 
-    def _complete_processing(self):
+    def _complete_processing(self, request: request):
         # image_info = {
         #     'request_id': request.form.get('request_id'),
         #     'timestamp': request.form.get('timestamp'),
@@ -111,5 +96,18 @@ class TaskCoordinator(RoheRestObject):
         return image_info
     
 
+    def put_command_handler(self, request):
+        try:
+            response = f"This is a blank rest service. Please request to change to your desire service"
+            return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
-
+    def delete_command_handler(self, request):
+        try:
+            response = f"This is a blank rest service. Please request to change to your desire service"
+            return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
+        except Exception as e:
+            print("Exception:", e)
+            return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}

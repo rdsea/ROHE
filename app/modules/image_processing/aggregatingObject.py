@@ -6,8 +6,8 @@ from threading import Lock
 from collections import deque
 import time
 
-from lib.service_connectors.quixStreamConsumer import KafkaStreamListener
-from lib.service_connectors.mongoDBConnector import MongoDBConnector
+from app.modules.service_connectors.broker_connectors.quixStreamConsumer import KafkaStreamListener
+from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector
 
 from typing import Callable
 
@@ -65,7 +65,8 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
 
     def on_dataframe_received_handler(self, stream, df: pd.DataFrame):
-        # print("enter this receiving dataframe block")
+
+        print("enter this receiving dataframe block")
         # Convert the 'prediction' column to NumPy arrays
         df['prediction'] = df['prediction'].apply(lambda x: np.frombuffer(x, dtype=np.float64))
 

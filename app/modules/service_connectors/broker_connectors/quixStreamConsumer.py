@@ -21,6 +21,7 @@ class KafkaStreamListener(ABC):
         self.topic_consumer.on_stream_received = self.on_stream_received_handler
 
     def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
+        # print("received stream message")
         stream_received.timeseries.on_dataframe_received = self.on_dataframe_received_handler
 
     @abstractmethod

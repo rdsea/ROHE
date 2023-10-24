@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from lib.modules.roheObject import RoheObject
-from lib.service_connectors.minioStorageConnector import MinioConnector
+from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
 
 import random
 

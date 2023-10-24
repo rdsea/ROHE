@@ -18,8 +18,8 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 root_path = main_path
 
-from lib.service_connectors.minioStorageConnector import MinioConnector
-from lib.services.object_classification.ingestionService import IngestionService
+from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
+from app.services.image_processing.ingestionService import IngestionService
 import lib.roheUtils as roheUtils
 
 

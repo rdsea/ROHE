@@ -20,8 +20,8 @@ if not lib_level:
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
-from lib.services.object_classification.processingService import ProcessingService
-from lib.service_connectors.minioStorageConnector import MinioConnector
+from app.services.image_processing.processingService import ProcessingService
+from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
 import lib.roheUtils as roheUtils
 
 

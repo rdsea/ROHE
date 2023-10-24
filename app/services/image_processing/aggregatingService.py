@@ -1,8 +1,8 @@
 
 
 # import pandas as pd
-from lib.modules.object_classification.aggregatingObject import KafkaStreamAggregatingListener
-from lib.service_connectors.mongoDBConnector import MongoDBInfo, MongoDBConnector
+from app.modules.image_processing.aggregatingObject import KafkaStreamAggregatingListener
+from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBInfo, MongoDBConnector
 
 from typing import Callable
 
