@@ -22,8 +22,8 @@ import time
 # root_path = get_parent_dir(__file__, up_level)
 # sys.path.append(root_path)
 
-from lib.modules.object_classification.processingObject import ProcessingObject
-from lib.service_connectors.minioStorageConnector import MinioConnector
+from app.modules.image_processing.processingObject import ProcessingObject
+from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
 from lib.modules.roheObject import RoheObject
 
 
@@ -135,7 +135,11 @@ class ProcessingService(RoheObject):
         if response.status_code == 200:
             logging.debug("Inference successfully done")
             logging.info("*" * 20)
-            logging.info(f"Inference server response: {json.loads(response.text)}")
+            message = json.loads(response.text)
+
+            logging.info(f"Inference server response: {message}")
+
+
             logging.info("*" * 20)
             return True
         else:
@@ -146,28 +150,3 @@ def load_minio_storage(storage_info):
     minio_connector = MinioConnector(storage_info= storage_info)
     return minio_connector
 
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser(description="Argument for Processing Service")
-#     parser.add_argument('--conf', type= str, help='configuration file', 
-#             default= "examples/applications/NII/kube_deployment/dataProcessingService/configurations/processing_service.json")
-#     parser.add_argument('--relative_path', type= bool, help='specify whether it is a relative path', default=True)
-
-#     # Parse the parameters
-#     args = parser.parse_args()
-#     config_file = args.conf
-#     relative_path = args.relative_path
-
-#     if relative_path:
-#         config_file = os.path.join(root_path, config_file)
-
-#     # load configuration file
-#     with open(config_file, 'r') as json_file:
-#         config = json.load(json_file
-#                            )    
-#     config['minio_config']['access_key'] = os.getenv("minio_client_access_key")
-#     config['minio_config']['secret_key'] = os.getenv("minio_client_secret_key")
-#     minio_connector = load_minio_storage(storage_info= config.get('minio_config', {})) 
-
-#     config['minio_connector'] = minio_connector
-#     service = ProcessingService(config)
-#     service.run()

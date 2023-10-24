@@ -16,7 +16,9 @@ if not lib_level:
     lib_level = 5
 main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
+print(f"This is the main part: {main_path}")
 
+# exit(0)
 
 from lib.modules.restService.roheService import RoheRestService
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
@@ -24,6 +26,7 @@ from app.services.image_processing.objectClassificationService import Classifica
 from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
 from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
 from app.modules.service_connectors.broker_connectors.quixStreamProducer import KafkaStreamProducer
+
 import lib.roheUtils as roheUtils
 
 
@@ -57,6 +60,15 @@ if __name__ == '__main__':
     model_lock = threading.Lock() 
 
 
+    # if config['ensemble']:
+    #     kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
+    #                                          topic_name= config['kafka']['topic_name'])
+    #     config['kafka_producer'] = kafka_producer
+        
+    # else:
+    #     mongodb_info = MongoDBInfo(**config['mongodb'])
+    #     mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    #     config['mongo_connector'] = mongo_connector
     ensemble_controller = EnsembleState(config['ensemble'])
     kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
                                         topic_name= config['kafka']['topic_name'])

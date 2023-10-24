@@ -19,7 +19,7 @@ parser.add_argument('--rate', type= int, help='default number of requests per 60
 args = parser.parse_args()
 server_address = args.server_address
 rate = args.rate
-sleeping_time = 30
+sleeping_time = 5
 
 model_list = ['vgg','vgg_0','vgg_2_7','vgg_2_12','vgg_3_6','vgg_6', 'vgg_6_7', 'vgg_7', 'vgg_7_6']
 

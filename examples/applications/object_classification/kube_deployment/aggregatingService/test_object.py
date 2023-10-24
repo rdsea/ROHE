@@ -26,8 +26,8 @@ print(f"This is the main path: {main_path}")
 # sys.path.append(root_path)
 # print(f"This is the main path: {root_path}")
 
-from lib.modules.object_classification.aggregatingObject import KafkaStreamAggregatingListener
-from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
+from app.modules.image_processing.aggregatingObject import KafkaStreamAggregatingListener
+from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
 
 if __name__ == "__main__":
 

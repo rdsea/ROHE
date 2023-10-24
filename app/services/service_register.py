@@ -31,7 +31,6 @@ def inference_instance_selection_algo(instance, address):
 
 
 
-
 if __name__ == '__main__':
     registry = ServiceRegistry()
     registry.register("inference", "instance_1", "http://192.168.1.2:5000")

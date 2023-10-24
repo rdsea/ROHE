@@ -12,12 +12,12 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
 # from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
-from lib.service_connectors.mongoDBConnector import MongoDBInfo
+from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBInfo
+from app.services.image_processing.aggregatingService import AggregatingService
 
-from lib.services.object_classification.aggregatingService import AggregatingService
 import lib.roheUtils as roheUtils
 
-from aggregating_function import average_probability
+from aggregating_functions import average_probability
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Argument for Inference Service")

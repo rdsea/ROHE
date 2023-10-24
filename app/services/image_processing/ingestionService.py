@@ -5,9 +5,9 @@ from threading import Lock
 
 
 from lib.modules.roheObject import RoheObject
-from lib.service_connectors.mqttSubscriber import MqttSubscriber
-from lib.service_connectors.minioStorageConnector import MinioConnector
-from lib.modules.object_classification.ingestionObject import IngestionObject
+from app.modules.service_connectors.broker_connectors.mqttSubscriber import MqttSubscriber
+from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
+from app.modules.image_processing.ingestionObject import IngestionObject
 
 
 class IngestionService(RoheObject):

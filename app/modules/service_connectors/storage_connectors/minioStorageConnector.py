@@ -8,7 +8,7 @@ from botocore.client import Config
 
 logging.getLogger(__name__)
 
-from lib.service_connectors.boto3StorageConnector import Boto3Connector, StorageInfo
+from app.modules.service_connectors.storage_connectors.boto3StorageConnector import Boto3Connector, StorageInfo
 
 class MinioConnector(Boto3Connector):
     # time_sleep = 10

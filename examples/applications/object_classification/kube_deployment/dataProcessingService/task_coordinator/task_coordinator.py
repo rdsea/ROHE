@@ -15,9 +15,9 @@ main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
 sys.path.append(main_path)
 
 
-from lib.services.restService import RoheRestService
-from lib.services.object_classification.taskCoordinatorService import TaskCoordinator
 import lib.roheUtils as roheUtils
+from lib.modules.restService.roheService import RoheRestService
+from app.services.image_processing.taskCoordinatorService import TaskCoordinator
 
 def setup_redis(redis_config):
     return redis.Redis(host= redis_config['host'], port=redis_config['port'], db= redis_config['db'])
