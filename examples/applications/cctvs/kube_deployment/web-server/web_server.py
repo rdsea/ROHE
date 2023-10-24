@@ -32,7 +32,7 @@ def init_env_variables():
     proc_port = os.environ.get("PREPROCESSOR_SERVICE_PORT")
     if not service_name:
         logger.error("SERVICE_NAME is not defined")
-        service_name = "127.0.0.1"
+        service_name = "0.0.0.0"
         # service_name = "edge-preprocessor"
     if not proc_port:
         logger.error("PREPROCESSOR_SERVICE_PORT is not defined")

@@ -183,3 +183,19 @@ def load_qoa_conf_env(qoa_conf):
 
 def df_to_csv(file_path, df):
     df.to_csv(file_path, mode='a', header=not os.path.exists(file_path))
+
+def get_file_dir(file, to_string=True):
+    current_dir = pathlib.Path(file).parent.absolute()
+    if to_string:
+        return str(current_dir)
+    else:
+        return current_dir
+
+def get_rohe_dir(file, level=1, to_string=True):
+    current_dir = get_file_dir(file=file, to_string=False)
+    for i in range(level):
+        current_dir = current_dir.parent.absolute()
+    if to_string:
+        return str(current_dir)
+    else:
+        return current_dir

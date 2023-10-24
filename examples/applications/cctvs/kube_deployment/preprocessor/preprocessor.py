@@ -38,7 +38,7 @@ def init_env_variables():
     edge_inference_port = os.environ.get("EDGE_INFERENCE_PREPROCESSOR_SERVICE_PORT")
     if not edge_inference_service_name:
         logger.error("EDGE_INFERENCE_SERVICE_NAME is not defined")
-        edge_inference_service_name = "127.0.0.1"
+        edge_inference_service_name = "localhost"
         # edge_inference_service_name = "edge-inference-service"
 
     if not edge_inference_port:
