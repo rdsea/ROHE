@@ -23,6 +23,7 @@ class consulClient(object):
             logging.debug("Consul ULR is not set! Using defaul localhost")
         self.registerLink = self.url+"/v1/agent/service/register"
         self.deregisterLink = self.url+"/v1/agent/service/deregister/"
+        self.getServiceLink = self.url+"/v1/catalog/services"
 
     def serviceRegister(self, name:str, id:str="", tag:list=None, address:str="", metadata:dict=None, port:int=0, kind:str="", Check=None, Checks=None, enableTagOverride:bool=False, Weight=None):
         service_conf = {"Name": name}
@@ -57,3 +58,36 @@ class consulClient(object):
         else:
             logging.error("Unable to register for service {}".format(id))
             return False
+        
+    
+    def getServices(self, dc="", node_meta="", ns ="", service_name=""):
+        query_conf ={}
+        if service_name != "":
+            query_conf["filter"] = "ServiceName=={}".format(service_name)
+        response = requests.get(url=self.getServiceLink, params=query_conf)
+        print(response.content)
+
+"""
+# Example code
+
+import os, sys
+ROHE_PATH = os.getenv('ROHE_PATH')
+sys.path.append(ROHE_PATH)
+
+consul_conf = {
+    "url": "http://195.148.22.62:8500"
+}
+
+from lib.serviceRegistry.consul import consulClient
+
+client = consulClient(consul_conf)
+
+service_id = client.serviceRegister("mongo", tag=["test", "demo1"])
+if service_id != None:
+    print(service_id, ": Registered")
+
+response = client.serviceDeregister(service_id)
+if response:
+    print(service_id, ": Deregistered")
+
+"""
