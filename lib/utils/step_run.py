@@ -1,7 +1,7 @@
 from os import link
 import argparse, json
-from dag_deployment import generateDeploymentK3s
-from profilingDeployment import profilingDeploy
+from lib.utils.deployment.dag import generateDeploymentK3s
+from lib.utils.deployment.profilingDeployment import profilingDeploy
 
 ##TODO this program should be generic for any example, not for specific BTS, we need to refactor it
 

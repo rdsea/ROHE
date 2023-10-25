@@ -4,6 +4,7 @@ modules/orchestration/temp/
 *.DS_Store
 *.pt
 *.pyc
+*.csv
 
 *__pycache__/
 # *.pyc

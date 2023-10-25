@@ -1,0 +1,9 @@
+client:
+  appID: 749c57e1-8624-4e04-8a6c-30badd9745b1
+  application: sdn
+  client_id: rohe_test
+  instance_name: rohe_test_isntance
+  method: rohe_test_method
+  role: rohe_test_role
+  stage_id: rohe_test_stage
+registration_url: http://localhost:5010/registration

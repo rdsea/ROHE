@@ -1,4 +1,4 @@
-from utils import k3s
+from lib.utils.deployment import k3s
 import json, yaml, time
 import networkx as nx
 
