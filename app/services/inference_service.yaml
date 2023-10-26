@@ -53,8 +53,8 @@
 # # qoa_config:
 # #   client:
 # #     client_id: "aaltosea2"
-# #     instance_name: "inference_service01"
-# #     stage_id: "ML_Inference"
+# #     instanceID: "inference_service01"
+# #     stageID: "ML_Inference"
 # #     method: "REST"
 # #     application: "test"
 # #     role: "ml"

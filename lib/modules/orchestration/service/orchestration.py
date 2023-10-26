@@ -108,19 +108,19 @@ class RoheOrchestrationService(Resource):
     def remove_services(self, service_data):
         results = {}
         for app_key in service_data:
-            application = service_data[app_key]
-            for s_key in application:
-                service = application[s_key]
+            appName = service_data[app_key]
+            for s_key in appName:
+                service = appName[s_key]
                 self.remove_service_db(service)
                 results[s_key] = "Removed"
         return {"result":results}
     
-    def add_service_to_db(self, service, application):
+    def add_service_to_db(self, service, appName):
         metadata = {}
         metadata["status"] = service["status"]
         metadata["replicas"] = service["replicas"]
         metadata["running"] = service["running"]
-        metadata["application"] = application
+        metadata["appName"] = appName
         metadata["timestamp"] = time.time()
         metadata["data"] = service
         metadata["service_id"] = service["service_id"]
@@ -129,9 +129,9 @@ class RoheOrchestrationService(Resource):
     def add_services(self, data):
         results = {}
         for app_key in data:
-            application = data[app_key]
-            for s_key in application:
-                service = application[s_key]
+            appName = data[app_key]
+            for s_key in appName:
+                service = appName[s_key]
                 if self.is_service_exist(service["service_id"]):
                     self.update_service_to_db(service)
                     results[s_key] = "Updated"

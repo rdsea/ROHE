@@ -1,9 +1,9 @@
 client:
   appID: e7d3d243-a3b0-45f0-8a99-04a157d7f982
-  application: dummy
-  client_id: rohe_test
-  instance_name: rohe_test_isntance
+  appName: dummy
+  clientID: rohe_test
+  instanceID: rohe_test_isntance
   method: rohe_test_method
   role: rohe_test_role
-  stage_id: rohe_test_stage
+  stageID: rohe_test_stage
 registration_url: http://localhost:5010/registration

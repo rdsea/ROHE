@@ -15,10 +15,6 @@ DEFAULT_DOCKER_MOUNT = {main_path+"/core":{"bind":"/agent/core", "mode":"ro"},
                         main_path+"/temp/agent/":{"bind":"/agent/data/", "mode":"rw"}}
 
 
-
-
-
-
 class RoheRegistration(RoheRestObject):
     def __init__(self, **kwargs) -> None:
         super().__init__()
@@ -32,14 +28,14 @@ class RoheRegistration(RoheRestObject):
         self.collection = self.db[self.db_config["collection"]]
         self.set_logger_level(int(self.conf["logging_level"]))
     
-    def get_app(self,app_name):
+    def get_app(self,appName):
         # Get application configuration from database
         # Prepare query pipeline
-        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "app_name": {"$last": "$app_name"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
         app_list = list(self.collection.aggregate(pipeline))
         # Get application from application list
         for app in app_list:
-            if app["app_name"] == app_name:
+            if app["appName"] == appName:
                 return app
         return None
     
@@ -51,27 +47,27 @@ class RoheRegistration(RoheRestObject):
     def generate_agent_conf(self, metadata):
         # Database configuration
         agent_db_config = copy.deepcopy(self.db_config)
-        agent_db_config["db_name"] = "application_"+metadata["app_name"]+"_"+metadata["appID"]
+        agent_db_config["db_name"] = "application_"+metadata["appName"]+"_"+metadata["appID"]
         agent_db_config["metric_collection"] = "metric_collection"
         # Collector configuration
         collector_config = copy.deepcopy(self.collector_config)
         for key in list(collector_config.keys()):
             collector_i = collector_config[key]
             i_config = collector_i["conf"]
-            i_config["exchange_name"] = str(metadata["app_name"])+"_exchange"
-            i_config["in_routing_key"] = str(metadata["app_name"])+".#"
+            i_config["exchange_name"] = str(metadata["appName"])+"_exchange"
+            i_config["in_routing_key"] = str(metadata["appName"])+".#"
 
         agent_config ={}
         agent_config["database"] = agent_db_config
         agent_config["collector"] = collector_config
         return agent_config
 
-    def register_app(self,app_name):
+    def register_app(self,appName):
         # Create new application configuration and push to database
         metadata = {}
-        metadata["app_name"] = app_name
+        metadata["appName"] = appName
         metadata["appID"] = str(uuid.uuid4())
-        metadata["db"] = "application_"+app_name+"_"+metadata["appID"]
+        metadata["db"] = "application_"+appName+"_"+metadata["appID"]
         metadata["timestamp"] = time.time()
         metadata["client_count"] = 1
         metadata["agent_config"] = self.generate_agent_conf(metadata)
@@ -83,14 +79,14 @@ class RoheRegistration(RoheRestObject):
         if request.is_json:
             args = request.get_json(force=True)
             response = {}
-            if "application" in args:
-                application_name = args["application"]
-                app = self.get_app(application_name)
+            if "appName" in args:
+                appName = args["appName"]
+                app = self.get_app(appName)
                 if app == None:
-                    metadata = self.register_app(application_name)
-                    response[application_name] = "Application {} created".format(application_name)
+                    metadata = self.register_app(appName)
+                    response[appName] = "Application {} created".format(appName)
                 else:
-                    response[application_name] = "Application already exist"
+                    response[appName] = "Application already exist"
                     metadata = app
                     metadata["client_count"] += 1
                     metadata["timestamp"] = time.time()
@@ -100,7 +96,7 @@ class RoheRegistration(RoheRestObject):
                 
 
                 # TO DO
-                # Check client_id, role, stage_id, instance_name
+                # Check clientID, role, stage_id, instanceID
 
                 # Prepare connector for QoA Client
 
@@ -109,14 +105,14 @@ class RoheRegistration(RoheRestObject):
                 for key in list(connector.keys()):
                     connector_i = connector[key]
                     i_config = connector_i["conf"]
-                    i_config["exchange_name"] = str(application_name)+"_exchange"
-                    i_config["out_routing_key"] = str(application_name)
-                    if "client_id" in args:
-                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["client_id"]
-                    if "stage_id" in args:
-                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["stage_id"]
-                    if "instance_name" in args:
-                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["instance_name"]
+                    i_config["exchange_name"] = str(appName)+"_exchange"
+                    i_config["out_routing_key"] = str(appName)
+                    if "clientID" in args:
+                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["clientID"]
+                    if "stageID" in args:
+                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["stageID"]
+                    if "instanceID" in args:
+                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["instanceID"]
                     i_config["out_routing_key"] = i_config["out_routing_key"]+".client"+str(metadata["client_count"])
                 response["appID"] = metadata["appID"]
                 response["connector"] = connector
@@ -142,21 +138,21 @@ class RoheObservation(RoheRestObject):
             global agent_dict 
             agent_dict = {}
 
-    def start_docker(self, image, app_name):
-        container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':app_name})
+    def start_docker(self, image, appName):
+        container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':appName})
         return container
 
     def update_app(self,metadata):
         # update application configuration
         return self.collection.insert_one(metadata)
     
-    def get_app(self,app_name):
+    def get_app(self,appName):
         # Create sorted pipepline to query application list
-        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "app_name": {"$last": "$app_name"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
         app_list = list(self.collection.aggregate(pipeline))
         for app in app_list:
             # return app with its configuration
-            if app["app_name"] == app_name:
+            if app["appName"] == appName:
                 return app
         return None
     
@@ -174,15 +170,15 @@ class RoheObservation(RoheRestObject):
             # parse json request
             args = request.get_json(force=True)
             self.show_agent() # for debugging
-            if "application" in args:
+            if "appName" in args:
                 # Check application info from the request
-                application_name = args["application"]
+                appName = args["appName"]
                 # Get application configuration from database
-                app = self.get_app(application_name)
+                app = self.get_app(appName)
                 print(app)
                 if app == None:
                     # Application has not been registered 
-                    response[application_name] = "Application {} not exist".format(application_name)
+                    response[appName] = "Application {} not exist".format(appName)
                 else:
                     # If application exist
                     if "command" in args:
@@ -195,11 +191,11 @@ class RoheObservation(RoheRestObject):
                                 # If agent is created locally
                                 agent = agent_dict[metadata["_id"]]
                                 if agent["status"] != 1:
-                                    agent["docker"] = self.start_docker(str(self.conf["agent_image"]), application_name)
+                                    agent["docker"] = self.start_docker(str(self.conf["agent_image"]), appName)
                                     agent["status"] = 1
                             else:
                                 # If agent is not found - create new agent and start
-                                docker_agent = self.start_docker(str(self.conf["agent_image"]), application_name)
+                                docker_agent = self.start_docker(str(self.conf["agent_image"]), appName)
                                 agent = {"docker": docker_agent, "status": 1}
                                 agent_dict[metadata["_id"]] = agent
                             if "stream_config" in args:
@@ -209,7 +205,7 @@ class RoheObservation(RoheRestObject):
                                 self.update_app(metadata)
                             self.show_agent() # for debugging
                             # create a response
-                            response[application_name] = "Application agent for application '{}' started ".format(application_name)
+                            response[appName] = "Application agent for application '{}' started ".format(appName)
                         if command == "log":
                             if metadata["_id"] in agent_dict:
                                 agent = agent_dict[metadata["_id"]]
@@ -229,7 +225,7 @@ class RoheObservation(RoheRestObject):
                                     agent["status"] = 0
                                     
                             # create a response
-                            response[application_name] = "Application agent for {} stopped ".format(application_name)
+                            response[appName] = "Application agent for {} stopped ".format(appName)
                         if command == "delete":
                             if metadata["_id"] in agent_dict:
                                 # if agent exist locally
@@ -237,9 +233,9 @@ class RoheObservation(RoheRestObject):
                                 # To do: 
                                 # kill the agent
                             # Delete the application from databased
-                            self.collection.delete_many({"app_name":application_name})
+                            self.collection.delete_many({"appName":appName})
                             # create a response
-                            response[application_name] = "Application agent for {} deleted ".format(application_name)
+                            response[appName] = "Application agent for {} deleted ".format(appName)
                         if command == "kill_all_agent":
                             for agent in list(agent_dict.keys()):
                                 agent_dict[agent]["status"] = 0

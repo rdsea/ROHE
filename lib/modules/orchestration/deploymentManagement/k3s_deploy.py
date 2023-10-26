@@ -11,9 +11,9 @@ os.system('rm ./deployed/*.yml')
 deploy_conf = json.load(open(args.conf))
 
 for app_key in deploy_conf:
-    application = deploy_conf[app_key]
-    for ser_key in application:
-        service = application[ser_key]
+    appName = deploy_conf[app_key]
+    for ser_key in appName:
+        service = appName[ser_key]
         deploy_file = yaml.safe_load(open(service["dep_path"]))
         os.system('cp '+ service["ser_path"]+ ' ./deployed/')
         print("Service Yaml is copied")

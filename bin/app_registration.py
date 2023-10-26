@@ -1,10 +1,9 @@
-from qoa4ml import qoaUtils as qoa_utils
 import argparse, requests, json
-import os, sys
-main_path = config_file = qoa_utils.get_parent_dir(__file__,1)
-sys.path.append(main_path)
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 import lib.roheUtils as rohe_utils
-temp_path = main_path+"/temp"
+temp_path = ROHE_PATH+"/temp"
 
 headers = {
     'Content-Type': 'application/json'
@@ -19,7 +18,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     url = args.url
 
-    res_data = {"application": args.app}
+    res_data = {"appName": args.app}
 
 
 
@@ -35,7 +34,6 @@ if __name__ == '__main__':
         if rohe_utils.make_folder(temp_path):
             file_path = temp_path+"/qoa_config.yaml"
             rohe_utils.to_yaml(file_path, qoa_conf)
-    
     
     print(qoa_conf)
     

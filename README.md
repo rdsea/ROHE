@@ -91,3 +91,55 @@ Add example contract to 'example/contract'
 rename module for icsoc, journal
 
 ### Scenario 4: user modify pipeline to use ROHE
+
+
+## Implementation
+
+### Application Registration
+
+<figure>
+<p style="text-align:center">
+<img src="documents/img/app_registration.png" alt="Application registration" width="1000"/>
+</p>
+<figcaption>
+<p style="text-align:center">
+Fig. Application registration
+</p>
+</figcaption>
+</figure>
+
+### Observation Agent Management
+<figure>
+<p style="text-align:center">
+<img src="documents/img/manage_agent.png" alt="Start/Stop observation agent" width="1000"/>
+</p>
+<figcaption>
+<p style="text-align:center">
+Fig. Start/Stop observation agent
+</p>
+</figcaption>
+</figure>
+
+
+### Monitoring Metric
+<figure>
+<p style="text-align:center">
+<img src="documents/img/monitoring.png" alt="Monitoring metric from microservices" width="500"/>
+</p>
+<figcaption>
+<p style="text-align:center">
+Fig. Monitoring metric from microservices
+</p>
+</figcaption>
+</figure>
+### Application Metadata Structure
+<figure>
+<p style="text-align:center">
+<img src="documents/img/datastructure.png" alt="metadata structure" width="1400"/>
+</p>
+<figcaption>
+<p style="text-align:center">
+Fig. Application metadata structure
+</p>
+</figcaption>
+</figure>

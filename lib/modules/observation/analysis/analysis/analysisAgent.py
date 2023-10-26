@@ -98,7 +98,7 @@ class Analysis_Agent(RoheObject):
                                         "confidence":prediction["confidence"],
                                         "source":list(prediction["source"]),
                                         "qoa_id":prediction["qoa_id"],
-                                        "instance_id": item["execution_graph"]["instances"][prediction["qoa_id"]]["instance_id"]}
+                                        "instanceID": item["execution_graph"]["instances"][prediction["qoa_id"]]["instanceID"]}
                         dict_prediction.update(dict_quality)
                         new_row = pd.DataFrame.from_records([dict_prediction])
                         output = pd.concat([output,new_row], ignore_index=True)

@@ -1,4 +1,4 @@
-application: cctvs
+appName: cctvs
 command: start
 stream_config:
   window:

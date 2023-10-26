@@ -28,10 +28,10 @@ service_quality_config:
   qoa_config:
     client:
       client_id: "aaltosea2"
-      instance_name: "inference_service01"
-      stage_id: "ML_Inference"
+      instanceID: "inference_service01"
+      stageID: "ML_Inference"
       method: "REST"
-      application: "test"
+      appName: "test"
       role: "ml"
     registration_url: "http://0.0.0.0:5010/registration"
 

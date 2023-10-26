@@ -1,9 +1,9 @@
 import traceback
-import sys
 import argparse
-#main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
-#sys.path.append(main_path)
-# from lib.services.observation.roheAgenStreaming import RoheObservationAgent
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
+
 from lib.modules.restService.roheService import RoheRestService
 import lib.roheUtils as rohe_utils
 from lib.modules.observation.services.roheObservation import RoheObservation, RoheRegistration

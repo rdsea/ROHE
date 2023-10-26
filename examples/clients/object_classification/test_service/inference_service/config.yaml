@@ -1,10 +1,10 @@
 qoa_config:
   client:
-    client_id: "aaltosea_client"
-    instance_name: "Client01"
-    stage_id: "Client"
+    clientID: "aaltosea_client"
+    instanceID: "Client01"
+    stageID: "Client"
     method: "REST"
-    application: "test"
+    appName: "test"
     role: "client"
   connector:
     amqp_connector:

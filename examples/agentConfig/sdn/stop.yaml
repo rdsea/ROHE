@@ -1,2 +1,2 @@
-application: sdn
+appName: sdn
 command: stop

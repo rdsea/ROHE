@@ -173,17 +173,17 @@ def make_folder(temp_path):
         return False
     
 def load_qoa_conf_env(qoa_conf):
-    client_id = os.environ.get('CLIENT_ID')
-    if not client_id:
-        client_id = "rohe_test"
+    clientID = os.environ.get('CLIENT_ID')
+    if not clientID:
+        clientID = "rohe_test"
 
-    instance_name = os.environ.get('INSTANCE_NAME')
-    if not instance_name:
-        instance_name = "rohe_test_isntance"
+    instanceID = os.environ.get('INSTANCE_ID')
+    if not instanceID:
+        instanceID = "rohe_test_isntance"
 
-    stage_id = os.environ.get('STAGE_ID')
-    if not stage_id:
-        stage_id = "rohe_test_stage"
+    stageID = os.environ.get('STAGE_ID')
+    if not stageID:
+        stageID = "rohe_test_stage"
 
     method = os.environ.get('METHOD')
     if not method:
@@ -193,9 +193,9 @@ def load_qoa_conf_env(qoa_conf):
     if not role:
         role = "rohe_test_role"
 
-    qoa_conf["client_id"] = client_id
-    qoa_conf["instance_name"] = instance_name
-    qoa_conf["stage_id"] = stage_id
+    qoa_conf["clientID"] = clientID
+    qoa_conf["instanceID"] = instanceID
+    qoa_conf["stageID"] = stageID
     qoa_conf["method"] = method
     qoa_conf["role"] = role
 

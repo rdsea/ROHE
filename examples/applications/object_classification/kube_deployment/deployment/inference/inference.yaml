@@ -52,10 +52,10 @@ data:
       bucket_name: "nii-application-inference-model"
     qoa_config:
       client:
-        client_id: "aaltosea2"
-        instance_name: "inference_service02"
-        stage_id: "ML_Inference"
+        clientID: "aaltosea2"
+        instanceID: "inference_service02"
+        stageID: "ML_Inference"
         method: "REST"
-        application: "test"
+        appName: "test"
         role: "ml"
       registration_url: "http://0.0.0.0:5010/registration"

@@ -23,11 +23,11 @@
       }
     ],
     "qoa4ml_client": {
-      "client_id": "aaltosea1",
-      "instance_name": "yolo_inference",
-      "stage_id": "Inference",
+      "clientID": "aaltosea1",
+      "instanceID": "yolo_inference",
+      "stageID": "Inference",
       "method": "REST",
-      "application": "test",
+      "appName": "test",
       "role": "ml"
     },
     "registration_url": "http://localhost:5010/registration"

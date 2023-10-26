@@ -1,10 +1,10 @@
-import qoa4ml.qoaUtils as qoaUtils
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
+import lib.roheUtils as rohe_utils
 import argparse
-import sys
 from flask import Flask
 from flask_restful import Api
-#main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
-#sys.path.append(main_path)
 from lib.modules.orchestration.roheOrchestrationAgent import RoheOrchestrationAgent
 from lib.services.orchestration.orchestration import RoheOrchestrationService
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #    config_file = qoaUtils.get_parent_dir(__file__,2)+config_path
     #    print(config_file)
     
-    configuration = qoaUtils.load_config(config_file)
+    configuration = rohe_utils.load_config(config_file)
     rohe_agent = RoheOrchestrationAgent(configuration,False)
     configuration["agent"] = rohe_agent
     api.add_resource(RoheOrchestrationService, '/management',resource_class_kwargs=configuration)

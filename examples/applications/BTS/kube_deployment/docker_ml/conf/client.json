@@ -1,6 +1,6 @@
 { 
-    "client_id": "aaltosea1",
-    "application_id": "bts",
+    "clientID": "aaltosea1",
+    "appID": "bts",
     "component_id": "ml_model",
     "interval": 2
 }

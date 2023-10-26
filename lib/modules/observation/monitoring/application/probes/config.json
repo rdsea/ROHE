@@ -4,7 +4,7 @@
             "name":"default",
             "info":{
                 "url": "localhost",
-                "client_id":"aaltosea1",
+                "clientID":"aaltosea1",
                 "exchange_name": "task_report",
                 "exchange_type": "topic",
                 "in_queue": "task_report",

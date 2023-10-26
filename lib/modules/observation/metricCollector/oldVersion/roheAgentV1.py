@@ -80,7 +80,7 @@ class Observability_Agent(object):
                                         "confidence":prediction["confidence"],
                                         "source":list(prediction["source"]),
                                         "qoa_id":prediction["qoa_id"],
-                                        "instance_id": item["execution_graph"]["instances"][prediction["qoa_id"]]["instance_id"]}
+                                        "instanceID": item["execution_graph"]["instances"][prediction["qoa_id"]]["instanceID"]}
                         new_row = pd.DataFrame.from_records([dict_prediction])
                         output = pd.concat([output,new_row], ignore_index=True)
         except Exception as e:
@@ -187,7 +187,7 @@ class Observability_Agent(object):
             else:
                 df_contr = df_contr.apply(lambda row: self.contribution_calculator(row, 10), axis=1)
                 print(df_contr)
-                df_con = df_contr.groupby('instance_id')['contribution'].sum()
+                df_con = df_contr.groupby('instanceID')['contribution'].sum()
                 print(df_con)
                 sumary["contribution"] = df_con.to_dict()
                 config_path = os.path.dirname(os.path.abspath(__file__))

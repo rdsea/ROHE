@@ -1,4 +1,4 @@
-application: dummy
+appName: dummy
 command: start
 stream_config:
   window:
