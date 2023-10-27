@@ -17,12 +17,13 @@ if not qoa_conf_path:
 qoa_conf = qoa_utils.load_config(qoa_conf_path)
 qoaClient = QoaClient(config_dict=qoa_conf)
 
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 5
+from dotenv import load_dotenv
+load_dotenv()
 
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
 sys.path.append(main_path)
+
 from lib.services.restService import RoheRestService, ImageInferenceObject
 
 logger = CustomLogger().get_logger()

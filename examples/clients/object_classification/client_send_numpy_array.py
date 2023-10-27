@@ -11,19 +11,16 @@ import numpy as np
 import h5py
 import random
 
-import qoa4ml.qoaUtils as qoa_utils
 
-# set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 3
+from dotenv import load_dotenv
+load_dotenv()
 
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
-# print(f"This is the main path: {main_path}")
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 
-from app.modules.service_connectors.broker_connectors.mqttPublisher import MqttPublisher
+from app.modules.connectors.mqtt import MqttPublisher
 
 
 def get_file_extension(file_path):

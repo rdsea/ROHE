@@ -3,46 +3,13 @@ import numpy as np
 import time
 import concurrent.futures
 from threading import Lock
-from collections import deque
-import time
-import sys
-
-# Todo
-# check ROHE_PATH exist 
-# sys.path.append(ROHE_PATH)
-
-from app.modules.service_connectors.broker_connectors.quixStreamConsumer import KafkaStreamListener
-from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector
-
-
-
-
 from typing import Callable
+import time
 
-class TimeBuffer:
-    def __init__(self, window_size=60, lock: Lock = None):
-        self.buffer = deque()
-        self.window_size = window_size  # in seconds
-        self.last_cleanup_time = time.time()  # initialized to current time
-        self.lock = lock or Lock()
 
-    def append(self, item):
-        current_time = time.time()
-        if current_time - self.last_cleanup_time >= self.window_size:
-            with self.lock:
-                self.clean_buffer()
-                self.last_cleanup_time = current_time  # update last cleanup time
-
-        self.buffer.append({'id': item, 'timestamp': current_time})
-    
-    def clean_buffer(self):
-        current_time = time.time()
-        while self.buffer and (current_time - self.buffer[0]['timestamp'] > self.window_size):
-            self.buffer.popleft()
-    
-    def contains(self, item):
-        return any(entry['id'] == item for entry in self.buffer)
-
+from app.modules.connectors.quixStream import KafkaStreamListener
+from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector
+from app.modules.common import TimeBuffer
 
 class KafkaStreamAggregatingListener(KafkaStreamListener):
     def __init__(self, kafka_address: str, topic_name: str, 
@@ -96,9 +63,6 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
                     }
                     # test aggregate function
                     self.buffer_dict[req_id]['data'].extend(group_list)
-
-
-                # self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
 
             for req_id, info in self.buffer_dict.items():
                 self.executor.submit(self.check_and_process, req_id, info)

@@ -18,12 +18,12 @@ import qoa4ml.qoaUtils as qoa_utils
 
 
 # set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 5
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
-sys.path.append(main_path)
+from dotenv import load_dotenv
+load_dotenv()
 
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
+sys.path.append(main_path)
 
 
 class InferenceServiceClient:

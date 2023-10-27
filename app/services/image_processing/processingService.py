@@ -23,7 +23,7 @@ import time
 # sys.path.append(root_path)
 
 from app.modules.image_processing.processingObject import ProcessingObject
-from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
+from app.modules.connectors.storage.minioStorageConnector import MinioConnector
 from lib.modules.roheObject import RoheObject
 
 

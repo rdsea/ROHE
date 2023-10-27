@@ -3,10 +3,10 @@ import os
 import json
 import tensorflow as tf
 import numpy as np
-from lib.modules.roheClassificationObject import ClassificationObject
+from app.object_classification.lib.roheMLAgent import RoheMLAgent
 
 
-class ClassificationObjectV1(ClassificationObject):
+class MLAgent(RoheMLAgent):
     def __init__(self, model_info: dict, input_shape: tuple = (32, 32, 3), 
                  log_level: int = 2, model_from_config = True):
         if type(input_shape) == str:
@@ -53,7 +53,6 @@ class ClassificationObjectV1(ClassificationObject):
 
         print(f"This is the loaded model info: {self.model_info}")
 
-        # chosen_model_id = model_info['chosen_model_id']
         files = self.model_info[self.current_model_id]['files']
         if self.model_from_config:
             model = self.load_model_from_config(**files)
@@ -69,7 +68,6 @@ class ClassificationObjectV1(ClassificationObject):
             model.load_weights(weights_file)
         return model
     
-    # def get_model_files_from_model_id():
 
     def change_model(self, new_model):
         self.model = new_model

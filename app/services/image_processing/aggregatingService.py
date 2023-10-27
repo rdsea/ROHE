@@ -2,7 +2,7 @@
 
 # import pandas as pd
 from app.modules.image_processing.aggregatingObject import KafkaStreamAggregatingListener
-from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBInfo, MongoDBConnector
+from app.modules.connectors.storage.mongoDBConnector import MongoDBInfo, MongoDBConnector
 
 from typing import Callable
 

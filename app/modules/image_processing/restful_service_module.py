@@ -2,7 +2,6 @@
 from flask import request
 from lib.modules.restService.roheService import RoheRestObject
 from .restful_service_controller import ServiceController, ControllerMangagement, BlankServiceController
-# from .inference_service_controller import InferenceServiceController
 
 import json
 

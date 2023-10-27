@@ -2,20 +2,19 @@
 
 ## Test Case: NII models
 
-[Pipeline Diagram]
-![Pipeline Diagram](./nii_case.drawio.png)
+[Pipeline Diagram](./nii_case.drawio.png)
 
 # Running the Pipeline
 
 ## 1. Ingestion Service
-Updating...
+[Inference Service](./kube_deployment/inferenceService/README.md)
 
 ## 2. Processing Service
-Updating...
+[Inference Service](./kube_deployment/inferenceService/README.md)
+
 
 ## 3. Inference Service
-[Navigate to README file of Inference Service](./kube_deployment/inferenceService/README.md)
-
+[Inference Service](./kube_deployment/inferenceService/README.md)
 
 ## 4. Aggregating Service
-Updating...
+[Inference Service](./kube_deployment/inferenceService/README.md)
