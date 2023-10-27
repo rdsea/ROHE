@@ -97,6 +97,26 @@ rename module for icsoc, journal
 
 ### Application Registration
 
+When register an end-to-end ML application, the operator must provide application name (`app_name` - string), application structure (`app_structure` - dictionary), and send registration request to the Observation Service via its `url`.
+
+Application structure example:
+```json
+{
+    "<stage_name>":{
+        "type": "microservice/ensemble",
+        "previous_stage": "<previous_stage_name>/empty",
+        "microservices": ["<microservice_name>"]
+    }
+}
+```
+
+The Observation Service will generate:
+- Application ID: `appID`
+- Stage IDs: `stageID` (for every stage within the application)
+- Microservice IDs: `microserviceID` (for every microservice)
+- Database name: `db` for saving metric reports in runtime
+- Qoa configuration: `qoa_config` for reporting metrics
+
 <figure>
 <p style="text-align:center">
 <img src="documents/img/app_registration.png" alt="Application registration" width="1000"/>
@@ -109,6 +129,12 @@ Fig. Application registration
 </figure>
 
 ### Observation Agent Management
+To start an observation agent for an application.
+The operator provide application name (`app_name`), application ID (`appID`) to load the agent configuration and send it to Obervation Service via its `url`.
+The example of agent configuration can be found at `example/agentConfig/<appName>`.
+The configuration will be saved in database.
+The Observation Service will start/stop the agent in `Docker` to monitor and analyse real-time metrics.
+
 <figure>
 <p style="text-align:center">
 <img src="documents/img/manage_agent.png" alt="Start/Stop observation agent" width="1000"/>
@@ -122,6 +148,15 @@ Fig. Start/Stop observation agent
 
 
 ### Monitoring Metric
+To report metrics from microservices, the microservices must be instrumented an Qoa4ML client with client metadata including
+- appName (from application registration)
+- appID (from application registration)
+- clientID (ID of microservice owner)
+- method (optional)
+- role (optional - ML provider/customer)
+- microserviceID (from application registration)
+- instanceID (must be unique for every instance of the microservice - from environment variable)
+
 <figure>
 <p style="text-align:center">
 <img src="documents/img/monitoring.png" alt="Monitoring metric from microservices" width="500"/>
@@ -132,7 +167,9 @@ Fig. Monitoring metric from microservices
 </p>
 </figcaption>
 </figure>
-### Application Metadata Structure
+
+
+### Application Metadata stucture
 <figure>
 <p style="text-align:center">
 <img src="documents/img/datastructure.png" alt="metadata structure" width="1400"/>
@@ -143,3 +180,13 @@ Fig. Application metadata structure
 </p>
 </figcaption>
 </figure>
+
+### Microservice Registry
+When any microservice starts, it must register to the Registry Service (Consul)
+The registration requires:
+- Microservice name: `microserviceName` (user-defined)
+- Microservice ID: `microserviceID` (from application registration)
+- Tags: 
+    - For ML inference microservices: `modelName`, `paramsName`. For exampe: ["vgg","0"]
+- Metadata (optional): dictionary including `appName`, `appID` 
+
