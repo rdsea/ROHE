@@ -4,15 +4,15 @@ import argparse
 import qoa4ml.qoaUtils as qoa_utils
 
 
-# set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 5
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+from dotenv import load_dotenv
+load_dotenv()
+
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 # from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
-from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBInfo
+from app.modules.connectors.storage.mongoDBConnector import MongoDBInfo
 from app.services.image_processing.aggregatingService import AggregatingService
 
 import lib.roheUtils as roheUtils

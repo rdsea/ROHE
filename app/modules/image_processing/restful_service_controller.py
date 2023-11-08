@@ -1,8 +1,6 @@
 
 
 from abc import ABC, abstractmethod
-# from flask import request
-
 
 
 class ServiceController(ABC):

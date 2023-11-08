@@ -5,8 +5,8 @@ from threading import Lock
 
 
 from lib.modules.roheObject import RoheObject
-from app.modules.service_connectors.broker_connectors.mqttSubscriber import MqttSubscriber
-from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
+from app.modules.connectors.mqtt import MqttSubscriber
+from app.modules.connectors.storage.minioStorageConnector import MinioConnector
 from app.modules.image_processing.ingestionObject import IngestionObject
 
 

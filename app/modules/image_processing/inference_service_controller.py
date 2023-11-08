@@ -7,9 +7,10 @@ from flask import request
 from typing import Dict, Optional
 
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
-from app.modules.service_connectors.broker_connectors.quixStreamProducer import KafkaStreamProducer
-from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
-from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector
+from app.modules.connectors.quixStream import KafkaStreamProducer
+from app.modules.connectors.storage.minioStorageConnector import MinioConnector
+from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector
+
 
 from .restful_service_module import ServiceController
 

@@ -1,5 +1,6 @@
 import requests, json
 import logging, uuid
+import random
 
 headers = {
     'Content-Type': 'application/json'
@@ -19,7 +20,7 @@ class consulClient(object):
         if "url" in config:
             self.url = config["url"]
         else:
-            self.url = "http://localhost:8500",
+            self.url = "http://localhost:8500"
             logging.debug("Consul ULR is not set! Using defaul localhost")
         self.registerLink = self.url+"/v1/agent/service/register"
         self.deregisterLink = self.url+"/v1/agent/service/deregister/"
@@ -59,13 +60,58 @@ class consulClient(object):
             logging.error("Unable to register for service {}".format(id))
             return False
         
-    
-    def getServices(self, dc="", node_meta="", ns ="", service_name=""):
-        query_conf ={}
-        if service_name != "":
-            query_conf["filter"] = "ServiceName=={}".format(service_name)
-        response = requests.get(url=self.getServiceLink, params=query_conf)
-        print(response.content)
+
+    def queryService(self, name: str, tags: list = None):
+        service_url = self.url + "/v1/catalog/service/" + name
+        params = {}
+        if tags:
+            params['tag'] = tags
+
+        response = requests.get(service_url, headers=headers, params=params)
+        if response.status_code == 200:
+            services_info = response.json()
+            print(f"This is service info: {services_info}, type: {type(services_info)}")
+
+            services = []
+            for service in services_info:
+                if isinstance(service, dict):
+                    service_dict = {
+                        'ID': service.get('ID', ''),
+                        'ServiceAddress': service.get('ServiceAddress', ''),
+                        'Port': service.get('ServicePort', ''),
+                        'Tags': service.get('ServiceTags', []),
+                        'Metadata': service.get('ServiceMeta', {})
+                    }
+                    services.append(service_dict)
+            return services
+        else:
+            logging.error("Failed to query services. Status code: {}. Response: {}".format(response.status_code, response.text))
+            return []
+
+        
+    def getAllServiceInstances(self, name: str, tags: list = None):
+        """
+        Get all service instances based on name and tags.
+        """
+        services = self.queryService(name, tags)
+        return services
+
+    def getNRandomServiceInstances(self, name: str, tags: list = None, n: int = 3):
+        """
+        Get N random service instances based on name and tags.
+        """
+        services = self.queryService(name, tags)
+        if n >= len(services):
+            return services
+        return random.sample(services, n)
+
+    def getQuorumServiceInstances(self, name: str, tags: list = None):
+        """
+        Get a quorum (majority) of service instances, randomly selected, based on name and tags.
+        """
+        services = self.queryService(name, tags)
+        quorum = (len(services) // 2) + 1
+        return self.getNRandomServiceInstances(name, tags, quorum)
 
 """
 # Example code

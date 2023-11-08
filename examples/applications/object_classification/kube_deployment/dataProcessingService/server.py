@@ -10,18 +10,15 @@ import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient
 
 
-# set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-# from dotenv import load_dotenv
-# load_dotenv()
-    lib_level = 5
+from dotenv import load_dotenv
+load_dotenv()
 
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 from app.services.image_processing.processingService import ProcessingService
-from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
+from app.modules.connectors.storage.minioStorageConnector import MinioConnector
 import lib.roheUtils as roheUtils
 
 

@@ -3,8 +3,8 @@
 from flask import json, request
 import logging
 
-import lib.roheUtils as roheUtils
 
+import lib.roheUtils as roheUtils
 
 from .restful_service_module import ServiceController
 

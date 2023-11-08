@@ -36,7 +36,7 @@
 
 kafka:
   address: 127.0.0.1:9092
-  topic_name: new_topic
+  topic_name: nii_case
 
 mongodb:
   username: admin_user

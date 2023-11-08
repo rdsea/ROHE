@@ -10,22 +10,19 @@ import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.QoaClient import QoaClient
 
 
-# set the ROHE to be in the system path
-lib_level = os.environ.get('LIB_LEVEL')
-if not lib_level:
-    lib_level = 5
-main_path = config_file = qoa_utils.get_parent_dir(__file__,lib_level)
-sys.path.append(main_path)
-print(f"This is the main part: {main_path}")
+from dotenv import load_dotenv
+load_dotenv()
 
-# exit(0)
+main_path = os.getenv('ROHE_PATH')
+print(f"This is main path: {main_path}")
+sys.path.append(main_path)
 
 from lib.modules.restService.roheService import RoheRestService
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
 from app.services.image_processing.objectClassificationService import ClassificationRestService, EnsembleState
-from app.modules.service_connectors.storage_connectors.minioStorageConnector import MinioConnector
-from app.modules.service_connectors.storage_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
-from app.modules.service_connectors.broker_connectors.quixStreamProducer import KafkaStreamProducer
+from app.modules.connectors.storage.minioStorageConnector import MinioConnector
+from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector, MongoDBInfo
+from app.modules.connectors.quixStream import KafkaStreamProducer
 
 import lib.roheUtils as roheUtils
 
