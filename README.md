@@ -102,9 +102,9 @@ When register an end-to-end ML application, the operator must provide applicatio
 Application structure example:
 ```json
 {
-    "<stage_name>":{
+    "<stageName>":{
         "type": "microservice/ensemble",
-        "previous_stage": "<previous_stage_name>/empty",
+        "previousStage": "<previous_stage_name>/empty",
         "microservices": ["<microservice_name>"]
     }
 }
