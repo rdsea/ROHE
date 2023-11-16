@@ -6,8 +6,6 @@ from abc import ABC
 # from abc import ABC, abstractmethod
 
 
-
-
 class MessageObject(ABC):
     def to_dict(self):
         return {key: value if not isinstance(value, MessageObject) else value.to_dict() for key, value in self.__dict__.items()}
@@ -53,4 +51,14 @@ class TimeLimitedCache:
     
     def contains(self, item):
         return any(entry['id'] == item for entry in self.buffer)
+    
+class EnsembleState():
+    def __init__(self, mode: bool):
+        self.mode = mode
+        
+    def change_mode(self, mode: bool):
+        self.mode = mode
+
+    def get_mode(self) -> bool:
+        return self.mode
     

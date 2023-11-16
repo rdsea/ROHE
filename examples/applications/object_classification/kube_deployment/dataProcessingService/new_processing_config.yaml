@@ -21,13 +21,9 @@ endpoints:
 # think of the situtation where we need to handle multiple pipeline
 # Inference strategy
 inference_strategy:
-  # which pipeline??
   type: "all" # or "specific" ["all", "one", "quorum"]
-  # discuss to change the strategy to select nodes 
-  # dynamic configuration control not only the
-
-  service_conditions:
-    - service_name: "some_name"
-    - MLmodel: "some_model"
-
-
+  
+  # If type is 'specific', define the specific model types to send requests to
+  specific_server: 
+    - "pipeline_1_vgg_0"
+    - "pipeline_2_vgg_2_7"

@@ -40,7 +40,6 @@ class QuixStreamDataframeHandler(QuixStreamListener):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
 
     def on_dataframe_received_handler(self, stream, df: pd.DataFrame):
-
         print("enter this receiving dataframe block")
         # Convert the 'prediction' column to NumPy arrays
         df['prediction'] = df['prediction'].apply(lambda x: np.frombuffer(x, dtype=np.float64))

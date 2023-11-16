@@ -1,6 +1,6 @@
 import quixstreams as qx
 import pandas as pd
-# import datetime
+import datetime
 
 from abc import ABC, abstractmethod
 
@@ -38,9 +38,10 @@ class QuixStreamListener(ABC):
 
 
 
-class QuixStreamProducer(ABC):
+# class QuixStreamProducer(ABC):
+class QuixStreamProducer():
     '''
-    abstract class of abstract method of producing message
+
     '''
     def __init__(self, kafka_address: str, topic_name: str, stream_name: str = "inference_serivce"):
         self.kafka_address = kafka_address
@@ -56,23 +57,19 @@ class QuixStreamProducer(ABC):
         self.stream.properties.metadata["my-metadata"] = "my-metadata-value"
         self.stream.timeseries.buffer.time_span_in_milliseconds = 100  # Send data in 100 ms chunks
 
-
-    @abstractmethod
-    def produce_values(self, message):
-        pass
-
     def close_stream(self):
         print("Closing stream")
         self.stream.close()
 
+    # send all the item in the dictionary
+    def produce_values(self, message: dict):
+        # print("Sending values.")
+        # Initialize the buffer and add the timestamp
+        buffer = self.stream.timeseries.buffer.add_timestamp(datetime.datetime.utcnow())
 
-    # def produce_values(self, message):
-    #     # print("Sending values.")
-    #     self.stream.timeseries \
-    #         .buffer \
-    #         .add_timestamp(datetime.datetime.utcnow()) \
-    #         .add_value("request_id", message["request_id"]) \
-    #         .add_value("prediction", message["prediction"].tobytes()) \
-    #         .add_value("pipeline_id", message["pipeline_id"]) \
-    #         .add_value("inference_model_id", message["inference_model_id"]) \
-    #         .publish()
+        # Loop over each key-value pair in the message and add them to the buffer
+        for key, value in message.items():
+            buffer.add_value(key, value)
+
+        # Publish the buffer
+        buffer.publish()

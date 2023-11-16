@@ -10,7 +10,7 @@ class MLAgent(RoheMLAgent):
     def __init__(self, model_info: dict, input_shape: tuple = (32, 32, 3), 
                  log_level: int = 2, model_from_config = True):
         if type(input_shape) == str:
-            input_shape = get_image_dim_from_str(input_shape)
+            input_shape = _get_image_dim_from_str(input_shape)
             
         self.model_from_config = model_from_config
         self.current_model_id: str = model_info['chosen_model_id']
@@ -112,5 +112,5 @@ class MLAgent(RoheMLAgent):
         # Todo: more metric
         return(metadata)
 
-def get_image_dim_from_str(str_obj) -> tuple:
+def _get_image_dim_from_str(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))

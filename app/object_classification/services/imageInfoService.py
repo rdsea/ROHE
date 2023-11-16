@@ -4,10 +4,11 @@ import json
 import logging
 
 
-from lib.modules.restService.roheService import RoheRestObject, RoheRestService
+from app.object_classification.lib.roheService import RoheRestObject
 import lib.roheUtils as roheUtils
 
-class TaskCoordinator(RoheRestObject):
+
+class InmageInfoService(RoheRestObject):
     def __init__(self, **kwargs):
         super().__init__()
         # to get configuration for resource

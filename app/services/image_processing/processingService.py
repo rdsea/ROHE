@@ -6,24 +6,10 @@ import argparse
 import json
 import time
 
-# from dotenv import load_dotenv
-# load_dotenv()
-
-
-# # set the ROHE to be in the system path
-# def get_parent_dir(file_path, levels_up=1):
-#     file_path = os.path.abspath(file_path)  # Get the absolute path of the running file
-#     parent_path = file_path
-#     for _ in range(levels_up):
-#         parent_path = os.path.dirname(parent_path)
-#     return parent_path
-
-# up_level = 7
-# root_path = get_parent_dir(__file__, up_level)
-# sys.path.append(root_path)
 
 from app.modules.image_processing.processingObject import ProcessingObject
-from app.modules.connectors.storage.minioStorageConnector import MinioConnector
+from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
+
 from lib.modules.roheObject import RoheObject
 
 
