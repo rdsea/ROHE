@@ -7,11 +7,12 @@ from typing import Callable
 import time
 
 
-from app.modules.connectors.quixStream import KafkaStreamListener
-from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector
-from app.modules.common import TimeBuffer
+from app.object_classification.lib.connectors.quixStream import QuixStreamListener
+from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
+from app.object_classification.modules.common import TimeLimitedCache
 
-class KafkaStreamAggregatingListener(KafkaStreamListener):
+
+class KafkaStreamAggregatingListener(QuixStreamListener):
     def __init__(self, kafka_address: str, topic_name: str, 
                  aggregate_function: Callable, lock: Lock = None, 
                  config: dict = None, db_connector: MongoDBConnector = None):
@@ -36,7 +37,7 @@ class KafkaStreamAggregatingListener(KafkaStreamListener):
         print(f"This is the db connector: {self.db_connector}")
 
         self.buffer_dict = {}
-        self.already_processed_ids = TimeBuffer(window_size= self.config['valid_time'], lock= Lock())
+        self.already_processed_ids = TimeLimitedCache(window_size= self.config['valid_time'], lock= Lock())
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
 
     def on_dataframe_received_handler(self, stream, df: pd.DataFrame):

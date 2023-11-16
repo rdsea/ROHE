@@ -1,4 +1,4 @@
-import redis
+# import redis
 from flask import request
 import json
 import logging

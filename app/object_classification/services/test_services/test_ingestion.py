@@ -10,42 +10,38 @@ print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 
+from app.object_classification.lib.roheService import RoheRestService
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
-from app.object_classification.services.processingServiceExecutor import ProcessingServiceExecutor
+from app.object_classification.services.ingestionService import IngestionService
 
 import lib.roheUtils as roheUtils
 
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")
+    parser.add_argument('--port', type= int, help='default port', default=3000)
     parser.add_argument('--conf', type= str, help='specify configuration file path', 
-                        default= 'processing_config.yaml')
+                        default= 'ingestion_config.yaml')
 
     # Parse the parameters
     args = parser.parse_args()
+    port = int(args.port)
 
     config_file = args.conf
 
- 
+    # yaml load configuration file
     config = roheUtils.load_config(file_path= config_file)
     if not config:
         print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
         config = roheUtils.load_yaml_config(file_path= config_file)
 
-    config['processing_config']['max_thread'] = int(config['processing_config']['max_thread'])
-    config['processing_config']['min_waiting_period'] = int(config['processing_config']['min_waiting_period'])
-    config['processing_config']['max_waiting_period'] = int(config['processing_config']['max_waiting_period'])
 
-    print(f"This is the config: {config}")
-
-    minio_connector = MinioConnector(storage_info= config.get('minio_storage_service'))
-
+    # Minio Connector for uploading image
+    minio_connector = MinioConnector(storage_info= config['storage']['minio'])
     config['minio_connector'] = minio_connector
 
-    inference_server = "http://localhost:30005/inference_service"
-    config['inference_server'] = {}
-    config['inference_server']['urls'] = ("http://localhost:30005/inference_service","http://localhost:30000/inference_service")
-
-    executor = ProcessingServiceExecutor(config=config)
-
-    executor.run()
+    # start server
+    rest_service = RoheRestService(config)
+    rest_service.add_resource(IngestionService, '/ingestion_service')
+    rest_service.run(port=port)

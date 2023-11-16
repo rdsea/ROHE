@@ -3,8 +3,6 @@ import redis
 import argparse
 import sys, os
 
-import qoa4ml.qoaUtils as qoa_utils
-
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -19,8 +17,6 @@ from app.object_classification.lib.roheService import RoheRestService
 from app.object_classification.services.imageInfoService import ImageInfoService
 
 
-# def setup_redis(redis_config):
-#     return redis.Redis(host= redis_config['host'], port=redis_config['port'], db= redis_config['db'])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Task Coordinator Service")

@@ -75,5 +75,5 @@ def extract_file_extension(url):
         return ""  # No extension found
 
 
-def get_image_dim_from_str(str_obj) -> tuple:
+def convert_str_to_tuple(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))

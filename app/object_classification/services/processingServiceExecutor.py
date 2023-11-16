@@ -16,7 +16,7 @@ from aiohttp import FormData
 
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 import app.object_classification.modules.utils as pipeline_utils
-import app.object_classification.modules.image_processing_functions as processing_func
+import app.object_classification.modules.image_processing_functions as image_processing_func
 
 from lib.modules.roheObject import RoheObject
 
@@ -45,7 +45,7 @@ class ProcessingServiceExecutor(RoheObject):
         self.image_processing_func: Callable = self._get_processing_function(func_name= config['image_processing_func'])
 
         self.image_dim = config['processing_config']['image_dim']
-        self.image_dim = pipeline_utils.get_image_dim_from_str(self.image_dim)
+        self.image_dim = pipeline_utils.convert_str_to_tuple(self.image_dim)
         print(f"This is the image dim: {self.image_dim}")
 
         # create a temp folder to store temporary image file download from minio server 
@@ -70,16 +70,31 @@ class ProcessingServiceExecutor(RoheObject):
                 self.waiting_period = min(self.max_waiting_period, self.waiting_period)
 
     # these functions to interact with the processing service controller
-    def change_image_info_service_url(self, url: str):
-        self.image_info_service_url = url
+    def change_image_info_service_url(self, url: str) -> bool:
+        try:
+            print(f"Before the change, the url is: {self.image_info_service_url}")
+            self.image_info_service_url = url
+            print(f"\n\n\nchange info service url successfully. the url now is: {self.image_info_service_url}")
+            return True
+        except:
+            return False
 
-    def change_inference_service_url(self, urls: tuple):
-        self.inference_server_urls = urls
+    def change_inference_service_url(self, urls: tuple) -> bool:
+        try:
+            self.inference_server_urls = urls
+            return True
+        except:
+            return False
 
-    def change_image_processing_function(self, func_name: str):
+    def change_image_processing_function(self, func_name: str) -> bool:
     # the function must be defined in the image_processing_functions file in modules
-        self.image_processing_func = self._get_processing_function(func_name= func_name)
-
+        func: Callable = self._get_processing_function(func_name= func_name)
+        if func is not None:
+            self.image_processing_func = func
+            return True
+        else: 
+            return False
+        
     def _processing(self, task: dict):
         # task is a dictionary contain 6 key, v pairs
         #     'request_id':
@@ -137,7 +152,11 @@ class ProcessingServiceExecutor(RoheObject):
             return True
 
     def _get_processing_function(self, func_name: str) -> Callable:
-        return getattr(processing_func, func_name)
+        try: 
+            func: Callable = getattr(image_processing_func, func_name)
+            return func
+        except:
+            return None
 
     def _get_image_from_image_info_service(self) -> dict:
         response = requests.get(self.image_info_service_url)
