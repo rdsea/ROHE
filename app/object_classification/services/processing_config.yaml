@@ -1,0 +1,32 @@
+# General processing configuration
+processing_config:
+  max_thread: 3
+  request_rate: 1 # req/s
+  min_waiting_period: 1
+  max_waiting_period: 30
+  # min_request_period: 1s
+  # max_request_period: 30s
+  image_dim: "32,32,3"
+
+# Communication endpoints
+image_info_service: 
+  url: "http://localhost:5000/image_info_server"
+
+minio_storage_service:
+  endpoint_url: "http://128.214.254.126:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-unprocessed-image"
+
+
+image_processing_func: 'resize_and_pad'
+# # 
+# # think of the situtation where we need to handle multiple pipeline
+# # Inference strategy
+# inference_strategy:
+#   type: "all" # or "specific" ["all", "one", "quorum"]
+  
+#   # If type is 'specific', define the specific model types to send requests to
+#   specific_server: 
+#     - "pipeline_1_vgg_0"
+#     - "pipeline_2_vgg_2_7"

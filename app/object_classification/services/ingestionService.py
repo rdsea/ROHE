@@ -123,6 +123,7 @@ class IngestionService(RoheRestObject):
                     response = f"Successfully forward the request to the next step. Request id: {request_id}"
                     return json.dumps({"response": response}), 200, {'Content-Type': 'application/json'}
                 else:
+                    print(f"\n\nThis is the response from image info server: {response.json()}")
                     message = f"Failed to upload request {request_id} to Image Info Service"
                     print(message)
                     # return False

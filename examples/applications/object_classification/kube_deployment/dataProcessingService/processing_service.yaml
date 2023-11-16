@@ -5,10 +5,10 @@ processing_config:
   image_dim: "32,32,3"
   
 redis_server:
-  url: "http://localhost:5000/task_coordinator"
+  url: "http://localhost:5000/image_info_server"
 
-inference_server:
-  url: "http://localhost:30005/inference_service"
+# inference_server:
+#   url: "http://localhost:30005/inference_service"
 
 minio_config:
   endpoint_url: "http://128.214.254.126:9000"

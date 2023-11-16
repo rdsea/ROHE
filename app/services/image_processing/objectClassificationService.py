@@ -6,9 +6,10 @@ from typing import Dict, Optional
 
 
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
-from app.modules.connectors.quixStream import KafkaStreamProducer
-from app.modules.connectors.storage.minioStorageConnector import MinioConnector
-from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector
+from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
+
+from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
+from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
 
 from lib.modules.restService.roheService import RoheRestObject
 
@@ -68,9 +69,9 @@ class ClassificationRestService(RoheRestObject):
         # between send to kafka topic
         # and send to mongodb 
         # set kafka streaming connector
-        self.kafka_producer: KafkaStreamProducer = self.conf['kafka_producer'] 
-        # set mongodb connector
-        self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
+        # self.kafka_producer: QuixStreamProducer = self.conf['kafka_producer'] 
+        # # set mongodb connector
+        # self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
         
 
         # set model lock

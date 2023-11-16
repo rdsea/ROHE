@@ -6,15 +6,14 @@ processing_config:
   image_dim: "32,32,3"
 
 # Communication endpoints
-endpoints:
-  redis_server: 
-    url: "http://localhost:5000/task_coordinator"
-  minio_config:
-    endpoint_url: "http://128.214.254.126:9000"
-    access_key: "admin_user"
-    secret_key: "admin_pass"
-    bucket_name: "nii-application-unprocessed-image"
+image_info_service: 
+  url: "http://localhost:5000/task_coordinator"
 
+minio_storage_service:
+  endpoint_url: "http://128.214.254.126:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-unprocessed-image"
 
 
 # 

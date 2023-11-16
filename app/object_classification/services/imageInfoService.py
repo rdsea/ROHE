@@ -5,10 +5,10 @@ import logging
 
 
 from app.object_classification.lib.roheService import RoheRestObject
-import lib.roheUtils as roheUtils
+import app.object_classification.modules.utils as pipeline_utils
 
 
-class InmageInfoService(RoheRestObject):
+class ImageInfoService(RoheRestObject):
     def __init__(self, **kwargs):
         super().__init__()
         # to get configuration for resource
@@ -60,7 +60,7 @@ class InmageInfoService(RoheRestObject):
     def _claim_image(self):
         serialized_image_info = self.redis.rpoplpush("unprocessed_images", "processing_images")
         if serialized_image_info:
-            image_info = roheUtils.message_deserialize(serialized_image_info)
+            image_info = pipeline_utils.message_deserialize(serialized_image_info)
             return json.dumps({"image_info": image_info}), 200, {'Content-Type': 'application/json'}
         else:
             return json.dumps({"status": "no unprocessed images"}), 404, {'Content-Type': 'application/json'}
@@ -76,12 +76,15 @@ class InmageInfoService(RoheRestObject):
         #     'shape': request.form.get('shape'),
         # }
         image_info = self._get_image_info(request= request)
-        if all(image_info.values()):
-            serialized_image_info = roheUtils.message_serialize(image_info)
+        required_fields = ['request_id', 'timestamp', 'device_id', 'image_url']
+        if all(image_info[field] is not None for field in required_fields):
+            serialized_image_info = pipeline_utils.message_serialize(image_info)
             self.redis.lpush("unprocessed_images", serialized_image_info)
             return json.dumps({"status": "success"}), 200, {'Content-Type': 'application/json'}
         else:
-            return json.dumps({"error": "Some required fields are missing"}), 400, {'Content-Type': 'application/json'}
+            print(f"This is the image info that does not satisfy the requirement of having all the field: {image_info}")
+            print(f"Why failing the test: {image_info.values()}")
+            return json.dumps({"error": f"Some required fields are missing, the required field are: {required_fields}"}), 400, {'Content-Type': 'application/json'}
 
     def _complete_processing(self):
         # image_info = {
@@ -93,10 +96,9 @@ class InmageInfoService(RoheRestObject):
         #     'shape': request.form.get('shape'),
         # }
         image_info = self._get_image_info(request= request)
-        logging.info(f"This is image info got")
         if image_info:
             print(f"This is the image info: {image_info}")
-            serialized_image_info = roheUtils.message_serialize(image_info)
+            serialized_image_info = pipeline_utils.message_serialize(image_info)
             result = self.redis.lrem("processing_images", 0, serialized_image_info)
             print(f"This is the result: {result}")
             if result >= 1:

@@ -20,9 +20,11 @@ sys.path.append(main_path)
 from lib.modules.restService.roheService import RoheRestService
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
 from app.services.image_processing.objectClassificationService import ClassificationRestService, EnsembleState
-from app.modules.connectors.storage.minioStorageConnector import MinioConnector
-from app.modules.connectors.storage.mongoDBConnector import MongoDBConnector, MongoDBInfo
-from app.modules.connectors.quixStream import KafkaStreamProducer
+from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
+from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
+from app.object_classification.modules.common import MongoDBInfo
+
+from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 
 import lib.roheUtils as roheUtils
 
@@ -30,7 +32,7 @@ import lib.roheUtils as roheUtils
 if __name__ == '__main__': 
     # init_env_variables()
     parser = argparse.ArgumentParser(description="Argument for Inference Service")
-    parser.add_argument('--port', type= int, help='default port', default=30005)
+    parser.add_argument('--port', type= int, help='default port', default=30000)
 
     parser.add_argument('--conf', type= str, help='configuration file', 
             default= "./configurations/inference_service.yaml")
@@ -67,13 +69,13 @@ if __name__ == '__main__':
     #     mongo_connector = MongoDBConnector(db_info= mongodb_info)
     #     config['mongo_connector'] = mongo_connector
     ensemble_controller = EnsembleState(config['ensemble'])
-    kafka_producer = KafkaStreamProducer(kafka_address= config['kafka']['address'],
-                                        topic_name= config['kafka']['topic_name'])
-    config['kafka_producer'] = kafka_producer
+    # kafka_producer = QuixStreamProducer(kafka_address= config['kafka']['address'],
+    #                                     topic_name= config['kafka']['topic_name'])
+    # config['kafka_producer'] = kafka_producer
     
-    mongodb_info = MongoDBInfo(**config['mongodb'])
-    mongo_connector = MongoDBConnector(db_info= mongodb_info)
-    config['mongo_connector'] = mongo_connector
+    # mongodb_info = MongoDBInfo(**config['mongodb'])
+    # mongo_connector = MongoDBConnector(db_info= mongodb_info)
+    # config['mongo_connector'] = mongo_connector
 
     config['minio_connector'] = minio_connector
     config['MLAgent'] = MLAgent

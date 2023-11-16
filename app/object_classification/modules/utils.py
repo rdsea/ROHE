@@ -2,6 +2,9 @@
 from datetime import datetime
 import numpy as np
 import json
+import os
+import re
+
 
 def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tuple):
     '''
@@ -61,3 +64,16 @@ def message_deserialize(string_object) -> dict:
     convert string to object (dict)
     '''
     return json.loads(string_object.decode("utf-8"))
+
+
+def extract_file_extension(url):
+    # Regular expression to match the file extension
+    match = re.search(r'\.([^.\/]+)$', url)
+    if match:
+        return match.group(1)  # Returns the file extension without the leading period
+    else:
+        return ""  # No extension found
+
+
+def get_image_dim_from_str(str_obj) -> tuple:
+    return tuple(map(int, str_obj.split(',')))

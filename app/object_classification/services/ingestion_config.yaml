@@ -9,4 +9,4 @@ storage:
 
 # Redis-based HTTP Server Configuration
 image_info_server:
-  endpoint_url: "http://localhost:5000/task_coordinator"
+  endpoint_url: "http://localhost:5000/image_info_server"

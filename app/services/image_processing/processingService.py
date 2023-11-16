@@ -64,11 +64,12 @@ class ProcessingService(RoheObject):
                 self.request_period = min(self.max_request_period, self.request_period * 2)
 
     def _process_task(self, task):
-        # task is a dictionary contain 4 key, v pairs
+        # task is a dictionary contain 6 key, v pairs
         #     'request_id':
         #     'timestamp': 
         #     'device_id': 
         #     'image_url': 
+        
         # }
 
         # Process the image
