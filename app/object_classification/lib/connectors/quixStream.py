@@ -24,19 +24,31 @@ class QuixStreamListener(ABC):
     def hook_events(self):
         self.topic_consumer.on_stream_received = self.on_stream_received_handler
 
-    def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
-        stream_received.timeseries.on_dataframe_received = self.on_dataframe_received_handler
-
     @abstractmethod
-    def on_dataframe_received_handler(self, stream: qx.StreamConsumer, df: pd.DataFrame):
+    def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
         pass
+    
+    # def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
+    #     stream_received.timeseries.on_dataframe_received = self.on_dataframe_received_handler
+
+    # @abstractmethod
+    # def on_dataframe_received_handler(self, stream: qx.StreamConsumer, df: pd.DataFrame):
+    #     pass
 
     def run(self):
         print(f"Listening to streams from topic '{self.topic_name}' at Kafka address '{self.kafka_address}'. Press CTRL-C to exit.")
         qx.App.run()
 
 
+class QuixStreamDataframeHandler(QuixStreamListener):
+    def __init__(self, kafka_address: str, topic_name: str, 
+                host_object):
+        super().__init__(kafka_address, topic_name)
+        self.host_object = host_object
 
+    def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
+        stream_received.timeseries.on_dataframe_received = self.host_object.on_receive_data_as_dataframe
+        
 
 # class QuixStreamProducer(ABC):
 class QuixStreamProducer():

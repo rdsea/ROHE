@@ -21,14 +21,15 @@ import app.object_classification.modules.image_processing_functions as image_pro
 from lib.modules.roheObject import RoheObject
 
 class ProcessingServiceExecutor(RoheObject):
-    def __init__(self, config, log_level=2):
-        super().__init__()
-        self.set_logger_level(logging_level=log_level)
+    def __init__(self, config: dict, log_level=2):
+        super().__init__(logging_level= log_level)
+        # self.set_logger_level(logging_level=log_level)
         
         self.max_thread: int = config.get('processing_config', {}).get('max_threads', 3)
         self.thread_pool = ThreadPoolExecutor(self.max_thread)
 
-        self.minio_connector: MinioConnector = config['minio_connector']
+        # self.minio_connector: MinioConnector = config['minio_connector']
+        self.minio_connector = MinioConnector(storage_info= config.get('minio_storage'))
 
         # 
         self.image_info_service_url = config['image_info_service']['url']
@@ -42,7 +43,10 @@ class ProcessingServiceExecutor(RoheObject):
         self.waiting_period = self.min_waiting_period
 
         # load processing function
-        self.image_processing_func: Callable = self._get_processing_function(func_name= config['image_processing_func'])
+        # self.image_processing_func: Callable = self._get_processing_function(func_name= config['image_processing_func'])
+        self.image_processing_func: Callable = pipeline_utils.get_function_from_module(module= image_processing_func, 
+                                                                                       func_name= config['image_processing_func'])
+
 
         self.image_dim = config['processing_config']['image_dim']
         self.image_dim = pipeline_utils.convert_str_to_tuple(self.image_dim)
@@ -88,7 +92,8 @@ class ProcessingServiceExecutor(RoheObject):
 
     def change_image_processing_function(self, func_name: str) -> bool:
     # the function must be defined in the image_processing_functions file in modules
-        func: Callable = self._get_processing_function(func_name= func_name)
+        func: Callable = pipeline_utils.get_function_from_module(module= image_processing_func,
+                                                                 func_name= func_name)
         if func is not None:
             self.image_processing_func = func
             return True
@@ -151,12 +156,12 @@ class ProcessingServiceExecutor(RoheObject):
             self._make_inference_request(processing_result)
             return True
 
-    def _get_processing_function(self, func_name: str) -> Callable:
-        try: 
-            func: Callable = getattr(image_processing_func, func_name)
-            return func
-        except:
-            return None
+    # def _get_processing_function(self, func_name: str) -> Callable:
+    #     try: 
+    #         func: Callable = getattr(image_processing_func, func_name)
+    #         return func
+    #     except:
+    #         return None
 
     def _get_image_from_image_info_service(self) -> dict:
         response = requests.get(self.image_info_service_url)

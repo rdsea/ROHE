@@ -14,7 +14,7 @@ sys.path.append(main_path)
 
 import lib.roheUtils as roheUtils
 from app.object_classification.lib.roheService import RoheRestService
-from app.object_classification.services.imageInfoService import ImageInfoService
+from app.object_classification.services.image_info.imageInfoService import ImageInfoService
 
 
 

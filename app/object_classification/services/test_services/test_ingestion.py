@@ -12,7 +12,7 @@ sys.path.append(main_path)
 
 from app.object_classification.lib.roheService import RoheRestService
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
-from app.object_classification.services.ingestionService import IngestionService
+from app.object_classification.services.ingestion.ingestionService import IngestionService
 
 import lib.roheUtils as roheUtils
 

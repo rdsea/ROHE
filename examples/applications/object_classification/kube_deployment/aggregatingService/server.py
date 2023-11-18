@@ -12,7 +12,9 @@ print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 # from lib.service_connectors.mongoDBConnector import MongoDBConnector, MongoDBInfo
-from app.modules.connectors.storage.mongoDBConnector import MongoDBInfo
+# from app.modules.connectors.storage.mongoDBConnector import MongoDBInfo
+
+from app.object_classification.modules.common import MongoDBInfo
 from app.services.image_processing.aggregatingService import AggregatingService
 
 import lib.roheUtils as roheUtils

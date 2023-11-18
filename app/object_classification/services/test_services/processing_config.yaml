@@ -12,7 +12,7 @@ processing_config:
 image_info_service: 
   url: "http://localhost:5000/image_info_server"
 
-minio_storage_service:
+minio_storage:
   endpoint_url: "http://128.214.254.126:9000"
   access_key: "admin_user"
   secret_key: "admin_pass"

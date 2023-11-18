@@ -4,8 +4,16 @@ import numpy as np
 import json
 import os
 import re
+import types 
+from typing import Callable
 
-
+def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
+    try: 
+        func: Callable = getattr(module, func_name)
+        return func
+    except:
+        return None
+        
 def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tuple):
     '''
     this function decode an binary object into a numpy array

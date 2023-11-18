@@ -1,84 +1,72 @@
+
+import logging
+
+
 import pandas as pd
 import numpy as np
 import time
-import concurrent.futures
-from threading import Lock
+
 from typing import Callable
+from threading import Lock
+import concurrent.futures
 
-
-# from app.object_classification.lib.connectors.quixStream import QuixStreamListener
 from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
 from app.object_classification.modules.common import TimeLimitedCache
 
-
-from abc import ABC, abstractmethod
-import quixstreams as qx
-
-class QuixStreamListener(ABC):
-    '''
-    abstract class with abstract method of handling dataframe message type
-    '''
-    def __init__(self, kafka_address: str, topic_name: str):
-        self.kafka_address = kafka_address
-        self.topic_name = topic_name
-        self.client = qx.KafkaStreamingClient(self.kafka_address)
-        print("Establish connection")
-        self.topic_consumer = self.client.get_topic_consumer(
-            self.topic_name, 
-            consumer_group=None, 
-            auto_offset_reset=qx.AutoOffsetReset.Latest
-        )
-        self.hook_events()
-
-    def hook_events(self):
-        self.topic_consumer.on_stream_received = self.on_stream_received_handler
-
-    # @abstractmethod
-    # def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
-    #     pass
-    
-    def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
-        stream_received.timeseries.on_dataframe_received = self.on_dataframe_received_handler
-
-    @abstractmethod
-    def on_dataframe_received_handler(self, stream: qx.StreamConsumer, df: pd.DataFrame):
-        pass
-
-    def run(self):
-        print(f"Listening to streams from topic '{self.topic_name}' at Kafka address '{self.kafka_address}'. Press CTRL-C to exit.")
-        qx.App.run()
+import app.object_classification.modules.utils as pipeline_utils
+import app.object_classification.modules.model_aggregating_functions as aggregating_func
+from app.object_classification.lib.connectors.quixStream import QuixStreamDataframeHandler
 
 
-class KafkaStreamAggregatingListener(QuixStreamListener):
-    def __init__(self, kafka_address: str, topic_name: str, 
-                 aggregate_function: Callable, lock: Lock = None, 
-                 config: dict = None, db_connector: MongoDBConnector = None):
-        super().__init__(kafka_address, topic_name)
-        # print("Enter this initial block")
+from lib.modules.roheObject import RoheObject
+# import quixstreams as qx
+import pandas as pd
+
+
+class AggregatingServiceExecutor(RoheObject):
+    def __init__(self, config: dict, lock: Lock,
+                 log_level=2):
+        super().__init__(logging_level= log_level)
+        
         self.lock = lock or Lock()
         self.config = config or {}
-
-        self.aggregate_function = aggregate_function
+        self.conf = config
+        # load processing function
+        self.aggregating_func: Callable = pipeline_utils.get_function_from_module(module= aggregating_func,
+                                                                                  func_name= self.conf['aggregating_func'])
 
         self.time_limit: int = self.config.get('time_limit') or 5  # in second
         self.min_messages: int = self.config.get('min_messages') or 10
 
         self.config['max_threads'] = self.config.get('max_threads') or 10
         self.config['valid_time'] = self.config.get('valid_time') or 60
-        # print(f"This is the config: {self.config}")
-
-        # self.max_threads = self.config['max_threads']
-        # self.valid_time = self.config['valid_time']
-        self.db_connector = db_connector
-
-        print(f"This is the db connector: {self.db_connector}")
 
         self.buffer_dict = {}
         self.already_processed_ids = TimeLimitedCache(window_size= self.config['valid_time'], lock= Lock())
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
 
-    def on_dataframe_received_handler(self, stream, df: pd.DataFrame):
+        self.db_connector: MongoDBConnector = MongoDBConnector(**self.conf['mongodb'])
 
+        self.quix_stream_listener = QuixStreamDataframeHandler(kafka_address= self.conf['address'],
+                                                               topic_name= self.conf['topic_name'],
+                                                               host_object= self)
+        
+    def run(self):
+        self.quix_stream_listener.run()
+
+    def change_aggregating_function(self, func_name) -> bool:
+    # the function must be defined in the image_processing_functions file in modules
+        func: Callable = pipeline_utils.get_function_from_module(module= aggregating_func,
+                                                                 func_name= func_name)
+        if func is not None:
+            self.aggregating_func = func
+            return True
+        else: 
+            return False
+        
+    # def change_
+    
+    def on_receive_data_as_dataframe(self, stream, df: pd.DataFrame):
         print("enter this receiving dataframe block")
         # Convert the 'prediction' column to NumPy arrays
         df['prediction'] = df['prediction'].apply(lambda x: np.frombuffer(x, dtype=np.float64))
