@@ -10,7 +10,7 @@ from lib.modules.observation.services.roheObservation import RoheObservation, Ro
 
 
 
-#DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
+DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
 
 if __name__ == '__main__': 
     # init_env_variables()
@@ -26,10 +26,10 @@ if __name__ == '__main__':
 
     # load configuration file
     if not config_file:
-        #config_file = main_path+DEFAULT_CONFIG_PATH
-        #print(config_file)
-        print(f'Error with configuration file config_file={config_file}')
-        sys.exit(1)
+        config_file = ROHE_PATH+DEFAULT_CONFIG_PATH
+        print(config_file)
+        # print(f'Error with configuration file config_file={config_file}')
+        # sys.exit(1)
     try:
         configuration = rohe_utils.load_config(config_file)
         observationService = RoheRestService(configuration)

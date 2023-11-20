@@ -173,9 +173,11 @@ def make_folder(temp_path):
         return False
     
 def load_qoa_conf_env(qoa_conf):
-    clientID = os.environ.get('CLIENT_ID')
-    if not clientID:
-        clientID = "rohe_test"
+    if "userID" not in qoa_conf:
+        userID = os.environ.get('USER_ID')
+        if not userID:
+            userID = "rohe_test"
+        qoa_conf["userID"] = userID
 
     instanceID = os.environ.get('INSTANCE_ID')
     if not instanceID:
@@ -193,13 +195,15 @@ def load_qoa_conf_env(qoa_conf):
     if not role:
         role = "rohe_test_role"
 
-    qoa_conf["clientID"] = clientID
+    
     qoa_conf["instanceID"] = instanceID
     qoa_conf["stageID"] = stageID
     qoa_conf["method"] = method
     qoa_conf["role"] = role
 
     return qoa_conf
+
+
 
 def df_to_csv(file_path, df):
     df.to_csv(file_path, mode='a', header=not os.path.exists(file_path))

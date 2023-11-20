@@ -1,7 +1,7 @@
 client:
   appID: ec28070e-9364-4983-8e3b-438a5c119eed
   appName: cctvs
-  clientID: rohe_test
+  userID: rohe_test
   instanceID: rohe_test_isntance
   method: rohe_test_method
   role: rohe_test_role

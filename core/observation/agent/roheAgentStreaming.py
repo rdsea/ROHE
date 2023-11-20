@@ -16,14 +16,14 @@ DEFAULT_DATA_PATH = "/agent/data/"
 lib_path = qoaUtils.get_parent_dir(__file__,4)
 sys.path.append(lib_path)
 from lib.modules.roheObject import RoheObject
-import lib.modules.observation.streamAnalysis.functions as func
-import lib.modules.observation.streamAnalysis.parser as pars
-from lib.modules.observation.streamAnalysis.window import EventBuffer, TimeBuffer
+import lib.modules.observation.analysis.functions as func
+import lib.modules.observation.analysis.parser as pars
+from lib.modules.observation.analysis.window import EventBuffer, TimeBuffer
 import lib.roheUtils as rohe_utils
 
 def get_app(collection, appName):
     # Create sorted pipepline to query application list
-    pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+    pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
     app_list = list(collection.aggregate(pipeline))
     for app in app_list:
         # return app with its configuration
@@ -114,7 +114,7 @@ class RoheObservationAgent(RoheObject):
         # Get parser from configuration
         parser_name =  self.proc_config["parser"]["name"]
         if parser_name == "dummy":
-            print(mess)
+            self.log(mess,2)
         else:
             parser = getattr(pars, self.proc_config["parser"]["name"])
             # Parse data to DataFrame
@@ -154,10 +154,17 @@ class RoheObservationAgent(RoheObject):
             # 
             for feature in feature_list:
                 result_df, model = procFunc(data, feature)
-                rohe_utils.make_folder(self.temp_path)
-                file_path = self.temp_path+"/"+str(feature)+".csv"
-                rohe_utils.df_to_csv(file_path, result_df)
-                # self.log("\n"+str(result_df))
+                if (result_df is not None):
+                    rohe_utils.make_folder(self.temp_path)
+                    file_path = self.temp_path+"/"+str(feature)+".csv"
+                    rohe_utils.df_to_csv(file_path, result_df)
+
+                    errors = result_df.loc[result_df["anomaly"] == -1]
+                    if len(errors) > 0:
+                        print(errors)
+                        err_file_path = self.temp_path+"/error_"+str(feature)+".csv"
+                        rohe_utils.df_to_csv(err_file_path, errors)
+                    # self.log("\n"+str(result_df))
 
     def eventTrigger(self):
         # Check trigger and reset counter

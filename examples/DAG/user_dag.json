@@ -19,7 +19,7 @@
                             "protocol": "AMQP",
                             "configuration":{
                                 "url": "localhost",
-                                "clientID":"aaltosea1",
+                                "userID":"aaltosea1",
                                 "exchange_name": "lstm_bts",
                                 "exchange_type": "topic",
                                 "in_queue": "in_request_lstm",
@@ -59,7 +59,7 @@
                             "protocol": "AMQP",
                             "configuration":{
                                 "url": "localhost",
-                                "clientID":"aaltosea1",
+                                "userID":"aaltosea1",
                                 "exchange_name": "lstm_bts",
                                 "exchange_type": "topic",
                                 "log": "False",

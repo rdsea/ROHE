@@ -1,6 +1,6 @@
 qoa_config:
   client:
-    clientID: "aaltosea_client"
+    userID: "aaltosea_client"
     instanceID: "Client01"
     stageID: "Client"
     method: "REST"

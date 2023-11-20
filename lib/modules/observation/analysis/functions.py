@@ -71,16 +71,26 @@ def sdn_detect_isolation_forest(data, feature):
     return dfs,  model
 
 def sdn_detect_local_outlier_factor(data, feature):
-    dfs = {k:v for k, v in data.groupby('switch')}
-    sdn_shift_feature = ["agg_byte_count", "agg_packet_count","flow_packet_count", "flow_byte_count"]
-    final_df = pd.DataFrame()
-    for key in dfs:
-        df = copy.deepcopy(dfs[key])
-        for metric in sdn_shift_feature:
-            df[metric] = df[metric] - df[metric].shift(1, fill_value=0)
-        df = df.iloc[1:]
-        dfs[key], model = detect_local_outlier_factor(df, feature)
-        logging.debug(dfs[key])
-        final_df = pd.concat([final_df, dfs[key]], ignore_index=True)
-    print(final_df)
-    return final_df,  model
+    try:
+        dfs = {k:v for k, v in data.groupby('switch')}
+        sdn_shift_feature = ["agg_byte_count", "agg_packet_count","flow_packet_count", "flow_byte_count"]
+        final_df = pd.DataFrame()
+        for key in dfs:
+            df = copy.deepcopy(dfs[key])
+            for metric in sdn_shift_feature:
+                df[metric] = df[metric] - df[metric].shift(1, fill_value=0)
+            df = df.iloc[1:]
+            dfs[key], model = detect_local_outlier_factor(df, feature)
+            logging.debug(dfs[key])
+            final_df = pd.concat([final_df, dfs[key]], ignore_index=True)
+        print(final_df)
+        return final_df,  model
+    except:
+        logging.error("Window processing error in sdn_detect_local_outlier_factor")
+        return None, None
+    
+def evaluation_trigger():
+    pass
+
+def feedback_processing():
+    pass

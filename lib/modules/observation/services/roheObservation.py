@@ -31,7 +31,7 @@ class RoheRegistration(RoheRestObject):
     def get_app(self,appName):
         # Get application configuration from database
         # Prepare query pipeline
-        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
         app_list = list(self.collection.aggregate(pipeline))
         # Get application from application list
         for app in app_list:
@@ -48,7 +48,7 @@ class RoheRegistration(RoheRestObject):
         # Database configuration
         agent_db_config = copy.deepcopy(self.db_config)
         agent_db_config["db_name"] = "application_"+metadata["appName"]+"_"+metadata["appID"]
-        agent_db_config["metric_collection"] = "metric_collection"
+        agent_db_config["metric_collection"] = "metric_collection_"+metadata["runID"]
         # Collector configuration
         collector_config = copy.deepcopy(self.collector_config)
         for key in list(collector_config.keys()):
@@ -62,10 +62,12 @@ class RoheRegistration(RoheRestObject):
         agent_config["collector"] = collector_config
         return agent_config
 
-    def register_app(self,appName):
+    def register_app(self,appName, runID, userID):
         # Create new application configuration and push to database
         metadata = {}
         metadata["appName"] = appName
+        metadata["runID"] = runID
+        metadata["userID"] = userID
         metadata["appID"] = str(uuid.uuid4())
         metadata["db"] = "application_"+appName+"_"+metadata["appID"]
         metadata["timestamp"] = time.time()
@@ -81,10 +83,12 @@ class RoheRegistration(RoheRestObject):
             response = {}
             if "appName" in args:
                 appName = args["appName"]
+                runID = args["runID"]
+                userID = args["userID"]
                 app = self.get_app(appName)
                 if app == None:
-                    metadata = self.register_app(appName)
-                    response[appName] = "Application {} created".format(appName)
+                    metadata = self.register_app(appName, runID, userID)
+                    response[appName] = "Application {} created for user {} with run ID: {}".format(appName, userID, runID)
                 else:
                     response[appName] = "Application already exist"
                     metadata = app
@@ -96,7 +100,7 @@ class RoheRegistration(RoheRestObject):
                 
 
                 # TO DO
-                # Check clientID, role, stage_id, instanceID
+                # Check userID, role, stage_id, instanceID
 
                 # Prepare connector for QoA Client
 
@@ -107,8 +111,8 @@ class RoheRegistration(RoheRestObject):
                     i_config = connector_i["conf"]
                     i_config["exchange_name"] = str(appName)+"_exchange"
                     i_config["out_routing_key"] = str(appName)
-                    if "clientID" in args:
-                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["clientID"]
+                    if "userID" in args:
+                        i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["userID"]
                     if "stageID" in args:
                         i_config["out_routing_key"] = i_config["out_routing_key"]+"."+args["stageID"]
                     if "instanceID" in args:
@@ -134,6 +138,7 @@ class RoheObservation(RoheRestObject):
         self.collection = self.db[self.db_config["collection"]]
         self.set_logger_level(int(self.conf["logging_level"]))
         self.docker_client = docker.from_env()
+        # self.docker_client = docker.DockerClient(base_url= "tcp://130.233.101.62:2375")
         if "agent_dict" not in globals():
             global agent_dict 
             agent_dict = {}
@@ -148,7 +153,7 @@ class RoheObservation(RoheRestObject):
     
     def get_app(self,appName):
         # Create sorted pipepline to query application list
-        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+        pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
         app_list = list(self.collection.aggregate(pipeline))
         for app in app_list:
             # return app with its configuration

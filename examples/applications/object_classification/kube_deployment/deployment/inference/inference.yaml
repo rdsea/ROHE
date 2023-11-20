@@ -52,7 +52,7 @@ data:
       bucket_name: "nii-application-inference-model"
     qoa_config:
       client:
-        clientID: "aaltosea2"
+        userID: "aaltosea2"
         instanceID: "inference_service02"
         stageID: "ML_Inference"
         method: "REST"

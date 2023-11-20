@@ -13,7 +13,7 @@ composition:
 - model: Yolov8
   parameter: yolov8n
 qoa4ml_client:
-  clientID: aaltosea1
+  userID: aaltosea1
   instanceID: yolo_inference
   stageID: Inference
   method: REST

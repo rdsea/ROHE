@@ -52,7 +52,7 @@
 
 # # qoa_config:
 # #   client:
-# #     clientID: "aaltosea2"
+# #     userID: "aaltosea2"
 # #     instanceID: "inference_service01"
 # #     stageID: "ML_Inference"
 # #     method: "REST"

@@ -1,6 +1,6 @@
 {
     "client":{
-        "clientID": "aaltosea1",
+        "userID": "aaltosea1",
         "instanceID": "yolo_processing",
         "stageID": "Image_Processing",
         "method": "REST",

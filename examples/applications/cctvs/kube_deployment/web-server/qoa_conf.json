@@ -1,6 +1,6 @@
 {
     "client":{
-        "clientID": "aaltosea1",
+        "userID": "aaltosea1",
         "instanceID": "yolo_web_service",
         "stageID": "Web_Service",
         "method": "REST",

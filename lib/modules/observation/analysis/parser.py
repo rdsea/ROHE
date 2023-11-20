@@ -20,17 +20,16 @@ def cpustatParser(buff, parser_conf):
                 cpustat = [item["proc_cpu_stats"][key]["user"]]
             # Get metadate for later analyses
             if "metadata" in item:
-                clientID = [item["metadata"]["clientID"]]
+                userID = [item["metadata"]["userID"]]
                 instanceID = [item["metadata"]["instanceID"]]
-                instances_id = [item["metadata"]["instances_id"]]
                 timestamp = [item["metadata"]["timestamp"]]
                 stageID = [item["metadata"]["stageID"]]
                 appName = [item["metadata"]["appName"]]
             # Creat new row data
             dfi = pd.DataFrame({"cpustats":cpustat,
-                                "clientID":clientID,
+                                "userID":userID,
                                 "instanceID":instanceID,
-                                "instances_id":instances_id,
+                                "runID":runID,
                                 "timestamp":timestamp,
                                 "stageID":stageID,
                                 "appName":appName})
@@ -54,17 +53,17 @@ def confidenceParser(buff, parser_conf):
                 confidence = item["quality"]["inference"][last_inf]["confidence"]["value"]
             # Get metadate for later analyses
             if "metadata" in item:
-                clientID = [item["metadata"]["clientID"]]
+                userID = [item["metadata"]["userID"]]
                 instanceID = [item["metadata"]["instanceID"]]
-                instances_id = [item["metadata"]["instances_id"]]
+                runID = [item["metadata"]["runID"]]
                 timestamp = [item["metadata"]["timestamp"]]
                 stageID = [item["metadata"]["stageID"]]
                 appName = [item["metadata"]["appName"]]
             # Creat new row data
             dfi = pd.DataFrame({"confidence":confidence,
-                                    "clientID":clientID,
+                                    "userID":userID,
                                     "instanceID":instanceID,
-                                    "instances_id":instances_id,
+                                    "runID":runID,
                                     "timestamp":timestamp,
                                     "stageID":stageID,
                                     "appName":appName})
@@ -87,17 +86,17 @@ def accuracyParser(buff, parser_conf):
                 accuracy = item["quality"]["inference"][last_inf]["accuracy"]["value"]
             # Get metadate for later analyses
             if "metadata" in item:
-                clientID = [item["metadata"]["clientID"]]
+                userID = [item["metadata"]["userID"]]
                 instanceID = [item["metadata"]["instanceID"]]
-                instances_id = [item["metadata"]["instances_id"]]
+                runID = [item["metadata"]["runID"]]
                 timestamp = [item["metadata"]["timestamp"]]
                 stageID = [item["metadata"]["stageID"]]
                 appName = [item["metadata"]["appName"]]
             # Creat new row data
             dfi = pd.DataFrame({"accuracy":accuracy,
-                                    "clientID":clientID,
+                                    "userID":userID,
                                     "instanceID":instanceID,
-                                    "instances_id":instances_id,
+                                    "runID":runID,
                                     "timestamp":timestamp,
                                     "stageID":stageID,
                                     "appName":appName})
@@ -181,16 +180,16 @@ def objectDetectionParser(item, parser_conf):
 
         # Get metadate for later analyses
         if "metadata" in item:
-            clientID = [item["metadata"]["clientID"]]
+            userID = [item["metadata"]["userID"]]
             instanceID = [item["metadata"]["instanceID"]]
-            instances_id = [item["metadata"]["instances_id"]]
+            runID = [item["metadata"]["runID"]]
             timestamp = [item["metadata"]["timestamp"]]
             stageID = [item["metadata"]["stageID"]]
             appName = [item["metadata"]["appName"]]
         # Creat new row data
-        row_dict = {"clientID":clientID,
+        row_dict = {"userID":userID,
                     "instanceID":instanceID,
-                    "instances_id":instances_id,
+                    "runID":runID,
                     "timestamp":timestamp,
                     "stageID":stageID,
                     "appName":appName}
@@ -257,16 +256,16 @@ def sdnParser(item, parser_conf):
         if "port" in metric_list:
             portstat_config = metric_list["port"]
         if "metadata" in item:
-            clientID = [item["metadata"]["clientID"]]
+            userID = [item["metadata"]["userID"]]
             instanceID = [item["metadata"]["instanceID"]]
-            instances_id = [item["metadata"]["instances_id"]]
+            runID = [item["metadata"]["runID"]]
             timestamp = [item["metadata"]["timestamp"]]
             stageID = [item["metadata"]["stageID"]]
             appName = [item["metadata"]["appName"]]
         # Creat new row data
-        metadata_dict = {"clientID":clientID,
+        metadata_dict = {"userID":userID,
                     "instanceID":instanceID,
-                    "instances_id":instances_id,
+                    "runID":runID,
                     "timestamp":timestamp,
                     "stageID":stageID,
                     "appName":appName}
@@ -296,9 +295,9 @@ def OCParser(item, parser_conf):
         metric_df = pd.DataFrame()
         metric_list = parser_conf["metric"]
         if "metadata" in item:
-            clientID = [item["metadata"]["clientID"]]
+            userID = [item["metadata"]["userID"]]
             instanceID = [item["metadata"]["instanceID"]]
-            instances_id = [item["metadata"]["instances_id"]]
+            runID = [item["metadata"]["runID"]]
             timestamp = [item["metadata"]["timestamp"]]
             stageID = [item["metadata"]["stageID"]]
             appName = [item["metadata"]["appName"]]
@@ -331,9 +330,9 @@ def OCParser(item, parser_conf):
                     if max_value != -1:
                         row_metric[metric["name"]] = [max_value]
 
-        metadata_dict = {"clientID":clientID,
+        metadata_dict = {"userID":userID,
                     "instanceID":instanceID,
-                    "instances_id":instances_id,
+                    "runID":runID,
                     "timestamp":timestamp,
                     "stageID":stageID,
                     "appName":appName,

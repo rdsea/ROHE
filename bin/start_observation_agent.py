@@ -13,7 +13,7 @@ headers = {
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Node Monitoring")
-    parser.add_argument('--app', help='application name', default="dummy")
+    parser.add_argument('--app', help='application name', default="sdn")
     parser.add_argument('--url', help='registration url', default="http://localhost:5010/agent")
 
     args = parser.parse_args()

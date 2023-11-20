@@ -97,18 +97,8 @@ rename module for icsoc, journal
 
 ### Application Registration
 
-When register an end-to-end ML application, the operator must provide application name (`app_name` - string), application structure (`app_structure` - dictionary), and send registration request to the Observation Service via its `url`.
+When register an end-to-end ML application, the operator must provide application name (`app_name` - string), run ID (`runID` - string), user ID (`userID` - string), and send registration request to the Observation Service via its `url`.
 
-Application structure example:
-```json
-{
-    "<stageName>":{
-        "type": "microservice/ensemble",
-        "previousStage": "<previous_stage_name>/empty",
-        "microservices": ["<microservice_name>"]
-    }
-}
-```
 
 The Observation Service will generate:
 - Application ID: `appID`
@@ -151,7 +141,7 @@ Fig. Start/Stop observation agent
 To report metrics from microservices, the microservices must be instrumented an Qoa4ML client with client metadata including
 - appName (from application registration)
 - appID (from application registration)
-- clientID (ID of microservice owner)
+- userID (ID of microservice owner)
 - method (optional)
 - role (optional - ML provider/customer)
 - microserviceID (from application registration)
