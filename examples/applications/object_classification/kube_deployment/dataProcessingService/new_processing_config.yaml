@@ -6,28 +6,23 @@ processing_config:
   image_dim: "32,32,3"
 
 # Communication endpoints
-endpoints:
-  redis_server: 
-    url: "http://localhost:5000/task_coordinator"
-  minio_config:
-    endpoint_url: "http://128.214.254.126:9000"
-    access_key: "admin_user"
-    secret_key: "admin_pass"
-    bucket_name: "nii-application-unprocessed-image"
+image_info_service: 
+  url: "http://localhost:5000/task_coordinator"
 
+minio_storage_service:
+  endpoint_url: "http://128.214.254.126:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-unprocessed-image"
 
 
 # 
 # think of the situtation where we need to handle multiple pipeline
 # Inference strategy
 inference_strategy:
-  # which pipeline??
   type: "all" # or "specific" ["all", "one", "quorum"]
-  # discuss to change the strategy to select nodes 
-  # dynamic configuration control not only the
-
-  service_conditions:
-    - service_name: "some_name"
-    - MLmodel: "some_model"
-
-
+  
+  # If type is 'specific', define the specific model types to send requests to
+  specific_server: 
+    - "pipeline_1_vgg_0"
+    - "pipeline_2_vgg_2_7"

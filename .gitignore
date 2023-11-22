@@ -20,5 +20,6 @@ tmp_image_folder/
 test_image/
 
 examples/profiling/object_classification/result
+app/object_classification/modules/draft
 core/profiling/result
 

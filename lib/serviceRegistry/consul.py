@@ -8,7 +8,7 @@ headers = {
 
 class consulClient(object):
     def __init__(self, config) -> None:
-        """
+        '''
         Example config:
         config = {
             "url": "http://127.0.0.1:8500",
@@ -16,7 +16,7 @@ class consulClient(object):
             "datacenter": None,
             "adapter": None
         }
-        """
+        '''
         if "url" in config:
             self.url = config["url"]
         else:

@@ -9,7 +9,6 @@ from .boto3StorageConnector import Boto3Connector
 from app.object_classification.modules.common import StorageInfo
 
 class MinioConnector(Boto3Connector):
-    # time_sleep = 10
     def __init__(self, storage_info, parent= None):
         storage_info = StorageInfo(**storage_info)
         

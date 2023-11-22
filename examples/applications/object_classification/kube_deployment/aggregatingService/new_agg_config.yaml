@@ -1,18 +1,18 @@
 # Messaging Configuration
 messaging:
   kafka:
-    address: "127.0.0.1:9092"
-    topic_name: "nii_case"
+    address: 127.0.0.1:9092
+    topic_name: nii_case
 
 # Database Configuration
 storage:
   mongodb:
-    username: "admin_user"
-    password: "admin_pass"
-    host: "localhost"
+    username: admin_user
+    password: admin_pass
+    host: localhost
     port: 27017
-    database_name: "nii_case"
-    collection_name: "ensemble"
+    database_name: nii_case
+    collection_name: ensemble
 
 # Aggregating Service Configuration
 aggregating_service:
@@ -23,17 +23,17 @@ aggregating_service:
   # Validity period for a request ID in seconds. Older IDs are removed.
   # change name of this param
   # keep_alive
-  valid_time: 60
+  valid_time: 60s
   # config window time for aggregating message
-  time_limit: 3
+  time_limit: 3s
   min_messages: 3
 
   # Name of the function used for aggregation.
-  function: "average_probability" 
+  function: average_probability 
 
 # Existing aggregation functions metadata
 aggregation_functions:
-  description: "all aggregate functions need a dictionary that store all the prediction from various pipeliens as input, plus other specific params for the function to work "
+  description: "all aggregate functions need a dictionary that store all the prediction from various pipeliens as input, plus other specific params for the function to work"
   average_probability:
     module_path: ""
     description: "Takes the average of probabilities and selects the highest class."

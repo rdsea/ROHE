@@ -4,17 +4,16 @@ from time import sleep
 import logging
 import sys
 import re
+import io
 
 logging.getLogger(__name__)
 
 
 from app.object_classification.modules.common import StorageInfo
-
 class Boto3Connector(ABC):
     def __init__(self, storage_info: StorageInfo, parent= None):
         self._parent_thread = parent
         self._bucket_name: str = ""
-        self._time_sleep: int = 0
 
         # s3 is the return object of the function boto3.client 
         self._s3 = None
@@ -24,6 +23,38 @@ class Boto3Connector(ABC):
     @abstractmethod
     def _setup_connection(self, storage_info: StorageInfo):
         pass
+
+    def upload_binary_data(self, binary_data: bytes, remote_file_path: str, try_time=5):
+        """
+        Uploads binary data directly to S3/MinIO.
+
+        Args:
+            binary_data (in bytes or io.ByteIO format): The binary data to upload.
+            remote_file_path (str): The S3 path where the binary data will be stored.
+            try_time (int): Number of attempts for the upload operation. Defaults to 5.
+        
+        Returns:
+            bool: True if upload is successful, False otherwise.
+        """
+
+        if isinstance(binary_data, bytes):
+            binary_data = io.BytesIO(binary_data)
+
+        # Upload the file-like object to S3
+        success = False
+        for attempt in range(try_time):
+            try:
+                logging.info(f'Uploading data to {remote_file_path}...')
+                self._s3.upload_fileobj(binary_data, self._bucket_name, remote_file_path)
+                logging.info(f'Successfully uploaded data to {remote_file_path}')
+                success = True
+                break
+            except Exception as e:
+                logging.error(e)
+
+        # binary_data.close()
+        return success
+
 
     def upload(self, local_file_path: str, remote_file_path: str, try_time=5):
         # check if local_file_path is exist, if not create one
@@ -50,13 +81,11 @@ class Boto3Connector(ABC):
                     break
                 except Exception as e:
                     logging.error(e)
-                    sleep(self._time_sleep)
-                    t += 1
+                    
             self._parent_thread.on_upload(False)
 
 
     def download(self, remote_file_path, local_file_path, try_time= 5):
-        
         # call synchronously
         if self._parent_thread is None:
             try:
@@ -79,9 +108,6 @@ class Boto3Connector(ABC):
                     break
                 except Exception as e:
                     logging.error(e)
-                    sleep(self._time_sleep)
-                    t += 1
-                    raise e
             self._parent_thread.on_download(result)
 
 

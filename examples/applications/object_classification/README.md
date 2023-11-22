@@ -1,8 +1,10 @@
 # Object Detection pipeline
 
 ## Test Case: NII models
+[Pipeline Diagram]
+![Pipeline Diagram](./nii_case.drawio.png)
 
-[Pipeline Diagram](./nii_case.drawio.png)
+## Description
 
 # Running the Pipeline
 

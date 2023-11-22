@@ -1,7 +1,33 @@
-to deploy the inference service, run the bash script
+### structure of http request to ingestion server
 
-basically, the script will first run the python script copy all the relevant files to the current folder, then build the image using dockerfile file. After that, it will run the script to delete the files that just copy. Finally, it run the docker-compose up command
+Method: post
+URL: host:port/ingestion
+Data:
+data = {
+    'timestamp': 
+    'device_id': 'aalso_cam_01'
+    'meta_data': {
+        'shape':
+        'dtype':
+    }
+} 
+Files:
+    - file =  {'image': ('image', image_bytes, 'application/octet-stream')}
+    - `image_bytes` (binary, required): The image data in binary format.
 
-to run the application, you need to access to the docker container by docker exec -it <docker-container-id> /bin/bash
-then type 
-`python3 app.py`
+sample: requests.post(ingestion_service_url, data=data, files=files)
+
+
+### structure of http request to task coordinator
+Method: post
+URL: host:port/task_coordinator
+Data:
+{
+    "command": "add",
+    "request_id": ,
+    "timestamp": ,
+    "device_id": ,
+    "image_url": ,
+} 
+
+sample: requests.post(task_coordinator_url, data=data)

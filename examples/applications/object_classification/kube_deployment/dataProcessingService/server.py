@@ -18,7 +18,8 @@ print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 from app.services.image_processing.processingService import ProcessingService
-from app.modules.connectors.storage.minioStorageConnector import MinioConnector
+from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
+
 import lib.roheUtils as roheUtils
 
 
