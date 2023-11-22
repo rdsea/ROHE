@@ -3,16 +3,18 @@ import qoa4ml.qoaUtils as qoaUtils
 import sys, uuid, time, copy
 import argparse
 import pymongo
-main_path = config_file = qoaUtils.get_parent_dir(__file__,4)
-sys.path.append(main_path)
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 # from lib.services.observation.roheAgenStreaming import RoheObservationAgent
 from lib.modules.restService.roheService import RoheRestObject
 from flask import jsonify, request
 import docker
-DEFAULT_DOCKER_MOUNT = {main_path+"/core":{"bind":"/agent/core", "mode":"ro"},
-                        main_path+"/lib":{"bind":"/agent/lib", "mode":"ro"},
-                        main_path+"/config":{"bind":"/agent/configurations", "mode":"ro"},
-                        main_path+"/temp/agent/":{"bind":"/agent/data/", "mode":"rw"}}
+DEFAULT_DOCKER_MOUNT = {ROHE_PATH+"/core":{"bind":"/agent/core", "mode":"ro"},
+                        ROHE_PATH+"/userModule":{"bind":"/agent/userModule", "mode":"ro"},
+                        ROHE_PATH+"/lib":{"bind":"/agent/lib", "mode":"ro"},
+                        ROHE_PATH+"/config":{"bind":"/agent/configurations", "mode":"ro"},
+                        ROHE_PATH+"/temp/agent/":{"bind":"/agent/data/", "mode":"rw"}}
 
 
 class RoheRegistration(RoheRestObject):
@@ -103,7 +105,6 @@ class RoheRegistration(RoheRestObject):
                 # Check userID, role, stage_id, instanceID
 
                 # Prepare connector for QoA Client
-
                 
                 connector = copy.deepcopy(self.connector_config)
                 for key in list(connector.keys()):
@@ -144,7 +145,7 @@ class RoheObservation(RoheRestObject):
             agent_dict = {}
 
     def start_docker(self, image, appName):
-        container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':appName})
+        container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':appName,'ROHE_PATH':"/agent/"})
         return container
 
     def update_app(self,metadata):

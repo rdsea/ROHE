@@ -6,22 +6,24 @@ import json, sys, time, os
 import uuid, pymongo
 import traceback
 import pandas as pd
-main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
-sys.path.append(main_path)
-DEFAULT_CONFIG_PATH="/configurations/observationConfig.yaml"
+
+import sys, os
+# User must export ROHE_PATH befor using
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
+
+# set default global variable for loading configuration/functions and saving processed data
+DEFAULT_CONFIG_PATH= "configurations/observationConfig.yaml"
 DEFAULT_DATA_PATH = "/agent/data/"
+DEFAULT_MODULE_PATH = "/agent/userModule/"
 
-
-# Append syspath for dynamic import modules
-lib_path = qoaUtils.get_parent_dir(__file__,4)
-sys.path.append(lib_path)
 from lib.modules.roheObject import RoheObject
-import lib.modules.observation.analysis.functions as func
-import lib.modules.observation.analysis.parser as pars
 from lib.modules.observation.analysis.window import EventBuffer, TimeBuffer
 import lib.roheUtils as rohe_utils
 
+
 def get_app(collection, appName):
+    # get application data from databased
     # Create sorted pipepline to query application list
     pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
     app_list = list(collection.aggregate(pipeline))
@@ -62,6 +64,8 @@ class RoheObservationAgent(RoheObject):
         self.agent_config = self.conf["stream_config"]
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
+        self.module_path = DEFAULT_MODULE_PATH+"{}.py".format(self.proc_config["module"])
+        self.proc_module = rohe_utils.load_module(self.module_path, self.proc_config["module"])
         """
         Processing Type: 
         1 - Event
@@ -109,6 +113,7 @@ class RoheObservationAgent(RoheObject):
 
 
     def message_processing(self, ch, method, props, body):
+        # Consume message from Broker
         mess = json.loads(str(body.decode("utf-8")))
 
         # Get parser from configuration
@@ -116,7 +121,8 @@ class RoheObservationAgent(RoheObject):
         if parser_name == "dummy":
             self.log(mess,2)
         else:
-            parser = getattr(pars, self.proc_config["parser"]["name"])
+            # get parser by its name from userModule
+            parser = getattr(self.proc_module, self.proc_config["parser"]["name"])
             # Parse data to DataFrame
             df_mess = parser(mess, self.proc_config["parser"])
 
@@ -140,14 +146,14 @@ class RoheObservationAgent(RoheObject):
         # Get data from buffer processing window
         data = self.buffer.get(dataframe=True)
 
-        self.log(data, 1) # For Debugging
+        # self.log(data, 1) # For Debugging
 
         # Load dynamic processing function from function configuration
         function_name = self.proc_config["function"]
         if function_name == "dummy":
             pass
         else:
-            procFunc = getattr(func, self.proc_config["function"])
+            procFunc = getattr(self.proc_module, self.proc_config["function"])
             feature_list = self.proc_config["parser"]["feature"]
 
             # data, feature_list = parser(self.buffer, self.proc_config["parser"])
@@ -208,19 +214,23 @@ if __name__ == '__main__':
 
     # load configuration file
     if not config_file:
-        config_file = main_path+DEFAULT_CONFIG_PATH
+        config_file = ROHE_PATH+DEFAULT_CONFIG_PATH
         print(config_file)
+
     try:
-        
+        # read the configuration
         configuration = rohe_utils.load_config(config_file)
         db_config = configuration["database"]
+        # connect to database
         mongo_client = pymongo.MongoClient(db_config["url"])
         db = mongo_client[db_config["db_name"]]
         collection = db[db_config["collection"]]
 
+        # get appName from Container Environment
         appName = os.environ.get('APP_NAME')
         if not appName:
             appName = "test"
+        # get agent configuration from database
         agent_config = get_app(collection, appName)['agent_config']
         agent_config["appName"] = appName
         print(agent_config)

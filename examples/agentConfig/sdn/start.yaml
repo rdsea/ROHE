@@ -9,6 +9,7 @@ stream_config:
       type: 2
       value: 100
   processing:
+    module: sdn
     function: sdn_detect_local_outlier_factor
     parser:
       name: sdnParser
@@ -32,4 +33,5 @@ stream_config:
         - name: byte_count
           aggregate: sum
       feature:
-      - - agg_packet_count
+      - - packet_count
+      - - byte_count

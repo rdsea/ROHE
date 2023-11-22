@@ -1,6 +1,7 @@
 import traceback
 import argparse
 import sys, os
+# User must export ROHE_PATH befor using
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 

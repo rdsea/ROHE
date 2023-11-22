@@ -1,8 +1,6 @@
 import logging, traceback,sys, copy, os
 import pandas as pd
-from sklearn.ensemble import IsolationForest
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
-model=IsolationForest(n_estimators=50, max_samples='auto', contamination=float(0.1),max_features=1.0)
 
 
 def cpustatParser(buff, parser_conf):
@@ -25,6 +23,7 @@ def cpustatParser(buff, parser_conf):
                 timestamp = [item["metadata"]["timestamp"]]
                 stageID = [item["metadata"]["stageID"]]
                 appName = [item["metadata"]["appName"]]
+                runID = [item["metadata"]["runID"]]
             # Creat new row data
             dfi = pd.DataFrame({"cpustats":cpustat,
                                 "userID":userID,

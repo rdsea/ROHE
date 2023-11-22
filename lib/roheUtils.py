@@ -2,7 +2,7 @@ import json, psutil, time, os, yaml, logging
 from threading import Thread
 import traceback,sys, pathlib, requests
 import numpy as np
-
+import importlib.util
 import logging
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
@@ -223,3 +223,9 @@ def get_rohe_dir(file, level=1, to_string=True):
         return str(current_dir)
     else:
         return current_dir
+    
+def load_module(file_path, module_name):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
