@@ -7,7 +7,7 @@ from threading import Thread
 lib_path = utils.get_parent_dir(__file__,3)
 sys.path.append(lib_path)
 
-from lib.modules.observation.streamAnalysis.parser import OCParser
+from userModule.common.parser import OCParser
 
 
 class Collector(object):
