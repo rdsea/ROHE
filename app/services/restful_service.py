@@ -1,7 +1,7 @@
 
 
 from app.modules.image_processing.restful_service_module import RestfulServiceModule
-from lib.modules.restService.roheService import RoheRestService
+from lib.rohe.restService import RoheRestService
 
 
 class RestfulService():

@@ -14,7 +14,7 @@ print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
 
-from lib.modules.restService.roheService import RoheRestService
+from lib.rohe.restService import RoheRestService
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
 from app.services.image_processing.objectClassificationService import ClassificationRestService, EnsembleState
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector

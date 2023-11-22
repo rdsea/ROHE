@@ -15,7 +15,7 @@ sys.path.append(main_path)
 
 
 import lib.roheUtils as roheUtils
-from lib.modules.restService.roheService import RoheRestService
+from lib.rohe.restService import RoheRestService
 from app.services.image_processing.taskCoordinatorService import TaskCoordinator
 
 def setup_redis(redis_config):

@@ -11,7 +11,7 @@ from app.object_classification.lib.connectors.quixStream import QuixStreamProduc
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
 
-from lib.modules.restService.roheService import RoheRestObject
+from lib.rohe.restService import RoheRestObject
 
 from qoa4ml.QoaClient import QoaClient
 

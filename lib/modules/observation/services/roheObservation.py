@@ -7,7 +7,7 @@ import sys, os
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 # from lib.services.observation.roheAgenStreaming import RoheObservationAgent
-from lib.modules.restService.roheService import RoheRestObject
+from lib.rohe.restService import RoheRestObject
 from flask import jsonify, request
 import docker
 DEFAULT_DOCKER_MOUNT = {ROHE_PATH+"/core":{"bind":"/agent/core", "mode":"ro"},
