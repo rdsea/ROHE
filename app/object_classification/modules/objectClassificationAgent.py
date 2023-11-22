@@ -62,7 +62,7 @@ class ObjectClassificationAgent(RoheMLAgent):
     def load_weights(self, file_path: str):
         self.model.load_weights(file_path)
     
-    
+
     def load_model_metadata(self, model_metadata: dict):
         metadata = {}
         # load all the model metadata in the provided info
@@ -107,6 +107,6 @@ class ObjectClassificationAgent(RoheMLAgent):
         '''
         with open(architecture_file, 'r') as f:
             model_architecture = json.load(f)
-            model = tf.keras.models.model_from_config(model_architecture)
+            model: tf.keras.Model = tf.keras.models.model_from_config(model_architecture)
             model.load_weights(weights_file)
         return model

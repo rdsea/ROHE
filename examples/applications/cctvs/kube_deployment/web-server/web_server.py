@@ -24,7 +24,7 @@ main_path = os.getenv('ROHE_PATH')
 print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
-from lib.services.restService import RoheRestService, ImageInferenceObject
+from lib.rohe.restService import RoheRestService, ImageInferenceObject
 
 logger = CustomLogger().get_logger()
 

@@ -91,3 +91,4 @@ def extract_file_extension(url):
 
 def convert_str_to_tuple(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))
+

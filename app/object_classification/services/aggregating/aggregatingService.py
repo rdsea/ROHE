@@ -4,7 +4,7 @@ from threading import Thread
 from app.object_classification.services.aggregating.aggregatingServiceExecutor import AggregatingServiceExecutor
 from app.object_classification.services.aggregating.aggregatingServiceController import AggregatingServiceController
 
-from app.object_classification.lib.roheService import RoheRestService
+from lib.rohe.restService import RoheRestService
 
 class ProcessingService():
     def __init__(self, config: dict, port: int,
