@@ -1,12 +1,12 @@
-import os, sys
+# import os, sys
 
 import json
 import numpy as np
 from flask import request
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 
-from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
+# from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
 from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 
@@ -19,7 +19,6 @@ from lib.rohe.restService import RoheRestObject
 from qoa4ml.QoaClient import QoaClient
 
     
-# class ClassificationRestService():
 class InferenceServiceExecutor(RoheRestObject):
     '''
     '''
@@ -38,12 +37,14 @@ class InferenceServiceExecutor(RoheRestObject):
         # self.pipeline_id: str = self.conf.get('pipeline_id') or "pipeline_sample"
         self.pipeline_id: str = self.conf['pipeline_id']
 
-
         ############################################################################################################################################
         # The REST AGENT should not manage ML model. We should separate REST and ML -> Use classificationObject in module to manage ML models
         # for example:
         # self.MLAgent = ObjectClassificationAgent()
         ############################################################################################################################################
+
+        # model lock
+        self.model_lock = self.conf['lock']
 
         # ML agent
         self.MLAgent: ObjectClassificationAgent = self.conf['MLAgent']
@@ -55,60 +56,55 @@ class InferenceServiceExecutor(RoheRestObject):
         # to be flexible to switch mode 
         # between send result to either kafka topic
         # or send to mongodb 
-
         self.quix_producer: QuixStreamProducer = self.conf['quix_producer'] 
         self.mongo_connector: MongoDBConnector = self.conf['mongo_connector'] 
         
-        # set model lock
-        self.model_lock = self.conf['lock']
-
 
     def get(self):
         try:
-            response = f"This is Object Classification Server. \n The input shape: {self.MLAgent.input_shape}"
+            response = f"This is Object Classification Server. \n The only accepted input shape: {self.MLAgent.input_shape}"
             return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
         except Exception as e:
             print("Exception:", e)
             return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
 
+
     def post(self):
         """
         Handles POST requests for the inference service (prediction request from client).
-        # Command Descriptions:
-        # - predict: get an image attached from the request and returns a prediction.
+        get an image attached from the request and returns a dictionary as prediction result.
         """
         if self.qoaClient:
             self.qoaClient.timer() 
-        try:
-            # command = request.form.get('command')
-            # handler = self.post_command_handlers.get(command)
 
-            # if handler:
-            #     response = handler(request)
-            response = self._handle_predict_req(request)
+        try:
+            response, inference_result = self._handle_predict_req(request)
             if self.qoaClient:
                 self.qoaClient.timer()
-                
-            result = json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
-            # else:
-            #     result = json.dumps({"response": "Command not found"}), 404, {'Content-Type': 'application/json'}
+
+            if inference_result is None:
+                result = json.dumps({'response': response, 'inference_result': None}), 404, {'Content-Type': 'application/json'}
+            else: 
+                result = json.dumps({'response': response, 'inference_result': inference_result}), 200, {'Content-Type': 'application/json'}
             
         except Exception as e:
             print("Exception:", e)
             result = json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
         
+        # qoa4ml service
         if self.qoaClient:
-            self.qoaClient.timer() 
-        # if command == "predict":
-        try:
-            if self.qoaClient:
-                self.qoaClient.observeInferenceMetric("confidence", float(response['confidence_level']))
-        except Exception as e:
-            print(e)
+            try:
+                self.qoaClient.timer() 
+                if inference_result is None:
+                    confidence = None
+                else:
+                    confidence = float(inference_result['confidence_level'])
+                    
+                self.qoaClient.observeInferenceMetric("confidence", confidence)
+                report = self.qoaClient.report(submit=True)
 
-        if self.qoaClient:
-            report = self.qoaClient.report(submit=True)
-#             print(report)
+            except Exception as e:
+                print(e)
 
 
         return result
@@ -118,36 +114,73 @@ class InferenceServiceExecutor(RoheRestObject):
     # image_bytes = image_np.tobytes()
     # # Metadata and command
     # metadata = {'shape': '32,32,3', 'dtype': str(image_np.dtype)}
-    # payload = {'command': 'predict', 'metadata': json.dumps(metadata)}
+    ## payload = {'command': 'predict', 'metadata': json.dumps(metadata)}
+    # payload = {'metadata': json.dumps(metadata)}
+
     # files = {'image': ('image', image_bytes, 'application/octet-stream')}
     # requests.post('http://server-address/api-name', data=payload, files=files)
-    def _handle_predict_req(self, request: request):
-        metadata = self._get_image_meta_data(request= request)
-        matched_dim = self._check_dim(metadata= metadata)
-        if matched_dim:
+    def _handle_predict_req(self, request: request) ->  Tuple[str, dict]:
+        inference_result = None
+        ### METADATA ####
+        metadata = self._get_image_metadata(request= request)
+        if metadata is None:
+            response = f'There is no metadata with this request. Cannot retrieve the image for the inference stage'
+            return response, inference_result
+        try: 
+            request_input_shape = pipeline_utils.convert_str_to_tuple(metadata['shape'])
+        except:
+            response = f'metadata of the image is wrong.'
+            return response, inference_result
+
+        if self.qoaClient:
+            self.qoaClient.observeMetric("image_width", request_input_shape[0], 1)
+            self.qoaClient.observeMetric("image_height", request_input_shape[1], 1)
+            model_metadata = self.MLAgent.get_model_metadata()
+            for attribute, value in model_metadata.items():
+                self.qoaClient.observeInferenceMetric(attribute, value)
+
+        model_input_shape = self.MLAgent.get_input_shape()
+        matched_dim = request_input_shape == model_input_shape
+
+        if not matched_dim:
+            response = f"Image shape is not matched with the input shape of the model {model_input_shape}"
+            return response, inference_result
+
+        try:
             dtype = metadata['dtype']
             binary_encoded = request.files['image']
-            # Convert the binary data to a numpy array and decode the image
-            image = pipeline_utils.decode_binary_image(binary_encoded, dtype)
-            if image is not None:
-                try:
-                    with self.model_lock:
-                        result = self.MLAgent.predict(image)
-                        # a function here to either publish to kafka topic
-                        # or write data to mongodb server
-                        self._publish_predict_request(request_info= metadata, prediction= result)
-                        return result
-                except:
-                    return "something wrong with the model"
-            else:
-                return "something wrong with the retrieving image process"
-        else:
-            return f"Image shape is not matched with the input shape of the model {self.MLAgent.input_shape} "
+        except:
+            response = f"There is no binary image attached to the request or there is no specification of dtype or both"
+            return response, inference_result
+
+        # Convert the binary data to a numpy array and decode the image
+        image = pipeline_utils.decode_binary_image(binary_encoded, dtype, shape= model_input_shape)
+        if image is None:
+            response = "something wrong with the retrieving image process"
+            return response, inference_result
+        try:
+            with self.model_lock:
+                inference_result = self.MLAgent.predict(image)
+        except:
+            response = "something wrong with the model"
+            return response, inference_result
+        
+        if inference_result is None:
+            response = "ML model fail to make prediction"
+            return response, inference_result
+        
+        # send the inference result to appropriate channel base on the ensemble config
+        self._publish_inference_result(request_info= metadata, inference_result= inference_result)
+        response = f"Success to make inference prediction from the image"
+        return response, inference_result
+
             
-    def _publish_predict_request(self, request_info, prediction):
-        message = self._generate_publish_message(request_info, prediction)
+
+    def _publish_inference_result(self, request_info: dict, inference_result: dict):
+        ''''''
+        message = self._generate_publish_message(request_info, inference_result)
         # if self.ensemble == True:
-        mode = self.ensemble_controller.ensemble_modee() == True
+        mode = self.ensemble_mode.get_mode() == True
         print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.ensemble_modee()}")
         if mode:
             print(f"mode when entering kafka: {mode}")
@@ -155,7 +188,6 @@ class InferenceServiceExecutor(RoheRestObject):
             self.kafka_producer.produce_values(message= message)
         else:
             print(f"mode when entering mongo: {mode}")
-            # print("About to publish to mongodb")
             # print(f"This is the published data: {message}, and its type: {type(message)}")
             # Use the upload method to upload the data
             try:
@@ -164,9 +196,10 @@ class InferenceServiceExecutor(RoheRestObject):
             except Exception as e:
                 print(f'Failed to upload data. Error: {e}')
 
-    def _generate_publish_message(self, request_info, prediction) -> Dict[str, str]:
-        print(f"\n\n\n This is the prediction: {prediction}")
-        pred = prediction["prediction"]
+    def _generate_publish_message(self, request_info: dict, inference_result: dict) -> Dict[str, str]:
+        ''''''
+        print(f"\n\n\n This is the inference resulst: {inference_result}")
+        pred = inference_result["prediction"]
         # print(f"\n\n\n\n\n\n This is the type of the prediction: {type(pred)}\n\n")
 
         ### METADATA ####
@@ -176,8 +209,9 @@ class InferenceServiceExecutor(RoheRestObject):
             "pipeline_id": self.pipeline_id,
             "inference_model_id": self.MLAgent.get_model_id(),
         }
+
         # if self.ensemble:
-        if self.ensemble_controller.ensemble_modee() == True:
+        if self.ensemble_mode.get_mode() == True:
             message = self._proccess_message_for_ensemble(message= message)
 
         print(f"This is the message: {message}\n\n\n")
@@ -187,23 +221,8 @@ class InferenceServiceExecutor(RoheRestObject):
         message['prediction'] = np.array(message['prediction'])
         return message
     
-    def _check_dim(self, metadata) -> bool:
-        original_shape = pipeline_utils.convert_str_to_tuple(metadata['shape'])
-        print(f"This is the shape of the received image: {original_shape}")
-
-        if self.qoaClient:
-            self.qoaClient.observeMetric("image_width", original_shape[0], 1)
-            self.qoaClient.observeMetric("image_height", original_shape[1], 1)
-        
-        model_metadata = self.MLAgent.get_model_metadata()
-        for key in list(model_metadata.keys()):
-            if self.qoaClient:
-                self.qoaClient.observeInferenceMetric(key, model_metadata[key])
-        if original_shape == self.MLAgent.input_shape:
-            return True
-        return False
     
-    def _get_image_meta_data(self, request) -> Optional[Dict]:
+    def _get_image_metadata(self, request) -> Optional[Dict]:
         try:
             metadata_json = request.form.get('metadata')
             if metadata_json is None:
@@ -213,9 +232,4 @@ class InferenceServiceExecutor(RoheRestObject):
         except json.JSONDecodeError:
             return None  
     
-
-
-# def load_minio_storage(storage_info):
-#     minio_connector = MinioConnector(storage_info= storage_info)
-#     return minio_connector
 
