@@ -8,28 +8,24 @@ from typing import Dict, Optional
 from app.modules.image_processing.classificationObject import ClassificationObjectV1
 from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 
+import app.object_classification.modules.utils as pipeline_utils
+
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
+
+from app.object_classification.modules.common import InferenceEnsembleState
 
 from lib.modules.restService.roheService import RoheRestObject
 
 from qoa4ml.QoaClient import QoaClient
 
-
-# class EnsembleState():
-#     def __init__(self, mode: bool):
-#         self.mode = mode
-        
-#     def change_mode(self, mode: bool):
-#         self.mode = mode
-
-#     def get_mode(self) -> bool:
-#         return self.mode
     
 # class ClassificationRestService():
-class ClassificationRestService(RoheRestObject):
+class InferenceServiceExecutor(RoheRestObject):
     def __init__(self, **kwargs):
-        super().__init__()
+        log_lev = self.conf.get('log_lev', 2)
+        super().__init__(log_level= log_lev)
+
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
@@ -38,12 +34,11 @@ class ClassificationRestService(RoheRestObject):
             self.qoaClient: QoaClient = self.conf['qoaClient']
         else:
             self.qoaClient = None
-        log_lev = self.conf.get('log_lev', 2)
-        self.set_logger_level(logging_level= log_lev)
 
         # self.ensemble = self.conf['ensemble'] or False
-        self.ensemble_controller: EnsembleState = self.conf['ensemble_controller']
-        print(f"This is the current ensemble mode: {self.ensemble_controller.get_mode()}")
+        self.ensemble_mode: InferenceEnsembleState = self.conf['ensemble_controller']
+        print(f"This is the current ensemble mode: {self.ensemble_mode.get_mode()}")
+
         self.pipeline_id = self.conf.get('pipeline_id') or "pipeline_sample"
 
         # print(f"This is the ensemble mode: {self.ensemble}")
@@ -124,7 +119,6 @@ class ClassificationRestService(RoheRestObject):
             except Exception as e:
                 print(e)
 
-
         if self.qoaClient:
             report = self.qoaClient.report(submit=True)
 #             print(report)
@@ -139,7 +133,6 @@ class ClassificationRestService(RoheRestObject):
         except Exception as e:
             print("Exception:", e)
             return json.dumps({"error": "An error occurred"}), 500, {'Content-Type': 'application/json'}
-
 
     def _handle_get_request(self, request):
         return f"Hello from Rohe Object Classification Server. \nThis is the input shape: {self.MLAgent.input_shape}"
@@ -159,7 +152,7 @@ class ClassificationRestService(RoheRestObject):
             dtype = metadata['dtype']
             binary_encoded = request.files['image']
             # Convert the binary data to a numpy array and decode the image
-            image = self._retrieve_image(binary_encoded, dtype)
+            image = pipeline_utils.decode_binary_image(binary_encoded, dtype)
             if image is not None:
                 try:
                     with self.model_lock:
@@ -178,8 +171,8 @@ class ClassificationRestService(RoheRestObject):
     def _publish_predict_request(self, request_info, prediction):
         message = self._generate_publish_message(request_info, prediction)
         # if self.ensemble == True:
-        mode = self.ensemble_controller.get_mode() == True
-        print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.get_mode()}")
+        mode = self.ensemble_controller.ensemble_modee() == True
+        print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.ensemble_modee()}")
         if mode:
             print(f"mode when entering kafka: {mode}")
             # print("About to send message to kafka topic")
@@ -208,7 +201,7 @@ class ClassificationRestService(RoheRestObject):
             "inference_model_id": self.MLAgent.get_model_id(),
         }
         # if self.ensemble:
-        if self.ensemble_controller.get_mode() == True:
+        if self.ensemble_controller.ensemble_modee() == True:
             message = self._proccess_message_for_ensemble(message= message)
 
         print(f"This is the message: {message}\n\n\n")
@@ -219,9 +212,9 @@ class ClassificationRestService(RoheRestObject):
         return message
     
     def _check_dim(self, metadata) -> bool:
-        original_shape = get_image_dim_from_str(metadata['shape'])
+        original_shape = pipeline_utils.convert_str_to_tuple(metadata['shape'])
         print(f"This is the shape of the received image: {original_shape}")
-        # print(f"This is the shape of the received image: {original_shape}")
+
         if self.qoaClient:
             self.qoaClient.observeMetric("image_width", original_shape[0], 1)
             self.qoaClient.observeMetric("image_height", original_shape[1], 1)
@@ -314,12 +307,12 @@ class ClassificationRestService(RoheRestObject):
 
             # ensemble_mode= bool(request.form.get('ensemble_mode'))
             print(f"\n\n\n\nThis is the request ensemble mode: {ensemble_mode}")     
-            message = f"Successfully change the ensemble mode from {self.ensemble_controller.get_mode()} to {ensemble_mode}"
+            message = f"Successfully change the ensemble mode from {self.ensemble_controller.ensemble_modee()} to {ensemble_mode}"
             with self.model_lock:
-                print(f"Mode before changing: {self.ensemble_controller.get_mode()}")
-                self.ensemble_controller.change_mode(ensemble_mode)
-                # print(f"The current ensemble mode after making request: {self.ensemble_controller.get_mode()}\n\n\n")
-                print(f"Mode after changing: {self.ensemble_controller.get_mode()}")
+                print(f"Mode before changing: {self.ensemble_controller.ensemble_modee()}")
+                self.ensemble_controller.ensemble_modee(ensemble_mode)
+                # print(f"The current ensemble mode after making request: {self.ensemble_controller.ensemble_modee()}\n\n\n")
+                print(f"Mode after changing: {self.ensemble_controller.ensemble_modee()}")
 
             return message
                 
@@ -402,19 +395,16 @@ class ClassificationRestService(RoheRestObject):
     # def download_minio_weights_file(minio_config, url):
     #     pass
 
-    def _retrieve_image(self, binary_encoded, dtype):
-        try:
-            image = np.frombuffer(binary_encoded.read(), dtype=dtype)
-            image = image.reshape(self.MLAgent.input_shape)
-        except:
-            image = None
-        return image
+    # def _retrieve_image(self, binary_encoded, dtype):
+    #     try:
+    #         image = np.frombuffer(binary_encoded.read(), dtype=dtype)
+    #         image = image.reshape(self.MLAgent.input_shape)
+    #     except:
+    #         image = None
+    #     return image
 
 
 def load_minio_storage(storage_info):
     minio_connector = MinioConnector(storage_info= storage_info)
     return minio_connector
 
-
-def get_image_dim_from_str(str_obj) -> tuple:
-    return tuple(map(int, str_obj.split(',')))

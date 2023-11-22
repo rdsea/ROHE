@@ -12,8 +12,8 @@ from flask_restful import Resource, Api
 
 
 class RoheRestObject(Resource, RoheObject):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, log_level: int = 2) -> None:
+        super().__init__(logging_level= log_level)
         
     def get(self):
         # Processing GET request
