@@ -36,9 +36,9 @@ class ImageInfoService(RoheRestObject):
         command = request.form.get('command')
         print(f"This is the command get from the client: {command}")
         if command == 'add':
-            return self._add_image()
+            return self._add_image(request)
         elif command == 'complete':
-            return self._complete_processing()
+            return self._complete_processing(request)
         else:
             # return jsonify({"error": "Invalid command"}), 400
             # return json.dumps({"error": "Invalid command"}), 400, {'Content-Type': 'application/json'}
@@ -66,7 +66,7 @@ class ImageInfoService(RoheRestObject):
             return json.dumps({"status": "no unprocessed images"}), 404, {'Content-Type': 'application/json'}
 
     
-    def _add_image(self):
+    def _add_image(self, request: request):
         # image_info = {
         #     'request_id': request.form.get('request_id'),
         #     'timestamp': request.form.get('timestamp'),
@@ -83,7 +83,7 @@ class ImageInfoService(RoheRestObject):
             return json.dumps({"status": "success"}), 200, {'Content-Type': 'application/json'}
         else:
             print(f"This is the image info that does not satisfy the requirement of having all the field: {image_info}")
-            print(f"Why failing the test: {image_info.values()}")
+            # print(f"Why failing the test: {image_info.values()}")
             return json.dumps({"error": f"Some required fields are missing, the required field are: {required_fields}"}), 400, {'Content-Type': 'application/json'}
 
     def _complete_processing(self):

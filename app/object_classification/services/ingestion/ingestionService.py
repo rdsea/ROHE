@@ -85,6 +85,8 @@ class IngestionService(RoheRestObject):
                 date_str = pipeline_utils.get_current_utc_timestamp(option='date_only')
 
             remote_filename = f"{device_id}/{str(date_str)}/{request_id}.{image_extension}"
+
+            ### DATA #### binary_file
             upload_success = self.minio_connector.upload_binary_data(binary_data= binary_file, remote_file_path= remote_filename)
 
             # send request info to image info service

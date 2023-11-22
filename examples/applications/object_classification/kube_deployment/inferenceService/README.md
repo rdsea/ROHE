@@ -1,6 +1,6 @@
 # Inference Service
 
-_Description_: This microservice is responsible for executing machine learning inference on the ingested images. It receives an image, processes it using the designated machine learning model, and returns the inferred results. This service works in tandem with the processing service to ensure images are analyzed and results are forwarded to the aggregation service.
+_Description_: This microservice is responsible for executing machine learning inference on the processed images. It receives an image, processes it using the designated machine learning model, and returns the inferred results. This service works in tandem with the processing service to ensure images are analyzed and results are forwarded to the aggregation service.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)

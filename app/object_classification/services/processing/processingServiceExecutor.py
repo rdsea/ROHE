@@ -60,7 +60,7 @@ class ProcessingServiceExecutor(RoheObject):
     # running logic
     def run(self):
         while True:
-            task = self._get_image_from_image_info_service()
+            task = self._get_image_from_image_info_service(requests)
             # exit(0)
             if task:
                 self.thread_pool.submit(self._processing, task)
@@ -137,14 +137,11 @@ class ProcessingServiceExecutor(RoheObject):
             "processed_image": processed_image
         }
 
-        # print(f"This is the processing result type: {type(processing_result)}")
-
-        # Notify task coordinator of completion
+        # Notify image info service of completion
         form_payload = task
         form_payload['command'] = 'complete'
-
-        # logging.info(f"This is the form sent to the server: {form_payload}")
         response = requests.post(self.image_info_service_url, data=form_payload)
+
         print(f"This is the response from image service info: {response.json()}")
         if response.status_code != 200:
             logging.info(f"Failed to notify Image Info Service the completion of task {task}")
@@ -163,7 +160,8 @@ class ProcessingServiceExecutor(RoheObject):
     #     except:
     #         return None
 
-    def _get_image_from_image_info_service(self) -> dict:
+
+    def _get_image_from_image_info_service(self, requests) -> dict:
         response = requests.get(self.image_info_service_url)
         if response.status_code == 200:
             response_dict = json.loads(response.text) 
@@ -178,6 +176,7 @@ class ProcessingServiceExecutor(RoheObject):
         else:
             logging.info("No image to be processed yet")
             return None
+
 
     def _download_image_from_minio(self, image_url: str) -> str:
         logging.info(f"about to download image from minio: {image_url}")

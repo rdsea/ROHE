@@ -195,11 +195,12 @@ class ClassificationRestService(RoheRestObject):
             except Exception as e:
                 print(f'Failed to upload data. Error: {e}')
 
-    def _generate_publish_message(self, request_info, prediction):
+    def _generate_publish_message(self, request_info, prediction) -> Dict[str, str]:
         print(f"\n\n\n This is the prediction: {prediction}")
         pred = prediction["prediction"]
         # print(f"\n\n\n\n\n\n This is the type of the prediction: {type(pred)}\n\n")
 
+        ### METADATA ####
         message = {
             "request_id": request_info['request_id'],
             "prediction": pred,

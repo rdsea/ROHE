@@ -8,6 +8,9 @@ import types
 from typing import Callable
 
 def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
+    '''
+    Retrieves a function by name from a given module
+    '''
     try: 
         func: Callable = getattr(module, func_name)
         return func
@@ -75,12 +78,15 @@ def message_deserialize(string_object) -> dict:
 
 
 def extract_file_extension(url):
+    '''
+    Extracts the file extension from a URL or file path
+    '''
     # Regular expression to match the file extension
     match = re.search(r'\.([^.\/]+)$', url)
     if match:
-        return match.group(1)  # Returns the file extension without the leading period
+        return match.group(1)
     else:
-        return ""  # No extension found
+        return ""
 
 
 def convert_str_to_tuple(str_obj) -> tuple:

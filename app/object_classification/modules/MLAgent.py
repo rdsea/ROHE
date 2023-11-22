@@ -1,22 +1,23 @@
-# This file is used to define a module to manage ML model and inference
+
 import os
 import json
 import tensorflow as tf
 import numpy as np
 from app.object_classification.lib.roheMLAgent import RoheMLAgent
 
+import app.object_classification.modules.utils as pipeline_utils
 
-class MLAgent(RoheMLAgent):
+class ObjectClassificationAgent(RoheMLAgent):
     def __init__(self, model_info: dict, input_shape: tuple = (32, 32, 3), 
                  log_level: int = 2, model_from_config = True):
+        
         if type(input_shape) == str:
-            input_shape = _get_image_dim_from_str(input_shape)
+            input_shape = pipeline_utils.convert_str_to_tuple(input_shape)
             
         self.model_from_config = model_from_config
         self.current_model_id: str = model_info['chosen_model_id']
         
         super() .__init__(model_info= model_info, input_shape= input_shape, log_level= log_level)
-        self.set_logger_level(logging_level= log_level)
         
         
     def load_model_info(self, model_info) -> dict:
@@ -77,40 +78,36 @@ class MLAgent(RoheMLAgent):
         try:
             image = image[np.newaxis, ...]  # Add a batch dimension
             predicted_class_index, confidence_level, prediction = self._predict(image)
+            result = {"class": int(predicted_class_index), 
+                    "confidence_level": float(confidence_level), 
+                    "prediction": prediction.tolist()[0]}
         except:
-            # some other error that didn't handle yet
-            predicted_class_index = -1
-            confidence_level = -1
-            prediction = None
-
-        result = {"class": int(predicted_class_index), 
-                  "confidence_level": float(confidence_level), 
-                  "prediction": prediction.tolist()[0]}
+            # predicted_class_index = -1
+            # confidence_level = -1
+            # prediction = None
+            result = None
 
         return result
     
     def _predict(self, image: np.ndarray):
-        prediction = self.model.predict(image)
-        predicted_class_index = np.argmax(prediction)
-        confidence_level = prediction[0, predicted_class_index]
+        prediction: np.ndarray = self.model.predict(image)
+        predicted_class_index: int = np.argmax(prediction)
+        confidence_level: float = prediction[0, predicted_class_index]
         # prediction = prediction.tolist()
         return predicted_class_index, confidence_level, prediction
 
     def get_weights(self):
         return self.model.get_weights()
 
-    def set_weights(self, weights_array):
+    def set_weights(self, weights_array: np.ndarray):
         self.model.set_weights(weights_array)
 
-    def load_weights(self, weights_file):
-        self.model.load_weights(weights_file)
+    def load_weights(self, file_path: str):
+        self.model.load_weights(file_path)
     
     def get_model_metadata(self):
         metadata = {}
         metadata["no_layer"] = len(self.model.layers)
         metadata["no_parameters"] = self.model.count_params()
-        # Todo: more metric
         return(metadata)
 
-def _get_image_dim_from_str(str_obj) -> tuple:
-    return tuple(map(int, str_obj.split(',')))
