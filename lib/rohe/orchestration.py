@@ -12,7 +12,7 @@ from lib.rohe.roheObject import RoheObject
 
 
 from lib.modules.orchestration.resourceManagement.resource import Node, Service, Service_Queue
-from lib.modules.orchestration.algorithm.scoring import orchestrate as scoringOrchestrate
+from core.orchestration.algorithm.scoring import orchestrate as scoringOrchestrate
 
 # def get_dict_at(dict, i):
 #     keys = list(dict.keys())
