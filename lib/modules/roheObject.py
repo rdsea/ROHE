@@ -40,12 +40,4 @@ class RoheObject(object):
             self.log("Error {} while logging: {}".format(type(e),e.__traceback__),4)
             traceback.print_exception(*sys.exc_info())
 
-# For testing
-if __name__ == '__main__':
-    roheobj = RoheObject(logging_level=3)
-    roheobj.log("level not set")
-    roheobj.log("level 1", 1)
-    roheobj.log("level 2", 2)
-    roheobj.log("level 3", 3)
-    roheobj.log("level 4", 4)
-    roheobj.log("level 5", 5)
+

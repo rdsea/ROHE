@@ -17,8 +17,8 @@ DEFAULT_CONFIG_PATH= "configurations/observationConfig.yaml"
 DEFAULT_DATA_PATH = "/agent/data/"
 DEFAULT_MODULE_PATH = "/agent/userModule/"
 
-from lib.modules.roheObject import RoheObject
-from lib.modules.observation.analysis.window import EventBuffer, TimeBuffer
+from lib.rohe.roheObject import RoheObject
+from lib.common.window import EventBuffer, TimeBuffer
 import lib.roheUtils as rohe_utils
 
 

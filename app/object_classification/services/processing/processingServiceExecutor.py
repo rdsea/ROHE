@@ -18,7 +18,7 @@ from app.object_classification.lib.connectors.storage.minioStorageConnector impo
 import app.object_classification.modules.utils as pipeline_utils
 import app.object_classification.modules.image_processing_functions as image_processing_func
 
-from lib.modules.roheObject import RoheObject
+from lib.rohe.roheObject import RoheObject
 
 class ProcessingServiceExecutor(RoheObject):
     def __init__(self, config: dict, log_level=2):

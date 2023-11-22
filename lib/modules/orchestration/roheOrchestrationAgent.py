@@ -7,7 +7,7 @@ import pandas as pd
 import argparse, random, sys
 lib_path = qoaUtils.get_parent_dir(__file__,3)
 sys.path.append(lib_path)
-from lib.modules.roheObject import RoheObject
+from lib.rohe.roheObject import RoheObject
 
 
 
