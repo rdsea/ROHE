@@ -2,7 +2,7 @@
 import yaml, os
 import qoa4ml.qoaUtils as qoaUtils
 from jinja2 import Environment, FileSystemLoader
-rohe_dir=os.getenv("ROHE_DIR")
+rohe_dir=os.getenv("ROHE_PATH")
 if (rohe_dir is None):
     print(f'ROHE DIR is not set. Assume the current dir')
     rohe_dir="."

@@ -4,20 +4,26 @@
 
 ![ROHE services](documents/img/architecture.png)
 
-## Orchestration Module
-## 1. Resource
-The framework manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
+## Orchestration Module (in maintenance)
+### 1. Resource Management (Tri)
+The module provide the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
 - Node: physical node
 - Deployment: each application has multiple microservices. Each service has its own Deployment setup specify: image, resource requirement, replicas, etc
 - Service: each microservice is advertized with a service name within K3s network so that other services can communicate with it.
 - ConfigMap: provide initial environment variable for docker containers of each deployment when starting.
+- resource: provide abstract, high-level class to mange resources (Service Queue and Node Collection).
 
-## 2. Algorithm
+### 2. Deployment Management (Tri)
+- Provide utilities for generating deployment files from template (`$ROHE_PATH/templates/deployment_template.yaml`)
+- Deploy services, pod based on generated deployment files
+- TO DO: develop abstract function to improve the extendability 
+### 3. Algorithm (Tri)
 Sub-module:
 - Selecting node for each deployment
 - Profiling, categorizing microservices
 - Elastic scaling
 
+## Observation Module
 
 ## ROHE deployment & management
 
