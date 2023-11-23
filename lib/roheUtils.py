@@ -229,3 +229,13 @@ def load_module(file_path, module_name):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+def list_files(folder_path):
+    print(folder_path)
+    file_list = {}
+    for root, dirs, files in os.walk(folder_path):
+        for item in files:
+            file_path = os.path.abspath(os.path.join(folder_path, item))
+            file = {item: file_path}
+            file_list.update(file)
+    return file_list
