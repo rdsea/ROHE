@@ -8,21 +8,102 @@
 ### 1. Resource Management (Tri)
 The module provide the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
 - Node: physical node
-- Deployment: each application has multiple microservices. Each service has its own Deployment setup specify: image, resource requirement, replicas, etc
-- Service: each microservice is advertized with a service name within K3s network so that other services can communicate with it.
+- Deployment: each application has multiple microservices. Each microservice has its own Deployment setup specify: image, resource requirement, replicas, etc
+- Microservice: each microservice is advertized with a microservice name within K3s network so that other microservices can communicate with it.
 - ConfigMap: provide initial environment variable for docker containers of each deployment when starting.
-- resource: provide abstract, high-level class to mange resources (Service Queue and Node Collection).
+- resource: provide abstract, high-level class to mange resources (Microservice Queue and Node Collection).
 
 ### 2. Deployment Management (Tri)
 - Provide utilities for generating deployment files from template (`$ROHE_PATH/templates/deployment_template.yaml`)
-- Deploy services, pod based on generated deployment files
+- Deploy microservices, pod based on generated deployment files
 - TO DO: develop abstract function to improve the extendability 
 ### 3. Algorithm (Tri)
-Sub-module:
-- Selecting node for each deployment
-- Profiling, categorizing microservices
-- Elastic scaling
+This module provide functions to select resource to allocate microservices. 
 
+Current implementation: Scoring Algorithm
+- Input: 
+    - Microservice from a microservice Queue (queue of microservice need to be allocated), each microservice in the queue include 
+        - the number of instances (replicas/scales)
+        - CPU requirement (array of CPU requirements on every CPU core). Example: [100,50,50,50] - the microservice use 4 CPUs with 100, 50, 50, and 50 millicpu on each core respectively.
+        - Memory requirement (rss, vms - MByte)
+        - Accelerator requirement (GPU - %)
+        - Sensitivity: 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitve; 3 CPU & Memory sensitive
+        - Other metadata: microservice name, ID, status, node (existing deployment), running (existing running instance), container image, ports configuration
+
+    Example: 
+    ```json
+    {
+        "EW:VE:TW:WQ:01":{
+            "microservice_name":"object_detection_web_service",
+            "node": {},
+            "status": "queueing",
+            "instanceIDs": [],
+            "running": 0,
+            "image": "rdsea/od_web:2.0",
+            "ports": [4002],
+            "port_mapping": [{
+                "con_port": 4002,
+                "phy_port": 4002
+            },{
+                "con_port": 4003,
+                "phy_port": 4003
+            }],
+            "cpu": 550,
+            "accelerator": {
+                "gpu": 0
+            },
+            "memory": {
+                "rss": 200,
+                "vms": 500
+            },
+            "processor": [500,50],
+            "sensitivity": 0,
+            "replicas": 2
+    }
+    ```
+    - Node Collection: list of available nodes for allocating microservices each node includes information of capacity and used resources:
+        - CPU (millicpu)
+        - Memory (rss, vms - MByte)
+        - Accelerator (GPU - %)
+
+    Example
+    ```json
+    "node1":{
+        "node_name":"RaspberryPi_01",
+        "MAC":"82:ae:30:11:38:01",
+        "status": "running",
+        "frequency": 1.5,
+        "accelerator":{}, 
+        "cpu": {
+            "capacity": 4000,
+            "used": 0
+        },
+        "memory": {
+            "capacity": {
+                "rss": 4096,
+                "vms": 4096
+            },
+            "used": {
+                "rss": 0,
+                "vms": 0
+            }
+        },
+        "processor": {
+            "capacity": [1000,1000,1000,1000],
+            "used": [0,0,0,0]
+        }
+    }, ...
+    ```
+
+Workflow of Scoring Algorithm:
+![Scoring Workflow](documents/img/workflow_scoring.png)
+- Updating Microservice Queue
+- Filtering Nodes from the Node Collection
+- Scoring filtered node
+- Selecting node based on the score, applying different strategies: first/best/worst-fit
+
+
+- TO DO: define abstract function for each module 
 ## Observation Module
 
 ## ROHE deployment & management

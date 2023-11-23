@@ -4,7 +4,7 @@ import numpy as np
 # import sys
 # main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 # sys.path.append(main_path)
-from lib.modules.orchestration.deploymentManagement.kube_generator import kube_generator
+from core.orchestration.deploymentManagement.kube_generator import kube_generator
 
 """
 Node config:
