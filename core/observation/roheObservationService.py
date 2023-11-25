@@ -7,7 +7,7 @@ sys.path.append(ROHE_PATH)
 
 from lib.rohe.restService import RoheRestService
 import lib.roheUtils as rohe_utils
-from lib.rohe.observation import RoheObservation, RoheRegistration
+from core.observation.restService import RoheObservation, RoheRegistration
 
 
 

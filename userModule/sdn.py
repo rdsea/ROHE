@@ -4,9 +4,6 @@ from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 from sklearn.model_selection import train_test_split
-
-
-
 import traceback,sys
 
 ############################################# FUNCTION #############################################

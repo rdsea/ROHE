@@ -2,10 +2,87 @@
 
 ## High-level view
 
-![ROHE services](documents/img/architecture.png)
+<figure>
+<p style="text-align:center">
+<img src="documents/img/architecture.png" alt="ROHE High-level View" width="1000"/>
+</p>
+<figcaption>
+<p style="text-align:center">
+Fig. ROHE High-level View
+</p>
+</figcaption>
+</figure>
 
-## Orchestration Module (in maintenance)
-### 1. Resource Management (Tri)
+## 1. Observation Service 
+### 1.1 User Guide
+- Prerequisite: before using Observation Agent, users need:
+    - Database service (e.g., MongoDB)
+    - Communication service (e.g., AMQP message broker)
+    - Container environment (e.g., Docker)
+    - Visualization service (e.g., Prometheus, Graphana - optional)
+- Observation Service includes registration service and agent manager. Users can modify Observation Service configurations in `$ROHE_PATH/config/observationConfig.yaml`. 
+The configuration defines:
+    - Protocols with default configurations for public (connector) and consume (collector) metrics.
+    - Database configuration where metrics and application data/metadata are stored.
+    - Container Image of the Observation Agent
+    - Logging Level (debugging, warning, etc)
+- To deploy Observation Service, navigate to `$ROHE_PATH/bin`.
+```bash
+$ ./start_obervation_service.sh
+```
+- Application Registration
+    - Users can register the application using `rohe_cli` in the `/bin` folder. Application metadata and related configurations will be saved to the Database
+    -  When register an end-to-end ML application, the users must provide application name (`app_name` - string), run ID (`runID` - string), user ID (`userID` - string), and send registration request to the Observation Service via its `url`.
+    - The Observation Service will generate:
+    - Application ID: `appID`
+    - Database name: `db` for saving metric reports in runtime
+    - Qoa configuration: `qoa_config` for reporting metrics
+    
+
+Example
+
+```bash
+$ rohe_cli register-app --app <application_name> --run <run_ID> --user <user_ID> --url <resigstration_service_url> --output_dir <folder_path_to_save_app_metadata>
+```
+- Then, users must implement QoA probes manually into the application. Probes use this metadata to register with the observation service. The metadata can be extended with information like stageID microserviceID, method, role, etc. After the registration, the probes will receive communication protocol & configurations to report metrics.
+- While the applications are running, the reported metrics are processed by an Observation Agent.
+The Agent must be configured with application name, command, stream configuration including:
+    - Processing window: interval, size
+    - Processing module: specify `parser` and `function` names to process metric reports.
+    User must define these processing moduled in `$ROHE_PATH/userModule` (e.g., `userModule/common`), including metric `parser` for parsing metric reports and `function` for window processing. 
+
+- To start the Agent, the user can use `rohe_cli`:
+```bash
+$ rohe_cli start-obsagent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
+```
+- The Observation service will start the Agent on a container (e.g., Docker container). Metric processing results from the Agent are saved to files or database or message broker (developing) or Prometheus/Grafana (developing) depending on Agent configuration
+
+- To stop the Agent, the user can also use `rohe_cli`:
+```bash
+$ rohe_cli stop-obsagent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
+```
+
+- To delete/unregister an application using `rohe_cli`:
+```bash
+$ rohe_cli delete-app --app <application_name> --url <resigstration_service_url>
+```
+
+### 1.2 Development Guide
+#### 1.2.1 Registration Service
+- This service allows users to register and unregister applications. Service receives commands from REST, developer can modify `core.observation.restService` module to support more commands for editing/updating application.
+- Currently this service supports MongoDB as database and AMPQ as communication protocol. The service will also support other communication protocols and databases
+
+#### 1.2.2 Observation Agent
+- Agents are currently deployed on the local docker environment: `core.observation.containerizedAgent`.
+- To Do: implement remote deployment on several container environments (Docker, Kubernetes, etc).
+
+
+
+## 2. Orchestration Service (in maintenance)
+### 2.1 User Guide (Tri)
+- In maintenance - update later
+### 2.2 Development Guide (Tri)
+#### 2.2.1 Resource Management (Tri)
 The module provide the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
 - Node: physical node
 - Deployment: each application has multiple microservices. Each microservice has its own Deployment setup specify: image, resource requirement, replicas, etc
@@ -13,11 +90,11 @@ The module provide the abstract class/object to manage the infrastructure resour
 - ConfigMap: provide initial environment variable for docker containers of each deployment when starting.
 - resource: provide abstract, high-level class to mange resources (Microservice Queue and Node Collection).
 
-### 2. Deployment Management (Tri)
+#### 2.2.2 Deployment Management (Tri)
 - Provide utilities for generating deployment files from template (`$ROHE_PATH/templates/deployment_template.yaml`)
 - Deploy microservices, pod based on generated deployment files
 - TO DO: develop abstract function to improve the extendability 
-### 3. Algorithm (Tri)
+#### 2.2.3 Algorithm (Tri)
 This module provide functions to select resource to allocate microservices. 
 
 Current implementation: Scoring Algorithm
@@ -104,44 +181,15 @@ Workflow of Scoring Algorithm:
 
 
 - TO DO: define abstract function for each module 
-## Observation Module
 
-## ROHE deployment & management
-
-### Deploy ROHE
-Pre-deployment:
-- mongoDb: connection
-- message broker: connection (amqp - rabbitmq)
-- Prometheus, Graphana (optional)
-
-Edit "config/rohe.yaml" if needed and set ROHE_DIR to the /path/to/ROHE_ROOT
-```
-$export ROHE_DIR=`pwd`
-```
-
-Step 1:
-- Edit configuration: 
-    - Observation configuration: mongodb, message broker: example
-    - Orchestration configuration
-
-Step 2: 
-- Start Observation service. Assume that you are in the ROHE_ROOT:
-```
- $export PYTHONPATH=`pwd`
- $python core/observation/roheObservationService.py --conf config/observationConfig.yaml
-```
-    - Run start_observation: file -> url
-
-Step 3:
-- Start Ochestartion 
-    - Run start_orchestartion: file -> url
-
-### ROHE management
-- function: example
+## 3 Running Example
+### 3.1 Object Classification (Vuong Nguyen)
 
 
 
-## User running pipeline 
+
+
+<!-- ### User running pipeline 
 Assume user has application 
 Explain:
 - application: meaning
@@ -180,90 +228,4 @@ rename module for icsoc, journal
 ### Scenario 4: user modify pipeline to use ROHE
 
 
-## Implementation
-
-### Application Registration
-
-When register an end-to-end ML application, the operator must provide application name (`app_name` - string), run ID (`runID` - string), user ID (`userID` - string), and send registration request to the Observation Service via its `url`.
-
-
-The Observation Service will generate:
-- Application ID: `appID`
-- Stage IDs: `stageID` (for every stage within the application)
-- Microservice IDs: `microserviceID` (for every microservice)
-- Database name: `db` for saving metric reports in runtime
-- Qoa configuration: `qoa_config` for reporting metrics
-
-<figure>
-<p style="text-align:center">
-<img src="documents/img/app_registration.png" alt="Application registration" width="1000"/>
-</p>
-<figcaption>
-<p style="text-align:center">
-Fig. Application registration
-</p>
-</figcaption>
-</figure>
-
-### Observation Agent Management
-To start an observation agent for an application.
-The operator provide application name (`app_name`), application ID (`appID`) to load the agent configuration and send it to Obervation Service via its `url`.
-The example of agent configuration can be found at `example/agentConfig/<appName>`.
-The configuration will be saved in database.
-The Observation Service will start/stop the agent in `Docker` to monitor and analyse real-time metrics.
-
-<figure>
-<p style="text-align:center">
-<img src="documents/img/manage_agent.png" alt="Start/Stop observation agent" width="1000"/>
-</p>
-<figcaption>
-<p style="text-align:center">
-Fig. Start/Stop observation agent
-</p>
-</figcaption>
-</figure>
-
-
-### Monitoring Metric
-To report metrics from microservices, the microservices must be instrumented an Qoa4ML client with client metadata including
-- appName (from application registration)
-- appID (from application registration)
-- userID (ID of microservice owner)
-- method (optional)
-- role (optional - ML provider/customer)
-- microserviceID (from application registration)
-- instanceID (must be unique for every instance of the microservice - from environment variable)
-
-<figure>
-<p style="text-align:center">
-<img src="documents/img/monitoring.png" alt="Monitoring metric from microservices" width="500"/>
-</p>
-<figcaption>
-<p style="text-align:center">
-Fig. Monitoring metric from microservices
-</p>
-</figcaption>
-</figure>
-
-
-### Application Metadata stucture
-<figure>
-<p style="text-align:center">
-<img src="documents/img/datastructure.png" alt="metadata structure" width="1400"/>
-</p>
-<figcaption>
-<p style="text-align:center">
-Fig. Application metadata structure
-</p>
-</figcaption>
-</figure>
-
-### Microservice Registry
-When any microservice starts, it must register to the Registry Service (Consul)
-The registration requires:
-- Microservice name: `microserviceName` (user-defined)
-- Microservice ID: `microserviceID` (from application registration)
-- Tags: 
-    - For ML inference microservices: `modelName`, `paramsName`. For exampe: ["vgg","0"]
-- Metadata (optional): dictionary including `appName`, `appID` 
-
+ -->

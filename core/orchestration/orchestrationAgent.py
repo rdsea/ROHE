@@ -5,8 +5,8 @@ import lib.roheUtils as rohe_utils
 import argparse
 from flask import Flask
 from flask_restful import Api
-from lib.rohe.orchestration import RoheOrchestrationAgent
-from core.orchestration.service.restAgent import RoheOrchestrationService
+
+from core.orchestration.restAgent import RoheOrchestrationAgent, RoheOrchestrationService
 
 app = Flask(__name__)
 api = Api(app)

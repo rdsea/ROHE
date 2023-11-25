@@ -125,6 +125,8 @@ class RoheObservationAgent(RoheObject):
             parser = getattr(self.proc_module, self.proc_config["parser"]["name"])
             # Parse data to DataFrame
             df_mess = parser(mess, self.proc_config["parser"])
+            file_path = self.temp_path+"/raw_message.csv"
+            rohe_utils.df_to_csv(file_path, df_mess)
 
             # Add metric report as dataframe to buffer - processing window
             self.buffer.append(df_mess)
