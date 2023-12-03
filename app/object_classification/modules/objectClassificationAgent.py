@@ -17,6 +17,7 @@ class ObjectClassificationAgent(RoheMLAgent):
             input_shape = pipeline_utils.convert_str_to_tuple(input_shape)
             
         self.load_model_params: dict = self._structure_load_model_params(load_model_params)
+        
         super() .__init__(load_model_params= self.load_model_params, model_id= model_id,
                           input_shape= input_shape, log_level= log_level)
         
@@ -65,9 +66,10 @@ class ObjectClassificationAgent(RoheMLAgent):
 
     def load_model_metadata(self, model_metadata: dict):
         metadata = {}
-        # load all the model metadata in the provided info
-        for attribute, value in model_metadata.items():
-            metadata[attribute] = value
+        if model_metadata:
+            # load all the model metadata in the provided info
+            for attribute, value in model_metadata.items():
+                metadata[attribute] = value
         metadata["no_layer"] = len(self.model.layers)
         metadata["no_parameters"] = self.model.count_params()
         return metadata
@@ -81,6 +83,7 @@ class ObjectClassificationAgent(RoheMLAgent):
 
 
     def _structure_load_model_params(self, load_model_params: dict) -> dict:
+        # print(f"\n\n\n This is input of load model params: {load_model_params}")
         model_params = {}
         # Extract necessary information
         files_name = load_model_params.get('files_name', {})
@@ -91,12 +94,14 @@ class ObjectClassificationAgent(RoheMLAgent):
         # construct full system path for each model
         for model_id, info in models.items():
             folder = info.get('folder', '')
-            info[model_id] = {
+            model_params[model_id] = {
                 'files': {
                     'architecture_file': os.path.join(folder, architecture_file),
                     'weights_file': os.path.join(folder, weights_file)
                 }
             }
+
+        # print(f"\n\n\nThis is the processed loaded model params: {model_params}")
 
         return model_params
     

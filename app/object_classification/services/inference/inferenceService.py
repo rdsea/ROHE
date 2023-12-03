@@ -1,17 +1,22 @@
 
-import threading
+from threading import Lock
+
 from qoa4ml.QoaClient import QoaClient
 
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 
 from app.object_classification.services.inference.inferenceServiceExecutor import InferenceServiceExecutor
 from app.object_classification.services.inference.inferenceServiceController import InferenceServiceController
+from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
+from app.object_classification.modules.common import MongoDBInfo
+
+from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 
 from app.object_classification.modules.objectClassificationAgent import ObjectClassificationAgent
+from app.object_classification.modules.common import InferenceEnsembleState
 
 from lib.rohe.restService import RoheRestService
 
-from app.object_classification.modules.common import InferenceEnsembleState
 
 class InferenceService():
     def __init__(self, config: dict, port: int,
@@ -20,19 +25,32 @@ class InferenceService():
         
         # load dependencies
         minio_connector = MinioConnector(storage_info= config['minio_config'])
-        MLAgent = ObjectClassificationAgent(model_info= config['model_info'],
-                                        input_shape= config['model_info']['input_shape'],
-                                        model_from_config= True) 
-        model_lock = threading.Lock() 
 
+        MLAgent = ObjectClassificationAgent(load_model_params= config['model_info']['load_model_params'],
+                                            model_id= config['model_info']['chosen_model_id'], 
+                                            input_shape= config['model_info']['input_shape'])
+        
+
+        model_lock = Lock() 
+        ensemble_lock = Lock()
         ensemble_controller = InferenceEnsembleState(config['ensemble'])
 
 
         config['minio_connector'] = minio_connector
         config['MLAgent'] = MLAgent
-        config['lock'] = model_lock
+        config['model_lock'] = model_lock
+        config['ensemble_lock'] = ensemble_lock
         config['ensemble_controller'] = ensemble_controller
     
+        quix_producer = QuixStreamProducer(kafka_address= config['kafka']['address'],
+                                            topic_name= config['kafka']['topic_name'])
+
+        mongodb_info = MongoDBInfo(**config['mongodb'])
+        mongo_connector = MongoDBConnector(db_info= mongodb_info)
+        config['mongo_connector'] = mongo_connector
+        config['quix_producer'] = quix_producer
+
+
         if config.get('qoa_config'):
             print(f"About to load qoa client: {config['qoa_config']}")
             qoa_client = QoaClient(config['qoa_config'])

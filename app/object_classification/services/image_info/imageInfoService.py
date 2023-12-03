@@ -88,7 +88,7 @@ class ImageInfoService(RoheRestObject):
             # print(f"Why failing the test: {image_info.values()}")
             return json.dumps({"error": f"Some required fields are missing, the required field are: {required_fields}"}), 400, {'Content-Type': 'application/json'}
 
-    def _complete_processing(self):
+    def _complete_processing(self, request: request):
         # image_info = {
         #     'request_id': request.form.get('request_id'),
         #     'timestamp': request.form.get('timestamp'),

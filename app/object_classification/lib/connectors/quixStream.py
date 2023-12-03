@@ -81,6 +81,7 @@ class QuixStreamProducer():
 
         # Loop over each key-value pair in the message and add them to the buffer
         for key, value in message.items():
+            print(f'about to add key {key} with value {value}')
             buffer.add_value(key, value)
 
         # Publish the buffer

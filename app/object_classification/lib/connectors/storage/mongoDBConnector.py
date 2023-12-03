@@ -47,8 +47,11 @@ class MongoDBConnector():
                 
             elif not isinstance(data, list):
                 raise TypeError("Unsupported data type for upload. Supported types are: pandas DataFrame, List of Dictionaries, or Dictionary.")
-            
+                
+            print(f"This is the lend of the data: {len(data)}")
+
             self._collection.insert_many(data)
+            
         except Exception as e:
             logging.error(e)
             raise e

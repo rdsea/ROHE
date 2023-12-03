@@ -114,7 +114,7 @@ class ProcessingServiceExecutor(RoheObject):
         # download image from minio server
         temp_local_path = self._download_image_from_minio(image_url= task['image_url'])
         # temp_local_path = None
-        print(f"After downloading process")
+        # print(f"After downloading process")
         # if download fail, stop
         if not temp_local_path:
             logging.info(f"fail to download the image")
@@ -123,7 +123,7 @@ class ProcessingServiceExecutor(RoheObject):
         task["temp_local_path"] = temp_local_path
         # process the image (in npy format or other type)
         processed_image: np.ndarray = self._image_processing(task)
-        print(f"This is the shape of the processed_image outside the calling function: {processed_image.shape}")
+        # print(f"This is the shape of the processed_image outside the calling function: {processed_image.shape}")
         del task['temp_local_path']
 
         # if fail to process the image
@@ -198,7 +198,8 @@ class ProcessingServiceExecutor(RoheObject):
                 with open(task['temp_local_path'], "rb") as file:
                     raw_data = file.read()
 
-                shape = pipeline_utils.get_image_dim_from_str(task['shape'])
+                # shape = pipeline_utils.get_image_dim_from_str(task['shape'])
+                shape = pipeline_utils.convert_str_to_tuple(task['shape'])
                 image = np.frombuffer(raw_data, dtype=task['dtype']).reshape(shape)
             else:
                 image = cv2.imread(task['temp_local_path'])
@@ -229,15 +230,17 @@ class ProcessingServiceExecutor(RoheObject):
         print(f"\n\n\n\n\nThis is the metadata: {metadata}")
         # Create a dictionary to include both command and metadata
         payload = {
-            'command': 'predict',
+            # 'command': 'predict',
             'metadata': json.dumps(metadata)
         }
 
         files = {'image': ('image', image_bytes, 'application/octet-stream')}
+
         asyncio.run(self._make_requests(payload=payload, files=files))
 
 
     async def _make_requests(self, payload, files):
+        print(f"\n\n\n\nabout to make request to inference servers: {self.inference_server_urls}")
         async with aiohttp.ClientSession() as session:
             tasks = [self._post_request(session, server, payload, files) for server in self.inference_server_urls]
             await asyncio.gather(*tasks)
@@ -246,7 +249,7 @@ class ProcessingServiceExecutor(RoheObject):
         try:
             # Create a FormData object
             data = FormData()
-            data.add_field('command', payload['command'])
+            # data.add_field('command', payload['command'])
             data.add_field('metadata', payload['metadata'])
 
             # 'files' as {'file_name': ('filename', file_bytes, 'content_type')}
@@ -262,7 +265,8 @@ class ProcessingServiceExecutor(RoheObject):
                     message = await response.json()
                     logging.info(f"Inference server response: {message}")
                 else:
-                    logging.error(f"Inference failed with status code: {response.status}")
+                    message = await response.json()
+                    logging.error(f"Inference failed with status code: {response.status}, message: {message}")
 
         except Exception as e:
             logging.error(f"Error while sending request to {url}: {e}")
