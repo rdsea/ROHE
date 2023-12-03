@@ -20,7 +20,7 @@ Fig. ROHE High-level View
     - Communication service (e.g., AMQP message broker)
     - Container environment (e.g., Docker)
     - Visualization service (e.g., Prometheus, Graphana - optional)
-- Observation Service includes registration service and agent manager. Users can modify Observation Service configurations in `$ROHE_PATH/config/observationConfig.yaml`. 
+- Observation Service includes registration service and agent manager. Users can modify Observation Service configurations in `$ROHE_PATH/config/observationConfigLocal.yaml`. 
 The configuration defines:
     - Protocols with default configurations for public (connector) and consume (collector) metrics.
     - Database configuration where metrics and application data/metadata are stored.
@@ -78,11 +78,102 @@ $ rohe_cli delete-app --app <application_name> --url <resigstration_service_url>
 
 
 
-## 2. Orchestration Service (in maintenance)
-### 2.1 User Guide (Tri)
-- In maintenance - update later
-### 2.2 Development Guide (Tri)
-#### 2.2.1 Resource Management (Tri)
+## 2. Orchestration Service 
+### 2.1 User Guide 
+- Prerequisite: before using Orchestration Service, users need:
+    - Database service (e.g., MongoDB)
+- The Orchestration Service allocate service instances on edge nodes base on a specific orchestration algorithm (currently using scoring algorithm). Users can modify Orchestration Service configurations in `$ROHE_PATH/config/orchestrationConfigLocal.yaml`. 
+The configuration defines:
+    - Database configuration where metrics and application data/metadata are stored.
+    - Service queue priority
+    - Orchestration algorithm
+- To deploy Orchestration Service, navigate to `$ROHE_PATH/bin`.
+```bash
+$ ./start_orchestration_service.sh
+```
+
+- Add nodes to the orchestration system
+    - Users can add nodes by using `rohe_cli` in the `/bin` folder. The node metadata will be saved to the Database
+    -  When adding nodes, the users must provide file path to the node configurations (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of node configuration is in `$ROHE_PATH/templates/orchestration_command/add_node.yaml`
+    
+Example
+
+```bash
+$ rohe_cli add-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+- Add service to the orchestration system
+    - Users can add services by using `rohe_cli` in the `/bin` folder. The service metadata will be saved to the Database
+    -  When adding service, the users must provide file path to the service configurations (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of service configuration is in `$ROHE_PATH/templates/orchestration_command/add_service.yaml`
+    
+Example
+
+```bash
+$ rohe_cli add-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+
+- Get node information from the orchestration system
+    - Users can get node information by using `rohe_cli` in the `/bin` folder.
+    - To get node information, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of command is in `$ROHE_PATH/templates/orchestration_command/get_node.yaml`
+    
+Example
+
+```bash
+$ rohe_cli get-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+- Get service information from the orchestration system
+    - Users can get service information by using `rohe_cli` in the `/bin` folder.
+    - To get service information, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of command is in `$ROHE_PATH/templates/orchestration_command/get_service.yaml`
+    
+Example
+
+```bash
+$ rohe_cli get-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+- Remove nodes from the orchestration system
+    - Users can remove node by using `rohe_cli` in the `/bin` folder.
+    - To remove nodes, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of command is in `$ROHE_PATH/templates/orchestration_command/remove_node.yaml`
+    
+Example
+
+```bash
+$ rohe_cli remove-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+
+- Start Orchestration Agent
+    - Users can start the agent by using `rohe_cli` in the `/bin` folder.
+    - Users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The agent constantly check services in the service queue (for services waiting for being allocated). If the service queue is not empty, the agent will find location for allocate the service in the available nodes.
+    - The template of command is in `$ROHE_PATH/templates/orchestration_command/start_orchestration.yaml`
+    
+Example
+
+```bash
+$ rohe_cli start-orchagent --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+- Stop Orchestration Agent
+    - Users can start the agent by using `rohe_cli` in the `/bin` folder.
+    - Users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
+    - The template of command is in `$ROHE_PATH/templates/orchestration_command/stop_orchestration.yaml`
+
+```bash
+$ rohe_cli stop-orchagent --app <application_name> --conf <configuration_path> --url <orchestration_service_url> 
+```
+
+
+
+### 2.2 Development Guide 
+#### 2.2.1 Resource Management 
 The module provide the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
 - Node: physical node
 - Deployment: each application has multiple microservices. Each microservice has its own Deployment setup specify: image, resource requirement, replicas, etc
@@ -90,11 +181,11 @@ The module provide the abstract class/object to manage the infrastructure resour
 - ConfigMap: provide initial environment variable for docker containers of each deployment when starting.
 - resource: provide abstract, high-level class to mange resources (Microservice Queue and Node Collection).
 
-#### 2.2.2 Deployment Management (Tri)
+#### 2.2.2 Deployment Management 
 - Provide utilities for generating deployment files from template (`$ROHE_PATH/templates/deployment_template.yaml`)
 - Deploy microservices, pod based on generated deployment files
 - TO DO: develop abstract function to improve the extendability 
-#### 2.2.3 Algorithm (Tri)
+#### 2.2.3 Algorithm
 This module provide functions to select resource to allocate microservices. 
 
 Current implementation: Scoring Algorithm
@@ -183,7 +274,7 @@ Workflow of Scoring Algorithm:
 - TO DO: define abstract function for each module 
 
 ## 3 Running Example
-### 3.1 Object Classification (Vuong Nguyen)
+### 3.1 Object Classification 
 
 
 

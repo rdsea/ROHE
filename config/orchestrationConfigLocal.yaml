@@ -11,7 +11,7 @@ service_queue:
   priority: 0
   queue_balance: 3
 orchestrateConfig:
-  name: Priority Orchestration
+  name: Scoring Orchestration
   weights:
     cpu: 1
     memory: 1

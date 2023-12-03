@@ -19,8 +19,8 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=log
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 import lib.roheUtils as rohe_utils
-default_temp_path = ROHE_PATH+"/temp"
-default_template_path = ROHE_PATH+"/template"
+default_temp_path = ROHE_PATH+"/temp/"
+default_template_path = ROHE_PATH+"/templates/"
 default_conf_path = ROHE_PATH+"/examples/agentConfig/"
 
 headers = {
@@ -54,9 +54,9 @@ def register_app(app,run, user, url,output_dir):
         qoa_conf["client"] = rohe_utils.load_qoa_conf_env(qoa_conf["client"])
 
         if output_dir == None:
-            output_dir = default_temp_path + ("/"+app)
+            output_dir = default_temp_path + app
         else:
-            output_dir += ("/"+app)
+            output_dir += app
         if rohe_utils.make_folder(output_dir):
             file_path = output_dir+"/qoa_config.yaml"
             rohe_utils.to_yaml(file_path, qoa_conf)
@@ -117,6 +117,127 @@ def delete_app(app, run, user, url):
         logging.error(traceback.print_exc())
 
 
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="add_node.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def add_node(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="add_service.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def add_service(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="get_node.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def get_node(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="get_service.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def get_service(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="remove_node.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def remove_node(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="start_orchestration.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def start_orchagent(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+@click.command()
+@click.option('--app', help='application name', default="test")
+@click.option('--conf', help='configuration path', default="stop_orchestration.yaml")
+@click.option('--url', help='registration url', default="http://localhost:5002/management")
+def stop_orchagent(app,conf,url):
+    try:
+        conf = default_template_path+"orchestration_command/"+conf
+        # load agent configuration from path
+        config_file = rohe_utils.load_config(conf)
+        config_file["application"] = app
+
+        # sent start command and agent configuration to agent service
+        response = requests.request("POST", url, headers=headers, data=json.dumps(config_file))
+        logging.debug(response.json())
+    except Exception as e:
+        logging.error(traceback.print_exc())
+
+
+
 @click.group()
 def rohe_common():
     pass
@@ -124,6 +245,13 @@ rohe_common.add_command(register_app)
 rohe_common.add_command(start_obsagent)
 rohe_common.add_command(stop_obsagent)
 rohe_common.add_command(delete_app)
+rohe_common.add_command(add_node)
+rohe_common.add_command(add_service)
+rohe_common.add_command(get_node)
+rohe_common.add_command(get_service)
+rohe_common.add_command(remove_node)
+rohe_common.add_command(start_orchagent)
+rohe_common.add_command(stop_orchagent)
 
 
 

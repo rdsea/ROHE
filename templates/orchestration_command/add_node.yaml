@@ -1,0 +1,315 @@
+application: test
+client_id: aaltosea01
+instance_name: test
+stage_id: test
+role: client
+command: ADD NODE
+data:
+  node1:
+    node_name: RaspberryPi_01
+    MAC: 82:ae:30:11:38:01
+    status: running
+    frequency: 1.5
+    accelerator: {}
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 4096
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node2:
+    node_name: RaspberryPi_02
+    MAC: 82:ae:30:11:38:02
+    status: running
+    frequency: 1.5
+    accelerator: {}
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 4096
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node3:
+    node_name: RaspberryPi_03
+    MAC: 82:ae:30:11:38:03
+    status: running
+    frequency: 1.5
+    accelerator: {}
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 4096
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node4:
+    node_name: RaspberryPi_04
+    MAC: 82:ae:30:11:38:04
+    status: running
+    frequency: 1.5
+    accelerator: {}
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 4096
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node5:
+    node_name: RaspberryPi_05
+    MAC: 82:ae:30:11:38:05
+    status: running
+    frequency: 1.5
+    accelerator: {}
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 4096
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node6:
+    node_name: Jetson_nano_01
+    MAC: 82:ae:30:11:38:06
+    status: running
+    frequency: 1.5
+    accelerator:
+      GPU0:
+        mode: nonpre-emptive
+        type: gpu
+        core: 128
+        capacity: 100
+        used: 0
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 2048
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node7:
+    node_name: Jetson_nano_02
+    MAC: 82:ae:30:11:38:07
+    status: running
+    frequency: 1.5
+    accelerator:
+      GPU0:
+        mode: nonpre-emptive
+        type: gpu
+        core: 128
+        capacity: 100
+        used: 0
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 2048
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node8:
+    node_name: Jetson_nano_03
+    MAC: 82:ae:30:11:38:08
+    status: running
+    frequency: 1.5
+    accelerator:
+      GPU0:
+        mode: nonpre-emptive
+        type: gpu
+        core: 128
+        capacity: 100
+        used: 0
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 2048
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node9:
+    node_name: Jetson_nano_04
+    MAC: 82:ae:30:11:38:09
+    status: running
+    frequency: 1.5
+    accelerator:
+      GPU0:
+        mode: nonpre-emptive
+        type: gpu
+        core: 128
+        capacity: 100
+        used: 0
+    cpu:
+      capacity: 4000
+      used: 0
+    memory:
+      capacity:
+        rss: 4096
+        vms: 2048
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+  node10:
+    node_name: Jetson_xavier_06
+    MAC: 82:ae:30:11:38:10
+    status: running
+    frequency: 2.3
+    accelerator:
+      GPU0:
+        mode: pre-emptive
+        type: gpu
+        core: 512
+        capacity: 100
+        used: 0
+    cpu:
+      capacity: 8000
+      used: 0
+    memory:
+      capacity:
+        rss: 16384
+        vms: 16384
+      used:
+        rss: 0
+        vms: 0
+    processor:
+      capacity:
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      used:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
