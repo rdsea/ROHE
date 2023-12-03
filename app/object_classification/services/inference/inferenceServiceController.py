@@ -18,8 +18,6 @@ class InferenceServiceController(RoheRestObject):
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
-        # self.processing_service_executor: InferenceServiceExecutor = self.conf['processing_service_executor']
-        # print(f"\n\nThis is my executor: {self.processing_service_executor}")
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 

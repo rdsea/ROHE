@@ -1,0 +1,60 @@
+# kafka:
+#   address: 127.0.0.1:9092
+#   topic_name: nii_case
+
+# mongodb:
+#   username: admin_user
+#   password: admin_pass
+#   # host: 128.214.254.126
+#   # for testing locally
+#   host: localhost
+#   # when try in cluster environment
+#   # host: 130.233.195.206
+#   port: 27017
+#   database_name: nii_case
+#   # collection_name: inference_result_consumer
+#   # collection_name: ensemble_result
+#   # collection_name: try
+#   collection_name: ensemble
+
+
+# aggregating:
+#   client_id:
+#     time_limit: 3
+#     min_messages: 3
+#     valid_time: 60
+#     max_threads: 10
+
+#     function_module: "path"
+    
+#     function:
+#       name: average
+#       param:
+
+
+#   # add more config
+
+kafka:
+  address: 127.0.0.1:9092
+  topic_name: nii_case
+
+mongodb:
+  username: admin_user
+  password: admin_pass
+ 
+  host: localhost  # for testing locally
+  # host: 130.233.195.206 # when try in cluster environment
+
+  port: 27017
+  database_name: nii_case
+  collection_name: ensemble
+
+# aggregating_func: average_probability
+
+
+aggregating:
+  func_name: average_probability
+  time_limit: 3
+  min_messages: 3
+  valid_time: 60
+  max_threads: 10

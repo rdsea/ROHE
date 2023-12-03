@@ -40,7 +40,10 @@ if __name__ == '__main__':
 
     # emulate the service registry
     config['inference_server'] = {}
-    config['inference_server']['urls'] = ("http://localhost:30005/inference_service","http://localhost:30000/inference_service")
+    # config['inference_server']['urls'] = ("http://localhost:9000/inference_service","http://localhost:30000/inference_service")
+    config['inference_server']['urls'] = ("http://localhost:9000/inference_service", "http://localhost:9900/inference_service")
+
+
 
 
     processing_service = ProcessingService(config= config,

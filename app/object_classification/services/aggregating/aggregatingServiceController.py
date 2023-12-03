@@ -17,7 +17,7 @@ class AggregatingServiceController(RoheRestObject):
         configuration = kwargs
         self.conf = configuration
         self.aggregating_service_executor: AggregatingServiceExecutor = self.conf['aggregating_service_executor']
-        print(f"\n\nThis is my executor: {self.processing_service_executor}")
+        print(f"\n\nThis is my executor: {self.aggregating_service_executor}")
         log_lev = self.conf.get('log_lev', 2)
         self.set_logger_level(logging_level= log_lev)
 

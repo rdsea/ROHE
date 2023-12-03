@@ -53,6 +53,11 @@ To run the Inference Service, follow the instructions outlined here:
 Information on how to aggregate results is available at this location:
 [Aggregation Service README](./kube_deployment/aggregatingService/README.md)
 
+### 5. Image Info Service
+
+### 6. Service Controller
+
+
 ## Additional Resources
 
 - **Authors**

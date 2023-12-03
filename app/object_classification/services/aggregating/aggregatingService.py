@@ -6,7 +6,7 @@ from app.object_classification.services.aggregating.aggregatingServiceController
 
 from lib.rohe.restService import RoheRestService
 
-class ProcessingService():
+class AggregatingService():
     def __init__(self, config: dict, port: int,
                  endpoint: str = '/aggregating_service_controller') -> None:
         self.executor = AggregatingServiceExecutor(config)
@@ -18,7 +18,13 @@ class ProcessingService():
         self.port = port
 
     def run(self):
+        # controller_thread = Thread(target=self.rest_service.run)
+        # controller_thread.start()
+
+        # self.executor.run()
+
         executor_thread = Thread(target=self.executor.run)
         executor_thread.start()
         
         self.rest_service.run(port= self.port)
+        

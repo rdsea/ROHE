@@ -5,6 +5,7 @@ import numpy as np
 from flask import request
 from typing import Dict, Optional, Tuple
 
+from threading import Lock
 
 # from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 from app.object_classification.lib.connectors.storage.mongoDBConnector import MongoDBConnector
@@ -34,7 +35,6 @@ class InferenceServiceExecutor(RoheRestObject):
             self.qoaClient = None
 
         # the pipeline id should be configured
-        # self.pipeline_id: str = self.conf.get('pipeline_id') or "pipeline_sample"
         self.pipeline_id: str = self.conf['pipeline_id']
 
         ############################################################################################################################################
@@ -44,13 +44,15 @@ class InferenceServiceExecutor(RoheRestObject):
         ############################################################################################################################################
 
         # model lock
-        self.model_lock = self.conf['lock']
-
+        self.model_lock: Lock  = self.conf['model_lock']
         # ML agent
         self.MLAgent: ObjectClassificationAgent = self.conf['MLAgent']
 
         # variable control whether to send inference result to mongodb server or to kafka topic
         self.ensemble_mode: InferenceEnsembleState = self.conf['ensemble_controller']
+        self.ensemble_lock: Lock = self.conf['ensemble_lock']
+
+
         # print(f"This is the current ensemble mode: {self.ensemble_mode.get_mode()}")
         # initialized both
         # to be flexible to switch mode 
@@ -70,15 +72,16 @@ class InferenceServiceExecutor(RoheRestObject):
 
 
     def post(self):
-        """
+        '''
         Handles POST requests for the inference service (prediction request from client).
         get an image attached from the request and returns a dictionary as prediction result.
-        """
+        '''
         if self.qoaClient:
             self.qoaClient.timer() 
 
         try:
             response, inference_result = self._handle_predict_req(request)
+            print(f"\n\n\nThis is the response and inference result: {response}, {inference_result}")
             if self.qoaClient:
                 self.qoaClient.timer()
 
@@ -94,12 +97,11 @@ class InferenceServiceExecutor(RoheRestObject):
         # qoa4ml service
         if self.qoaClient:
             try:
-                self.qoaClient.timer() 
                 if inference_result is None:
                     confidence = None
                 else:
                     confidence = float(inference_result['confidence_level'])
-                    
+
                 self.qoaClient.observeInferenceMetric("confidence", confidence)
                 report = self.qoaClient.report(submit=True)
 
@@ -110,16 +112,20 @@ class InferenceServiceExecutor(RoheRestObject):
         return result
 
 
-    # # Convert the numpy array to bytes
-    # image_bytes = image_np.tobytes()
-    # # Metadata and command
-    # metadata = {'shape': '32,32,3', 'dtype': str(image_np.dtype)}
-    ## payload = {'command': 'predict', 'metadata': json.dumps(metadata)}
-    # payload = {'metadata': json.dumps(metadata)}
-
-    # files = {'image': ('image', image_bytes, 'application/octet-stream')}
-    # requests.post('http://server-address/api-name', data=payload, files=files)
     def _handle_predict_req(self, request: request) ->  Tuple[str, dict]:
+        '''
+        sample request
+            # Convert the numpy array to bytes
+            image_bytes = image_np.tobytes()
+            
+            # Metadata and command
+            metadata = {'shape': '32,32,3', 'dtype': str(image_np.dtype)}
+            payload = {'metadata': json.dumps(metadata)}
+
+            files = {'image': ('image', image_bytes, 'application/octet-stream')}
+            requests.post('http://server-address:port/api-name', data=payload, files=files)
+        '''
+
         inference_result = None
         ### METADATA ####
         metadata = self._get_image_metadata(request= request)
@@ -148,12 +154,17 @@ class InferenceServiceExecutor(RoheRestObject):
 
         try:
             dtype = metadata['dtype']
-            binary_encoded = request.files['image']
+            binary_encoded = request.files['image'].read()
         except:
             response = f"There is no binary image attached to the request or there is no specification of dtype or both"
             return response, inference_result
 
         # Convert the binary data to a numpy array and decode the image
+        # print(f"This is binary encoded image type: {type(binary_encoded)}")
+        # print(f"This is dtype: {dtype}")
+        # print(f"This is shape: {model_input_shape}")
+
+
         image = pipeline_utils.decode_binary_image(binary_encoded, dtype, shape= model_input_shape)
         if image is None:
             response = "something wrong with the retrieving image process"
@@ -180,12 +191,16 @@ class InferenceServiceExecutor(RoheRestObject):
         ''''''
         message = self._generate_publish_message(request_info, inference_result)
         # if self.ensemble == True:
-        mode = self.ensemble_mode.get_mode() == True
-        print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_controller.ensemble_modee()}")
+        with self.ensemble_lock:
+            mode = self.ensemble_mode.get_mode() == True
+
+        print(f"\n\n The mode when forwarding result: {mode}, the mode of ensemble state: {self.ensemble_mode.get_mode()}")
         if mode:
             print(f"mode when entering kafka: {mode}")
             # print("About to send message to kafka topic")
-            self.kafka_producer.produce_values(message= message)
+            self.quix_producer.produce_values(message= message)
+            # print(f"\n\n\npost success")
+
         else:
             print(f"mode when entering mongo: {mode}")
             # print(f"This is the published data: {message}, and its type: {type(message)}")
@@ -198,16 +213,16 @@ class InferenceServiceExecutor(RoheRestObject):
 
     def _generate_publish_message(self, request_info: dict, inference_result: dict) -> Dict[str, str]:
         ''''''
-        print(f"\n\n\n This is the inference resulst: {inference_result}")
+        print(f"\n\n\n This is the inference results: {inference_result}")
         pred = inference_result["prediction"]
         # print(f"\n\n\n\n\n\n This is the type of the prediction: {type(pred)}\n\n")
 
         ### METADATA ####
         message = {
             "request_id": request_info['request_id'],
-            "prediction": pred,
             "pipeline_id": self.pipeline_id,
             "inference_model_id": self.MLAgent.get_model_id(),
+            "prediction": pred,
         }
 
         # if self.ensemble:
@@ -218,7 +233,7 @@ class InferenceServiceExecutor(RoheRestObject):
         return message
     
     def _proccess_message_for_ensemble(self, message):
-        message['prediction'] = np.array(message['prediction'])
+        message['prediction'] = np.array(message['prediction']).tobytes()
         return message
     
     

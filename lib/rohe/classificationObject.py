@@ -1,7 +1,8 @@
 # This file is used to define a module to manage ML model and inference
 
 from abc import ABC, abstractmethod
-from .roheObject import RoheObject
+from lib.rohe.roheObject import RoheObject
+
 import tensorflow as tf
 
 class ClassificationObject(RoheObject, ABC):
