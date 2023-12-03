@@ -3,7 +3,7 @@ services:
   nii_ingestion_server:
     image: vtn13042000/nii_ingestion_service_intel:1.0.0
     extra_hosts:
-      - "host-machine:192.168.205.85"
+      - "host-machine:localhost"
     volumes:
       - /home/vtn/aalto-internship/ROHE/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml:/ingestion-server/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml
     # environment:
