@@ -122,7 +122,7 @@ ROHE_PATH = os.getenv('ROHE_PATH')
 sys.path.append(ROHE_PATH)
 
 consul_conf = {
-    "url": "http://195.148.22.62:8500"
+    "url": "http://localhost:8500"
 }
 
 from lib.serviceRegistry.consul import consulClient

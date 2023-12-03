@@ -29,7 +29,7 @@ def init_env_variables():
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
         print("DATABASE_URL is not defined")
-        database_url = "mongodb://195.148.22.62:27017/"
+        database_url = "mongodb://localhost:27017/"
     # Get Database name
     database_name = os.environ.get('DATABASE_NAME')
     if not database_name:

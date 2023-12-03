@@ -4,7 +4,7 @@ services:
   nii_processing_server:
     image: vtn13042000/nii_processing_service_intel:1.0.0
     extra_hosts:
-      - "host-machine:192.168.205.85"
+      - "host-machine:localhost"
 
     volumes:
       # - /home/vtn/aalto-internship/test_model/VGG16/3/6/repair/model.h5:/inference-server/data/weights_file.h5

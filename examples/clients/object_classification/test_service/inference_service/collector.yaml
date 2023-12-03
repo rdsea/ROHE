@@ -1,6 +1,6 @@
 collector_config:
   collector:
-    end_point: "195.148.22.62"
+    end_point: "localhost"
     exchange_name: "nii_inference"
     exchange_type: "topic"
     in_routing_key: "nii.#"
