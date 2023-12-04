@@ -11,7 +11,7 @@ from core.observation.restService import RoheObservation, RoheRegistration
 
 
 
-DEFAULT_CONFIG_PATH="/config/observationConfig.yaml"
+DEFAULT_CONFIG_PATH="/config/observationConfigLocal.yaml"
 
 if __name__ == '__main__': 
     # init_env_variables()

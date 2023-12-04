@@ -8,7 +8,7 @@ from flask_restful import Api
 
 from core.orchestration.restAgent import RoheOrchestrationAgent, RoheOrchestrationService
 
-DEFAULT_CONFIG_PATH="/config/orchestrationConfig.yaml"
+DEFAULT_CONFIG_PATH="/config/orchestrationConfigLocal.yaml"
 
 app = Flask(__name__)
 api = Api(app)

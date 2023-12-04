@@ -13,7 +13,7 @@ ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
 # set default global variable for loading configuration/functions and saving processed data
-DEFAULT_CONFIG_PATH= "configurations/observationConfig.yaml"
+DEFAULT_CONFIG_PATH= "configurations/observationConfigLocal.yaml"
 DEFAULT_DATA_PATH = "/agent/data/"
 DEFAULT_MODULE_PATH = "/agent/userModule/"
 
