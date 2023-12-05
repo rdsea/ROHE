@@ -6,7 +6,7 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-class consulClient(object):
+class ConsulClient(object):
     def __init__(self, config) -> None:
         '''
         Example config:
@@ -70,14 +70,14 @@ class consulClient(object):
         response = requests.get(service_url, headers=headers, params=params)
         if response.status_code == 200:
             services_info = response.json()
-            print(f"This is service info: {services_info}, type: {type(services_info)}")
+            # print(f"This is service info: {services_info}, type: {type(services_info)}")
 
             services = []
             for service in services_info:
                 if isinstance(service, dict):
                     service_dict = {
-                        'ID': service.get('ID', ''),
-                        'ServiceAddress': service.get('ServiceAddress', ''),
+                        'ID': service.get('ServiceID', ''),
+                        'Address': service.get('ServiceAddress', ''),
                         'Port': service.get('ServicePort', ''),
                         'Tags': service.get('ServiceTags', []),
                         'Metadata': service.get('ServiceMeta', {})
@@ -113,6 +113,8 @@ class consulClient(object):
         quorum = (len(services) // 2) + 1
         return self.getNRandomServiceInstances(name, tags, quorum)
 
+    # def retrieve_inference_service_address(self, service_info: list):
+
 """
 # Example code
 # Document: https://developer.hashicorp.com/consul/api-docs/catalog#list-services
@@ -125,7 +127,7 @@ consul_conf = {
     "url": "http://localhost:8500"
 }
 
-from lib.serviceRegistry.consul import consulClient
+from lib.serviceRegistry.consul import ConsulClient
 
 client = consulClient(consul_conf)
 

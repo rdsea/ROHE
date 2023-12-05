@@ -36,27 +36,33 @@ class AggregatingServiceExecutor(RoheObject):
         self.conf = config
         # load processing function
         self.aggregating_func: Callable = pipeline_utils.get_function_from_module(module= aggregating_func,
-                                                                                  func_name= self.conf['aggregating']['func_name'])
+                                                                                  func_name= self.conf['aggregating']['aggregating_func']['func_name'])
         print(f"\n\n\nthis is the aggregating function: {self.aggregating_func}")
 
 
-        self.time_limit: int = self.config.get('aggregating', {}).get('time_limit') or 5  # in second
-        self.min_messages: int = self.config.get('aggregating', {}).get('min_messages') or 10
-
-        self.config['max_threads'] = self.config.get('aggregating', {}).get('max_threads') or 10
-        self.config['valid_time'] = self.config.get('aggregating', {}).get('valid_time') or 60
+        # self.config['max_threads'] = self.config.get('aggregating', {}).get('max_threads') or 10
+        # self.config['valid_time'] = self.config.get('aggregating', {}).get('valid_time') or 60
+        # self.time_limit: int = self.config.get('aggregating', {}).get('time_limit') or 5  # in second
+        # self.min_message: int = self.config.get('aggregating', {}).get('min_messages') or 10
+        max_thread = int(self.config['aggregating']['threading']['max_thread'])
+        cache_valid_time = pipeline_utils.parse_time(self.config['aggregating']['cache']['valid_time'])
+        self.time_limit = pipeline_utils.parse_time(self.config['aggregating']['aggregating_func']['time_limit'])
+        self.min_message: int = self.config['aggregating']['aggregating_func']['min_message']
 
         self.buffer_dict = {}
-        self.already_processed_ids = TimeLimitedCache(window_size= self.config['valid_time'], lock= Lock())
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
+        # self.already_processed_ids = TimeLimitedCache(window_size= self.config['valid_time'], lock= Lock())
+        # self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= self.config['max_threads'])
+
+        self.already_processed_ids = TimeLimitedCache(window_size= cache_valid_time, lock= Lock())
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers= max_thread)
 
         # self.db_connector: MongoDBConnector = MongoDBConnector(**self.conf['mongodb'])
-        mongodb_info = MongoDBInfo(**config['mongodb'])
+        mongodb_info = MongoDBInfo(**config['external_services']['mongodb'])
         self.db_connector = MongoDBConnector(db_info= mongodb_info)
         print(f"\n\n\nthis is db connector: {self.db_connector}")
 
-        self.quix_stream_listener = QuixStreamDataframeHandler(kafka_address= self.conf['kafka']['address'],
-                                                               topic_name= self.conf['kafka']['topic_name'],
+        self.quix_stream_listener = QuixStreamDataframeHandler(kafka_address= self.conf['external_services']['kafka']['address'],
+                                                               topic_name= self.conf['external_services']['kafka']['topic_name'],
                                                                host_object= self)
         
     def run(self):
@@ -118,7 +124,7 @@ class AggregatingServiceExecutor(RoheObject):
         print(f"This is elapse time and time limit: {elapsed_time}, {self.time_limit}")
         print(f"this is the result of time buffer: {elapsed_time >= self.time_limit}")
 
-        if elapsed_time >= self.time_limit or num_messages >= self.min_messages:
+        if elapsed_time >= self.time_limit or num_messages >= self.min_message:
             # if req_id not in self.already_processed_ids:
             if not self.already_processed_ids.contains(req_id):
                 print(f"Request_id: {req_id}, elapsed time: {elapsed_time}, current messages: {num_messages}")

@@ -25,3 +25,4 @@ core/profiling/result
 
 app/object_classification/modules/draft
 app/object_classification/services/test_services/clients
+app/object_classification/services_old

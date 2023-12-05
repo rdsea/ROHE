@@ -1,23 +1,33 @@
-kafka:
-  address: 127.0.0.1:9092
-  topic_name: nii_case
-
-mongodb:
-  username: admin_user
-  password: admin_pass
- 
-  host: localhost  # for testing locally
-
-  port: 27017
-  database_name: nii_case
-  collection_name: ensemble
-
-# aggregating_func: average_probability
-
-
 aggregating:
-  func_name: average_probability
-  time_limit: 3
-  min_messages: 3
-  valid_time: 60
-  max_threads: 10
+  # Maximum number of threads for parallel processing
+  threading:
+    max_thread: 10
+
+  # Cache settings for processed request IDs
+  cache:
+    # Duration for which a processed request ID is considered valid
+    valid_time: 60s  # 60 seconds
+
+  # Aggregation Function Configuration
+  aggregating_func:
+    func_name: average_probability
+    # Time limit to wait for additional messages before aggregating
+    time_limit: 3s  # 3 seconds
+    # Minimum number of messages required to perform aggregation without waiting for the time limit
+    min_message: 3
+
+# External Services Configuration
+external_services:
+  # Kafka messaging service for incoming data streams
+  kafka:
+    address: 127.0.0.1:9092
+    topic_name: nii_case
+
+  # MongoDB for storing aggregated results
+  mongodb:
+    username: admin_user
+    password: admin_pass
+    host: localhost 
+    port: 27017
+    database_name: nii_case
+    collection_name: ensemble

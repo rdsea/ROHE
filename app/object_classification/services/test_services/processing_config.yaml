@@ -1,32 +1,45 @@
-# General processing configuration
-processing_config:
-  max_thread: 3
-  request_rate: 1 # req/s
-  min_waiting_period: 1
-  max_waiting_period: 30
-  # min_request_period: 1s
-  # max_request_period: 30s
-  image_dim: "32,32,3"
 
-# Communication endpoints
-image_info_service: 
-  url: "http://localhost:5000/image_info_server"
+processing:
+  threading:
+    max_thread: 3
+  request:
+    rate_per_second: 1  # Number of requests to image info service per second
+    retry_delay:
+      # strategy: exponential_backoff # Strategy for retry delay increment
+      min: 1s  # Minimum waiting period for retry after a failed request
+      max: 30s # Maximum waiting period for retry
 
-minio_storage:
-  endpoint_url: "http://128.214.254.126:9000"
-  access_key: "admin_user"
-  secret_key: "admin_pass"
-  bucket_name: "nii-application-unprocessed-image"
+  image_processing:
+    target_dim: 32,32,3
+    func_name: resize_and_pad
 
+external_services:
+  minio_storage:
+    endpoint_url: http://128.214.254.126:9000
+    access_key: admin_user
+    secret_key: admin_pass
+    bucket_name: nii-application-unprocessed-image
 
-image_processing_func: 'resize_and_pad'
-# # 
-# # think of the situtation where we need to handle multiple pipeline
-# # Inference strategy
-# inference_strategy:
-#   type: "all" # or "specific" ["all", "one", "quorum"]
-  
-#   # If type is 'specific', define the specific model types to send requests to
-#   specific_server: 
-#     - "pipeline_1_vgg_0"
-#     - "pipeline_2_vgg_2_7"
+  service_registry:
+    consul_config:
+      url: http://195.148.22.62:8500
+    service:
+      inference:
+        # 'type' determines the method for server selection. It can be:
+        # - "all": Selects and returns all available servers.
+        # - "one": Randomly picks and returns one server from the available pool.
+        # - "quorum": Selects and returns more than half of the available servers, ensuring a majority.
+        # Tags (optional) can be used as a filter with any type
+        type: all # Options: "all", "one", "quorum"
+        
+        # 'tags' (optional): A list of tags used to filter servers regardless of the 'type' selected.
+        # If 'tags' is empty or not specified, all servers matching the 'type' criteria are considered.
+        # Examples:
+        # - To use all servers with specific tags: type: "all", tags: ["tag1", "tag2"]
+        # - To select one random server with specific tags: type: "one", tags: ["tag1"]
+        # - To use a majority of servers with specific tags: type: "quorum", tags: ["tag2"]
+        tags: ['nii_case']  # List of tags to filter servers, can be empty.
+
+      image_info:
+        type: one
+        tags: ['nii_case']

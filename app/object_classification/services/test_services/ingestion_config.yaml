@@ -1,12 +1,16 @@
 
-# Storage Configuration
-storage:
-  minio:
-    endpoint_url: "http://128.214.254.126:9000"
-    access_key: "admin_user"
-    secret_key: "admin_pass"
-    bucket_name: "nii-application-unprocessed-image"
+external_services:
+  minio_storage:
+    endpoint_url: http://128.214.254.126:9000   #fixed endpoint
+    access_key: admin_user
+    secret_key: admin_pass
+    bucket_name: nii-application-unprocessed-image
 
-# Redis-based HTTP Server Configuration
-image_info_server:
-  endpoint_url: "http://localhost:5000/image_info_server"
+  service_registry:
+    consul_config:
+      url: http://195.148.22.62:8500
+    service:
+      image_info:   # dynamic endpoint
+        type: one
+        tags: ['nii_case']
+    

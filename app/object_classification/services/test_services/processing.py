@@ -1,6 +1,6 @@
 import sys, os
 import argparse
-
+import signal
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -12,6 +12,10 @@ sys.path.append(main_path)
 
 from app.object_classification.services.processing.processingService import ProcessingService
 import lib.roheUtils as roheUtils
+
+from lib.serviceRegistry.consul import ConsulClient
+
+import app.object_classification.modules.utils as pipeline_utils
 
 
 if __name__ == '__main__':
@@ -34,14 +38,58 @@ if __name__ == '__main__':
         print("Something also wrong with rohe utils load config function. Third attempt to load config using rohe config load yaml config function")
         config = roheUtils.load_yaml_config(file_path= config_file)
 
-    config['processing_config']['max_thread'] = int(config['processing_config']['max_thread'])
-    config['processing_config']['min_waiting_period'] = int(config['processing_config']['min_waiting_period'])
-    config['processing_config']['max_waiting_period'] = int(config['processing_config']['max_waiting_period'])
+    # service registry
+    local_ip = pipeline_utils.get_local_ip()
+    client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
+    service_id = client.serviceRegister(name= 'processing', address= local_ip, tag=["nii_case"], port= port)
 
-    # emulate the service registry
-    config['inference_server'] = {}
-    # config['inference_server']['urls'] = ("http://localhost:9000/inference_service","http://localhost:30000/inference_service")
-    config['inference_server']['urls'] = ("http://localhost:9000/inference_service", "http://localhost:9900/inference_service")
+    # query for image info service url
+    image_info_tags = config['external_services']['service_registry']['service']['image_info']['tags']
+    image_info_query_type = config['external_services']['service_registry']['service']['image_info']['type']
+    # for now, assume that we just need one image info service 
+    service_info = pipeline_utils.handle_service_query(consul_client= client, 
+                                                       service_name= 'image_info',
+                                                       query_type= image_info_query_type,
+                                                       tags= image_info_tags)[0]
+
+    image_info_endpoint = 'image_info_service'
+    image_info_endpoint = f"http://{service_info['Address']}:{service_info['Port']}/{image_info_endpoint}"
+    config['image_info_service'] = {}
+    config['image_info_service']['url'] = image_info_endpoint
+    print(f"This is image info endpoint: {image_info_endpoint}")
+
+    # inference services
+    # # emulate the service registry
+    # config['inference_server'] = {}
+    # # config['inference_server']['urls'] = ("http://localhost:9000/inference_service","http://localhost:30000/inference_service")
+    # config['inference_server']['urls'] = ("http://localhost:9000/inference_service", "http://localhost:9900/inference_service")
+    inference_tags = config['external_services']['service_registry']['service']['inference']['tags']
+    inference_query_type = config['external_services']['service_registry']['service']['inference']['type']
+
+    inference_service_info = pipeline_utils.handle_service_query(consul_client= client, 
+                                                       service_name= 'inference',
+                                                       query_type= inference_query_type,
+                                                       tags= inference_tags)
+    inference_urls = []                                             
+    inference_endpoint = 'inference_service'
+    for service_info in inference_service_info:
+        url = f"http://{service_info['Address']}:{service_info['Port']}/{inference_endpoint}"
+        inference_urls.append(url)
+    inference_urls = tuple(inference_urls)
+    print(f"This is inference urls: {inference_urls}")
+    # image_info_endpoint = f"http://{service_info['Address']}:{service_info['Port']}/{image_info_endpoint}"
+    # config['image_info_service'] = {}
+    # config['image_info_service']['url'] = image_info_endpoint
+    # print(f"This is image info endpoint: {image_info_endpoint}")
+
+
+    def signal_handler(sig, frame):
+        print('You pressed Ctrl+C! Gracefully shutting down.')
+        client.serviceDeregister(id= service_id)
+        sys.exit(0)
+
+    # Register the signal handler for SIGINT
+    signal.signal(signal.SIGINT, signal_handler)
 
 
 

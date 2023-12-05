@@ -86,14 +86,16 @@ class ObjectClassificationAgent(RoheMLAgent):
         # print(f"\n\n\n This is input of load model params: {load_model_params}")
         model_params = {}
         # Extract necessary information
-        files_name = load_model_params.get('files_name', {})
-        architecture_file = files_name.get('architecture_file', '')
-        weights_file = files_name.get('weights_file', '')
-        models = load_model_params.get('models', {})
+        # files_name = load_model_params.get('files_name', {})
+        # architecture_file = files_name.get('architecture_file', '')
+        # weights_file = files_name.get('weights_file', '')
+        architecture_file = load_model_params['architecture_file']
+        weights_file = load_model_params['weights_file']
+        models = load_model_params['model_directories']
         
         # construct full system path for each model
-        for model_id, info in models.items():
-            folder = info.get('folder', '')
+        for model_id, folder in models.items():
+            # folder = info.get('folder', '')
             model_params[model_id] = {
                 'files': {
                     'architecture_file': os.path.join(folder, architecture_file),
@@ -101,7 +103,6 @@ class ObjectClassificationAgent(RoheMLAgent):
                 }
             }
 
-        # print(f"\n\n\nThis is the processed loaded model params: {model_params}")
 
         return model_params
     

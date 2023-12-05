@@ -4,14 +4,11 @@ import numpy as np
 # blending 
 # ---------------------------------------------------------
 def average_probability(data: list) -> dict:
-    # print(f"This is the type of data: {type(data)}")
-
     if not data:
         print("Empty data, no aggregation needed.")
         return
 
     req_id = data[0]['request_id']
-    # print(f"Request ID : {req_id}, len of the data: {len(data)}")
     
     # To store aggregated predictions, pipeline_ids, and inference_model_ids
     aggregated_predictions = []
@@ -32,8 +29,6 @@ def average_probability(data: list) -> dict:
         'inference_model_id': ','.join(inference_model_ids)
     }
 
-    # print(f"This is the aggregate result: {aggregated_result}")
-    # print("End of aggregating process\n\n\n\n")
     return aggregated_result
 
 def weighted_average_probability(data: list, weights: list) -> dict:

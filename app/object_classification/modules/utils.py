@@ -6,6 +6,10 @@ import os
 import re
 import types 
 from typing import Callable
+import socket
+
+
+from lib.serviceRegistry.consul import ConsulClient
 
 def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
     '''
@@ -91,4 +95,49 @@ def extract_file_extension(url):
 
 def convert_str_to_tuple(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(',')))
+
+
+def get_local_ip():
+    try:
+        # The following line creates a socket to connect to an external site
+        # The IP address returned is the one of the network interface used for the connection
+        # '8.8.8.8' is used here as it's a public DNS server by Google
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception as e:
+        return "Unable to get IP: " + str(e)
+
+
+def parse_time(time_str) -> int:
+    """
+    Parses time strings into seconds.
+    Supported formats: Xs (seconds), Xm (minutes), Xh (hours).
+    """
+    match = re.match(r"(\d+)([smh])", time_str)
+    if not match:
+        raise ValueError(f"Invalid time format: {time_str}")
+
+    value, unit = int(match.group(1)), match.group(2)
+    if unit == 's':
+        return value
+    elif unit == 'm':
+        return value * 60
+    elif unit == 'h':
+        return value * 3600
+    
+def handle_service_query(consul_client: ConsulClient, service_name, query_type, tags=None):
+    if query_type == "all":
+        return consul_client.getAllServiceInstances(service_name, tags)
+
+    if query_type == "one":
+        return consul_client.getNRandomServiceInstances(service_name, tags, n=1)
+
+    if query_type == "quorum":
+        return consul_client.getQuorumServiceInstances(service_name, tags)
+
+    # raise ValueError(f"Unknown service type: {service_type}")
+    return 
 

@@ -23,32 +23,26 @@ from lib.rohe.roheObject import RoheObject
 class ProcessingServiceExecutor(RoheObject):
     def __init__(self, config: dict, log_level=2):
         super().__init__(logging_level= log_level)
-        # self.set_logger_level(logging_level=log_level)
-        
-        self.max_thread: int = config.get('processing_config', {}).get('max_threads', 3)
+
+        self.max_thread: int = config['processing']['threading']['max_thread']
         self.thread_pool = ThreadPoolExecutor(self.max_thread)
 
-        # self.minio_connector: MinioConnector = config['minio_connector']
-        self.minio_connector = MinioConnector(storage_info= config.get('minio_storage'))
+        self.minio_connector = MinioConnector(storage_info= config['external_services']['minio_storage'])
 
         # 
         self.image_info_service_url = config['image_info_service']['url']
-        self.inference_server_urls: tuple = config.get('inference_server',{}).get('urls', ())
-
-        # 
-        self.min_waiting_period: int = config['processing_config']['min_waiting_period']
-        self.max_waiting_period: int = config['processing_config']['max_waiting_period']
-        self.request_rate: int = config['processing_config']['request_rate']
+        self.inference_server_urls: tuple = config['inference_server']['urls']
         
-        self.waiting_period = self.min_waiting_period
+        self.min_waiting_period: int = config['processing']['request']['retry_delay']['min']
+        self.max_waiting_period: int = config['processing']['request']['retry_delay']['max']
+        self.request_rate: int = config['processing']['request']['rate_per_second']
+        
 
         # load processing function
-        # self.image_processing_func: Callable = self._get_processing_function(func_name= config['image_processing_func'])
         self.image_processing_func: Callable = pipeline_utils.get_function_from_module(module= image_processing_func, 
-                                                                                       func_name= config['image_processing_func'])
+                                                                                       func_name= config['processing']['image_processing']['func_name'])
 
-
-        self.image_dim = config['processing_config']['image_dim']
+        self.image_dim = config['processing']['image_processing']['target_dim']
         self.image_dim = pipeline_utils.convert_str_to_tuple(self.image_dim)
         print(f"This is the image dim: {self.image_dim}")
 
@@ -59,9 +53,9 @@ class ProcessingServiceExecutor(RoheObject):
 
     # running logic
     def run(self):
+        self.waiting_period = self.min_waiting_period
         while True:
             task = self._get_image_from_image_info_service(requests)
-            # exit(0)
             if task:
                 self.thread_pool.submit(self._processing, task)
                 self.waiting_period = self.min_waiting_period
@@ -72,6 +66,7 @@ class ProcessingServiceExecutor(RoheObject):
                 time.sleep(self.waiting_period)
                 self.waiting_period = self.waiting_period * 2
                 self.waiting_period = min(self.max_waiting_period, self.waiting_period)
+
 
     # these functions to interact with the processing service controller
     def change_image_info_service_url(self, url: str) -> bool:

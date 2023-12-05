@@ -24,7 +24,8 @@ class IngestionService(RoheRestObject):
         self.set_logger_level(logging_level= log_lev)
 
         self.minio_connector: MinioConnector = self.conf['minio_connector']
-        self.image_info_service_url: str = self.conf['image_info_server']['endpoint_url']
+        self.image_info_service_url: str = self.conf['image_info_service']['url']
+
 
     def get(self):
         """

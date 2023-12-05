@@ -1,0 +1,9 @@
+external_services:
+  redis_server:
+    host: localhost
+    port: 6379
+    db: 0
+
+  service_registry:
+    consul_config:
+      url: http://195.148.22.62:8500

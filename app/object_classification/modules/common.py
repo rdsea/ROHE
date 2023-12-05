@@ -72,3 +72,4 @@ class InferenceEnsembleState():
     def get_mode(self) -> bool:
         return self.mode
     
+# TimeParser

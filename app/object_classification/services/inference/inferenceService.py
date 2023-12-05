@@ -24,7 +24,7 @@ class InferenceService():
                  controller_endpoint: str = '/inference_service_controller') -> None:
         
         # load dependencies
-        minio_connector = MinioConnector(storage_info= config['minio_config'])
+        minio_connector = MinioConnector(storage_info= config['external_services']['minio_storage'])
 
         MLAgent = ObjectClassificationAgent(load_model_params= config['model_info']['load_model_params'],
                                             model_id= config['model_info']['chosen_model_id'], 
@@ -42,10 +42,10 @@ class InferenceService():
         config['ensemble_lock'] = ensemble_lock
         config['ensemble_controller'] = ensemble_controller
     
-        quix_producer = QuixStreamProducer(kafka_address= config['kafka']['address'],
-                                            topic_name= config['kafka']['topic_name'])
+        quix_producer = QuixStreamProducer(kafka_address= config['external_services']['kafka']['address'],
+                                            topic_name= config['external_services']['kafka']['topic_name'])
 
-        mongodb_info = MongoDBInfo(**config['mongodb'])
+        mongodb_info = MongoDBInfo(**config['external_services']['mongodb'])
         mongo_connector = MongoDBConnector(db_info= mongodb_info)
         config['mongo_connector'] = mongo_connector
         config['quix_producer'] = quix_producer
