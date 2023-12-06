@@ -13,6 +13,24 @@ processing:
     target_dim: 32,32,3
     func_name: resize_and_pad
 
+qoa_config:
+  client:
+    client_id: aaltosea2
+    instance_name: processing_service_01
+    stage_id: Processing
+    method: REST
+    application: test
+    role: ml
+  connector:
+    amqp_connector:
+      class: amqp
+      conf:
+        end_point: 195.148.22.62
+        exchange_name: nii_inference
+        exchange_type: topic
+        out_routing_key: nii.inference1
+  registration_url: http://0.0.0.0:5010/registration
+
 external_services:
   minio_storage:
     endpoint_url: http://128.214.254.126:9000
@@ -26,18 +44,18 @@ external_services:
     service:
       inference:
         # 'type' determines the method for server selection. It can be:
-        # - "all": Selects and returns all available servers.
-        # - "one": Randomly picks and returns one server from the available pool.
-        # - "quorum": Selects and returns more than half of the available servers, ensuring a majority.
+        # - all: Selects and returns all available servers.
+        # - one: Randomly picks and returns one server from the available pool.
+        # - quorum: Selects and returns more than half of the available servers, ensuring a majority.
         # Tags (optional) can be used as a filter with any type
-        type: all # Options: "all", "one", "quorum"
+        type: all # Options: all, one, quorum
         
         # 'tags' (optional): A list of tags used to filter servers regardless of the 'type' selected.
         # If 'tags' is empty or not specified, all servers matching the 'type' criteria are considered.
         # Examples:
-        # - To use all servers with specific tags: type: "all", tags: ["tag1", "tag2"]
-        # - To select one random server with specific tags: type: "one", tags: ["tag1"]
-        # - To use a majority of servers with specific tags: type: "quorum", tags: ["tag2"]
+        # - To use all servers with specific tags: type: all, tags: [tag1, tag2]
+        # - To select one random server with specific tags: type: one, tags: [tag1]
+        # - To use a majority of servers with specific tags: type: quorum, tags: [tag2]
         tags: ['nii_case']  # List of tags to filter servers, can be empty.
 
       image_info:

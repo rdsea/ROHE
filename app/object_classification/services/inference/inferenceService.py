@@ -52,9 +52,10 @@ class InferenceService():
 
 
         if config.get('qoa_config'):
-            print(f"About to load qoa client: {config['qoa_config']}")
+            print(f"\n\n\nAbout to load qoa client: {config['qoa_config']}")
             qoa_client = QoaClient(config['qoa_config'])
             config['qoaClient'] = qoa_client
+
 
         print(f"\n\nThis is config file: {config}\n\n")
 

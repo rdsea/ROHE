@@ -20,9 +20,9 @@ import app.object_classification.modules.utils as pipeline_utils
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")
-    parser.add_argument('--port', type= int, help='default port', default=9900)
+    parser.add_argument('--port', type= int, help='default port', default=11111)
     parser.add_argument('--conf', type= str, help='specify configuration file path', 
-                        default= 'inference_service.yaml')
+                        default= 'inference_service_2.yaml')
     parser.add_argument('--executor_endpoint', type= str, help='specify service endpoint', 
                         default= '/inference_service')
     parser.add_argument('--controller_endpoint', type= str, help='specify service endpoint', 
@@ -45,12 +45,12 @@ if __name__ == '__main__':
    # consul for service register
     # register service
     local_ip = pipeline_utils.get_local_ip()
-    client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
-    service_id = client.serviceRegister(name= 'inference', address= local_ip, tag=["nii_case","vgg","vgg_2_12"], port= port)
+    consul_client = ConsulClient(config= config['external_services']['service_registry']['consul'])
+    service_id = consul_client.serviceRegister(name= 'inference', address= local_ip, tag=["nii_case","vgg","vgg_2_12"], port= port)
 
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')
-        client.serviceDeregister(id= service_id)
+        consul_client.serviceDeregister(id= service_id)
         sys.exit(0)
 
     # Register the signal handler for SIGINT

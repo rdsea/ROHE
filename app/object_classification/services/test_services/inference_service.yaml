@@ -20,6 +20,24 @@ model_info:
       vgg_7: /home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/7/repair
       vgg_7_6: /home/vtn/aalto-internship/ROHE/artifact/nii/VGG16/7/6/repair
 
+qoa_config:
+  client:
+    client_id: aaltosea2
+    instance_name: inference_service_01
+    stage_id: ML_Inference
+    method: REST
+    application: test
+    role: ml
+  connector:
+    amqp_connector:
+      class: amqp
+      conf:
+        end_point: 195.148.22.62
+        exchange_name: nii_inference
+        exchange_type: topic
+        out_routing_key: nii.inference1
+  registration_url: http://0.0.0.0:5010/registration
+
 # External service configuration
 external_services:
   minio_storage:

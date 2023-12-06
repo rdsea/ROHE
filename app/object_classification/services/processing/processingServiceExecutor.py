@@ -20,6 +20,8 @@ import app.object_classification.modules.image_processing_functions as image_pro
 
 from lib.rohe.roheObject import RoheObject
 
+from qoa4ml.QoaClient import QoaClient
+
 class ProcessingServiceExecutor(RoheObject):
     def __init__(self, config: dict, log_level=2):
         super().__init__(logging_level= log_level)
@@ -50,6 +52,14 @@ class ProcessingServiceExecutor(RoheObject):
         self.tmp_folder = "tmp_image_folder"
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
+
+        if 'qoaClient' in self.conf:
+            print(f"\n\nThere is qoa service enable in the server")
+            self.qoaClient: QoaClient = self.conf['qoaClient']
+            print(f"This is qoa client: {self.qoaClient}")
+
+        else:
+            self.qoaClient = None
 
     # running logic
     def run(self):
@@ -148,12 +158,6 @@ class ProcessingServiceExecutor(RoheObject):
             self._make_inference_request(processing_result)
             return True
 
-    # def _get_processing_function(self, func_name: str) -> Callable:
-    #     try: 
-    #         func: Callable = getattr(image_processing_func, func_name)
-    #         return func
-    #     except:
-    #         return None
 
 
     def _get_image_from_image_info_service(self, requests) -> dict:
@@ -166,7 +170,10 @@ class ProcessingServiceExecutor(RoheObject):
                 # print(f"This is the error: {e}")
                 # attempt to double decode to make it to be a dict
                 task = json.loads(response_dict)['image_info']
-            # print(f"This is the task: {task} and type of task: {type(task)}")  
+
+                ingestion_report = task['report']
+                self.qoaClient.importPReport(reports= ingestion_report)
+                
             return task
         else:
             logging.info("No image to be processed yet")

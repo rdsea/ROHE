@@ -1,5 +1,6 @@
 import sys, os
 
+from qoa4ml.QoaClient import QoaClient
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -49,15 +50,15 @@ if __name__ == '__main__':
     # consul for service register
     # register service
     local_ip = pipeline_utils.get_local_ip()
-    client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
-    service_id = client.serviceRegister(name= 'ingestion', address= local_ip, tag=["nii_case"], port= port)
+    consul_client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
+    service_id = consul_client.serviceRegister(name= 'ingestion', address= local_ip, tag=["nii_case"], port= port)
 
     # query for image info service url
     tags = config['external_services']['service_registry']['service']['image_info']['tags']
     query_type = config['external_services']['service_registry']['service']['image_info']['type']
     # for now, assume that we just need one image info service 
-    # service_info: dict = client.getAllServiceInstances(name='image_info', tags=tags)[0]
-    service_info: dict = pipeline_utils.handle_service_query(consul_client= client, 
+    # service_info: dict = consul_client.getAllServiceInstances(name='image_info', tags=tags)[0]
+    service_info: dict = pipeline_utils.handle_service_query(consul_client= consul_client, 
                                                        service_name= 'image_info',
                                                        query_type= query_type,
                                                        tags= tags)[0]
@@ -68,9 +69,16 @@ if __name__ == '__main__':
     config['image_info_service']['url'] = endpoint
     print(f"This is image info endpoint: {endpoint}")
 
+
+    # qoa
+    if config.get('qoa_config'):
+        print(f"\n\n\nAbout to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        config['qoaClient'] = qoa_client
+
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')
-        client.serviceDeregister(id= service_id)
+        consul_client.serviceDeregister(id= service_id)
         sys.exit(0)
 
     # Register the signal handler for SIGINT

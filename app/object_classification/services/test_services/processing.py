@@ -40,14 +40,14 @@ if __name__ == '__main__':
 
     # service registry
     local_ip = pipeline_utils.get_local_ip()
-    client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
-    service_id = client.serviceRegister(name= 'processing', address= local_ip, tag=["nii_case"], port= port)
+    consul_client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
+    service_id = consul_client.serviceRegister(name= 'processing', address= local_ip, tag=["nii_case"], port= port)
 
     # query for image info service url
     image_info_tags = config['external_services']['service_registry']['service']['image_info']['tags']
     image_info_query_type = config['external_services']['service_registry']['service']['image_info']['type']
     # for now, assume that we just need one image info service 
-    service_info = pipeline_utils.handle_service_query(consul_client= client, 
+    service_info = pipeline_utils.handle_service_query(consul_client= consul_client, 
                                                        service_name= 'image_info',
                                                        query_type= image_info_query_type,
                                                        tags= image_info_tags)[0]
@@ -59,14 +59,10 @@ if __name__ == '__main__':
     print(f"This is image info endpoint: {image_info_endpoint}")
 
     # inference services
-    # # emulate the service registry
-    # config['inference_server'] = {}
-    # # config['inference_server']['urls'] = ("http://localhost:9000/inference_service","http://localhost:30000/inference_service")
-    # config['inference_server']['urls'] = ("http://localhost:9000/inference_service", "http://localhost:9900/inference_service")
     inference_tags = config['external_services']['service_registry']['service']['inference']['tags']
     inference_query_type = config['external_services']['service_registry']['service']['inference']['type']
 
-    inference_service_info = pipeline_utils.handle_service_query(consul_client= client, 
+    inference_service_info = pipeline_utils.handle_service_query(consul_client= consul_client, 
                                                        service_name= 'inference',
                                                        query_type= inference_query_type,
                                                        tags= inference_tags)
@@ -76,16 +72,13 @@ if __name__ == '__main__':
         url = f"http://{service_info['Address']}:{service_info['Port']}/{inference_endpoint}"
         inference_urls.append(url)
     inference_urls = tuple(inference_urls)
-    print(f"This is inference urls: {inference_urls}")
-    # image_info_endpoint = f"http://{service_info['Address']}:{service_info['Port']}/{image_info_endpoint}"
-    # config['image_info_service'] = {}
-    # config['image_info_service']['url'] = image_info_endpoint
-    # print(f"This is image info endpoint: {image_info_endpoint}")
-
+    config['inference_server'] = {}
+    config['inference_server']['urls'] = inference_urls
+    print(f"This is inference urls: {config['inference_server']['urls']}")
 
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')
-        client.serviceDeregister(id= service_id)
+        consul_client.serviceDeregister(id= service_id)
         sys.exit(0)
 
     # Register the signal handler for SIGINT

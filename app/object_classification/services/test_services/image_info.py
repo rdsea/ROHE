@@ -45,12 +45,12 @@ if __name__ == '__main__':
    # consul for service register
     # register service
     local_ip = pipeline_utils.get_local_ip()
-    client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
-    service_id = client.serviceRegister(name= 'image_info', address= local_ip, tag=["nii_case"], port= port)
+    consul_client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
+    service_id = consul_client.serviceRegister(name= 'image_info', address= local_ip, tag=["nii_case"], port= port)
 
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')
-        client.serviceDeregister(id= service_id)
+        consul_client.serviceDeregister(id= service_id)
         sys.exit(0)
 
     # Register the signal handler for SIGINT

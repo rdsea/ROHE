@@ -12,6 +12,7 @@ from lib.rohe.restService import RoheRestObject
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 import app.object_classification.modules.utils as pipeline_utils
 
+from qoa4ml.QoaClient import QoaClient
 
 
 class IngestionService(RoheRestObject):
@@ -26,6 +27,14 @@ class IngestionService(RoheRestObject):
         self.minio_connector: MinioConnector = self.conf['minio_connector']
         self.image_info_service_url: str = self.conf['image_info_service']['url']
 
+        print(f"\n\n\n this is configuration file: {self.conf}")
+        if 'qoaClient' in self.conf:
+            print(f"\n\nThere is qoa service enable in the server")
+            self.qoaClient: QoaClient = self.conf['qoaClient']
+            print(f"This is qoa client: {self.qoaClient}")
+
+        else:
+            self.qoaClient = None
 
     def get(self):
         """
@@ -59,6 +68,8 @@ class IngestionService(RoheRestObject):
 
         :return: JSON response indicating the status of the command or an error message.
         """
+        if self.qoaClient:
+            self.qoaClient.timer() 
 
         # Retrieve the metadata from the form-data
         timestamp = request.form.get('timestamp')
@@ -107,6 +118,11 @@ class IngestionService(RoheRestObject):
                     dtype = None
                     shape = None
 
+                if self.qoaClient:
+                    self.qoaClient.timer()
+                    
+                    report = self.qoaClient.report(submit=False)
+
                 # Prepare the payload for Image Info service
                 payload = {
                     "command": "add",
@@ -116,6 +132,7 @@ class IngestionService(RoheRestObject):
                     'image_url': remote_filename,
                     'dtype': dtype,
                     'shape': shape,
+                    'report': report,
                 }
 
                 print(f"This is the payload: {payload}")
@@ -126,7 +143,11 @@ class IngestionService(RoheRestObject):
                     print(f"\nSuccessfully upload request {request_id} to Image Info Service")
                     # return True
                     response = f"Successfully forward the request to the next step. Request id: {request_id}"
+
+
+                    
                     return json.dumps({"response": response}), 200, {'Content-Type': 'application/json'}
+
                 else:
                     print(f"\n\nThis is the response from image info server: {response.json()}")
                     message = f"Failed to upload request {request_id} to Image Info Service"

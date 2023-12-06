@@ -31,6 +31,7 @@ class InferenceServiceExecutor(RoheRestObject):
         if 'qoaClient' in self.conf:
             print(f"There is qoa service enable in the server")
             self.qoaClient: QoaClient = self.conf['qoaClient']
+            print(f"This is qoa client: {self.qoaClient}")
         else:
             self.qoaClient = None
 
@@ -64,7 +65,7 @@ class InferenceServiceExecutor(RoheRestObject):
 
     def get(self):
         try:
-            response = f"This is Object Classification Server. \n The only accepted input shape: {self.MLAgent.input_shape}"
+            response = f"This is Object Classification Server. Current model in use: {self.MLAgent.get_model_id()} \n The only accepted input shape: {self.MLAgent.input_shape}"
             return json.dumps({'response': response}), 200, {'Content-Type': 'application/json'}
         except Exception as e:
             print("Exception:", e)
