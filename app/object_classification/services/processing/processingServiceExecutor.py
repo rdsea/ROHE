@@ -53,9 +53,9 @@ class ProcessingServiceExecutor(RoheObject):
         if not os.path.exists(self.tmp_folder):
             os.mkdir(self.tmp_folder)
 
-        if 'qoaClient' in self.conf:
+        if 'qoaClient' in config:
             print(f"\n\nThere is qoa service enable in the server")
-            self.qoaClient: QoaClient = self.conf['qoaClient']
+            self.qoaClient: QoaClient = config['qoaClient']
             print(f"This is qoa client: {self.qoaClient}")
 
         else:
