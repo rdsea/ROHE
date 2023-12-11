@@ -8,9 +8,8 @@ import signal
 from dotenv import load_dotenv
 load_dotenv()
 
-main_path = os.getenv('ROHE_PATH')
-print(f"This is main path: {main_path}")
-sys.path.append(main_path)
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 
 
 import lib.roheUtils as roheUtils

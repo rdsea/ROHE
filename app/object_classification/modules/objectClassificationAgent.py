@@ -94,11 +94,12 @@ class ObjectClassificationAgent(RoheMLAgent):
         # weights_file = files_name.get('weights_file', '')
         architecture_file = load_model_params['architecture_file']
         weights_file = load_model_params['weights_file']
-        models = ROHE_PATH+load_model_params['model_directories']
+        models = load_model_params['model_directories']
         
         # construct full system path for each model
         for model_id, folder in models.items():
             # folder = info.get('folder', '')
+            folder = ROHE_PATH+folder
             model_params[model_id] = {
                 'files': {
                     'architecture_file': os.path.join(folder, architecture_file),

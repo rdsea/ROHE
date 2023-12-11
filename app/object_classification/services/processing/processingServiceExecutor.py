@@ -171,8 +171,8 @@ class ProcessingServiceExecutor(RoheObject):
                 # attempt to double decode to make it to be a dict
                 task = json.loads(response_dict)['image_info']
 
-                ingestion_report = task['report']
-                self.qoaClient.importPReport(reports= ingestion_report)
+                # ingestion_report = task['report']
+                # self.qoaClient.importPReport(reports= ingestion_report)
                 
             return task
         else:
