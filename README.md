@@ -320,3 +320,23 @@ rename module for icsoc, journal
 
 
  -->
+## Reference 
+If you use the software, you can cite
+
+```
+@software{site:rohe,
+author = {Minh-Tri Nguyen and Hong-Linh Truong},
+license = {Apache-2.0},
+month = Dec,
+title = {{ROHE: An Orchestration Framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge}},
+url = {https://github.com/rdsea/ROHE},
+year = {2023}
+}
+```
+## Authors/Contributors
+- Minh-Tri Nguyen
+- Hong-Linh Truong
+- Vuong Nguyen
+## License
+
+[Apache License](./LICENSE)
