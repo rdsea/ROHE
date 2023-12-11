@@ -5,7 +5,7 @@ services:
     extra_hosts:
       - "host-machine:localhost"
     volumes:
-      - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml:/ingestion-server/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml
+      - ${ROHE_PATH}/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml:/ingestion-server/examples/applications/object_classification/kube_deployment/dataIngestionService/ingestion_service.yaml
     # environment:
     #   HOST_SERVICE_URL_2: "http://host-machine:5000"  # Service on host machine at port 5000
     #   MQTT_BROKER_URL: "mqtt://host-machine:1883"

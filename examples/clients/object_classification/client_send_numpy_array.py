@@ -15,9 +15,9 @@ import random
 from dotenv import load_dotenv
 load_dotenv()
 
-main_path = os.getenv('ROHE_PATH')
-print(f"This is main path: {main_path}")
-sys.path.append(main_path)
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 
 
 from app.modules.connectors.mqtt import MqttPublisher
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # parser.add_argument('--test_ds', type= str, help='default test dataset path', 
     #             default= "01.jpg")
     parser.add_argument('--test_ds', type= str, help='default test dataset path', 
-                default= "/Users/tringuyen/workplace/Study/PhD/Github/rdsea/test_model/datasets/BDD100K-Classification/test.h5")
+                default= "/artifact/nii/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type= int, help='default number of requests per second', default= 20)
 
     # Parse the parameters
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     config = {
         'device_id': config['device_id'],
         'mqtt_config': config['mqtt_config'],
-        'test_ds': args.test_ds,
+        'test_ds': ROHE_PATH + args.test_ds,
         'rate': args.rate,
     }
     main(config= config)

@@ -10,7 +10,7 @@ services:
     # so that if we want to modify the url of any of the service
     # or change some other config of the server
     # no need to rebuild the image
-      # - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact:/inference-server/artifact
-      # - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
-      - /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact:/inference-server/artifact
+      # - ${ROHE_PATH}/artifact:/inference-server/artifact
+      # - ${ROHE_PATH}/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
+      - ${ROHE_PATH}/artifact:/inference-server/artifact
       - ./configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml

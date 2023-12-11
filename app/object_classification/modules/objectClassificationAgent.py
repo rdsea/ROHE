@@ -4,6 +4,9 @@ import json
 import tensorflow as tf
 import numpy as np
 from app.object_classification.lib.roheMLAgent import RoheMLAgent
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 
 import app.object_classification.modules.utils as pipeline_utils
 
@@ -91,7 +94,7 @@ class ObjectClassificationAgent(RoheMLAgent):
         # weights_file = files_name.get('weights_file', '')
         architecture_file = load_model_params['architecture_file']
         weights_file = load_model_params['weights_file']
-        models = load_model_params['model_directories']
+        models = ROHE_PATH+load_model_params['model_directories']
         
         # construct full system path for each model
         for model_id, folder in models.items():

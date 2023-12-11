@@ -24,7 +24,7 @@ _Description_: This microservice is responsible for executing machine learning i
 (Image update later)
 
 ### 2. Environment Variables
-Set the path to ROHE local repo directory as environment variable (in .env file) (eg: ROHE=/Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE)
+Set the path to ROHE local repo directory as environment variable (in .env file) (eg: ROHE_PATH = <path_to_ROHE>)
 
 ### 3. Runtime Parameters (Using argparse)
 

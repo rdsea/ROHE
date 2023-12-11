@@ -23,10 +23,9 @@ def get_parent_dir(file_path, levels_up=1):
         parent_path = os.path.dirname(parent_path)
     return parent_path
 
-up_level = 5
-root_path = get_parent_dir(__file__, up_level)
-print(root_path)
-sys.path.append(root_path)
+import sys, os
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 
 
 from examples.applications.NII.utilities.mqttPublisher import MqttPublisher
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_ds', type= str, help='default test dataset path', 
                 default= "test_image/02.jpg")
     # parser.add_argument('--test_ds', type= str, help='default test dataset path', 
-    #             default= "/Users/tringuyen/workplace/Study/PhD/Github/rdsea/test_model/datasets/BDD100K-Classification/test.h5")
+    #             default= "/artifact/nii/datasets/BDD100K-Classification/test.h5")
     parser.add_argument('--rate', type= int, help='default number of requests per second', default= 20)
 
     # Parse the parameters
@@ -132,7 +131,7 @@ if __name__ == '__main__':
     config = {
         'device_id': config['device_id'],
         'mqtt_config': config['mqtt_config'],
-        'test_ds': args.test_ds,
+        'test_ds': ROHE_PATH + args.test_ds,
         'rate': args.rate,
     }
     main(config= config)

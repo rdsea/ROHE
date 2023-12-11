@@ -10,15 +10,15 @@ model_info:
     architecture_file: model.json
     weights_file: model.h5
     model_directories:
-      vgg: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/repair
-      vgg_0: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/0/repair
-      vgg_2_7: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/2/7/repair
-      vgg_2_12: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/2/12/repair
-      vgg_3_6: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/3/6/repair
-      vgg_6: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/6/repair
-      vgg_6_7: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/6/7/repair
-      vgg_7: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/7/repair
-      vgg_7_6: /Users/tringuyen/workplace/Study/PhD/Github/rdsea/ROHE/artifact/nii/VGG16/7/6/repair
+      vgg: /artifact/nii/VGG16/repair
+      vgg_0: /artifact/nii/VGG16/0/repair
+      vgg_2_7: /artifact/nii/VGG16/2/7/repair
+      vgg_2_12: /artifact/nii/VGG16/2/12/repair
+      vgg_3_6: /artifact/nii/VGG16/3/6/repair
+      vgg_6: /artifact/nii/VGG16/6/repair
+      vgg_6_7: /artifact/nii/VGG16/6/7/repair
+      vgg_7: /artifact/nii/VGG16/7/repair
+      vgg_7_6: /artifact/nii/VGG16/7/6/repair
 
 qoa_config:
   client:
