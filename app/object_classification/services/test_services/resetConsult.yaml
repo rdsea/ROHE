@@ -1,0 +1,8 @@
+service_registry:
+  consul_config:
+    url: http://195.148.22.62:8500
+service:
+  - image_info
+  - inference
+  - ingestion
+  - processing
