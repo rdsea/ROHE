@@ -199,7 +199,6 @@ class ProcessingServiceExecutor(RoheObject):
             if image_extension == "npy":
                 with open(task['temp_local_path'], "rb") as file:
                     raw_data = file.read()
-
                 # shape = pipeline_utils.get_image_dim_from_str(task['shape'])
                 shape = pipeline_utils.convert_str_to_tuple(task['shape'])
                 image = np.frombuffer(raw_data, dtype=task['dtype']).reshape(shape)
@@ -210,7 +209,8 @@ class ProcessingServiceExecutor(RoheObject):
             
             if shape != self.image_dim:
                 processed_image: np.ndarray = self.image_processing_func(image, self.image_dim)
-
+            else:
+                processed_image = image
             # print(f"This is the shape of the processed_image: {processed_image.shape}")
             return processed_image
         

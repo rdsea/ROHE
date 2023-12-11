@@ -1,6 +1,7 @@
 import requests
 import numpy as np
 import io
+import time
 
 # The URL of the HTTP server's ingestion endpoint
 # ingestion_service_url = 'http://localhost:5000/ingestion'
@@ -15,7 +16,7 @@ image_bytes = io.BytesIO(array_data.tobytes())  # Use tobytes() to get the raw a
 
 # Prepare the data to send
 data = {
-    'timestamp': '2023-11-07T12:00:00Z',
+    'timestamp': str(time.time()),
     'device_id': 'aaltosea-cam-test',
     'image_extension': 'npy',
     'shape': ','.join(map(str, array_data.shape)),  # Example: '100,100,3'
