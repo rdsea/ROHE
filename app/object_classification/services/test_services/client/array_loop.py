@@ -3,6 +3,9 @@ import sys, os, io
 import numpy as np
 import h5py
 import random, base64
+
+from dotenv import load_dotenv
+load_dotenv()
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
@@ -76,7 +79,7 @@ def send_request(config):
 
         # Check the response
         print(response.status_code)
-        print(response.json())
+        print(f"request number {i + 1}: {response.json()}")
         time.sleep(1)
 
 if __name__ == '__main__':

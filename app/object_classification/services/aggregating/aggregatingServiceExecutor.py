@@ -1,6 +1,7 @@
 
 import logging
 
+import copy
 
 import pandas as pd
 import numpy as np
@@ -81,37 +82,39 @@ class AggregatingServiceExecutor(RoheObject):
     # def change_
     
     def on_receive_data_as_dataframe(self, stream, df: pd.DataFrame):
-        print("enter this receiving dataframe block")
         # Convert the 'prediction' column to NumPy arrays
         df['prediction'] = df['prediction'].apply(lambda x: np.frombuffer(x, dtype=np.float64))
 
         print(f"this is the len of already processed id list: {len(self.already_processed_ids.buffer)}")
-        with self.lock:
-            # Group by 'request_id'
-            for req_id, group in df.groupby('request_id'):
-                # pass the already processed id
+        # Group by 'request_id'
+        for req_id, group in df.groupby('request_id'):
+            # pass the already processed id
+            with self.lock:
                 if self.already_processed_ids.contains(req_id):
                     continue
-                
-                # Convert group DataFrame to list of dicts for more efficient processing
-                group_list = group.to_dict(orient='records')
-                
-                if req_id in self.buffer_dict:
-                    self.buffer_dict[req_id]['data'].extend(group_list)
-                else:
-                    self.buffer_dict[req_id] = {
-                        'data': group_list,
-                        'timer': time.time()  # Current timestamp
-                    }
-                    # # test aggregate function - emulate as more than one inference server send result to the aggregating server
-                    # self.buffer_dict[req_id]['data'].extend(group_list)
+            
+            # Convert group DataFrame to list of dicts for more efficient processing
+            group_list = group.to_dict(orient='records')
+            
+            if req_id in self.buffer_dict:
+                self.buffer_dict[req_id]['data'].extend(group_list)
+            else:
+                self.buffer_dict[req_id] = {
+                    'data': group_list,
+                    'timer': time.time()  # Current timestamp
+                }
+                # # test aggregate function - emulate as more than one inference server send result to the aggregating server
+                # self.buffer_dict[req_id]['data'].extend(group_list)
 
-            req_ids = self.buffer_dict.keys()
-            # for req_id, info in self.buffer_dict.items():
-            for req_id in req_ids:
-                print(f"This is the req id: {req_id}")
-                # self.executor.submit(self.check_and_process, req_id, info)
-                self.executor.submit(self.check_and_process, req_id, self.buffer_dict[req_id])
+        clone = copy.deepcopy(self.buffer_dict)
+        req_ids = clone.keys()
+        for req_id in req_ids:
+            print(f"This is the req id: {req_id}")
+            try: 
+                info = clone[req_id]
+                self.executor.submit(self.check_and_process, req_id, info)
+            except Exception as e:
+                print(f"this is error: {e}")
 
 
     # def check_and_process(self, req_id, buffer_data):
@@ -120,17 +123,17 @@ class AggregatingServiceExecutor(RoheObject):
         # Check the conditions: Time elapsed or minimum number of messages reached
         elapsed_time = float(time.time() - buffer_data['timer'])
         num_messages = len(buffer_data['data'])
-        print(f"This is the elapse time: {elapsed_time} and type of it: {type(elapsed_time)}, this is time limit: {self.time_limit}")
-        print(f"This is elapse time and time limit: {elapsed_time}, {self.time_limit}")
-        print(f"this is the result of time buffer: {elapsed_time >= self.time_limit}")
+        # print(f"This is the elapse time: {elapsed_time} and type of it: {type(elapsed_time)}, this is time limit: {self.time_limit}")
+        # print(f"This is elapse time and time limit: {elapsed_time}, {self.time_limit}")
+        # print(f"this is the result of time buffer: {elapsed_time >= self.time_limit}")
 
         if elapsed_time >= self.time_limit or num_messages >= self.min_message:
-            # if req_id not in self.already_processed_ids:
-            if not self.already_processed_ids.contains(req_id):
-                print(f"Request_id: {req_id}, elapsed time: {elapsed_time}, current messages: {num_messages}")
-                self.aggregating_process(buffer_data['data'])
-                self.buffer_dict.pop(req_id, None)
-                self.already_processed_ids.append(req_id)
+            with self.lock:
+                if not self.already_processed_ids.contains(req_id):
+                    # print(f"Request_id: {req_id}, elapsed time: {elapsed_time}, current messages: {num_messages}")
+                    self.aggregating_process(buffer_data['data'])
+                    self.buffer_dict.pop(req_id, None)
+                    self.already_processed_ids.append(req_id)
 
         
     def aggregating_process(self, data: list):

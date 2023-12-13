@@ -1,4 +1,8 @@
 import sys, os, argparse
+
+from dotenv import load_dotenv
+load_dotenv()
+
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
