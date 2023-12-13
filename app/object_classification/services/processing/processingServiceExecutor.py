@@ -229,7 +229,7 @@ class ProcessingServiceExecutor(RoheObject):
             'shape': shape_str,
             'dtype': str(processing_result['processed_image'].dtype)
         }
-        print(f"\n\n\n\n\nThis is the metadata: {metadata}")
+        print(f"\nThis is the metadata: {metadata}")
         # Create a dictionary to include both command and metadata
         payload = {
             # 'command': 'predict',
@@ -242,7 +242,7 @@ class ProcessingServiceExecutor(RoheObject):
 
 
     async def _make_requests(self, payload, files):
-        print(f"\n\n\n\nabout to make request to inference servers: {self.inference_server_urls}")
+        print(f"\nabout to make request to inference servers: {self.inference_server_urls}")
         async with aiohttp.ClientSession() as session:
             tasks = [self._post_request(session, server, payload, files) for server in self.inference_server_urls]
             await asyncio.gather(*tasks)

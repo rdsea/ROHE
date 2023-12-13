@@ -1,11 +1,11 @@
-import sys
+import sys, os
 import json
 from qoa4ml import qoaUtils as utils
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 from threading import Thread
 
-lib_path = utils.get_parent_dir(__file__,3)
-sys.path.append(lib_path)
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 
 from userModule.common.parser import OCParser
 
@@ -21,8 +21,9 @@ class Collector(object):
 
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
-        result = OCParser(mess, self.config["parser_config"])
+        # result = OCParser(mess, self.config["parser_config"])
         # print(result)
     
     def stop(self):
         self.collector.stop()
+

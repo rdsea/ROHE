@@ -15,11 +15,11 @@ processing:
 
 qoa_config:
   client:
-    client_id: aaltosea2
-    instance_name: processing_service_01
-    stage_id: Processing
+    userID: aaltosea2
+    instanceID: processing_service_01
+    stageID: Processing
     method: REST
-    application: test
+    appName: nii
     role: ml
   connector:
     amqp_connector:
@@ -28,7 +28,7 @@ qoa_config:
         end_point: 195.148.22.62
         exchange_name: nii_inference
         exchange_type: topic
-        out_routing_key: nii.inference1
+        out_routing_key: nii.processing
   registration_url: http://0.0.0.0:5010/registration
 
 external_services:

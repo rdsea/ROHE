@@ -11,7 +11,7 @@ sys.path.append(ROHE_PATH)
 
 from app.object_classification.services.processing.processingService import ProcessingService
 import lib.roheUtils as roheUtils
-
+from qoa4ml.QoaClient import QoaClient
 from lib.serviceRegistry.consul import ConsulClient
 
 import app.object_classification.modules.utils as pipeline_utils
@@ -24,6 +24,8 @@ if __name__ == '__main__':
                         default= 'processing_config.yaml')
     parser.add_argument('--endpoint', type= str, help='specify service endpoint', 
                         default= '/processing_service_controller')
+    parser.add_argument('--run', type= str, help='specify run ID', 
+                        default= 'profiling1')
     
     # Parse the parameters
     args = parser.parse_args()
@@ -74,6 +76,14 @@ if __name__ == '__main__':
     config['inference_server'] = {}
     config['inference_server']['urls'] = inference_urls
     print(f"This is inference urls: {config['inference_server']['urls']}")
+
+    # qoa
+    if config.get('qoa_config'):
+        config['qoa_config']['client']['runID'] = args.run
+        print(f"\nAbout to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        qoa_client.process_monitor_start(5)
+        config['qoaClient'] = qoa_client
 
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')

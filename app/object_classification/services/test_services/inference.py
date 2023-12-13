@@ -12,7 +12,7 @@ sys.path.append(ROHE_PATH)
 
 from app.object_classification.services.inference.inferenceService import InferenceService
 import lib.roheUtils as roheUtils
-
+from qoa4ml.QoaClient import QoaClient
 from lib.serviceRegistry.consul import ConsulClient
 import app.object_classification.modules.utils as pipeline_utils
 
@@ -26,6 +26,8 @@ if __name__ == '__main__':
                         default= '/inference_service')
     parser.add_argument('--controller_endpoint', type= str, help='specify service endpoint', 
                         default= '/inference_service_controller')
+    parser.add_argument('--run', type= str, help='specify run ID', 
+                        default= 'profiling1')
 
     # Parse the parameters
     args = parser.parse_args()
@@ -45,7 +47,15 @@ if __name__ == '__main__':
     # register service
     local_ip = pipeline_utils.get_local_ip()
     consul_client = ConsulClient(config= config['external_services']['service_registry']['consul_config'])
-    service_id = consul_client.serviceRegister(name= 'inference', address= local_ip, tag=["nii_case","vgg","vgg_0"], port= port)
+    service_id = consul_client.serviceRegister(name= 'inference', address= local_ip, tag=["nii_case","vgg","vgg_7"], port= port)
+
+    # qoa
+    if config.get('qoa_config'):
+        config['qoa_config']['client']['runID'] = args.run
+        print(f"\nAbout to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        qoa_client.process_monitor_start(5)
+        config['qoaClient'] = qoa_client
 
     def signal_handler(sig, frame):
         print('You pressed Ctrl+C! Gracefully shutting down.')

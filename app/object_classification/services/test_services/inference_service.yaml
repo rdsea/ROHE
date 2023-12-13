@@ -4,7 +4,7 @@ ensemble: true
 
 # Model Information
 model_info:
-  chosen_model_id: vgg_0
+  chosen_model_id: vgg_7
   input_shape: 32,32,3
   load_model_params:
     architecture_file: model.json
@@ -22,11 +22,11 @@ model_info:
 
 qoa_config:
   client:
-    client_id: aaltosea2
-    instance_name: inference_service_01
-    stage_id: ML_Inference
+    userID: aaltosea2
+    instanceID: inference_service_01
+    stageID: ML_Inference
     method: REST
-    application: test
+    appName: nii
     role: ml
   connector:
     amqp_connector:

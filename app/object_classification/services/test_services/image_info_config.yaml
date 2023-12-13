@@ -7,3 +7,21 @@ external_services:
   service_registry:
     consul_config:
       url: http://195.148.22.62:8500
+
+qoa_config:
+  client:
+    userID: aaltosea2
+    instanceID: image_info_service_01
+    stageID: ImageInfo
+    method: REST
+    appName: nii
+    role: ml
+  connector:
+    amqp_connector:
+      class: amqp
+      conf:
+        end_point: 195.148.22.62
+        exchange_name: nii_inference
+        exchange_type: topic
+        out_routing_key: nii.imageinfo
+  registration_url: http://0.0.0.0:5010/registration

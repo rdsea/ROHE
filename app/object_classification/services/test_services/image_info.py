@@ -19,12 +19,14 @@ from app.object_classification.services.image_info.imageInfoService import Image
 
 from lib.serviceRegistry.consul import ConsulClient
 import app.object_classification.modules.utils as pipeline_utils
-
+from qoa4ml.QoaClient import QoaClient
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Task Coordinator Service")
     parser.add_argument('--port', type= int, help='default port', default=5000)
     parser.add_argument('--conf', type= str, help='configuration file', default= 'image_info_config.yaml')
+    parser.add_argument('--run', type= str, help='specify run ID', 
+                        default= 'profiling1')
 
 
     # Parse the parameters
@@ -40,6 +42,15 @@ if __name__ == '__main__':
     config['external_services']['redis_server']['db'] = int(config['external_services']['redis_server']['db'])
 
     print(f"This is the config: {config}")
+
+    
+    # qoa
+    if config.get('qoa_config'):
+        config['qoa_config']['client']['runID'] = args.run
+        print(f"\nAbout to load qoa client: {config['qoa_config']}")
+        qoa_client = QoaClient(config['qoa_config'])
+        qoa_client.process_monitor_start(5)
+        config['qoaClient'] = qoa_client
 
    # consul for service register
     # register service

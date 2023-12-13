@@ -18,6 +18,8 @@ if __name__ == '__main__':
     parser.add_argument('--port', type= int, help='default port', default=13000)
     parser.add_argument('--conf', type= str, help='specify configuration file path', 
                         default= 'aggregating_service.yaml')
+    parser.add_argument('--run', type= str, help='specify run ID', 
+                        default= 'profiling1')
     parser.add_argument('--endpoint', type= str, help='specify service endpoint', 
                         default= '/aggregating_service_controller')
     

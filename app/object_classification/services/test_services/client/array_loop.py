@@ -77,7 +77,7 @@ def send_request(config):
         # Check the response
         print(response.status_code)
         print(response.json())
-        time.sleep(1)
+        # time.sleep(0.2)
 
 if __name__ == '__main__':
     # init_env_variables()

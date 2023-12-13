@@ -28,6 +28,8 @@ if __name__ == '__main__':
     parser.add_argument('--port', type= int, help='default port', default=3000)
     parser.add_argument('--conf', type= str, help='specify configuration file path', 
                         default= 'ingestion_config.yaml')
+    parser.add_argument('--run', type= str, help='specify run ID', 
+                        default= 'profiling1')
 
     # Parse the parameters
     args = parser.parse_args()
@@ -71,8 +73,10 @@ if __name__ == '__main__':
 
     # qoa
     if config.get('qoa_config'):
-        print(f"\n\n\nAbout to load qoa client: {config['qoa_config']}")
+        config['qoa_config']['client']['runID'] = args.run
+        print(f"\nAbout to load qoa client: {config['qoa_config']}")
         qoa_client = QoaClient(config['qoa_config'])
+        qoa_client.process_monitor_start(5)
         config['qoaClient'] = qoa_client
 
     def signal_handler(sig, frame):
