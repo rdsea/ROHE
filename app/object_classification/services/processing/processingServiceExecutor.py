@@ -59,6 +59,7 @@ class ProcessingServiceExecutor(RoheObject):
             print(f"This is qoa client: {self.qoaClient}")
 
         else:
+            print("no qoa client config")
             self.qoaClient = None
 
     # running logic
@@ -114,6 +115,8 @@ class ProcessingServiceExecutor(RoheObject):
         #     'dtype': dtype,
         #     'shape': shape,
         # }
+        if self.qoaClient:
+            self.qoaClient.timer() 
 
         # Process the image
         # download image from minio server
@@ -135,11 +138,19 @@ class ProcessingServiceExecutor(RoheObject):
         if processed_image is None:
             logging.info(f"fail to process the image")
             return None
-        
+
+        if self.qoaClient:
+            self.qoaClient.timer() 
+            report = self.qoaClient.report(submit=False)
+            print(f"This is the processing report: {report}")
+            report = pipeline_utils.message_serialize(report)
+        else:
+            report = None
 
         processing_result = {
             "request_id": task['request_id'],
-            "processed_image": processed_image
+            "processed_image": processed_image,
+            "report": report,
         }
 
         # Notify image info service of completion
@@ -163,16 +174,23 @@ class ProcessingServiceExecutor(RoheObject):
     def _get_image_from_image_info_service(self, requests) -> dict:
         response = requests.get(self.image_info_service_url)
         if response.status_code == 200:
-            response_dict = json.loads(response.text) 
+            # response_dict = json.loads(response.text) 
+            response_dict = pipeline_utils.message_deserialize(response.text)
             try:
                 task = response_dict['image_info']
             except Exception as e:
                 # print(f"This is the error: {e}")
                 # attempt to double decode to make it to be a dict
-                task = json.loads(response_dict)['image_info']
+                # task = json.loads(response_dict)['image_info']
+                task = pipeline_utils.message_deserialize(response_dict)['image_info']
 
-                # ingestion_report = task['report']
-                # self.qoaClient.importPReport(reports= ingestion_report)
+                print(f"This is the task: {type(task)}, {task}")
+
+                ingestion_report = pipeline_utils.message_deserialize(task['report'])
+                print(f"This is the ingestion report: {ingestion_report}")
+                if self.qoaClient:
+                    self.qoaClient.importPReport(reports= ingestion_report)
+
                 
             return task
         else:
@@ -227,13 +245,18 @@ class ProcessingServiceExecutor(RoheObject):
         metadata = {
             'request_id': processing_result['request_id'],
             'shape': shape_str,
-            'dtype': str(processing_result['processed_image'].dtype)
+            'dtype': str(processing_result['processed_image'].dtype),
         }
-        print(f"\n\n\n\n\nThis is the metadata: {metadata}")
+        metadata = pipeline_utils.message_serialize(metadata)
+        print(f"\n\n\n\n\nThis is the metadata and its type: {type(metadata)}, {metadata}")
+        print(f"\n\n\n\n\nThis is the report and its type: {type(processing_result['report'])}, {processing_result['report']}")
+
         # Create a dictionary to include both command and metadata
         payload = {
             # 'command': 'predict',
-            'metadata': json.dumps(metadata)
+            # 'metadata': json.dumps(metadata),
+            'metadata': metadata,
+            'report': processing_result['report'],
         }
 
         files = {'image': ('image', image_bytes, 'application/octet-stream')}
@@ -251,13 +274,18 @@ class ProcessingServiceExecutor(RoheObject):
         try:
             # Create a FormData object
             data = FormData()
-            # data.add_field('command', payload['command'])
             data.add_field('metadata', payload['metadata'])
+            data.add_field('report', payload['report'])
+
 
             # 'files' as {'file_name': ('filename', file_bytes, 'content_type')}
             for file_name, file_tuple in files.items():
                 filename, file_bytes, content_type = file_tuple
                 data.add_field(file_name, file_bytes, filename=filename, content_type=content_type)
+
+            print(f"This is the data send and its type: {type(data)}, {data}")
+
+            print(f"this is the report and its type: {type(payload['report'])}, {payload['report']}")
 
             print(f"send request to this server {url} at timestamp {pipeline_utils.get_current_utc_timestamp()}")
             async with session.post(url, data=data) as response:

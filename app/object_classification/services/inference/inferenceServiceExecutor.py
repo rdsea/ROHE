@@ -105,6 +105,7 @@ class InferenceServiceExecutor(RoheRestObject):
 
                 self.qoaClient.observeInferenceMetric("confidence", confidence)
                 report = self.qoaClient.report(submit=True)
+                print(f"This is the final report: {report}")
 
             except Exception as e:
                 print(e)
@@ -129,17 +130,21 @@ class InferenceServiceExecutor(RoheRestObject):
 
         inference_result = None
         ### METADATA ####
-        metadata = self._get_image_metadata(request= request)
-        if metadata is None:
+        # metadata = self._get_image_metadata(request= request)
+        request_info = self._get_request_info(request=request)
+        print(f"After processing request info")
+        print(f"This is request info: {request_info}")
+        if request_info is None:
             response = f'There is no metadata with this request. Cannot retrieve the image for the inference stage'
             return response, inference_result
         try: 
-            request_input_shape = pipeline_utils.convert_str_to_tuple(metadata['shape'])
+            request_input_shape = pipeline_utils.convert_str_to_tuple(request_info['metadata']['shape'])
         except:
             response = f'metadata of the image is wrong.'
             return response, inference_result
 
         if self.qoaClient:
+            self.qoaClient.importPReport(reports= request_info['report'])
             self.qoaClient.observeMetric("image_width", request_input_shape[0], 1)
             self.qoaClient.observeMetric("image_height", request_input_shape[1], 1)
             model_metadata = self.MLAgent.get_model_metadata()
@@ -154,7 +159,7 @@ class InferenceServiceExecutor(RoheRestObject):
             return response, inference_result
 
         try:
-            dtype = metadata['dtype']
+            dtype = request_info['metadata']['dtype']
             binary_encoded = request.files['image'].read()
         except:
             response = f"There is no binary image attached to the request or there is no specification of dtype or both"
@@ -182,7 +187,7 @@ class InferenceServiceExecutor(RoheRestObject):
             return response, inference_result
         
         # send the inference result to appropriate channel base on the ensemble config
-        self._publish_inference_result(request_info= metadata, inference_result= inference_result)
+        self._publish_inference_result(request_info= request_info['metadata'], inference_result= inference_result)
         response = f"Success to make inference prediction from the image"
         return response, inference_result
 
@@ -238,14 +243,36 @@ class InferenceServiceExecutor(RoheRestObject):
         return message
     
     
-    def _get_image_metadata(self, request) -> Optional[Dict]:
+    # def _get_image_metadata(self, request) -> Optional[Dict]:
+    def _get_request_info(self, request) -> Optional[Dict]:
         try:
             metadata_json = request.form.get('metadata')
+            imported_report = request.form.get('report')
+
+            try:
+                imported_report = pipeline_utils.message_deserialize(imported_report)
+                print(f"\n\n\nimported_report converted to dict: {type(imported_report), imported_report}")
+
+            except Exception as e:
+                print("\n\n\ncannot convert imported_report from str to dict. message deserialize fail")
+                print(f"Exception: {e}")
+
+            print("\n\n\n\nenter this block")
+
             if metadata_json is None:
+                print(f"no metadata")
                 return None  
-            metadata = json.loads(metadata_json)
-            return metadata
+            # metadata = json.loads(metadata_json)
+            metadata = pipeline_utils.message_deserialize(metadata_json)
+
+            request_info = {
+                'metadata': metadata,
+                'report': imported_report,
+            }
+            return request_info
+        
         except json.JSONDecodeError:
+            print("error return")
             return None  
     
 

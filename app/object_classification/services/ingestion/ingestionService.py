@@ -122,6 +122,13 @@ class IngestionService(RoheRestObject):
                     self.qoaClient.timer()
                     
                     report = self.qoaClient.report(submit=False)
+                else:
+                    report = None
+
+                # report = json.dumps()
+                report = pipeline_utils.message_serialize(report)
+
+                # print(f"this is the report: {report}")
 
                 # Prepare the payload for Image Info service
                 payload = {
@@ -143,7 +150,6 @@ class IngestionService(RoheRestObject):
                     print(f"\nSuccessfully upload request {request_id} to Image Info Service")
                     # return True
                     response = f"Successfully forward the request to the next step. Request id: {request_id}"
-
 
                     
                     return json.dumps({"response": response}), 200, {'Content-Type': 'application/json'}

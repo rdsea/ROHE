@@ -1,6 +1,7 @@
 import sys
 
 from threading import Thread
+from qoa4ml.QoaClient import QoaClient
 
 from app.object_classification.services.processing.processingServiceExecutor import ProcessingServiceExecutor
 from app.object_classification.services.processing.processingServiceController import ProcessingServiceController
@@ -19,10 +20,18 @@ class ProcessingService():
         print(f"This is parsed time: {config['processing']['request']['retry_delay']}")
 
 
+        if config.get('qoa_config'):
+            print(f"\n\n\nAbout to load qoa client: {config['qoa_config']}")
+            qoa_client = QoaClient(config['qoa_config'])
+            config['qoaClient'] = qoa_client
+
+
+
         self.executor = ProcessingServiceExecutor(config)
         rest_config = {
             'processing_service_executor': self.executor
         }
+
         self.rest_service = RoheRestService(rest_config)
         self.rest_service.add_resource(ProcessingServiceController, endpoint)
         self.port = port

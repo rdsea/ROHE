@@ -75,10 +75,16 @@ def message_serialize(dictionary) -> str:
     return json.dumps(dictionary)
 
 def message_deserialize(string_object) -> dict:
-    '''
-    convert string to object (dict)
-    '''
-    return json.loads(string_object.decode("utf-8"))
+    # '''
+    # convert string to object (dict)
+    # '''
+    # try:
+    #     result = json.loads(string_object.decode("utf-8"))
+    # except Exception as e:
+    #     print(f"decoding error: {e}")
+    #     result = json.loads(string_object)
+    result = json.loads(string_object)
+    return result
 
 
 def extract_file_extension(url):
