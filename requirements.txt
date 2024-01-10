@@ -5,7 +5,7 @@ fastapi==0.104.0
 Flask==2.2.3
 flask_restful==0.3.10
 gdown==4.7.1
-GitPython==3.1.40
+GitPython==3.1.41
 h5py==3.7.0
 Jinja2==3.1.2
 kubernetes==28.1.0
