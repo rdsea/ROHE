@@ -4,6 +4,7 @@ import traceback,sys, pathlib, requests
 import numpy as np
 import importlib.util
 import logging
+import random
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 
@@ -239,3 +240,14 @@ def list_files(folder_path):
             file = {item: file_path}
             file_list.update(file)
     return file_list
+
+def getNSampleInRange(n, start, end):
+    numbers = list(range(start, end))
+    random_numbers = []
+
+    while len(random_numbers) < n:
+        num = random.choice(numbers)
+        if num not in random_numbers:
+            random_numbers.append(num)
+
+    return random_numbers
