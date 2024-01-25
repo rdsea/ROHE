@@ -7,10 +7,18 @@ sys.path.append(ROHE_PATH)
 from lib import roheUtils
 
 import random
-from math import log10, log
+from math import log10, log, gcd, ceil
 import copy
 
 from core.orchestration.ensembleSelection.resource import ServiceDeployment, MLModel, PhysicalDevice
+
+DEFAULT_MAX_ACC = 0.95
+DEFAULT_MIN_ACC = 0.5
+DEFAULT_MAX_RES = 3
+DEFAULT_MIN_RES = 0.2
+DEFAULT_MAX_COST = 8000
+DEFAULT_MIN_COST = 1000
+DEFAULT_WEIGHT_FACTOR = [1,1,1]
 
 def estimatePerformance(deploymentDict, baseResTime):
     minThroughput = float('inf')
@@ -43,17 +51,36 @@ def estimateRuntimeCost(deploymentDict, nRequest):
             baseCost += replicaData.baseCost
     return baseCost
 
+def find_gcd(numbers):
+    result = numbers[0]
+    for num in numbers[1:]:
+        result = gcd(result, num)
+    return result
 
-def createModelReplica(ensemble, devices, throughputReq):
+def createModelReplica(ensemble, throughputReq):
     modelCount = 0
     repModel = {}
+    modelScale = {}
+    minScale = float('inf')
+
     for model in ensemble:
         repModel[str(modelCount)] = {}
-        nReplica = int(throughputReq/model.wThroughput)+1
-        for i in range(nReplica):
+        nReplica = throughputReq/model.wThroughput
+        modelScale[str(modelCount)] = nReplica
+        if nReplica < minScale:
+            minScale = nReplica
+        modelCount += 1
+    if minScale > 1:
+        for key, value in modelScale.items():
+            modelScale[key] = int(ceil(value/minScale))
+
+    modelCount = 0
+    for model in ensemble:
+        nReplica = modelScale[str(modelCount)]
+        for i in range(int(ceil(nReplica))):
             repModel[str(modelCount)][str(i)] = copy.deepcopy(model)
         modelCount += 1
-    return(repModel)
+    return repModel, minScale
 
 def creatDeploymentDict(repModel, deployList, devices):
     deploymentDict = {}
@@ -157,3 +184,22 @@ def loadDevice(file_path):
         newDevice.importFeature(value,key)
         devices.append(newDevice)
     return devices
+
+def map_to_log_scale(value, min_value, max_value, logbase):
+    # Calculate the logarithmic scale
+    log_min = log(min_value,logbase)
+    log_max = log(max_value,logbase)
+
+    # Map the value to the logarithmic scale
+    log_value = log(value,logbase)
+
+    # Map the logarithmic value to the range [0, 1]
+    mapped_value = (log_value - log_min) / (log_max - log_min)
+
+    return mapped_value
+
+def ScoreEstimation(avgAcc, res, cost):
+    score = DEFAULT_WEIGHT_FACTOR[0]*map_to_log_scale(avgAcc, DEFAULT_MIN_ACC, DEFAULT_MAX_ACC, 2)+ \
+            DEFAULT_WEIGHT_FACTOR[1]*(1-map_to_log_scale(res, DEFAULT_MIN_RES, DEFAULT_MAX_RES, 2)) + \
+            DEFAULT_WEIGHT_FACTOR[2]*(1-map_to_log_scale(cost, DEFAULT_MIN_COST, DEFAULT_MAX_COST, 2))
+    return score
