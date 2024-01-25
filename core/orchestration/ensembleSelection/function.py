@@ -208,7 +208,7 @@ def ScoreEstimation(avgAcc=None, res=None, cost=None, missRate=None):
     resScore = 0
     if res != None:
         resScore = DEFAULT_WEIGHT_FACTOR[1]*(1-map_to_log_scale(res, DEFAULT_MIN_RES, DEFAULT_MAX_RES, 2))
-    costScore = 0:
+    costScore = 0
     if cost != None:
         costScore = DEFAULT_WEIGHT_FACTOR[2]*(1-map_to_log_scale(cost, DEFAULT_MIN_COST, DEFAULT_MAX_COST, 2))
     missScore = 0
