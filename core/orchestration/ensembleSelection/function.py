@@ -18,7 +18,9 @@ DEFAULT_MAX_RES = 3
 DEFAULT_MIN_RES = 0.2
 DEFAULT_MAX_COST = 8000
 DEFAULT_MIN_COST = 1000
-DEFAULT_WEIGHT_FACTOR = [1,1,1]
+DEFAULT_MIN_MISS = 0.00000001
+DEFAULT_MAX_MISS = 0.2
+DEFAULT_WEIGHT_FACTOR = [1,1,1,1]
 
 def estimatePerformance(deploymentDict, baseResTime):
     minThroughput = float('inf')
@@ -57,7 +59,7 @@ def find_gcd(numbers):
         result = gcd(result, num)
     return result
 
-def createModelReplica(ensemble, throughputReq):
+def createModelReplica(ensemble, throughputReq, reduction):
     modelCount = 0
     repModel = {}
     modelScale = {}
@@ -70,9 +72,10 @@ def createModelReplica(ensemble, throughputReq):
         if nReplica < minScale:
             minScale = nReplica
         modelCount += 1
-    if minScale > 1:
-        for key, value in modelScale.items():
-            modelScale[key] = int(ceil(value/minScale))
+    if reduction == 1:
+        if minScale > 1:
+            for key, value in modelScale.items():
+                modelScale[key] = int(ceil(value/minScale))
 
     modelCount = 0
     for model in ensemble:
@@ -198,8 +201,18 @@ def map_to_log_scale(value, min_value, max_value, logbase):
 
     return mapped_value
 
-def ScoreEstimation(avgAcc, res, cost):
-    score = DEFAULT_WEIGHT_FACTOR[0]*map_to_log_scale(avgAcc, DEFAULT_MIN_ACC, DEFAULT_MAX_ACC, 2)+ \
-            DEFAULT_WEIGHT_FACTOR[1]*(1-map_to_log_scale(res, DEFAULT_MIN_RES, DEFAULT_MAX_RES, 2)) + \
-            DEFAULT_WEIGHT_FACTOR[2]*(1-map_to_log_scale(cost, DEFAULT_MIN_COST, DEFAULT_MAX_COST, 2))
-    return score
+def ScoreEstimation(avgAcc=None, res=None, cost=None, missRate=None):
+    accScore = 0
+    if avgAcc != None:
+        accScore = DEFAULT_WEIGHT_FACTOR[0]*map_to_log_scale(avgAcc, DEFAULT_MIN_ACC, DEFAULT_MAX_ACC, 2)
+    resScore = 0
+    if res != None:
+        resScore = DEFAULT_WEIGHT_FACTOR[1]*(1-map_to_log_scale(res, DEFAULT_MIN_RES, DEFAULT_MAX_RES, 2))
+    costScore = 0:
+    if cost != None:
+        costScore = DEFAULT_WEIGHT_FACTOR[2]*(1-map_to_log_scale(cost, DEFAULT_MIN_COST, DEFAULT_MAX_COST, 2))
+    missScore = 0
+    if missRate != None:
+        missScore = DEFAULT_WEIGHT_FACTOR[3]*(1-map_to_log_scale(cost, DEFAULT_MIN_MISS, DEFAULT_MAX_MISS, 2))
+    score = accScore + resScore + costScore + missScore
+    return score, accScore, resScore, costScore, missScore

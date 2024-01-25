@@ -4,6 +4,7 @@ import sys, os
 # User must export ROHE_PATH befor using
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
+print(ROHE_PATH)
 from lib import roheUtils
 import time
 import pandas as pd
@@ -44,8 +45,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Testing Algorithm")
     parser.add_argument('--device', type= str, help='default file to load device', default="./export/device3_features.yaml")
     parser.add_argument('--model', type= str, help='default file to load model', default="./export/model8_features.yaml")
-    parser.add_argument('--nModel', type= int, help='number of selected model', default=3)
-    parser.add_argument('--p', type= int, help='Default throughput requirement', default=6)
+    parser.add_argument('--nModel', type= int, help='number of selected model', default=2)
+    parser.add_argument('--p', type= int, help='Default throughput requirement', default=1)
     parser.add_argument('--exID', type=int, help='experiment id', default=1)
     parser.add_argument('--sR', type=int, help='Scale recution', default=1)
 
@@ -112,7 +113,7 @@ if __name__ == '__main__':
         
         deployList = []
         # create a dictionary include all service instance/replica need to be deployed
-        repModel, minScale = createModelReplica(ensemble, throughputReq)
+        repModel, minScale = createModelReplica(ensemble, throughputReq, scaleReduction)
 
 
 
@@ -160,12 +161,16 @@ if __name__ == '__main__':
             
             # Estimate base cost
             baseCost = estimateBaseCost(deploymentDict)
-            score = ScoreEstimation(avgAcc, maxRes, baseCost)
+            score, accScore, resScore, costScore, missScore = ScoreEstimation(avgAcc=avgAcc, res=maxRes, cost=baseCost, missRate=missRate)
             dfi = pd.DataFrame({"performance":[performance],
                                 "minScale":[minScale],
                                 "throughput":[throughput],
                                 "ensemble":["ensemble"+str(ensembleCount)],
                                 "baseCost":[baseCost],
+                                "accScore":[accScore],
+                                "resScore":[resScore],
+                                "costScore":[costScore],
+                                "missScore":[missScore],
                                 "score":[score],
                                 "maxRes":[maxRes]})
             
