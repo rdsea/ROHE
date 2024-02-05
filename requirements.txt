@@ -1,7 +1,7 @@
 boto3==1.24.90
 botocore==1.27.90
 docker_py==1.10.6
-fastapi==0.104.0
+fastapi==0.109.1
 Flask==2.2.3
 flask_restful==0.3.10
 gdown==4.7.1
