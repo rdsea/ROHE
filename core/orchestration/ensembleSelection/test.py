@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type= str, help='default file to load device', default="./export/device3_features.yaml")
     parser.add_argument('--model', type= str, help='default file to load model', default="./export/model8_features.yaml")
     parser.add_argument('--nModel', type= int, help='number of selected model', default=2)
-    parser.add_argument('--p', type= int, help='Default throughput requirement', default=1)
+    parser.add_argument('--p', type= int, help='Default throughput requirement', default=4)
     parser.add_argument('--exID', type=int, help='experiment id', default=1)
     parser.add_argument('--sR', type=int, help='Scale recution', default=1)
 
@@ -125,92 +125,92 @@ if __name__ == '__main__':
         
         
         
-        # # skip estimation
-        # print("Total deployment: ", len(deployList))
-        # print("Each ensemble iteration end after: ~", pow(len(devices),len(deployList)))
-        # iterateCount += pow(len(devices),len(deployList))
-        
-        # init some value
-        finish = True
-        minThroughput = float("inf")
-        maxPerformance = float("-inf")
-        minBaseCost = float("inf")
-
-        # Estimate ML specific Metrics
-        avgAcc = estimateAccuracy(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_DATA_WEIGHT)
-        avgConf = estimateConfidence(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_DATA_WEIGHT)
-        missRate = estimateMissRate(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_MISS, DEFAULT_DATA_WEIGHT)
-        print("Avg Accuracy: ", avgAcc)
-        print("Avg Confidence: ", avgConf)
-        print("Miss Rate: ", missRate)
+        # skip estimation
+        print("Total deployment: ", len(deployList))
         print("Each ensemble iteration end after: ~", pow(len(devices),len(deployList)))
-
-        print("Start iterating in 5s...")
-        # time.sleep(5)
-        print("Iteration Started")
-        startTime = time.time()
-        while finish:
-            # reset pointer when update device for deployment
-            pointer = 0
-            iterateCount+=1
-            
-            # print("Doing something")
-            deploymentDict = creatDeploymentDict(repModel, deployList, devices)
-            # Estimate Performance
-            performance, throughput, maxRes = estimatePerformance(deploymentDict, DEFAULT_BASE_RESPONSETIME)
-            
-            # Estimate base cost
-            baseCost = estimateBaseCost(deploymentDict)
-            score, accScore, resScore, costScore, missScore = ScoreEstimation(avgAcc=avgAcc, res=maxRes, cost=baseCost, missRate=missRate)
-            dfi = pd.DataFrame({"performance":[performance],
-                                "minScale":[minScale],
-                                "throughput":[throughput],
-                                "ensemble":["ensemble"+str(ensembleCount)],
-                                "baseCost":[baseCost],
-                                "accScore":[accScore],
-                                "resScore":[resScore],
-                                "costScore":[costScore],
-                                "missScore":[missScore],
-                                "score":[score],
-                                "maxRes":[maxRes]})
-            
-            roheUtils.df_to_csv(eFile,dfi)
-
-            if baseCost < minBaseCost:
-                minBaseCost = baseCost
-
-            if minThroughput > throughput:
-                minThroughput = throughput
-            if maxPerformance < performance:
-                maxPerformance = performance
-
-            deployList[pointer]["deviceKey"] += 1
-            if (iterateCount % 10000) == 0:
-                print("Iteration: ", iterateCount, "Ensemble Count: ", ensembleCount,"/",len(ensembles))
-            while deployList[pointer]["deviceKey"] >= len(devices):
-                deployList[pointer]["deviceKey"] = 0
-                pointer += 1
-                if pointer >= len(deployList):
-                    finish = False
-                    break
-                deployList[pointer]["deviceKey"] += 1
-            # break
+        iterateCount += pow(len(devices),len(deployList))
         
-        runTime = time.time()-startTime
+        # # init some value
+        # finish = True
+        # minThroughput = float("inf")
+        # maxPerformance = float("-inf")
+        # minBaseCost = float("inf")
+
+        # # Estimate ML specific Metrics
+        # avgAcc = estimateAccuracy(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_DATA_WEIGHT)
+        # avgConf = estimateConfidence(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_DATA_WEIGHT)
+        # missRate = estimateMissRate(DEFAULT_DATA_DISTRIBUTE, ensemble, DEFAULT_MISS, DEFAULT_DATA_WEIGHT)
+        # print("Avg Accuracy: ", avgAcc)
+        # print("Avg Confidence: ", avgConf)
+        # print("Miss Rate: ", missRate)
+        # print("Each ensemble iteration end after: ~", pow(len(devices),len(deployList)))
+
+        # print("Start iterating in 5s...")
+        # # time.sleep(5)
+        # print("Iteration Started")
+        # startTime = time.time()
+        # while finish:
+        #     # reset pointer when update device for deployment
+        #     pointer = 0
+        #     iterateCount+=1
+            
+        #     # print("Doing something")
+        #     deploymentDict = creatDeploymentDict(repModel, deployList, devices)
+        #     # Estimate Performance
+        #     performance, throughput, maxRes = estimatePerformance(deploymentDict, DEFAULT_BASE_RESPONSETIME)
+            
+        #     # Estimate base cost
+        #     baseCost = estimateBaseCost(deploymentDict)
+        #     score, accScore, resScore, costScore, missScore = ScoreEstimation(avgAcc=avgAcc, res=maxRes, cost=baseCost, missRate=missRate)
+        #     dfi = pd.DataFrame({"performance":[performance],
+        #                         "minScale":[minScale],
+        #                         "throughput":[throughput],
+        #                         "ensemble":["ensemble"+str(ensembleCount)],
+        #                         "baseCost":[baseCost],
+        #                         "accScore":[accScore],
+        #                         "resScore":[resScore],
+        #                         "costScore":[costScore],
+        #                         "missScore":[missScore],
+        #                         "score":[score],
+        #                         "maxRes":[maxRes]})
+            
+        #     roheUtils.df_to_csv(eFile,dfi)
+
+        #     if baseCost < minBaseCost:
+        #         minBaseCost = baseCost
+
+        #     if minThroughput > throughput:
+        #         minThroughput = throughput
+        #     if maxPerformance < performance:
+        #         maxPerformance = performance
+
+        #     deployList[pointer]["deviceKey"] += 1
+        #     if (iterateCount % 10000) == 0:
+        #         print("Iteration: ", iterateCount, "Ensemble Count: ", ensembleCount,"/",len(ensembles))
+        #     while deployList[pointer]["deviceKey"] >= len(devices):
+        #         deployList[pointer]["deviceKey"] = 0
+        #         pointer += 1
+        #         if pointer >= len(deployList):
+        #             finish = False
+        #             break
+        #         deployList[pointer]["deviceKey"] += 1
+        #     # break
         
-        eMetadata.update({str(ensembleCount):{"File": str(eFile), "ensemble": str(ensemble), "runtime": str(runTime) }})
-        dfe = pd.DataFrame({"AvgAccuracy":[avgAcc],
-                            "minScale":[minScale],
-                            "AvgConfidence":[avgConf],
-                            "ensemble":["ensemble"+str(ensembleCount)],
-                            "MissRate":[missRate],
-                            "runtime":[runTime]})
-        runFile = folderName+"/sumary.csv"
-        roheUtils.df_to_csv(runFile,dfe)
-        ensembleCount += 1
-        # print(minBaseCost)
-        # print(iterateCount, minThroughput, maxPerformance)
-        # break
-        experimentMetaData["nIteration"] = iterateCount
-        roheUtils.to_yaml(folderName+"/sumary.yaml",experimentMetaData)
+        # runTime = time.time()-startTime
+        
+        # eMetadata.update({str(ensembleCount):{"File": str(eFile), "ensemble": str(ensemble), "runtime": str(runTime) }})
+        # dfe = pd.DataFrame({"AvgAccuracy":[avgAcc],
+        #                     "minScale":[minScale],
+        #                     "AvgConfidence":[avgConf],
+        #                     "ensemble":["ensemble"+str(ensembleCount)],
+        #                     "MissRate":[missRate],
+        #                     "runtime":[runTime]})
+        # runFile = folderName+"/sumary.csv"
+        # roheUtils.df_to_csv(runFile,dfe)
+        # ensembleCount += 1
+        # # print(minBaseCost)
+        # # print(iterateCount, minThroughput, maxPerformance)
+        # # break
+        # experimentMetaData["nIteration"] = iterateCount
+        # roheUtils.to_yaml(folderName+"/sumary.yaml",experimentMetaData)
     print("Final iteration Count: ", iterateCount)
