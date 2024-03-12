@@ -24,6 +24,6 @@ if __name__ == '__main__':
     dbclient = get_mdb_client(dbconf)
     db = dbclient[dbConfFile["database"]]
     collection = db[dbConfFile["collection"]]
-
-    metric_result = execute_metric_queries(collection, metricConfFile, limit=10000, timestamp=1697430147)
-    print(metric_result)
+    for key, metric in metricConfFile.items():
+        metric_result = execute_metric_queries(collection, metric, "model0", limit=10000, timestamp=1697430147)
+        print(key, metric_result)

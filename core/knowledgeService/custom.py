@@ -39,16 +39,20 @@ def calculate_metric(description, data):
     result = eval(expression)
     return result
 
-def execute_metric_queries(collection, metric_description, limit = 10000, timestamp = None):
+def execute_metric_queries(collection, metric_description, model_name, limit = 10000, timestamp = None):
 
     # Parse metric description
     queries, overall_aggregation = parse_metric_description(metric_description)
     # Execute PyMongo queries for each variable
     metric_values = {}
     for name, query in queries.items():
+        aggregation_pipeline = []
         if timestamp != None:
-            query["conditions"]["timestamp"] = {"$lt": timestamp}
-        aggregation_pipeline = [{"$match": query["conditions"]}, {"$sort": {"timestamp": pymongo.ASCENDING}}, {"$limit": limit}]
+            aggregation_pipeline = [{"$match": {"model":{"$eq": model_name}, "timestamp": {"$lt": timestamp}}}, {"$sort": {"timestamp": pymongo.ASCENDING}}, {"$limit": limit}]
+        else:
+            aggregation_pipeline = [{"$match": {"model":{"$eq": model_name}}}, {"$sort": {"timestamp": pymongo.DESCENDING}}, {"$limit": limit}]
+        
+        aggregation_pipeline.append({"$match": query["conditions"]})
         if "field" in query:
             aggregation_pipeline.append({"$group": {"_id": None, "metric_value": {"$%s" % query["aggregation"]: "$%s" % query["field"]}}})
             result = collection.aggregate(aggregation_pipeline)
@@ -57,5 +61,4 @@ def execute_metric_queries(collection, metric_description, limit = 10000, timest
             aggregation_pipeline.append({"$group": {"_id": None, "%s" % query["aggregation"]: { "$sum": 1 }}})
             result = collection.aggregate(aggregation_pipeline)
             metric_values[name] = list(result)[0][query["aggregation"]]       
-        
     return calculate_metric(overall_aggregation,metric_values)
