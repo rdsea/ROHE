@@ -1,47 +1,61 @@
-import pymongo
+import pymongo, json
 import sys, os
-import pandas as pd
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
 
 
-def estimate_miss_rate(model_name,mdb_client, db_name, coll_name, main_class, sub_class = None, window = 1000):
-    db = mdb_client[db_name]
-    collection = db[coll_name]
-    filter_criteria = {"label_class": main_class, "model": model_name}
-    sort_criteria = [("timestamp", pymongo.ASCENDING)]
-    results = collection.find(filter_criteria).sort(sort_criteria).limit(window)
-    result_list = list(results)
-    df = pd.DataFrame(result_list, columns=result_list[0].keys())
-    if sub_class == None:
-        filtered_df = df[(df['accuracy'] == 0)]
-    else:
-        filtered_df = df[(df['predicted_class'] == sub_class)]
-    return len(filtered_df)/len(df)
-    
-        
-def estimate_accuracy(model_name,mdb_client, db_name, coll_name = None, window = 10000):
-    db = mdb_client[db_name]
-    collection = db[coll_name]
-    filter_criteria = {"model": model_name}
-    sort_criteria = [("timestamp", pymongo.ASCENDING)]
-    results = collection.find(filter_criteria).sort(sort_criteria).limit(window)
-    result_list = list(results)
-    df = pd.DataFrame(result_list, columns=result_list[0].keys())
-    filtered_df = df[(df["accuracy"] == 1)]
-    return len(filtered_df)/len(df)
+def parse_metric_description(metric_description):
+    variables = metric_description.get("variables")
+    user_defined_aggregation = metric_description.get("overall_aggregation")
 
-def estimate_confidence(model_name,mdb_client, db_name, coll_name = None, window = 10000, accurate_only=False):
-    db = mdb_client[db_name]
-    collection = db[coll_name]
-    filter_criteria = {"model": model_name}
-    sort_criteria = [("timestamp", pymongo.ASCENDING)]
-    results = collection.find(filter_criteria).sort(sort_criteria).limit(window)
-    result_list = list(results)
-    df = pd.DataFrame(result_list, columns=result_list[0].keys())
-    if accurate_only:
-        return df["confidence"].mean()
-    else:
-        filtered_df = df[(df["accuracy"] == 1)]
-        return filtered_df["confidence"].mean()
+    queries = {}
+    for variable in variables:
+        name = variable.get("name")
+        field = variable.get("field")
+        conditions = variable["conditions"]
+        aggregation = variable["aggregation"]
+        query_criteria = construct_query(conditions)
+        if field !=None:
+            queries[name] = {"conditions": query_criteria, "aggregation": aggregation, "field": field}
+        else:
+            queries[name] = {"conditions": query_criteria, "aggregation": aggregation}
+
+    return queries, user_defined_aggregation
+
+def construct_query(conditions):
+    query_criteria = {}
+    for condition in conditions:
+        field_name = condition["field"]
+        operator = condition["operator"]
+        value = condition["value"]
+        query_criteria[field_name] = {"$%s" % operator: value}
+    return query_criteria
+
+def calculate_metric(description, data):
+    # Replace variables in the description with their values from the data dictionary
+    expression = description.format(**data)
+    # Evaluate the expression using eval()
+    result = eval(expression)
+    return result
+
+def execute_metric_queries(collection, metric_description, limit = 10000, timestamp = None):
+
+    # Parse metric description
+    queries, overall_aggregation = parse_metric_description(metric_description)
+    # Execute PyMongo queries for each variable
+    metric_values = {}
+    for name, query in queries.items():
+        if timestamp != None:
+            query["conditions"]["timestamp"] = {"$lt": timestamp}
+        aggregation_pipeline = [{"$match": query["conditions"]}, {"$sort": {"timestamp": pymongo.ASCENDING}}, {"$limit": limit}]
+        if "field" in query:
+            aggregation_pipeline.append({"$group": {"_id": None, "metric_value": {"$%s" % query["aggregation"]: "$%s" % query["field"]}}})
+            result = collection.aggregate(aggregation_pipeline)
+            metric_values[name] = list(result)[0]["metric_value"]
+        else:
+            aggregation_pipeline.append({"$group": {"_id": None, "%s" % query["aggregation"]: { "$sum": 1 }}})
+            result = collection.aggregate(aggregation_pipeline)
+            metric_values[name] = list(result)[0][query["aggregation"]]       
+        
+    return calculate_metric(overall_aggregation,metric_values)

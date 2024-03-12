@@ -1,0 +1,38 @@
+variables:
+- name: wrong_main
+  conditions:
+  - field: label_class
+    operator: eq
+    value: 1
+  - field: accuracy
+    operator: eq
+    value: 0
+  - field: model
+    operator: eq
+    value: model36
+  aggregation: count
+- name: wrong_sub
+  conditions:
+  - field: label_class
+    operator: eq
+    value: 1
+  - field: predicted_class
+    operator: eq
+    value: 6
+  - field: accuracy
+    operator: eq
+    value: 0
+  - field: model
+    operator: eq
+    value: model36
+  aggregation: count
+- name: total
+  conditions:
+  - field: label_class
+    operator: eq
+    value: 1
+  - field: model
+    operator: eq
+    value: model36
+  aggregation: count
+overall_aggregation: "{wrong_sub} / {total}"
