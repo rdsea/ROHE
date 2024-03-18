@@ -4,10 +4,23 @@ import numpy as np
 import importlib.util
 import logging
 import random
-
+import types 
+from typing import Callable
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 
 
+
+from lib.serviceRegistry.consul import ConsulClient
+
+def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
+    '''
+    Retrieves a function by name from a given module
+    '''
+    try: 
+        func: Callable = getattr(module, func_name)
+        return func
+    except:
+        return None
 
 def merge_dict(f_dict, i_dict, prio=False):
     try:

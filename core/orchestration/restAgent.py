@@ -9,7 +9,7 @@ ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
 from core.orchestration.resourceManagement.resource import Node, Service, Service_Queue
-from core.orchestration.algorithm.scoring import orchestrate as scoringOrchestrate
+from core.orchestration.ensembleOptimization.scoring import orchestrate as scoringOrchestrate
 from lib.rohe.roheObject import RoheObject
 
 main_path = config_file = qoaUtils.get_parent_dir(__file__,3)
