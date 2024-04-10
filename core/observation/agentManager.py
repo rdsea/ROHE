@@ -88,7 +88,7 @@ class RoheAgentManager(RoheRestObject):
                     appName = args["appName"]
                     # Get application configuration from database
                     app = self.get_app(appName)
-                    print(app)
+                    logging.info(app)
                     if app == None:
                         # Application has not been registered 
                         response[appName] = "Application {} not exist".format(appName)
@@ -128,7 +128,7 @@ class RoheAgentManager(RoheRestObject):
                                     agent = agent_dict[metadata["_id"]]
                                     docker_agent = agent["docker"]
                                     
-                                    print(docker_agent.logs(tail=20))
+                                    logging.info(docker_agent.logs(tail=20))
 
 
                             if command == "stop":
@@ -150,7 +150,7 @@ class RoheAgentManager(RoheRestObject):
                                     # To do: 
                                     # kill the agent
                                 # Delete the application from databased
-                                self.collection.delete_many({"appName":appName})
+                                self.dbClient.delete_many(self.dbCollection,{"appName":appName})
                                 # create a response
                                 response[appName] = "Application agent for {} deleted ".format(appName)
                             if command == "kill_all_agent":

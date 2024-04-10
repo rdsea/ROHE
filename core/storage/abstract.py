@@ -77,3 +77,14 @@ class MDBClient(DBClient):
         except Exception as e:
             logging.error("Error in `insert_many` MDBClient: {}".format(e))
             return {}
+        
+    def delete_many(self, dbCollection: DBCollection, data:list):
+        try:
+            if self.mdbClient != None:
+                db = self.mdbClient[dbCollection.database]
+                collection = db[dbCollection.collection]
+                response = collection.delete_many(data)
+            return response
+        except Exception as e:
+            logging.error("Error in `delete_many` MDBClient: {}".format(e))
+            return {}
