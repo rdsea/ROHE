@@ -1,8 +1,14 @@
-database:
-  url: mongodb://localhost:27017/
-  db_name: rohe_orchestration
-  node_collection: node_collection
-  service_collection: service_collection
+db_authentication:
+  url: "localhost"
+  prefix: "mongodb+srv://"
+  username: "admin"
+  password: "admin"
+db_node_collection:
+  collection: node_collection
+  database: rohe_orchestration
+db_service_collection:
+  collection: service_collection
+  database: rohe_orchestration
 timer: 10
 output_folder: "/results/"
 sample_rate: 50
@@ -11,7 +17,7 @@ service_queue:
   priority: 0
   queue_balance: 3
 orchestrateConfig:
-  name: Scoring Orchestration
+  name: Priority Orchestration
   weights:
     cpu: 1
     memory: 1

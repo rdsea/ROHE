@@ -146,9 +146,13 @@ class RoheAgentManager(RoheRestObject):
                             if command == "delete":
                                 if metadata["_id"] in agent_dict:
                                     # if agent exist locally
-                                    agent_dict.pop(metadata["_id"])
-                                    # To do: 
-                                    # kill the agent
+                                    agent = agent_dict.pop(metadata["_id"])
+                                    # kill agent
+                                    if agent["status"] == 1:
+                                        # if ageent is running
+                                        docker_agent = agent["docker"]
+                                        docker_agent.stop()
+                                        agent["status"] = 0
                                 # Delete the application from databased
                                 self.dbClient.delete_many(self.dbCollection,{"appName":appName})
                                 # create a response

@@ -88,3 +88,36 @@ class MDBClient(DBClient):
         except Exception as e:
             logging.error("Error in `delete_many` MDBClient: {}".format(e))
             return {}
+        
+    def find(self, dbCollection: DBCollection, query: Any) -> dict:
+        try:
+            if self.mdbClient != None:
+                db = self.mdbClient[dbCollection.database]
+                collection = db[dbCollection.collection]
+                data = collection.find(query)
+            return data
+        except Exception as e:
+            logging.error("Error in `find` MDBClient: {}".format(e))
+            return {}
+    
+    def aggregate(self, dbCollection: DBCollection, find_query: Any, sort_query: Any) -> dict:
+        try:
+            if self.mdbClient != None:
+                db = self.mdbClient[dbCollection.database]
+                collection = db[dbCollection.collection]
+                data = collection.find(find_query).sort(sort_query)
+            return data
+        except Exception as e:
+            logging.error("Error in `find` MDBClient: {}".format(e))
+            return {}
+    
+    def drop(self, dbCollection: DBCollection) -> dict:
+        try:
+            if self.mdbClient != None:
+                db = self.mdbClient[dbCollection.database]
+                collection = db[dbCollection.collection]
+                collection.drop()
+            return True
+        except Exception as e:
+            logging.error("Error in `find` MDBClient: {}".format(e))
+            return False

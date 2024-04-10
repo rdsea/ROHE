@@ -22,7 +22,6 @@ class RoheRegistration(RoheRestObject):
             self.collectorConf = self.conf["collectorConfig"]
         except Exception as e:
             logging.error("Error in `__init__` RoheRegistration: {}".format(e))
-            return {}
     
     def get_app(self,appName):
         try:
