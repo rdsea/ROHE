@@ -20,7 +20,7 @@ def map_to_log_scale(value, min_value, max_value, logbase):
         min_value = DEFAULT_ZERO_ERROR_EVA
     if max_value == 0:
         max_value =DEFAULT_ZERO_ERROR_EVA
-    if value == 0:
+    if value <= 0:
         value = min_value
 
     if value < min_value:
@@ -80,7 +80,7 @@ def ScoreEstimation(ensemble: list, contract: dict):
     """
     contract example:
     {
-        "metrics":{
+        "mlSpecific":{
             "missRateOfClass1and6":{
             "operator": "prod",
             "weight": 1,
@@ -122,13 +122,18 @@ def ScoreEstimation(ensemble: list, contract: dict):
         row = pd.DataFrame([ml_service.to_dict()])
         performance_df = pd.concat([performance_df, row], ignore_index=True)
     total_score = 0
-    metrics = copy.deepcopy(contract["metrics"])
+    metrics = copy.deepcopy(contract["mlSpecific"])
+    result = {}
     for metric_key, metric in metrics.items():
         agg_metric = calculate_statistic(performance_df[metric_key], metric["operator"])
         if "logbase" in metric:
             sub_score = calculate_scaled_value(agg_metric, metric["max_value"], metric["min_value"], metric["objective"], metric["scale"], logbase=metric["logbase"])
         else:
             sub_score = calculate_scaled_value(agg_metric, metric["max_value"], metric["min_value"], metric["objective"], metric["scale"])
+        sub_score *= metric["weight"]
         total_score += sub_score
-        print(metric_key,": ",agg_metric, " ; Sub-score: ",sub_score)
-    return total_score
+        result[metric_key] = agg_metric
+        result[metric_key+"_score"] = sub_score
+        # print(metric_key,": ",agg_metric, " ; Sub-score: ",sub_score)
+    result["total_score"] = total_score
+    return result
