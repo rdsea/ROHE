@@ -5,7 +5,7 @@ from threading import Thread
 from app.object_classification.services.processing.processingServiceExecutor import ProcessingServiceExecutor
 from app.object_classification.services.processing.processingServiceController import ProcessingServiceController
 
-from lib.rohe.restService import RoheRestService
+from core.common.restService import RoheRestService
 
 import app.object_classification.modules.utils as pipeline_utils
 

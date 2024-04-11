@@ -4,7 +4,7 @@ sys.path.append(ROHE_PATH)
 from lib.common.mongoUtils import get_mdb_client
 from core.orchestration.ensembleOptimization.abstract import EnsembleOptimization
 from core.storage.custom import execute_metric_queries, get_service_performance, get_service_cost
-from core.abstract import MLServicePerformance
+from core.common.performance import MLServicePerformance
 
 
 class RoheEnsembleOptimization(EnsembleOptimization):

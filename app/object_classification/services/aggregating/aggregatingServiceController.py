@@ -3,7 +3,7 @@ import json
 
 
 # from app.object_classification.lib.roheService import RoheRestObject
-from lib.rohe.restService import RoheRestObject
+from core.common.restService import RoheRestObject
 
 from app.object_classification.services.aggregating.aggregatingServiceExecutor import AggregatingServiceExecutor
 

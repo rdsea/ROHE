@@ -15,7 +15,7 @@ from app.object_classification.modules.objectClassificationAgent import ObjectCl
 from app.object_classification.modules.common import InferenceEnsembleState
 import app.object_classification.modules.utils as pipeline_utils
 
-from lib.rohe.restService import RoheRestObject
+from core.common.restService import RoheRestObject
 
 from qoa4ml.QoaClient import QoaClient
 

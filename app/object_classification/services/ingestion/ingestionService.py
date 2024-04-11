@@ -7,7 +7,7 @@ import string
 
 
 # from app.object_classification.lib.roheService import RoheRestObject
-from lib.rohe.restService import RoheRestObject
+from core.common.restService import RoheRestObject
 
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 import app.object_classification.modules.utils as pipeline_utils

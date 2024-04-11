@@ -13,11 +13,11 @@ sys.path.append(ROHE_PATH)
 
 
 import lib.roheUtils as roheUtils
-from lib.rohe.restService import RoheRestService
+from core.common.restService import RoheRestService
 
 from app.object_classification.services.image_info.imageInfoService import ImageInfoService
 
-from lib.serviceRegistry.consul import ConsulClient
+from core.serviceRegistry.consul import ConsulClient
 import app.object_classification.modules.utils as pipeline_utils
 from qoa4ml.QoaClient import QoaClient
 

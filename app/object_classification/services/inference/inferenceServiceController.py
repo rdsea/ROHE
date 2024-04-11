@@ -4,7 +4,7 @@ from flask import request
 import json
 
 
-from lib.rohe.restService import RoheRestObject
+from core.common.restService import RoheRestObject
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 
 from app.object_classification.modules.objectClassificationAgent import ObjectClassificationAgent

@@ -9,7 +9,7 @@ from typing import Callable
 import socket
 
 
-from lib.serviceRegistry.consul import ConsulClient
+from core.serviceRegistry.consul import ConsulClient
 
 def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
     '''

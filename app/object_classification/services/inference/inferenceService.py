@@ -15,7 +15,7 @@ from app.object_classification.lib.connectors.quixStream import QuixStreamProduc
 from app.object_classification.modules.objectClassificationAgent import ObjectClassificationAgent
 from app.object_classification.modules.common import InferenceEnsembleState
 
-from lib.rohe.restService import RoheRestService
+from core.common.restService import RoheRestService
 
 
 class InferenceService():

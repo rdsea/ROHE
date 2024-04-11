@@ -1,5 +1,5 @@
-from lib.external.yolo.modelLoader import YoloInference   
-from lib.rohe.restService import RoheRestService
+from core.external.yolo.modelLoader import YoloInference
+from core.common.restService import RoheRestService
     
 
 class YoloRestService(RoheRestService): 

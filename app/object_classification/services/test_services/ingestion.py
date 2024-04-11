@@ -12,8 +12,8 @@ sys.path.append(ROHE_PATH)
 import argparse
 import signal
 
-from lib.rohe.restService import RoheRestService
-from lib.serviceRegistry.consul import ConsulClient
+from core.common.restService import RoheRestService
+from core.serviceRegistry.consul import ConsulClient
 
 from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
 from app.object_classification.services.ingestion.ingestionService import IngestionService

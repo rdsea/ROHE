@@ -18,7 +18,7 @@ from app.object_classification.lib.connectors.storage.minioStorageConnector impo
 import app.object_classification.modules.utils as pipeline_utils
 import app.object_classification.modules.image_processing_functions as image_processing_func
 
-from lib.rohe.roheObject import RoheObject
+from core.common.roheObject import RoheObject
 
 from qoa4ml.QoaClient import QoaClient
 

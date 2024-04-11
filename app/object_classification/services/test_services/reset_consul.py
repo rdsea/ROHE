@@ -4,7 +4,7 @@ sys.path.append(ROHE_PATH)
 
 import lib.roheUtils as roheUtils
 
-from lib.serviceRegistry.consul import ConsulClient
+from core.serviceRegistry.consul import ConsulClient
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")

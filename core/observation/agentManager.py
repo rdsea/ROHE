@@ -2,7 +2,7 @@ import sys, copy
 import sys, os
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
-from lib.rohe.restService import RoheRestObject
+from core.common.restService import RoheRestObject
 import logging, traceback
 logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 from flask import jsonify, request

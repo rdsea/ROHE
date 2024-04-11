@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=log
 
 from core.orchestration.resourceManagement.resource import Node, Service, Service_Queue
 from core.orchestration.ensembleOptimization.scoring import orchestrate as scoringOrchestrate
-from lib.rohe.roheObject import RoheObject
+from core.common.roheObject import RoheObject
 
 
 class RoheAgentV1(RoheObject):

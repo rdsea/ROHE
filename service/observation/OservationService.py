@@ -5,7 +5,7 @@ import sys, os
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
-from lib.rohe.restService import RoheRestService
+from core.common.restService import RoheRestService
 import lib.roheUtils as rohe_utils
 from core.observation.registration import RoheRegistration
 from core.observation.agentManager import RoheAgentManager

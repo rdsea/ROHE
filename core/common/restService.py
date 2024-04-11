@@ -3,7 +3,7 @@ import sys, json
 from flask import Response
 main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
 sys.path.append(main_path)
-from lib.rohe.roheObject import RoheObject
+from core.common.roheObject import RoheObject
 
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api

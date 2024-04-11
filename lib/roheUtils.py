@@ -10,7 +10,7 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=log
 
 
 
-from lib.serviceRegistry.consul import ConsulClient
+from core.serviceRegistry.consul import ConsulClient
 
 def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
     '''

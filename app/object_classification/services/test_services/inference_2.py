@@ -15,7 +15,7 @@ import lib.roheUtils as roheUtils
 from qoa4ml.QoaClient import QoaClient
 
 
-from lib.serviceRegistry.consul import ConsulClient
+from core.serviceRegistry.consul import ConsulClient
 import app.object_classification.modules.utils as pipeline_utils
 
 

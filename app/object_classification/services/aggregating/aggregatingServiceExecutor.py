@@ -21,7 +21,7 @@ import app.object_classification.modules.model_aggregating_functions as aggregat
 from app.object_classification.lib.connectors.quixStream import QuixStreamDataframeHandler
 
 
-from lib.rohe.roheObject import RoheObject
+from core.common.roheObject import RoheObject
 # import quixstreams as qx
 import pandas as pd
 

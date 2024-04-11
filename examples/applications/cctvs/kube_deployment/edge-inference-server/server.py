@@ -25,8 +25,8 @@ main_path = os.getenv('ROHE_PATH')
 print(f"This is main path: {main_path}")
 sys.path.append(main_path)
 
-from lib.rohe.restService import ImageInferenceObject
-from lib.common.yoloService import YoloRestService
+from core.common.restService import ImageInferenceObject
+from core.common.yoloService import YoloRestService
 
 
 
