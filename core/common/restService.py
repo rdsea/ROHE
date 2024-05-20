@@ -68,9 +68,12 @@ class RoheRestService(object):
         self.api = Api(self.app)
         self.config = config
 
-    def add_resource(self, object_class, url):
+    def add_resource(self, object_class, url, resource_config = None):
         # Run Service
-        self.api.add_resource(object_class, url,resource_class_kwargs=self.config)
+        if resource_config == None:
+            self.api.add_resource(object_class, url,resource_class_kwargs=self.config)
+        else:
+            self.api.add_resource(object_class, url,resource_class_kwargs=resource_config)
     
     def run(self, debug=True, port=5010,host="0.0.0.0"):
         self.app.run(debug=debug, port=port,host=host,use_reloader=False)

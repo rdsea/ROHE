@@ -29,7 +29,7 @@ headers = {
 
 @click.command()
 @click.option('--app', help='application name', default="test")
-@click.option('--run', help='Experiment name/id', default="experiment1")
+@click.option('--run', help='Experiment name/id', default="experiment2")
 @click.option('--user', help='application name', default="aaltosea1")
 @click.option('--url', help='registration url', default="http://localhost:5010/registration")
 @click.option('--output_dir', help='output_file, make sure the directory exists', default=None)

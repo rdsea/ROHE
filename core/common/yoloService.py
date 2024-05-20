@@ -9,10 +9,10 @@ class YoloRestService(RoheRestService):
         if "composition" in self.config:
             for instance in self.config["composition"]:
                 if instance["model"] == "Yolov5":
-                    model = YoloInference(instance["parameter"], 5)
+                    model = YoloInference(self.config, 5, param=instance["parameter"])
                     self.models.append(model)
                 if instance["model"] == "Yolov8":
-                    model = YoloInference(instance["parameter"], 8) 
+                    model = YoloInference(self.config, 8, param=instance["parameter"]) 
                     self.models.append(model)
                 print("Adding instance: ", instance)
         self.config["models"] = self.models

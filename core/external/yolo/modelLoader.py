@@ -5,20 +5,23 @@ from ultralytics.yolo.utils.plotting import Annotator, colors
 from ultralytics import YOLO
 import yaml,os, sys, stat
 import torch, gdown
+# User must export ROHE_PATH befor using
+ROHE_PATH = os.getenv("ROHE_PATH")
+sys.path.append(ROHE_PATH)
 import lib.roheUtils as rohe_utils
-main_path = config_file = rohe_utils.get_parent_dir(__file__,2)
-sys.path.append(main_path)
+
 
 
 
 
 class YoloInference:
-    def __init__(self, param, version):
+    def __init__(self, config , version, param):
         self.param = param
+        self.config = config
         if version == 5:
-            self.model = Yolo5(param)
+            self.model = Yolo5(config, param)
         elif version == 8:
-            self.model = Yolo8(param)
+            self.model = Yolo8(config, param)
 
     def predict(self, image, report_list=[]):
         prediction, pre_img = self.model.yolov_inference(image)
@@ -75,25 +78,25 @@ def prediction_processing(prediction, annotator):
 
 
 class Yolo5(object):
-    def __init__(self,param=None):
-        self.lib_path = main_path+"/lib/externalLib/yolov5/"
-        self.conf_path = main_path+"/configurations/yolo/yolo.json"
-        self.conf = rohe_utils.load_config(self.conf_path)
-        rohe_utils.json_to_yaml(config_file)
+    def __init__(self, config, param=None):
+        self.lib_path = config["artifact"]["lib"]
+        print(self.lib_path)
+        self.conf = config
         if not os.path.exists(self.lib_path):
+
             print("folder not exist -> creating new folder")
             os.makedirs(self.lib_path)
             # clone lib
-            repo = git.Repo.clone_from(self.conf["repo"], self.lib_path, no_checkout=True)
-            repo.git.checkout(self.conf["commit_id"])
+            repo = git.Repo.clone_from(self.conf["repo"]["url"], self.lib_path, no_checkout=True)
+            repo.git.checkout(self.conf["repo"]["commit_id"])
 
 
-        self.artifact_path = main_path+"/artifact/yolo/"
-        if not os.path.exists(self.artifact_path):
-            file_url = self.conf["file_url"]
-            gdown.cached_download(file_url, main_path+"/artifact/yolo.zip", postprocess=gdown.extractall)
+        self.artifact_path = config["artifact"]["dir"]
+        if not os.path.exists(self.artifact_path+"yolo/"):
+            file_url = self.conf["artifact"]["url"]
+            gdown.cached_download(file_url, self.artifact_path+"yolo.zip", postprocess=gdown.extractall)
         self.param = param if param is not None else "yolov5s"
-        self.model = torch.hub.load(self.lib_path, 'custom', source='local', path = self.artifact_path+self.param+".pt")
+        self.model = torch.hub.load(self.lib_path, 'custom', source='local', path = self.artifact_path+"yolo/"+self.param+".pt")
 
     def convert_results(self, results, annotator):
         # Cast to pandas DataFrame
@@ -116,19 +119,17 @@ class Yolo5(object):
 
 
 class Yolo8(object):
-    def __init__(self, param=None):
-        self.artifact_path = main_path+"/artifact/yolo/"
-        self.conf_path = main_path+"/configurations/yolo/yolo.json"
-        self.conf = rohe_utils.load_config(self.conf_path)
-        rohe_utils.json_to_yaml(config_file)
+    def __init__(self, config, param=None):
+        self.artifact_path = config["artifact"]["dir"]
+        self.conf = config
         if not os.path.exists(self.artifact_path):
-            file_url = self.conf["file_url"]
-            gdown.cached_download(file_url, main_path+"/artifact/yolo.zip", postprocess=gdown.extractall)
-        class_conf = self.artifact_path+"class.yml"
+            file_url = self.conf["artifact"]["url"]
+            gdown.cached_download(file_url, self.artifact_path+"yolo.zip", postprocess=gdown.extractall)
+        class_conf = self.artifact_path+"yolo/class.yml"
         with open(class_conf, "r") as f:
             self.names =yaml.safe_load(f)
         self.param = param if param is not None else "yolov8s"
-        self.model = YOLO(self.artifact_path+self.param+".pt")
+        self.model = YOLO(self.artifact_path+"yolo/"+self.param+".pt")
 
     def convert_results(self, results, annotator):
         print(type(results))
