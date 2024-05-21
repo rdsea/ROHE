@@ -3,7 +3,7 @@
         "user_id": "aaltosea1",
         "instance_id": "yolo_processing",
         "stage_id": "Image_Processing",
-        "method": "REST",
+        "functionality": "REST",
         "application_name": "test",
         "role": "ml"
     },

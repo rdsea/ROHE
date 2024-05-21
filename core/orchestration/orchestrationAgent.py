@@ -134,7 +134,7 @@ class RoheAgentV1(RoheObject):
             logging.info("Agent Sync services from Database complete")
         except Exception as e:
             logging.error("Error in `sync_service_from_db` RoheAgentV1: {}".format(e))
-            print(traceback.print_exc())
+            # print(traceback.print_exc())
     
     def sync_node_to_db(self, node_mac=None):
         try:

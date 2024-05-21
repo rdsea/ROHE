@@ -16,7 +16,7 @@
     },
     "client_app":{
         "instance_id": "client_rasp",
-        "method": "REST",
+        "functionality": "REST",
         "stage_id": "client_app"
     }
 }

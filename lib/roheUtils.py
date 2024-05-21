@@ -211,7 +211,7 @@ def load_qoa_conf_env(qoa_conf):
     
     qoa_conf["instance_id"] = instance_id
     qoa_conf["stage_id"] = stage_id
-    qoa_conf["method"] = method
+    qoa_conf["functionality"] = method
     qoa_conf["role"] = role
 
     return qoa_conf

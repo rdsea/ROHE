@@ -3,7 +3,7 @@
         "user_id": "aaltosea1",
         "instance_id": "yolo_web_service",
         "stage_id": "Web_Service",
-        "method": "REST",
+        "functionality": "REST",
         "application_name": "test",
         "role": "ml"
     },

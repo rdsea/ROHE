@@ -98,7 +98,6 @@ class Service(object):
         self.id = self.config["service_id"]
         self.status = self.config["status"]
         self.running = self.config["running"]
-        print(self.config)
         self.instance_ids = self.config["instance_ids"]
     
     def getRunningCount(self):

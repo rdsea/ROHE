@@ -60,7 +60,7 @@ connector_conf = configuration["connector_conf"]
 
 client_qoa = Qoa_Client(client_config,connector_conf)
 client_conf = configuration["client_app"]
-client_qoa.init_report(client_conf["instance_id"], client_conf["method"], client_conf["stage_id"])
+client_qoa.init_report(client_conf["instance_id"], client_conf["functionality"], client_conf["stage_id"])
 
 def sender(num_thread):
     count = 0

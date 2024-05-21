@@ -54,18 +54,18 @@ if __name__ == '__main__':
   
     client_conf = configuration["client_app"]
     client_qoa_1 = Qoa_Client(client_config,connector_conf)
-    client_qoa_1.init_report(client_conf["instance_id"]+"_1", client_conf["method"], client_conf["stage_id"]+"_1")
+    client_qoa_1.init_report(client_conf["instance_id"]+"_1", client_conf["functionality"], client_conf["stage_id"]+"_1")
     client_qoa_2 = Qoa_Client(client_config,connector_conf)
-    client_qoa_2.init_report(client_conf["instance_id"]+"_2", client_conf["method"], client_conf["stage_id"]+"_2")
+    client_qoa_2.init_report(client_conf["instance_id"]+"_2", client_conf["functionality"], client_conf["stage_id"]+"_2")
     client_qoa_3 = Qoa_Client(client_config,connector_conf)
-    client_qoa_3.init_report(client_conf["instance_id"]+"_3", client_conf["method"], client_conf["stage_id"]+"_3")
+    client_qoa_3.init_report(client_conf["instance_id"]+"_3", client_conf["functionality"], client_conf["stage_id"]+"_3")
     client_qoa_4 = Qoa_Client(client_config,connector_conf)
-    client_qoa_4.init_report(client_conf["instance_id"]+"_4", client_conf["method"], client_conf["stage_id"]+"_4")
+    client_qoa_4.init_report(client_conf["instance_id"]+"_4", client_conf["functionality"], client_conf["stage_id"]+"_4")
 
     feedback_conf = client_config.copy()
     feedback_conf["role"] = "customer"
     client_qoa_5 = Qoa_Client(feedback_conf,connector_conf)
-    client_qoa_5.init_report(client_conf["instance_id"]+"_5", client_conf["method"], client_conf["stage_id"]+"_5")
+    client_qoa_5.init_report(client_conf["instance_id"]+"_5", client_conf["functionality"], client_conf["stage_id"]+"_5")
 
     def sender(num_thread):
         count = 0

@@ -25,23 +25,23 @@
                 "model_tier": 4, 
                 "composition":{
                     "agg_max": {
-                        "method": "agg_max",
+                        "functionality": "agg_max",
                         "source":["vgg_0", "vgg_3"]
                     },
                     "yolo8s":{
-                        "method":"vgg_3",
+                        "functionality":"vgg_3",
                         "source":["data_processing"]
                     },
                     "yolo5x":{
-                        "method":"vgg_0",
+                        "functionality":"vgg_0",
                         "source":["data_processing"]
                     },
                     "data_processing":{
-                        "method": "REST",
+                        "functionality": "REST",
                         "source":["data_ingestion"]
                     },
                     "data_ingestion":{
-                        "method": "REST",
+                        "functionality": "REST",
                         "source":[]
                     }
                 }

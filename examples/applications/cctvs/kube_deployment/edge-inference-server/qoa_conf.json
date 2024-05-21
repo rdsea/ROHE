@@ -3,7 +3,7 @@
         "user_id": "aaltosea1",
         "instance_id": "yolo_inference",
         "stage_id": "Inference",
-        "method": "REST",
+        "functionality": "REST",
         "application_name": "test",
         "role": "ml"
     },
