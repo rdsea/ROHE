@@ -132,7 +132,6 @@ class Yolo8(object):
         self.model = YOLO(self.artifact_path+"yolo/"+self.param+".pt")
 
     def convert_results(self, results, annotator):
-        print(type(results))
         for result in results:
             # convert detection to numpy array
             numpy_result = result.boxes.numpy().data
