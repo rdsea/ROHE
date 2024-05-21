@@ -6,7 +6,7 @@
         "heartbeat": 5,
         "configuration":{
             "url": "localhost",
-            "userID":"aaltosea1",
+            "user_id":"aaltosea1",
             "exchange_name": "task_report",
             "exchange_type": "topic",
             "routing_key": "task.report.lstm_ml",

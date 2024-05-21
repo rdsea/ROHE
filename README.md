@@ -32,7 +32,7 @@ $ ./start_obervation_service.sh
 ```
 - Application Registration
     - Users can register the application using `rohe_cli` in the `/bin` folder. Application metadata and related configurations will be saved to the Database
-    -  When register an end-to-end ML application, the users must provide application name (`app_name` - string), run ID (`runID` - string), user ID (`userID` - string), and send registration request to the Observation Service via its `url`.
+    -  When register an end-to-end ML application, the users must provide application name (`app_name` - string), run ID (`run_id` - string), user ID (`user_id` - string), and send registration request to the Observation Service via its `url`.
     - The Observation Service will generate:
     - Application ID: `appID`
     - Database name: `db` for saving metric reports in runtime
@@ -44,7 +44,7 @@ Example
 ```bash
 $ rohe_cli register-app --app <application_name> --run <run_ID> --user <user_ID> --url <resigstration_service_url> --output_dir <folder_path_to_save_app_metadata>
 ```
-- Then, users must implement QoA probes manually into the application. Probes use this metadata to register with the observation service. The metadata can be extended with information like stageID microserviceID, method, role, etc. After the registration, the probes will receive communication protocol & configurations to report metrics.
+- Then, users must implement QoA probes manually into the application. Probes use this metadata to register with the observation service. The metadata can be extended with information like stage_id microserviceID, method, role, etc. After the registration, the probes will receive communication protocol & configurations to report metrics.
 - While the applications are running, the reported metrics are processed by an Observation Agent.
 The Agent must be configured with application name, command, stream configuration including:
     - Processing window: interval, size
@@ -205,7 +205,7 @@ Current implementation: Scoring Algorithm
             "microservice_name":"object_detection_web_service",
             "node": {},
             "status": "queueing",
-            "instanceIDs": [],
+            "instance_ids": [],
             "running": 0,
             "image": "rdsea/od_web:2.0",
             "ports": [4002],

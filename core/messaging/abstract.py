@@ -14,8 +14,7 @@ class MessagingConnectionConfig(BaseModel):
 
     def to_qoa4ml_config(self):
         try:
-            self_dict = {}
-            self_dict[self.name] = {"class": self.connectorType, "conf": self.config}
+            self_dict = {"name": self.name, "connector_class": self.connectorType, "config": self.config}
             return self_dict
         except Exception as e:
             logging.error("Error in `to_dict` MessagingConnection: {}".format(e))

@@ -35,9 +35,9 @@ class RoheAgentManager(RoheRestObject):
             logging.error("Error in `__init__` RoheAgentManager: {}".format(e))
             return {}
     
-    def start_docker(self, image, appName):
+    def start_docker(self, image, application_name):
         try:
-            container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':appName,'ROHE_PATH':"/agent/"})
+            container = self.docker_client.containers.run(image,volumes=DEFAULT_DOCKER_MOUNT, remove=True, detach=True, environment={'APP_NAME':application_name,'ROHE_PATH':"/agent/"})
             return container
         except Exception as e:
             logging.error("Error in `start_docker` RoheAgentManager: {}".format(e))
@@ -52,15 +52,15 @@ class RoheAgentManager(RoheRestObject):
             logging.error("Error in `update_app` RoheAgentManager: {}".format(e))
             return {}
         
-    def get_app(self,appName):
+    def get_app(self,application_name):
         try:
             # Get application configuration from database
             # Prepare query pipeline
-            pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+            pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "application_name": {"$last": "$application_name"},"user_id": {"$last": "$user_id"}, "run_id": {"$last": "$run_id"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
             app_list = list(self.dbClient.get(self.dbCollection,pipeline))
             # Get application from application list
             for app in app_list:
-                if app["appName"] == appName:
+                if app["application_name"] == application_name:
                     return app
             return None
         except Exception as e:
@@ -83,15 +83,15 @@ class RoheAgentManager(RoheRestObject):
                 # parse json request
                 args = request.get_json(force=True)
                 self.show_agent() # for debugging
-                if "appName" in args:
+                if "application_name" in args:
                     # Check application info from the request
-                    appName = args["appName"]
+                    application_name = args["application_name"]
                     # Get application configuration from database
-                    app = self.get_app(appName)
+                    app = self.get_app(application_name)
                     logging.info(app)
                     if app == None:
                         # Application has not been registered 
-                        response[appName] = "Application {} not exist".format(appName)
+                        response[application_name] = "Application {} not exist".format(application_name)
                     else:
                         # If application exist
                         if "agent_image" in args:
@@ -108,11 +108,11 @@ class RoheAgentManager(RoheRestObject):
                                     # If agent is created locally
                                     agent = agent_dict[metadata["_id"]]
                                     if agent["status"] != 1:
-                                        agent["docker"] = self.start_docker(str(agent_image), appName)
+                                        agent["docker"] = self.start_docker(str(agent_image), application_name)
                                         agent["status"] = 1
                                 else:
                                     # If agent is not found - create new agent and start
-                                    docker_agent = self.start_docker(str(agent_image), appName)
+                                    docker_agent = self.start_docker(str(agent_image), application_name)
                                     agent = {"docker": docker_agent, "status": 1}
                                     agent_dict[metadata["_id"]] = agent
                                 if "stream_config" in args:
@@ -122,7 +122,7 @@ class RoheAgentManager(RoheRestObject):
                                     self.update_app(metadata)
                                 self.show_agent() # for debugging
                                 # create a response
-                                response[appName] = "Application agent for application '{}' started ".format(appName)
+                                response[application_name] = "Application agent for application '{}' started ".format(application_name)
                             if command == "log":
                                 if metadata["_id"] in agent_dict:
                                     agent = agent_dict[metadata["_id"]]
@@ -142,7 +142,7 @@ class RoheAgentManager(RoheRestObject):
                                         agent["status"] = 0
                                         
                                 # create a response
-                                response[appName] = "Application agent for {} stopped ".format(appName)
+                                response[application_name] = "Application agent for {} stopped ".format(application_name)
                             if command == "delete":
                                 if metadata["_id"] in agent_dict:
                                     # if agent exist locally
@@ -154,9 +154,9 @@ class RoheAgentManager(RoheRestObject):
                                         docker_agent.stop()
                                         agent["status"] = 0
                                 # Delete the application from databased
-                                self.dbClient.delete_many(self.dbCollection,{"appName":appName})
+                                self.dbClient.delete_many(self.dbCollection,{"application_name":application_name})
                                 # create a response
-                                response[appName] = "Application agent for {} deleted ".format(appName)
+                                response[application_name] = "Application agent for {} deleted ".format(application_name)
                             if command == "kill_all_agent":
                                 for agent in list(agent_dict.keys()):
                                     agent_dict[agent]["status"] = 0

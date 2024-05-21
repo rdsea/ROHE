@@ -1,6 +1,6 @@
 {
     "amqp_connector":{
-        "class": "amqp",
+        "class": "AMQP",
         "conf":{
             "end_point": "localhost",
             "exchange_name": "task_report",

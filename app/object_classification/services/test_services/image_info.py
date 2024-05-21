@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     # qoa
     if config.get('qoa_config'):
-        config['qoa_config']['client']['runID'] = args.run
+        config['qoa_config']['client']['run_id'] = args.run
         print(f"\nAbout to load qoa client: {config['qoa_config']}")
         qoa_client = QoaClient(config['qoa_config'])
         qoa_client.process_monitor_start(5)

@@ -31,7 +31,7 @@
             "protocol": "AMQP",
             "configuration": {
                 "url": "localhost",
-                "userID": "aaltosea1",
+                "user_id": "aaltosea1",
                 "exchange_name": "lstm_bts",
                 "exchange_type": "topic",
                 "log": "False",

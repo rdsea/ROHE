@@ -98,20 +98,21 @@ class Service(object):
         self.id = self.config["service_id"]
         self.status = self.config["status"]
         self.running = self.config["running"]
-        self.instanceIDs = self.config["instanceIDs"]
+        print(self.config)
+        self.instance_ids = self.config["instance_ids"]
     
     def getRunningCount(self):
-        self.running = len(self.instanceIDs)
+        self.running = len(self.instance_ids)
         return self.running
 
     def getQueueingCount(self):
-        self.queueing = self.replicas - len(self.instanceIDs)
+        self.queueing = self.replicas - len(self.instance_ids)
         return self.queueing
 
     def selfUpdateConfig(self):
         self.config["node"] = self.node_list
         self.config["running"] = self.running
-        self.config["instanceIDs"] = self.instanceIDs
+        self.config["instance_ids"] = self.instance_ids
 
     def assign(self, node):
         if node.id in self.node_list:
@@ -120,8 +121,8 @@ class Service(object):
             self.node_list[node.id] = 1
         new_instance = ServiceInstance(self, node)
         self.instances[new_instance.id] = new_instance
-        self.instanceIDs =  list(self.instances.keys())
-        self.running = len(self.instanceIDs)
+        self.instance_ids =  list(self.instances.keys())
+        self.running = len(self.instance_ids)
         self.selfUpdateConfig()
         new_instance.generateDeployment()
 

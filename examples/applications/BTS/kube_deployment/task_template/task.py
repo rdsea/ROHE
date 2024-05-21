@@ -36,7 +36,7 @@ if __name__ == '__main__':
     metric = "./conf/metrics.json"
     client_conf = qoa_utils.load_config(client)
     client_conf["node_name"] = get_node_name()
-    client_conf["instanceID"] = get_instance_id()
+    client_conf["instance_id"] = get_instance_id()
     connector_conf = qoa_utils.load_config(connector)
     metric_conf = qoa_utils.load_config(metric)
 

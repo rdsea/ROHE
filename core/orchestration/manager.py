@@ -151,9 +151,9 @@ class RoheNodeAndServiceManager(Resource):
         try:
             results = {}
             for app_key in service_data:
-                appName = service_data[app_key]
-                for s_key in appName:
-                    service = appName[s_key]
+                application_name = service_data[app_key]
+                for s_key in application_name:
+                    service = application_name[s_key]
                     self.remove_service_db(service)
                     results[s_key] = "Removed"
             return {"result":results}
@@ -161,13 +161,13 @@ class RoheNodeAndServiceManager(Resource):
             logging.error("Error in `remove_services` RoheNodeAndServiceManager: {}".format(e))
             return {"result":"fail"}
     
-    def add_service_to_db(self, service, appName):
+    def add_service_to_db(self, service, application_name):
         try:
             metadata = {}
             metadata["status"] = service["status"]
             metadata["replicas"] = service["replicas"]
             metadata["running"] = service["running"]
-            metadata["appName"] = appName
+            metadata["application_name"] = application_name
             metadata["timestamp"] = time.time()
             metadata["data"] = service
             metadata["service_id"] = service["service_id"]
@@ -179,9 +179,9 @@ class RoheNodeAndServiceManager(Resource):
         try:
             results = {}
             for app_key in data:
-                appName = data[app_key]
-                for s_key in appName:
-                    service = appName[s_key]
+                application_name = data[app_key]
+                for s_key in application_name:
+                    service = application_name[s_key]
                     if self.is_service_exist(service["service_id"]):
                         self.update_service_to_db(service)
                         results[s_key] = "Updated"

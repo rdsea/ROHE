@@ -19,8 +19,8 @@ class Amqp_Transceiver(Transceiver):
         self.config = config
         self.exchange_name = config["exchange_name"]
         self.exchange_type = config["exchange_type"]
-        self.userID = config["userID"] 
-        self.mess_logging = Mess_Logging(self.userID)
+        self.user_id = config["user_id"] 
+        self.mess_logging = Mess_Logging(self.user_id)
         self.log_flag = eval(config["log"])
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(config["url"]))
         self.channel = self.connection.channel()

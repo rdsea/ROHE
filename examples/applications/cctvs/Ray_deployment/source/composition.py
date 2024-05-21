@@ -111,7 +111,7 @@ stage_conf = configuration["stage_conf"]
 def enhance_image(image):
     enh_img_qoa = Qoa_Client(client_config,connector_conf)
     enh_img_conf = stage_conf["enhance_image"]
-    enh_img_qoa.init_report(enh_img_conf["instanceID"], enh_img_conf["method"], enh_img_conf["stageID"])
+    enh_img_qoa.init_report(enh_img_conf["instance_id"], enh_img_conf["method"], enh_img_conf["stage_id"])
     enh_img_qoa.timer()
     kernel = np.array([[0, -1, 0],
                    [-1, 5,-1],
@@ -132,7 +132,7 @@ def mean_aggregate(predictions):
 def max_aggregate(predictions, report_list=[]):
     m_agg_qoa = Qoa_Client(client_config,connector_conf)
     m_agg_conf = stage_conf["max_aggregate"]
-    m_agg_qoa.init_report(m_agg_conf["instanceID"], m_agg_conf["method"], m_agg_conf["stageID"])
+    m_agg_qoa.init_report(m_agg_conf["instance_id"], m_agg_conf["method"], m_agg_conf["stage_id"])
     m_agg_qoa.timer()
     for report in report_list:
         m_agg_qoa.get_reports(report)
@@ -152,7 +152,7 @@ class Yolo8Inference:
         self.model = Yolo8(param)
         self.qoa = Qoa_Client(client_config,connector_conf)
         self.conf = stage_conf["yolov5"]
-        self.qoa.init_report(self.conf["instanceID"], self.conf["method"], self.conf["stageID"])
+        self.qoa.init_report(self.conf["instance_id"], self.conf["method"], self.conf["stage_id"])
 
     def predict(self, image, report_list=[]):
         self.qoa.timer()
@@ -175,7 +175,7 @@ class Yolo5Inference:
         self.model = Yolo5(param)
         self.qoa = Qoa_Client(client_config,connector_conf)
         self.conf = stage_conf["yolov8"]
-        self.qoa.init_report(self.conf["instanceID"], self.conf["method"], self.conf["stageID"])
+        self.qoa.init_report(self.conf["instance_id"], self.conf["method"], self.conf["stage_id"])
 
 
     def predict(self, image, report_list=[]):

@@ -22,14 +22,14 @@ from core.common.window import EventBuffer, TimeBuffer
 import lib.roheUtils as rohe_utils
 
 
-def get_app(collection, appName):
+def get_app(collection, application_name):
     # get application data from databased
     # Create sorted pipepline to query application list
-    pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "appName": {"$last": "$appName"},"userID": {"$last": "$userID"}, "runID": {"$last": "$runID"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
+    pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$appID", "application_name": {"$last": "$application_name"},"user_id": {"$last": "$user_id"}, "run_id": {"$last": "$run_id"}, "timestamp": {"$last": "$timestamp"},"db": {"$last": "$db"},"client_count": {"$last": "$client_count"}, "agent_config":{"$last": "$agent_config"}}}]
     app_list = list(collection.aggregate(pipeline))
     for app in app_list:
         # return app with its configuration
-        if app["appName"] == appName:
+        if app["application_name"] == application_name:
             return app
     return None
 
@@ -38,8 +38,8 @@ class RoheObservationAgent(RoheObject):
     def __init__(self, configuration, mg_db=False, log_lev=2):
         super().__init__(logging_level=log_lev)
         self.conf = configuration
-        self.appName = configuration["appName"]
-        self.temp_path = DEFAULT_DATA_PATH+self.appName
+        self.application_name = configuration["application_name"]
+        self.temp_path = DEFAULT_DATA_PATH+self.application_name
         # Init Metric collector 
         colletor_conf = self.conf["collector"]
         self.collector = Amqp_Collector(colletor_conf['amqp_collector']['conf'], host_object=self)
@@ -228,13 +228,13 @@ if __name__ == '__main__':
         db = mongo_client[db_config["db_name"]]
         collection = db[db_config["collection"]]
 
-        # get appName from Container Environment
-        appName = os.environ.get('APP_NAME')
-        if not appName:
-            appName = "test"
+        # get application_name from Container Environment
+        application_name = os.environ.get('APP_NAME')
+        if not application_name:
+            application_name = "test"
         # get agent configuration from database
-        agent_config = get_app(collection, appName)['agent_config']
-        agent_config["appName"] = appName
+        agent_config = get_app(collection, application_name)['agent_config']
+        agent_config["application_name"] = application_name
         print(agent_config)
         agent = RoheObservationAgent(agent_config)
         agent.start()

@@ -1,6 +1,6 @@
 collector:
   name: amqp_collector
-  connectorType: amqp
+  connectorType: AMQP
   config:
     end_point: localhost
     exchange_name: exchange_name
@@ -9,7 +9,7 @@ collector:
     in_routing_key: in_routing_key
 connector:
   name: amqp_connector
-  connectorType: amqp
+  connectorType: AMQP
   config:
     end_point: localhost
     exchange_name: exchange_name

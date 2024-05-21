@@ -153,22 +153,22 @@ def sdnParser(item, parser_conf):
 
         # init metadata for every row data
         if "metadata" in item:
-            userID = [item["metadata"]["userID"]]
-            instanceID = [item["metadata"]["instanceID"]]
-            runID = [item["metadata"]["runID"]]
+            user_id = [item["metadata"]["user_id"]]
+            instance_id = [item["metadata"]["instance_id"]]
+            run_id = [item["metadata"]["run_id"]]
             timestamp = [item["metadata"]["timestamp"]]
-            stageID = [item["metadata"]["stageID"]]
-            appName = [item["metadata"]["appName"]]
+            stage_id = [item["metadata"]["stage_id"]]
+            application_name = [item["metadata"]["application_name"]]
             # remove metadata before processing
             switches.pop("metadata")
 
         # Creat new row data as dictionary -> dataframe
-        metadata_dict = {"userID":userID,
-                    "instanceID":instanceID,
-                    "runID":runID,
+        metadata_dict = {"user_id":user_id,
+                    "instance_id":instance_id,
+                    "run_id":run_id,
                     "timestamp":timestamp,
-                    "stageID":stageID,
-                    "appName":appName}
+                    "stage_id":stage_id,
+                    "application_name":application_name}
         
         # iterate switches in data
         for key in switches:

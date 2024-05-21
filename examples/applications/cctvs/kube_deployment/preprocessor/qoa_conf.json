@@ -1,10 +1,10 @@
 {
     "client":{
-        "userID": "aaltosea1",
-        "instanceID": "yolo_processing",
-        "stageID": "Image_Processing",
+        "user_id": "aaltosea1",
+        "instance_id": "yolo_processing",
+        "stage_id": "Image_Processing",
         "method": "REST",
-        "appName": "test",
+        "application_name": "test",
         "role": "ml"
     },
     "registration_url":"http://localhost:5010/registration"

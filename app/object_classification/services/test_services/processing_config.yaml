@@ -15,15 +15,15 @@ processing:
 
 qoa_config:
   client:
-    userID: aaltosea2
-    instanceID: processing_service_01
-    stageID: Processing
+    user_id: aaltosea2
+    instance_id: processing_service_01
+    stage_id: Processing
     method: REST
-    appName: nii
+    application_name: nii
     role: ml
   connector:
     amqp_connector:
-      class: amqp
+      class: AMQP
       conf:
         end_point: 195.148.22.62
         exchange_name: nii_inference

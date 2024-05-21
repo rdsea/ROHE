@@ -1,7 +1,7 @@
 ---
 connector:
   amqp_connector:
-    class: amqp
+    class: AMQP
     conf:
       end_point: localhost
       exchange_name: k3s_system_report

@@ -10,15 +10,15 @@ external_services:
 
 qoa_config:
   client:
-    userID: aaltosea2
-    instanceID: image_info_service_01
-    stageID: ImageInfo
+    user_id: aaltosea2
+    instance_id: image_info_service_01
+    stage_id: ImageInfo
     method: REST
-    appName: nii
+    application_name: nii
     role: ml
   connector:
     amqp_connector:
-      class: amqp
+      class: AMQP
       conf:
         end_point: 195.148.22.62
         exchange_name: nii_inference

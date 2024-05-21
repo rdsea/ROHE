@@ -1,15 +1,15 @@
 
 qoa_config:
   client:
-    userID: aaltosea2
-    instanceID: ingestion_service_01
-    stageID: Ingestion
+    user_id: aaltosea2
+    instance_id: ingestion_service_01
+    stage_id: Ingestion
     method: REST
-    appName: nii
+    application_name: nii
     role: ml
   connector:
     amqp_connector:
-      class: amqp
+      class: AMQP
       conf:
         end_point: 195.148.22.62
         exchange_name: nii_inference

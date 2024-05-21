@@ -35,9 +35,9 @@ headers = {
 @click.option('--output_dir', help='output_file, make sure the directory exists', default=None)
 def register_app(app,run, user, url,output_dir):
     try:
-        res_data = {"appName": app}
-        res_data["runID"] = run
-        res_data["userID"] = user
+        res_data = {"application_name": app}
+        res_data["run_id"] = run
+        res_data["user_id"] = user
 
         logging.debug(res_data)
         # Send registration data to registration service
@@ -104,9 +104,9 @@ def stop_obsagent(app,conf,url):
 @click.option('--url', help='registration url', default="http://localhost:5010/agent")
 def delete_app(app, run, user, url):
     try:
-        res_data = {"appName": app}
-        res_data["runID"] = run
-        res_data["userID"] = user
+        res_data = {"application_name": app}
+        res_data["run_id"] = run
+        res_data["user_id"] = user
         res_data["command"] = "delete"
 
         logging.debug(res_data)

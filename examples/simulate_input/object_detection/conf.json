@@ -5,7 +5,7 @@
     },
     "connector_conf": {
         "amqp_connector":{
-            "class": "amqp",
+            "class": "AMQP",
             "conf":{
                 "end_point": "localhost",
                 "exchange_name": "object_detection",
@@ -15,8 +15,8 @@
         }
     },
     "client_app":{
-        "instanceID": "client_rasp",
+        "instance_id": "client_rasp",
         "method": "REST",
-        "stageID": "client_app"
+        "stage_id": "client_app"
     }
 }

@@ -11,7 +11,7 @@ data:
       service_id: EW:VE:TW:WQ:01
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/od_web:2.0
       ports:
@@ -37,7 +37,7 @@ data:
       service_id: EW:VE:TW:WQ:02
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/od_proc:2.0
       ports:
@@ -63,7 +63,7 @@ data:
       service_id: EW:VE:TW:WQ:03
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/od_inf:2.0
       ports:
@@ -89,7 +89,7 @@ data:
       service_id: EW:VE:TW:WQ:04
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/kpi_web:2.0
       ports:
@@ -115,7 +115,7 @@ data:
       service_id: EW:VE:TW:WQ:05
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: minio/minio
       ports:
@@ -140,7 +140,7 @@ data:
       service_id: EW:VE:TW:WQ:06
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/kpi_database:2.0
       ports:
@@ -168,7 +168,7 @@ data:
       service_id: EW:VE:TW:WQ:07
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/kpi_forecast:2.0
       ports:
@@ -197,7 +197,7 @@ data:
       service_id: EW:VE:TW:WQ:08
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/bts_data_proc:2.0
       ports:
@@ -225,7 +225,7 @@ data:
       service_id: EW:VE:TW:WQ:09
       node: {}
       status: queueing
-      instanceIDs: []
+      instance_ids: []
       running: 0
       image: rdsea/bts_ml_proc:2.0
       ports:
