@@ -1,8 +1,8 @@
-from core.external.yolo.modelLoader import YoloInference
 from core.common.restService import RoheRestService
-    
+from core.external.yolo.modelLoader import YoloInference
 
-class YoloRestService(RoheRestService): 
+
+class YoloRestService(RoheRestService):
     def __init__(self, config={}) -> None:
         super().__init__(config)
         self.models = []
@@ -12,7 +12,7 @@ class YoloRestService(RoheRestService):
                     model = YoloInference(self.config, 5, param=instance["parameter"])
                     self.models.append(model)
                 if instance["model"] == "Yolov8":
-                    model = YoloInference(self.config, 8, param=instance["parameter"]) 
+                    model = YoloInference(self.config, 8, param=instance["parameter"])
                     self.models.append(model)
                 print("Adding instance: ", instance)
         self.config["models"] = self.models

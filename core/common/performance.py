@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class MLServicePerformance(BaseModel):
     model: str
     infrastructure: str

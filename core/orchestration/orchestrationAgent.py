@@ -1,15 +1,24 @@
-import sys, os, traceback
-import pymongo, time
+import os
+import sys
+import time
 from threading import Timer
+
+import pymongo
+
 # User must export ROHE_PATH befor using
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 import logging
-logging.basicConfig(format='%(asctime)s:%(levelname)s -- %(message)s', level=logging.INFO)
 
-from core.orchestration.resourceManagement.resource import Node, Service, Service_Queue
-from core.orchestration.ensembleOptimization.scoring import orchestrate as scoringOrchestrate
+logging.basicConfig(
+    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
+)
+
 from core.common.roheObject import RoheObject
+from core.orchestration.ensembleOptimization.scoring import (
+    orchestrate as scoringOrchestrate,
+)
+from core.orchestration.resourceManagement.resource import Node, Service, Service_Queue
 
 
 class RoheAgentV1(RoheObject):
@@ -29,23 +38,21 @@ class RoheAgentV1(RoheObject):
             self.orches_flag = True
             self.update_flag = False
             # self.show_services()
-            # self.show_nodes() 
+            # self.show_nodes()
         except Exception as e:
             logging.error("Error in `__init__` RoheAgentV1: {}".format(e))
 
-
     def start(self):
         try:
-            # Periodically check service queue and allocate service 
+            # Periodically check service queue and allocate service
             self.orches_flag = True
             self.orchestrate()
         except Exception as e:
             logging.error("Error in `start` RoheAgentV1: {}".format(e))
-        
 
     def allocate_service(self):
         pass
-    
+
     def sync_from_db(self):
         try:
             self.sync_node_from_db()
@@ -59,7 +66,12 @@ class RoheAgentV1(RoheObject):
                 logging.info("Agent Start Orchestrating")
                 self.sync_from_db()
                 logging.info("Sync completed")
-                scoringOrchestrate(self.nodes, self.services, self.service_queue, self.orchestrateConfig)
+                scoringOrchestrate(
+                    self.nodes,
+                    self.services,
+                    self.service_queue,
+                    self.orchestrateConfig,
+                )
                 self.show_services()
                 self.sync_node_to_db()
                 self.sync_service_to_db()
@@ -80,26 +92,41 @@ class RoheAgentV1(RoheObject):
             # Sync specific node
             if node_mac != None:
                 # query node from db
-                node_res = list(self.dbClient.aggregate(self.node_collection,{"mac":node_mac},[('timestamp', pymongo.DESCENDING)]))
+                node_res = list(
+                    self.dbClient.aggregate(
+                        self.node_collection,
+                        {"mac": node_mac},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
+                )
                 if len(node_res) > 0:
                     node_db = node_res[0]
-                    #if replace -> completely replace local node by node from database
+                    # if replace -> completely replace local node by node from database
                     if replace:
                         self.nodes[node_mac] = node_db["data"]
-                    #if not replace -> update local node using node from database: To do
+                    # if not replace -> update local node using node from database: To do
                     else:
                         pass
             # Sync all node
             else:
                 # query the last updated nodes
-                pipeline = [{"$sort":{"timestamp":1}},{"$group": {"_id": "$mac", "timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
+                pipeline = [
+                    {"$sort": {"timestamp": 1}},
+                    {
+                        "$group": {
+                            "_id": "$mac",
+                            "timestamp": {"$last": "$timestamp"},
+                            "data": {"$last": "$data"},
+                        }
+                    },
+                ]
                 node_list = list(self.dbClient.get(self.node_collection, pipeline))
                 self.nodes = {}
                 for node in node_list:
-                    #if replace -> completely replace local nodes by nodes from database
+                    # if replace -> completely replace local nodes by nodes from database
                     if replace:
                         self.nodes[node["_id"]] = Node(node["data"])
-                    #if not replace -> update local nodes using nodes from database: To do
+                    # if not replace -> update local nodes using nodes from database: To do
                     else:
                         pass
             logging.info("Agent Sync nodes from Database complete")
@@ -111,22 +138,40 @@ class RoheAgentV1(RoheObject):
             # Sync specific service
             if service_id != None:
                 # query service from db
-                service_res = list(self.dbClient.aggregate(self.service_collection, {"service_id":service_id}, [('timestamp', pymongo.DESCENDING)]))
+                service_res = list(
+                    self.dbClient.aggregate(
+                        self.service_collection,
+                        {"service_id": service_id},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
+                )
                 if len(service_res) > 0:
                     service_db = service_res[0]
-                    #if replace -> completely replace local service by service from database
+                    # if replace -> completely replace local service by service from database
                     if replace:
                         self.services[service_id] = Service(service_db)
-                    else: 
+                    else:
                         pass
                     # if number of service instance running lower than its required replicas, put it to service queue
             else:
-                pipeline = [{"$sort":{"timestamp":1}},
-                    {"$group": {"_id": "$service_id","replicas": {"$last": "$replicas"}, "running": {"$last": "$running"},"timestamp": {"$last": "$timestamp"}, "data":{"$last": "$data"}}}]
-                service_list = list(self.dbClient.get(self.service_collection, pipeline))
+                pipeline = [
+                    {"$sort": {"timestamp": 1}},
+                    {
+                        "$group": {
+                            "_id": "$service_id",
+                            "replicas": {"$last": "$replicas"},
+                            "running": {"$last": "$running"},
+                            "timestamp": {"$last": "$timestamp"},
+                            "data": {"$last": "$data"},
+                        }
+                    },
+                ]
+                service_list = list(
+                    self.dbClient.get(self.service_collection, pipeline)
+                )
                 self.services = {}
                 for service in service_list:
-                    #if replace -> completely replace local services by services from database
+                    # if replace -> completely replace local services by services from database
                     if replace:
                         self.services[service["_id"]] = Service(service["data"])
                     else:
@@ -135,11 +180,17 @@ class RoheAgentV1(RoheObject):
         except Exception as e:
             logging.error("Error in `sync_service_from_db` RoheAgentV1: {}".format(e))
             # print(traceback.print_exc())
-    
+
     def sync_node_to_db(self, node_mac=None):
         try:
             if node_mac != None:
-                node_db = list(self.dbClient.aggregate(self.node_collection, {"mac":node_mac}, [('timestamp', pymongo.DESCENDING)]))[0]
+                node_db = list(
+                    self.dbClient.aggregate(
+                        self.node_collection,
+                        {"mac": node_mac},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
+                )[0]
                 node_db["data"] = self.nodes[node_mac].config
                 node_db.pop("_id")
                 node_db["timestamp"] = time.time()
@@ -149,12 +200,17 @@ class RoheAgentV1(RoheObject):
                     self.sync_node_to_db(key)
         except Exception as e:
             logging.error("Error in `sync_node_to_db` RoheAgentV1: {}".format(e))
-        
 
     def sync_service_to_db(self, service_id=None):
         try:
             if service_id != None:
-                service_db = list(self.dbClient.aggregate(self.service_collection, {"service_id":service_id}, [('timestamp', pymongo.DESCENDING)]))[0]
+                service_db = list(
+                    self.dbClient.aggregate(
+                        self.service_collection,
+                        {"service_id": service_id},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
+                )[0]
                 service_db["data"] = self.services[service_id].config
                 service_db["replicas"] = self.services[service_id].replicas
                 service_db["running"] = self.services[service_id].running
@@ -182,6 +238,6 @@ class RoheAgentV1(RoheObject):
             logging.info("############ SERVICES LIST ############")
             for service_key in self.services:
                 logging.info(self.services[service_key])
-            logging.info("Services Size: ".format(len(self.services)))
+            logging.info("Services Size: ".format())
         except Exception as e:
             logging.error("Error in `show_services` RoheAgentV1: {}".format(e))

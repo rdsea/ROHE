@@ -1,11 +1,8 @@
-from qoa4ml.collector.amqp_collector import Amqp_Collector
-import pymongo
-from threading import Thread
 import json
-import uuid, pymongo
-import pandas as pd
-import argparse, random
-import traceback,sys,pathlib
+from threading import Thread
+
+import pymongo
+from qoa4ml.collector.amqp_collector import Amqp_Collector
 
 
 def get_dict_at(dict, i):
@@ -13,13 +10,13 @@ def get_dict_at(dict, i):
     return dict[keys[i]], keys[i]
 
 
-
-
 class RoheObservationAgent(object):
     def __init__(self, configuration, mg_db=True):
         self.conf = configuration
         colletor_conf = self.conf["collector"]
-        self.collector = Amqp_Collector(colletor_conf['amqp_collector']['conf'], host_object=self)
+        self.collector = Amqp_Collector(
+            colletor_conf["amqp_collector"]["conf"], host_object=self
+        )
         db_conf = self.conf["database"]
         self.mongo_client = pymongo.MongoClient(db_conf["url"])
         self.db = self.mongo_client[db_conf["db_name"]]
@@ -33,7 +30,7 @@ class RoheObservationAgent(object):
         2 - Stop
         """
         self.insert_db = mg_db
-    
+
     def reset_db(self):
         self.metric_collection.drop()
 
@@ -48,11 +45,9 @@ class RoheObservationAgent(object):
         self.status = 1
         print("start consumming message")
 
-
-
     def message_processing(self, ch, method, props, body):
         mess = json.loads(str(body.decode("utf-8")))
-        
+
         if self.insert_db:
             print("Receive QoA Report: \n", mess)
             insert_id = self.metric_collection.insert_one(mess)
@@ -69,4 +64,3 @@ class RoheObservationAgent(object):
         # self.collector.stop()
         self.insert_db = True
         self.status = 1
-    

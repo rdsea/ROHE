@@ -1,25 +1,26 @@
-import sys, os
+import os
+import sys
+
 # User must export ROHE_PATH befor using
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
-from lib import roheUtils
+import copy
+from math import log
+
 import pandas as pd
 
-import random, copy
-from math import log10, log, gcd, ceil
-
 DEFAULT_ZERO_ERROR_EVA = float("1e-20")
+
 
 def map_to_log_scale(value, min_value, max_value, logbase):
     # Calculate the logarithmic scale
     min_value = float(min_value)
     max_value = float(max_value)
-    
-    
+
     if min_value == 0:
         min_value = DEFAULT_ZERO_ERROR_EVA
     if max_value == 0:
-        max_value =DEFAULT_ZERO_ERROR_EVA
+        max_value = DEFAULT_ZERO_ERROR_EVA
     if value <= 0:
         value = min_value
 
@@ -27,25 +28,25 @@ def map_to_log_scale(value, min_value, max_value, logbase):
         min_value = value
     if value > max_value:
         max_value = value
-    log_min = log(min_value,logbase)
-    log_max = log(max_value,logbase)
-
-    
+    log_min = log(min_value, logbase)
+    log_max = log(max_value, logbase)
 
     # Map the value to the logarithmic scale
     # print(value, max_value, min_value)
-    log_value = log(value,logbase)
+    log_value = log(value, logbase)
 
     # Map the logarithmic value to the range [0, 1]
     mapped_value = (log_value - log_min) / (log_max - log_min)
 
     return mapped_value
 
+
 def map_to_linear_scale(value, min_value, max_value):
     # Map the linear value to the range [0, 1]
     mapped_value = (value - min_value) / (max_value - min_value)
 
     return mapped_value
+
 
 def calculate_statistic(column, statistic):
     if statistic == "max":
@@ -62,9 +63,12 @@ def calculate_statistic(column, statistic):
         new_col = 1 - column
         return 1 - new_col.prod()
     else:
-        raise ValueError("Invalid statistic. Valid options are 'prod', 'rprod', sum, 'max', 'min', or 'avg'.")
-    
-def calculate_scaled_value(value, max_value, min_value, objective, scale, logbase = 2):
+        raise ValueError(
+            "Invalid statistic. Valid options are 'prod', 'rprod', sum, 'max', 'min', or 'avg'."
+        )
+
+
+def calculate_scaled_value(value, max_value, min_value, objective, scale, logbase=2):
     if scale == "log":
         scaled_value = map_to_log_scale(value, min_value, max_value, logbase)
     elif scale == "linear":
@@ -74,7 +78,8 @@ def calculate_scaled_value(value, max_value, min_value, objective, scale, logbas
     if objective == "max":
         return scaled_value
     elif objective == "min":
-        return 1-scaled_value
+        return 1 - scaled_value
+
 
 def ScoreEstimation(ensemble: list, contract: dict):
     """
@@ -127,13 +132,26 @@ def ScoreEstimation(ensemble: list, contract: dict):
     for metric_key, metric in metrics.items():
         agg_metric = calculate_statistic(performance_df[metric_key], metric["operator"])
         if "logbase" in metric:
-            sub_score = calculate_scaled_value(agg_metric, metric["max_value"], metric["min_value"], metric["objective"], metric["scale"], logbase=metric["logbase"])
+            sub_score = calculate_scaled_value(
+                agg_metric,
+                metric["max_value"],
+                metric["min_value"],
+                metric["objective"],
+                metric["scale"],
+                logbase=metric["logbase"],
+            )
         else:
-            sub_score = calculate_scaled_value(agg_metric, metric["max_value"], metric["min_value"], metric["objective"], metric["scale"])
+            sub_score = calculate_scaled_value(
+                agg_metric,
+                metric["max_value"],
+                metric["min_value"],
+                metric["objective"],
+                metric["scale"],
+            )
         sub_score *= metric["weight"]
         total_score += sub_score
         result[metric_key] = agg_metric
-        result[metric_key+"_score"] = sub_score
+        result[metric_key + "_score"] = sub_score
         # print(metric_key,": ",agg_metric, " ; Sub-score: ",sub_score)
     result["total_score"] = total_score
     return result

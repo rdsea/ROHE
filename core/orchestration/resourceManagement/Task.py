@@ -1,4 +1,5 @@
-import json  
+import json
+
 
 class Task_orc(object):
     def __init__(self, configuration, pre_task, next_task):
@@ -22,19 +23,19 @@ class Task_orc(object):
         self.requirement = task_config["requirement"]
         self.status = 0
         self.queue_capacity = task_config["queue_cap"]
-        self.n_queue = 0 # current number of requests in waiting queue
+        self.n_queue = 0  # current number of requests in waiting queue
 
     def assign(self, node_name):
         if node_name in self.node_list:
             self.node_list[node_name] += 1
         else:
             self.node_list[node_name] = 1
-    
+
     def run(self):
         # To Do
         # Send kubectl apply deployment
         pass
-    
+
     def scale(self, n_rep):
         # To Do
         # Send kubectl scale --replicas=n_rep
@@ -51,7 +52,7 @@ class Task_orc(object):
         # Restart the task
         self.stop()
         self.scale(self.replicas)
-    
+
     def update(self):
         # To Do
         # Update task status, n_queue, current resource usage, replicas.
