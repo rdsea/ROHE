@@ -22,12 +22,18 @@ def resize_and_pad(image, target_size=(32, 32, 3)):
     pad_r = int(np.ceil(pad_horz))
 
     # Pad the resized image
-    padded = np.pad(resized, ((pad_t, pad_b), (pad_l, pad_r), (0, 0)), mode='constant', constant_values=0)
+    padded = np.pad(
+        resized,
+        ((pad_t, pad_b), (pad_l, pad_r), (0, 0)),
+        mode="constant",
+        constant_values=0,
+    )
 
     return padded
 
 
 def say_hello():
     print("Hello from image processing functions file")
+
 
 # can add more image processing function to consider in different situation

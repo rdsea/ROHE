@@ -1,8 +1,10 @@
-import sys, os
 import json
+import os
+import sys
+from threading import Thread
+
 from qoa4ml import qoaUtils as utils
 from qoa4ml.collector.amqp_collector import Amqp_Collector
-from threading import Thread
 
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
@@ -15,7 +17,7 @@ class Collector(object):
         self.config = config
         self.collector = Amqp_Collector(self.config["collector"], self)
         self.subthread = Thread(target=self.collector.start)
-        
+
     def start(self):
         self.subthread.start()
 
@@ -23,7 +25,6 @@ class Collector(object):
         mess = json.loads(str(body.decode("utf-8")))
         # result = OCParser(mess, self.config["parser_config"])
         # print(result)
-    
+
     def stop(self):
         self.collector.stop()
-

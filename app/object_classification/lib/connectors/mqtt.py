@@ -1,13 +1,13 @@
-import paho.mqtt.client as mqtt
 import json
-import threading
 import logging
+import threading
+
+import paho.mqtt.client as mqtt
 
 logging.getLogger(__name__)
 
 
 class MqttPublisher:
-
     def __init__(self, broker_info, client_id, pub_topic):
         self.client_id = client_id
         self.pub_topic = pub_topic
@@ -19,7 +19,9 @@ class MqttPublisher:
         self.client.on_connect = self.on_connect
         self.client.on_publish = self.on_publish
 
-        self.client.connect(broker_info['url'], broker_info['port'], broker_info['keep_alive'])
+        self.client.connect(
+            broker_info["url"], broker_info["port"], broker_info["keep_alive"]
+        )
         self.client.loop_start()
 
     def on_connect(self, client, userdata, flags, rc):
@@ -44,7 +46,6 @@ class MqttPublisher:
         self.client.disconnect()
 
 
-
 class MqttSubscriber:
     def __init__(self, host_object, broker_info, client_id, sub_topic):
         self.host_object = host_object
@@ -55,7 +56,9 @@ class MqttSubscriber:
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        self.client.connect(broker_info['url'], broker_info['port'], broker_info['keep_alive'])
+        self.client.connect(
+            broker_info["url"], broker_info["port"], broker_info["keep_alive"]
+        )
 
         self.client.loop_forever()
 
