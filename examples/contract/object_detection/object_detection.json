@@ -1,251 +1,449 @@
 {
-    "stakeholders": [
-        {"id": "google1", "roles": "inf_provider", "provisioning": ["storage", "computing"]},
-        {"id": "google2", "roles": "inf_provider", "provisioning": ["storage"]},
-        {"id": "aaltosea1", "roles": "ml_provider", "provisioning": ["mlmodels", "services"]},
-        {"id": "aaltosea2", "roles": "ml_provider", "provisioning": ["mlmodels"]},
-        {"id": "user1", "roles": "ml_user", "provisioning": ["request"]},
-        {"id": "user2", "roles": "ml_user", "provisioning": ["request"]}
-    ],
-    "resources": {
-        "service": [
-            {"id": "request", "serviceapis": "mptt", "machinetypes": ["edge", "cloud"], "processortypes": ["CPU"]}
-        ],
-        "data": [
-            {"id": "nii", "datatypes": "image", "formats": "h5"}
-        ],
-        "mlmodels":[
-            {"id": "ml_inference", "mlinfrastructures": "tensorflow", "modelclasses": ["RNN", "LR"], "inferencemodes": "dynamic"},
-            {"id": "ml_training", "mlinfrastructures": "tensorflow", "modelclasses": ["RNN"], "inferencemodes": "dynamic"}
-        ],
-        "model_composition":{ 
-            "composition_1":{
-                "quantity": [3,8], 
-                "resource_tier": "edge", 
-                "model_tier": 4, 
-                "composition":{
-                    "agg_max": {
-                        "functionality": "agg_max",
-                        "source":["vgg_0", "vgg_3"]
-                    },
-                    "yolo8s":{
-                        "functionality":"vgg_3",
-                        "source":["data_processing"]
-                    },
-                    "yolo5x":{
-                        "functionality":"vgg_0",
-                        "source":["data_processing"]
-                    },
-                    "data_processing":{
-                        "functionality": "REST",
-                        "source":["data_ingestion"]
-                    },
-                    "data_ingestion":{
-                        "functionality": "REST",
-                        "source":[]
-                    }
-                }
-            }
-        }
-    },
-
-    "quality": {
-        "services": [
-            {
-                "ResponseTime":{
-                    "id":2,
-                    "attributenames":"ResponseTimeCloudDevices",
-                    "operators":"max",
-                    "class": ["performance"],
-                    "condition":{
-                        "resource_tier": ["cloud"],
-                        "model_tier":2
-                    },
-                    "stage":"none",
-                    "unit":"s",
-                    "value":0.5,
-                    "subject":"violation"
-                }
-            },
-            {
-                "ResponseTime":{
-                    "id":2,
-                    "attributenames":"ResponseTimeEdgeDevices",
-                    "operators":"max",
-                    "class": ["performance"],
-                    "condition":{
-                        "resource_tier": ["edge"],
-                        "model_tier":3
-                    },
-                    "stage":"none",
-                    "unit":"s",
-                    "value":0.4,
-                    "subject":"violation"
-                }        
-            }
-        ],
-        "data":[
-            {"Accuracy":{
-                "id":4,
-                "attributenames":"Accuracy",
-                "operators":"min",
-                "unit":"percentage",
-                "value":80, 
-                "class": ["qualityofdata"]}
-            },
-            {"Completeness":{
-                "id":5,
-                "attributenames":"Completeness",
-                "operators":"min",
-                "unit":"percentage",
-                "value":90, 
-                "resourceType": ["qualityofdata"]}
-            },
-            {"Object_height":{
-                "id":6,
-                "attributenames":"ObjectHeight",
-                "operators":"min",
-                "constraint":[
-                    {"unit":"pixel",
-                    "stage":"none",
-                    "value":50}
-                ],
-                "resourceType": ["qualityofdata"]}
-            },
-            {"Object_width":{
-                "id":7,
-                "attributenames":"ObjectWidth",
-                "operators":"min",
-                "constraint":[
-                    {"unit":"pixel",
-                    "stage":"none",
-                    "value":50}
-                ],
-                "resourceType": ["qualityofdata"]}
-            },
-            {"Image_height":{
-                "id":8,
-                "attributenames":"ImageHeight",
-                "operators":"max",
-                "constraint":[
-                    {"unit":"pixel",
-                    "stage":"none",
-                    "value":1080}
-                ],
-                "resourceType": ["qualityofdata"]}
-            },
-            {"Image_width":{
-                "id":9,
-                "attributenames":"ImageWidth",
-                "operators":"max",
-                "constraint":[
-                    {"unit":"pixel",
-                    "stage":"none",
-                    "value":1080}
-                ],
-                "resourceType": ["qualityofdata"]}
-            },
-            {"Object_quantity":{
-                "id":10,
-                "attributenames":"ObjectQuantity",
-                "operators":"max",
-                "constraint":[
-                    {"unit":"unit",
-                    "stage":"none",
-                    "value":20}
-                ],
-                "resourceType": ["qualityofdata"]}
-            }
-        ],
-        "mlmodels": [
-            {"Accuracy":{
-                "id":11,
-                "attributenames":"AccuracyEdgeDevices",
-                "operators":"min",
-                "unit":"percentage",
-                "value":80, 
-                "class": ["Accuracy"], 
-                "machinetypes": ["edge"]}
-            },
-            {"Accuracy":{
-                "id":12,
-                "attributenames":"AccuracyCloudDevices",
-                "operators":"min",
-                "unit":"percentage",
-                "value":95, 
-                "class": ["Accuracy"], 
-                "machinetypes": ["cloud"]}
-            },
-            {
-                "Confidence":{
-                    "id":13,
-                    "attributenames":"ConfidenceEdgeDevices",
-                    "operators":"min",
-                    "condition":{
-                        "resource_tier": ["edge"],
-                        "model_tier":2
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.7,
-                    "subject":"violation",
-                    "class": ["Confidence"]
-                }
-            },
-            {
-                "Confidence":{
-                    "id":13,
-                    "attributenames":"ConfidenceCloudDevices",
-                    "operators":"min",
-                    "condition":{
-                        "resource_tier": ["cloud"],
-                        "model_tier":2
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.7,
-                    "subject":"violation",
-                    "class": ["Confidence"]
-                }
-            },
-            {
-                "Confidence":{
-                    "id":13,
-                    "attributenames":"ConfidenceEdgeDevices",
-                    "operators":"min",
-                    "condition":{
-                        "resource_tier": ["edge"],
-                        "model_tier":2
-                    },
-                    "stage":"none",
-                    "unit":"none",
-                    "value":0.8,
-                    "subject":"warning",
-                    "class": ["Confidence"]
-                }
-            }
-        ]   
-    },
-    "security": {
-        "encryption":{"types": ["end2end"]},
-        "encryptedinference": {"mode":[true,false]}
-    },
-    "privacy": {
-        "membershipinferencerisk":{"operators":["min","max"],"unit":"float","range":[0,1],"value":"value", "class": ["Privacy"]}
-    },
-    "fairness":{
-        "predictionbias":{"operators":["min","max"],"unit":"percentage","value":"value", "class": ["Accuracy"]}
-    },
-    "interpretability": {
-        "explainability": {"modes": ["full","compact"]}
-    },
+  "cost": {
     "cost": {
-        "cost":{
-            "operators":["min","max","range"],"unit":["USD","EUR","other"],"value":"value", "class": "cost"
-        },
-        "pricingmodel":{
-            "id":"the id of the pricing model in the system",
-            "name":"name", "class": "cost"
-        }
+      "class": "cost",
+      "operators": [
+        "min",
+        "max",
+        "range"
+      ],
+      "unit": [
+        "USD",
+        "EUR",
+        "other"
+      ],
+      "value": "value"
+    },
+    "pricingmodel": {
+      "class": "cost",
+      "id": "the id of the pricing model in the system",
+      "name": "name"
     }
+  },
+  "fairness": {
+    "predictionbias": {
+      "class": [
+        "Accuracy"
+      ],
+      "operators": [
+        "min",
+        "max"
+      ],
+      "unit": "percentage",
+      "value": "value"
+    }
+  },
+  "interpretability": {
+    "explainability": {
+      "modes": [
+        "full",
+        "compact"
+      ]
+    }
+  },
+  "privacy": {
+    "membershipinferencerisk": {
+      "class": [
+        "Privacy"
+      ],
+      "operators": [
+        "min",
+        "max"
+      ],
+      "range": [
+        0,
+        1
+      ],
+      "unit": "float",
+      "value": "value"
+    }
+  },
+  "quality": {
+    "data": [
+      {
+        "Accuracy": {
+          "attributenames": "Accuracy",
+          "class": [
+            "qualityofdata"
+          ],
+          "id": 4,
+          "operators": "min",
+          "unit": "percentage",
+          "value": 80
+        }
+      },
+      {
+        "Completeness": {
+          "attributenames": "Completeness",
+          "id": 5,
+          "operators": "min",
+          "resourceType": [
+            "qualityofdata"
+          ],
+          "unit": "percentage",
+          "value": 90
+        }
+      },
+      {
+        "Object_height": {
+          "attributenames": "ObjectHeight",
+          "constraint": [
+            {
+              "stage": "none",
+              "unit": "pixel",
+              "value": 50
+            }
+          ],
+          "id": 6,
+          "operators": "min",
+          "resourceType": [
+            "qualityofdata"
+          ]
+        }
+      },
+      {
+        "Object_width": {
+          "attributenames": "ObjectWidth",
+          "constraint": [
+            {
+              "stage": "none",
+              "unit": "pixel",
+              "value": 50
+            }
+          ],
+          "id": 7,
+          "operators": "min",
+          "resourceType": [
+            "qualityofdata"
+          ]
+        }
+      },
+      {
+        "Image_height": {
+          "attributenames": "ImageHeight",
+          "constraint": [
+            {
+              "stage": "none",
+              "unit": "pixel",
+              "value": 1080
+            }
+          ],
+          "id": 8,
+          "operators": "max",
+          "resourceType": [
+            "qualityofdata"
+          ]
+        }
+      },
+      {
+        "Image_width": {
+          "attributenames": "ImageWidth",
+          "constraint": [
+            {
+              "stage": "none",
+              "unit": "pixel",
+              "value": 1080
+            }
+          ],
+          "id": 9,
+          "operators": "max",
+          "resourceType": [
+            "qualityofdata"
+          ]
+        }
+      },
+      {
+        "Object_quantity": {
+          "attributenames": "ObjectQuantity",
+          "constraint": [
+            {
+              "stage": "none",
+              "unit": "unit",
+              "value": 20
+            }
+          ],
+          "id": 10,
+          "operators": "max",
+          "resourceType": [
+            "qualityofdata"
+          ]
+        }
+      }
+    ],
+    "mlmodels": [
+      {
+        "Accuracy": {
+          "attributenames": "AccuracyEdgeDevices",
+          "class": [
+            "Accuracy"
+          ],
+          "id": 11,
+          "machinetypes": [
+            "edge"
+          ],
+          "operators": "min",
+          "unit": "percentage",
+          "value": 80
+        }
+      },
+      {
+        "Accuracy": {
+          "attributenames": "AccuracyCloudDevices",
+          "class": [
+            "Accuracy"
+          ],
+          "id": 12,
+          "machinetypes": [
+            "cloud"
+          ],
+          "operators": "min",
+          "unit": "percentage",
+          "value": 95
+        }
+      },
+      {
+        "Confidence": {
+          "attributenames": "ConfidenceEdgeDevices",
+          "class": [
+            "Confidence"
+          ],
+          "condition": {
+            "model_tier": 2,
+            "resource_tier": [
+              "edge"
+            ]
+          },
+          "id": 13,
+          "operators": "min",
+          "stage": "none",
+          "subject": "violation",
+          "unit": "none",
+          "value": 0.7
+        }
+      },
+      {
+        "Confidence": {
+          "attributenames": "ConfidenceCloudDevices",
+          "class": [
+            "Confidence"
+          ],
+          "condition": {
+            "model_tier": 2,
+            "resource_tier": [
+              "cloud"
+            ]
+          },
+          "id": 13,
+          "operators": "min",
+          "stage": "none",
+          "subject": "violation",
+          "unit": "none",
+          "value": 0.7
+        }
+      },
+      {
+        "Confidence": {
+          "attributenames": "ConfidenceEdgeDevices",
+          "class": [
+            "Confidence"
+          ],
+          "condition": {
+            "model_tier": 2,
+            "resource_tier": [
+              "edge"
+            ]
+          },
+          "id": 13,
+          "operators": "min",
+          "stage": "none",
+          "subject": "warning",
+          "unit": "none",
+          "value": 0.8
+        }
+      }
+    ],
+    "services": [
+      {
+        "ResponseTime": {
+          "attributenames": "ResponseTimeCloudDevices",
+          "class": [
+            "performance"
+          ],
+          "condition": {
+            "model_tier": 2,
+            "resource_tier": [
+              "cloud"
+            ]
+          },
+          "id": 2,
+          "operators": "max",
+          "stage": "none",
+          "subject": "violation",
+          "unit": "s",
+          "value": 0.5
+        }
+      },
+      {
+        "ResponseTime": {
+          "attributenames": "ResponseTimeEdgeDevices",
+          "class": [
+            "performance"
+          ],
+          "condition": {
+            "model_tier": 3,
+            "resource_tier": [
+              "edge"
+            ]
+          },
+          "id": 2,
+          "operators": "max",
+          "stage": "none",
+          "subject": "violation",
+          "unit": "s",
+          "value": 0.4
+        }
+      }
+    ]
+  },
+  "resources": {
+    "data": [
+      {
+        "datatypes": "image",
+        "formats": "h5",
+        "id": "nii"
+      }
+    ],
+    "mlmodels": [
+      {
+        "id": "ml_inference",
+        "inferencemodes": "dynamic",
+        "mlinfrastructures": "tensorflow",
+        "modelclasses": [
+          "RNN",
+          "LR"
+        ]
+      },
+      {
+        "id": "ml_training",
+        "inferencemodes": "dynamic",
+        "mlinfrastructures": "tensorflow",
+        "modelclasses": [
+          "RNN"
+        ]
+      }
+    ],
+    "model_composition": {
+      "composition_1": {
+        "composition": {
+          "agg_max": {
+            "functionality": "agg_max",
+            "source": [
+              "vgg_0",
+              "vgg_3"
+            ]
+          },
+          "data_ingestion": {
+            "functionality": "REST",
+            "source": []
+          },
+          "data_processing": {
+            "functionality": "REST",
+            "source": [
+              "data_ingestion"
+            ]
+          },
+          "yolo5x": {
+            "functionality": "vgg_0",
+            "source": [
+              "data_processing"
+            ]
+          },
+          "yolo8s": {
+            "functionality": "vgg_3",
+            "source": [
+              "data_processing"
+            ]
+          }
+        },
+        "model_tier": 4,
+        "quantity": [
+          3,
+          8
+        ],
+        "resource_tier": "edge"
+      }
+    },
+    "service": [
+      {
+        "id": "request",
+        "machinetypes": [
+          "edge",
+          "cloud"
+        ],
+        "processortypes": [
+          "CPU"
+        ],
+        "serviceapis": "mptt"
+      }
+    ]
+  },
+  "security": {
+    "encryptedinference": {
+      "mode": [
+        true,
+        false
+      ]
+    },
+    "encryption": {
+      "types": [
+        "end2end"
+      ]
+    }
+  },
+  "stakeholders": [
+    {
+      "id": "google1",
+      "provisioning": [
+        "storage",
+        "computing"
+      ],
+      "roles": "inf_provider"
+    },
+    {
+      "id": "google2",
+      "provisioning": [
+        "storage"
+      ],
+      "roles": "inf_provider"
+    },
+    {
+      "id": "aaltosea1",
+      "provisioning": [
+        "mlmodels",
+        "services"
+      ],
+      "roles": "ml_provider"
+    },
+    {
+      "id": "aaltosea2",
+      "provisioning": [
+        "mlmodels"
+      ],
+      "roles": "ml_provider"
+    },
+    {
+      "id": "user1",
+      "provisioning": [
+        "request"
+      ],
+      "roles": "ml_user"
+    },
+    {
+      "id": "user2",
+      "provisioning": [
+        "request"
+      ],
+      "roles": "ml_user"
+    }
+  ]
 }

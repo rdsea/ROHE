@@ -1,27 +1,26 @@
 {
-    "monitor":
+  "inter_communication": [
     {
-        "task_id":"lstm_ml",
-        "protocol": "AMQP",
-        "heartbeat": 5,
-        "configuration":{
-            "url": "localhost",
-            "user_id":"aaltosea1",
-            "exchange_name": "task_report",
-            "exchange_type": "topic",
-            "routing_key": "task.report.lstm_ml",
-            "log": "False",
-            "type": "sender"
-        }
+      "configuration": {
+        "url": "tcp://0.0.0.0:5555"
+      },
+      "name": "default",
+      "protocol": "ZMQ"
+    }
+  ],
+  "monitor": {
+    "configuration": {
+      "exchange_name": "task_report",
+      "exchange_type": "topic",
+      "log": "False",
+      "routing_key": "task.report.lstm_ml",
+      "type": "sender",
+      "url": "localhost",
+      "user_id": "aaltosea1"
     },
-    "queue_size":10000,
-    "inter_communication":[
-        {
-            "name":"default",
-            "protocol": "ZMQ",
-            "configuration":{
-                "url":"tcp://0.0.0.0:5555"
-            }
-        }
-    ]
+    "heartbeat": 5,
+    "protocol": "AMQP",
+    "task_id": "lstm_ml"
+  },
+  "queue_size": 10000
 }

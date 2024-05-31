@@ -1,161 +1,194 @@
 {
-    "object_detection":{
-        "object_detection_web_service":{
-            "service_name":"object_detection_web_service",
-            "image": "rdsea/od_web:2.0",
-            "dep_path": "../cctvs/deployment/web/web.yml",
-            "ser_path": "../cctvs/deployment/web/web-service.yml",
-            "cpu": 424,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 200,
-                "vms": 500
-            },
-            "processor": [50,5],
-            "sensitivity": 0,
-            "replicas": 2
-        },
-        "object_detection_imgproc_service":{
-            "service_name":"object_detection_imgproc_service",
-            "image": "rdsea/od_proc:2.0",
-            "dep_path": "../cctvs/deployment/proc/proc.yml",
-            "ser_path": "../cctvs/deployment/proc/proc-service.yml",
-            "cpu": 933,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 300,
-                "vms": 500
-            },
-            "processor": [90,5],
-            "sensitivity": 0,
-            "replicas": 2
-        },
-        "object_detection_inference_service":{
-            "service_name":"object_detection_inference_service",
-            "image": "rdsea/od_inf:2.0",
-            "dep_path": "../cctvs/deployment/inference/inf.yml",
-            "ser_path": "../cctvs/deployment/inference/inf-service.yml",
-            "cpu": 500,
-            "accelerator": {
-                "gpu": 15
-            },
-            "memory": {
-                "rss": 600,
-                "vms": 200
-            },
-            "processor": [50],
-            "sensitivity": 0,
-            "replicas": 1
-        }
+  "bts": {
+    "bts_dataproc_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 1000,
+      "dep_path": "../bts/deployment/data_processing/data.yml",
+      "image": "rdsea/bts_data_proc:2.0",
+      "memory": {
+        "rss": 300,
+        "vms": 500
+      },
+      "processor": [
+        100,
+        5,
+        5,
+        5
+      ],
+      "replicas": 2,
+      "sensitivity": 0,
+      "ser_path": "../bts/deployment/data_processing/data-service.yml",
+      "service_name": "bts_dataproc_service"
     },
-    "kpi":{
-        "kpi_web_service":{
-            "service_name":"kpi_web_service",
-            "image": "rdsea/kpi_web:2.0",
-            "dep_path": "../forecasting/deployment/web/web.yml",
-            "ser_path": "../forecasting/deployment/web/web-service.yml",
-            "cpu": 400,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 200,
-                "vms": 500
-            },
-            "processor": [40,5],
-            "sensitivity": 0,
-            "replicas": 1
-        },
-        "kpi_minio_service":{
-            "service_name":"kpi_minio_service",
-            "image": "minio/minio",
-            "dep_path": "../forecasting/deployment/minio/minio.yml",
-            "ser_path": "../forecasting/deployment/minio/minio-service.yml",
-            "cpu": 1000,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 300,
-                "vms": 500
-            },
-            "processor": [100],
-            "sensitivity": 0,
-            "replicas": 2
-        },
-        "kpi_database_service":{
-            "service_name":"kpi_database_service",
-            "image": "rdsea/kpi_database:2.0",
-            "dep_path": "../forecasting/deployment/database/database.yml",
-            "ser_path": "../forecasting/deployment/database/database-service.yml",
-            "cpu": 500,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 500,
-                "vms": 500
-            },
-            "processor": [20,20,10,10],
-            "sensitivity": 0,
-            "replicas": 2
-        },
-        "kpi_inference_service":{
-            "service_name":"kpi_inference_service",
-            "image": "rdsea/kpi_forecast:2.0",
-            "dep_path": "../forecasting/deployment/forecast/forecast.yml",
-            "ser_path": "../forecasting/deployment/forecast/forecast-service.yml",
-            "cpu": 4000,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 400,
-                "vms": 500
-            },
-            "processor": [100,80,80,80],
-            "sensitivity": 0,
-            "replicas": 3
-        }
-    },
-    "bts":{
-        "bts_dataproc_service":{
-            "service_name":"bts_dataproc_service",
-            "image": "rdsea/bts_data_proc:2.0",
-            "dep_path": "../bts/deployment/data_processing/data.yml",
-            "ser_path": "../bts/deployment/data_processing/data-service.yml",
-            "cpu": 1000,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 300,
-                "vms": 500
-            },
-            "processor": [100,5,5,5],
-            "sensitivity": 0,
-            "replicas": 2
-        },
-        "bts_inference_service":{
-            "service_name":"bts_inference_service",
-            "image": "rdsea/bts_ml_proc:2.0",
-            "dep_path": "../bts/deployment/ml_model/ml.yml",
-            "ser_path": "../bts/deployment/ml_model/ml-service.yml",
-            "cpu": 1000,
-            "accelerator": {
-                "gpu": 0
-            },
-            "memory": {
-                "rss": 2500,
-                "vms": 500
-            },
-            "processor": [100,5,5,5],
-            "sensitivity": 0,
-            "replicas": 3
-        }
+    "bts_inference_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 1000,
+      "dep_path": "../bts/deployment/ml_model/ml.yml",
+      "image": "rdsea/bts_ml_proc:2.0",
+      "memory": {
+        "rss": 2500,
+        "vms": 500
+      },
+      "processor": [
+        100,
+        5,
+        5,
+        5
+      ],
+      "replicas": 3,
+      "sensitivity": 0,
+      "ser_path": "../bts/deployment/ml_model/ml-service.yml",
+      "service_name": "bts_inference_service"
     }
+  },
+  "kpi": {
+    "kpi_database_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 500,
+      "dep_path": "../forecasting/deployment/database/database.yml",
+      "image": "rdsea/kpi_database:2.0",
+      "memory": {
+        "rss": 500,
+        "vms": 500
+      },
+      "processor": [
+        20,
+        20,
+        10,
+        10
+      ],
+      "replicas": 2,
+      "sensitivity": 0,
+      "ser_path": "../forecasting/deployment/database/database-service.yml",
+      "service_name": "kpi_database_service"
+    },
+    "kpi_inference_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 4000,
+      "dep_path": "../forecasting/deployment/forecast/forecast.yml",
+      "image": "rdsea/kpi_forecast:2.0",
+      "memory": {
+        "rss": 400,
+        "vms": 500
+      },
+      "processor": [
+        100,
+        80,
+        80,
+        80
+      ],
+      "replicas": 3,
+      "sensitivity": 0,
+      "ser_path": "../forecasting/deployment/forecast/forecast-service.yml",
+      "service_name": "kpi_inference_service"
+    },
+    "kpi_minio_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 1000,
+      "dep_path": "../forecasting/deployment/minio/minio.yml",
+      "image": "minio/minio",
+      "memory": {
+        "rss": 300,
+        "vms": 500
+      },
+      "processor": [
+        100
+      ],
+      "replicas": 2,
+      "sensitivity": 0,
+      "ser_path": "../forecasting/deployment/minio/minio-service.yml",
+      "service_name": "kpi_minio_service"
+    },
+    "kpi_web_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 400,
+      "dep_path": "../forecasting/deployment/web/web.yml",
+      "image": "rdsea/kpi_web:2.0",
+      "memory": {
+        "rss": 200,
+        "vms": 500
+      },
+      "processor": [
+        40,
+        5
+      ],
+      "replicas": 1,
+      "sensitivity": 0,
+      "ser_path": "../forecasting/deployment/web/web-service.yml",
+      "service_name": "kpi_web_service"
+    }
+  },
+  "object_detection": {
+    "object_detection_imgproc_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 933,
+      "dep_path": "../cctvs/deployment/proc/proc.yml",
+      "image": "rdsea/od_proc:2.0",
+      "memory": {
+        "rss": 300,
+        "vms": 500
+      },
+      "processor": [
+        90,
+        5
+      ],
+      "replicas": 2,
+      "sensitivity": 0,
+      "ser_path": "../cctvs/deployment/proc/proc-service.yml",
+      "service_name": "object_detection_imgproc_service"
+    },
+    "object_detection_inference_service": {
+      "accelerator": {
+        "gpu": 15
+      },
+      "cpu": 500,
+      "dep_path": "../cctvs/deployment/inference/inf.yml",
+      "image": "rdsea/od_inf:2.0",
+      "memory": {
+        "rss": 600,
+        "vms": 200
+      },
+      "processor": [
+        50
+      ],
+      "replicas": 1,
+      "sensitivity": 0,
+      "ser_path": "../cctvs/deployment/inference/inf-service.yml",
+      "service_name": "object_detection_inference_service"
+    },
+    "object_detection_web_service": {
+      "accelerator": {
+        "gpu": 0
+      },
+      "cpu": 424,
+      "dep_path": "../cctvs/deployment/web/web.yml",
+      "image": "rdsea/od_web:2.0",
+      "memory": {
+        "rss": 200,
+        "vms": 500
+      },
+      "processor": [
+        50,
+        5
+      ],
+      "replicas": 2,
+      "sensitivity": 0,
+      "ser_path": "../cctvs/deployment/web/web-service.yml",
+      "service_name": "object_detection_web_service"
+    }
+  }
 }

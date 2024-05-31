@@ -1,42 +1,41 @@
 {
-    "queue_size": 10000,
-    "heartbeat": 5,
-    "task_configuration": {
-        "function": {
-            "package": "processing_task",
-            "module_name": "Data_Processing",
-            "function_name": "process",
-            "path": "./userapp/processing_task.py"
-        },
-        "config":{}
-        ,
-        "batch": 5
-    },
-    "upstream": [
-        {
-            "id": 1,
-            "defalt": "True",
-            "protocol": "AMQP",
-            "configuration": {
-                "url": "localhost",
-                "user_id": "aaltosea1",
-                "exchange_name": "lstm_bts",
-                "exchange_type": "topic",
-                "in_queue": "in_request_lstm",
-                "in_routing_key": "lstm.request.#",
-                "roles": "server",
-                "log": "False",
-                "type": "receiver"
-            }
-        }
-    ],
-    "downstream": [
-        {
-            "name": "default",
-            "protocol": "ZMQ",
-            "configuration": {
-                "url": "tcp://ml-processing-service:5555"
-            }
-        }
-    ]
+  "downstream": [
+    {
+      "configuration": {
+        "url": "tcp://ml-processing-service:5555"
+      },
+      "name": "default",
+      "protocol": "ZMQ"
+    }
+  ],
+  "heartbeat": 5,
+  "queue_size": 10000,
+  "task_configuration": {
+    "batch": 5,
+    "config": {},
+    "function": {
+      "function_name": "process",
+      "module_name": "Data_Processing",
+      "package": "processing_task",
+      "path": "./userapp/processing_task.py"
+    }
+  },
+  "upstream": [
+    {
+      "configuration": {
+        "exchange_name": "lstm_bts",
+        "exchange_type": "topic",
+        "in_queue": "in_request_lstm",
+        "in_routing_key": "lstm.request.#",
+        "log": "False",
+        "roles": "server",
+        "type": "receiver",
+        "url": "localhost",
+        "user_id": "aaltosea1"
+      },
+      "defalt": "True",
+      "id": 1,
+      "protocol": "AMQP"
+    }
+  ]
 }

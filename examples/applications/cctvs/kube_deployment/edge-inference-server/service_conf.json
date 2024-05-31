@@ -1,34 +1,34 @@
 {
-    "mlmodels": {
-      "model_storage_dir": "/abc/xyz",
-      "list_of_models": {
-        "yolo5": {
-          "model_name": "Yolov5",
-          "model_file_name": "yolov5.pt"
-        },
-        "yolo8": {
-          "model_name": "Yolov8",
-          "model_file_name": "yolov8.pt"
-        }
-      }
+  "composition": [
+    {
+      "model": "Yolov5",
+      "parameter": "yolov5l"
     },
-    "composition": [
-      {
-        "model": "Yolov5",
-        "parameter": "yolov5l"
+    {
+      "model": "Yolov8",
+      "parameter": "yolov8n"
+    }
+  ],
+  "mlmodels": {
+    "list_of_models": {
+      "yolo5": {
+        "model_file_name": "yolov5.pt",
+        "model_name": "Yolov5"
       },
-      {
-        "model": "Yolov8",
-        "parameter": "yolov8n"
+      "yolo8": {
+        "model_file_name": "yolov8.pt",
+        "model_name": "Yolov8"
       }
-    ],
-    "qoa4ml_client": {
-      "user_id": "aaltosea1",
-      "instance_id": "yolo_inference",
-      "stage_id": "Inference",
-      "functionality": "REST",
-      "application_name": "test",
-      "role": "ml"
     },
-    "registration_url": "http://localhost:5010/registration"
-  }
+    "model_storage_dir": "/abc/xyz"
+  },
+  "qoa4ml_client": {
+    "application_name": "test",
+    "functionality": "REST",
+    "instance_id": "yolo_inference",
+    "role": "ml",
+    "stage_id": "Inference",
+    "user_id": "aaltosea1"
+  },
+  "registration_url": "http://localhost:5010/registration"
+}

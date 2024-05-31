@@ -48,7 +48,7 @@ spec:
   - http:
       paths:
       - backend:
-          service: 
+          service:
             name: raycluster-ingress-head-svc # service name should be the same as head service
             port: # port number should match the port specified for dashboard in the RayCluster setting above
               number: 8265

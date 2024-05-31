@@ -1,16 +1,16 @@
 {
-    "compositions":[
+  "compositions": [
+    {
+      "instances": [
         {
-            "instances":[
-                {
-                    "model": "yolov5",
-                    "parameters": "yolov5l"
-                },
-                {
-                    "model": "yolov8",
-                    "parameters": "yolov8n"
-                }     
-            ]
+          "model": "yolov5",
+          "parameters": "yolov5l"
+        },
+        {
+          "model": "yolov8",
+          "parameters": "yolov8n"
         }
-    ]
+      ]
+    }
+  ]
 }

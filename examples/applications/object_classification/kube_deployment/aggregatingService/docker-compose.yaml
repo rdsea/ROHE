@@ -10,4 +10,3 @@ services:
     # environment:
     #   minio_client_access_key: prJxdafe7L400AAXScc8
     #   minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
-

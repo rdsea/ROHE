@@ -1,32 +1,36 @@
 {
-    "prompt_template_db": [
-        {
-            "_type": "prompt",
-            "name": "explainability",
-            "input_variables": [
-                "explainability_aspect",
-                "subject",
-                "domain"
-            ],
-            "template": "Tell me the {explainability_aspect}  for {subject} in the {domain} domain.",
-            "template_format": "f-string"
-        },
-        {
-            "_type": "prompt",
-            "name": "observability",
-            "input_variables": [
-                "observability_aspect",
-                "subject",
-                "tool"
-            ],
-            "template": "Tell me the {observability_aspect}  for {subject} using {tool}.",
-            "template_format": "f-string"
-        },
-        {
-            "_type": "prompt",
-            "name": "coordination_model_microservices",
-            "input_variables": ["first coordination model","second coordination model","programming framework"],
-            "template":"Compare the  {first coordination model} and {second coordination model} for a set of microservices in {programming framework}"
-        }
-    ]
+  "prompt_template_db": [
+    {
+      "_type": "prompt",
+      "input_variables": [
+        "explainability_aspect",
+        "subject",
+        "domain"
+      ],
+      "name": "explainability",
+      "template": "Tell me the {explainability_aspect}  for {subject} in the {domain} domain.",
+      "template_format": "f-string"
+    },
+    {
+      "_type": "prompt",
+      "input_variables": [
+        "observability_aspect",
+        "subject",
+        "tool"
+      ],
+      "name": "observability",
+      "template": "Tell me the {observability_aspect}  for {subject} using {tool}.",
+      "template_format": "f-string"
+    },
+    {
+      "_type": "prompt",
+      "input_variables": [
+        "first coordination model",
+        "second coordination model",
+        "programming framework"
+      ],
+      "name": "coordination_model_microservices",
+      "template": "Compare the  {first coordination model} and {second coordination model} for a set of microservices in {programming framework}"
+    }
+  ]
 }

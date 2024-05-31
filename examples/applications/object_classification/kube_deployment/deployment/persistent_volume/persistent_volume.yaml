@@ -5,9 +5,9 @@ metadata:
   labels:
     type: local  # this is a label
 spec:
-  storageClassName: "" 
+  storageClassName: ""
   capacity:
-    storage: 8Gi 
+    storage: 8Gi
   accessModes:
     - ReadWriteOnce
   hostPath:

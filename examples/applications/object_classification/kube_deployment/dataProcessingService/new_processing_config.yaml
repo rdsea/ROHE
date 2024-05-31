@@ -6,7 +6,7 @@ processing_config:
   image_dim: "32,32,3"
 
 # Communication endpoints
-image_info_service: 
+image_info_service:
   url: "http://localhost:5000/task_coordinator"
 
 minio_storage_service:
@@ -16,13 +16,13 @@ minio_storage_service:
   bucket_name: "nii-application-unprocessed-image"
 
 
-# 
+#
 # think of the situtation where we need to handle multiple pipeline
 # Inference strategy
 inference_strategy:
   type: "all" # or "specific" ["all", "one", "quorum"]
-  
+
   # If type is 'specific', define the specific model types to send requests to
-  specific_server: 
+  specific_server:
     - "pipeline_1_vgg_0"
     - "pipeline_2_vgg_2_7"

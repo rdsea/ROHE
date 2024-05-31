@@ -1,93 +1,92 @@
 {
-    "data":[],
-    "directed": "True",
-    "multigraph": "False",
-    "user_config": {     
-    },
-    "elements": {
-        "nodes": [
+  "data": [],
+  "directed": "True",
+  "elements": {
+    "edges": [
+      {
+        "data": {
+          "source": "data-processing",
+          "target": "ml-processing"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "downstream": "None",
+          "id": 1,
+          "image": "minhtribk12/data_ubuntu:1.10",
+          "path": "./bts/docker_data_proc/",
+          "task_configuration": {
+            "batch": 5,
+            "function": {
+              "function_name": "process",
+              "module_name": "Data_Processing",
+              "package": "processing_task"
+            }
+          },
+          "upstream": [
             {
-                "data": {
-                    "id": 1, 
-                    "value": "data-processing", 
-                    "path": "./bts/docker_data_proc/",
-                    "image": "minhtribk12/data_ubuntu:1.10",
-                    "upstream": [
-                        {
-                            "id": 1,
-                            "defalt":"True",
-                            "protocol": "AMQP",
-                            "configuration":{
-                                "url": "localhost",
-                                "user_id":"aaltosea1",
-                                "exchange_name": "lstm_bts",
-                                "exchange_type": "topic",
-                                "in_queue": "in_request_lstm",
-                                "in_routing_key": "lstm.request.#",
-                                "roles": "server",
-                                "log": "False",
-                                "type": "receiver"
-                            }
-                        }
-                    ],
-                    "downstream": "None",
-                    "task_configuration":{
-                        "function":{
-                            "package": "processing_task",
-                            "module_name": "Data_Processing",
-                            "function_name": "process"
-                        },
-                        "batch":5
-                    }
-                }
+              "configuration": {
+                "exchange_name": "lstm_bts",
+                "exchange_type": "topic",
+                "in_queue": "in_request_lstm",
+                "in_routing_key": "lstm.request.#",
+                "log": "False",
+                "roles": "server",
+                "type": "receiver",
+                "url": "localhost",
+                "user_id": "aaltosea1"
+              },
+              "defalt": "True",
+              "id": 1,
+              "protocol": "AMQP"
+            }
+          ],
+          "value": "data-processing"
+        }
+      },
+      {
+        "data": {
+          "data_feature": {
+            "input": "string",
+            "output": "string"
+          },
+          "downstream": [
+            {
+              "configuration": {
+                "exchange_name": "lstm_bts",
+                "exchange_type": "topic",
+                "log": "False",
+                "type": "receiver",
+                "url": "localhost",
+                "user_id": "aaltosea1"
+              },
+              "defalt": "True",
+              "id": 1,
+              "protocol": "AMQP"
+            }
+          ],
+          "id": 2,
+          "image": "minhtribk12/ml_ubuntu:1.10",
+          "path": "./bts/docker_ml/",
+          "task_configuration": {
+            "function": {
+              "function_name": "process",
+              "module_name": "LSTM_Prediction",
+              "package": "processing_task"
             },
-            {
-                "data": {
-                    "id": 2, 
-                    "value": "ml-processing", 
-                    "path": "./bts/docker_ml/",
-                    "image": "minhtribk12/ml_ubuntu:1.10",
-                    "data_feature":{
-                        "input": "string",
-                        "output": "string"
-                    },
-                    "upstream": "None",
-                    "downstream": [
-                        {
-                            "id": 1,
-                            "defalt":"True",
-                            "protocol": "AMQP",
-                            "configuration":{
-                                "url": "localhost",
-                                "user_id":"aaltosea1",
-                                "exchange_name": "lstm_bts",
-                                "exchange_type": "topic",
-                                "log": "False",
-                                "type": "receiver"
-                            }
-                        }
-                    ],
-                    "task_configuration":{
-                        "function":{
-                            "package": "processing_task",
-                            "module_name": "LSTM_Prediction",
-                            "function_name": "process"
-                        },
-                        "model": {
-                            "name": "LSTM",
-                            "path": "./exported_models/LSTM_single_series"
-                        }
-                    }
-                }
+            "model": {
+              "name": "LSTM",
+              "path": "./exported_models/LSTM_single_series"
             }
-        ],
-       "edges": [
-           {
-               "data": {
-                   "source": "data-processing", 
-                   "target": "ml-processing"
-                }
-            }
-        ]
-    }
+          },
+          "upstream": "None",
+          "value": "ml-processing"
+        }
+      }
+    ]
+  },
+  "multigraph": "False",
+  "user_config": {}
 }
