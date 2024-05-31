@@ -3,7 +3,9 @@ import os
 from jinja2 import Environment, FileSystemLoader
 from qoa4ml.utils import qoa_utils
 
-rohe_dir = os.getenv("ROHE_PATH")
+from ...variable import ROHE_PATH
+
+rohe_dir = ROHE_PATH
 if rohe_dir is None:
     print("ROHE DIR is not set. Assume the current dir")
     rohe_dir = "."

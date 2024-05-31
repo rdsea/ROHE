@@ -1,7 +1,3 @@
-import os
-import sys
-
-ROHE_PATH = os.getenv("ROHE_PATH")
 import argparse
 import logging
 import traceback
@@ -13,6 +9,7 @@ import rohe.lib.rohe_utils as rohe_utils
 from rohe.orchestration.orchestration_agent import RoheAgentV1
 from rohe.orchestration.rohe_node_and_service_manager import RoheNodeAndServiceManager
 from rohe.storage.abstract import DBCollection, DBConf, MDBClient
+from rohe.variable import ROHE_PATH
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO

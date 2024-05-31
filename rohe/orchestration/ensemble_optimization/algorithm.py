@@ -1,13 +1,12 @@
 import math
-import os
 from itertools import combinations
 
 import pandas as pd
 
 from ...lib import rohe_utils
+from ...variable import ROHE_PATH
 from . import objective
 
-ROHE_PATH = os.getenv("ROHE_PATH")
 TEMP_PATH = ROHE_PATH + "/temp/nii/ensembleSelection/"
 
 

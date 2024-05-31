@@ -1,10 +1,4 @@
 import argparse
-import os
-import sys
-import traceback
-
-ROHE_PATH = os.getenv("ROHE_PATH")
-
 import logging
 import traceback
 
@@ -14,6 +8,7 @@ from rohe.messaging.abstract import MessagingConnectionConfig
 from rohe.observation.agent_manager import RoheAgentManager
 from rohe.observation.registration import RoheRegistration
 from rohe.storage.abstract import DBCollection, DBConf, MDBClient
+from rohe.variable import ROHE_PATH
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO

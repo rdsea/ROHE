@@ -15,6 +15,7 @@ import click
 import requests
 
 import rohe.lib.rohe_utils as rohe_utils
+from rohe.variable import ROHE_PATH
 
 # from pathlib import Path
 
@@ -23,9 +24,6 @@ logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.DEBUG
 )
 
-
-# User must export ROHE_PATH befor using
-ROHE_PATH = os.getenv("ROHE_PATH")
 
 default_temp_path = ROHE_PATH + "/temp/"
 default_template_path = ROHE_PATH + "/templates/"
@@ -313,4 +311,3 @@ rohe_common.add_command(stop_orchagent)
 
 if __name__ == "__main__":
     rohe_common()
-

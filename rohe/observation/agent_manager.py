@@ -1,13 +1,11 @@
 import copy
 import logging
-import os
 
 import docker
 from flask import jsonify, request
 
 from ..common.rest_service import RoheRestObject
-
-ROHE_PATH = os.getenv("ROHE_PATH")
+from ..variable import ROHE_PATH
 
 DEFAULT_DOCKER_MOUNT = {
     ROHE_PATH + "/core": {"bind": "/agent/core", "mode": "ro"},

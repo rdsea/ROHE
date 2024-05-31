@@ -10,9 +10,7 @@ from qoa4ml.collector.amqp_collector import Amqp_Collector
 from ....common.rohe_object import RoheObject
 from ....common.window import EventBuffer, TimeBuffer
 from ....lib import rohe_utils
-
-# User must export ROHE_PATH befor using
-ROHE_PATH = os.getenv("ROHE_PATH")
+from ....variable import ROHE_PATH
 
 # set default global variable for loading configuration/functions and saving processed data
 DEFAULT_CONFIG_PATH = "configurations/observationConfigLocal.yaml"

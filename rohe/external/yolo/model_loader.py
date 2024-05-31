@@ -9,8 +9,6 @@ import yaml
 from ultralytics import YOLO
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
-# User must export ROHE_PATH befor using
-
 
 class YoloInference:
     def __init__(self, config, version, param):
