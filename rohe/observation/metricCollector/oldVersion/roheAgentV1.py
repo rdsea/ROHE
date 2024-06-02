@@ -159,11 +159,10 @@ class ObservabilityAgent(object):
                                 q_row = df_filter[0]
                                 if q_row["value"] == row["value"]:
                                     q_row["accuracy"] = row["accuracy"]
+                                elif row["accuracy"] == 0:
+                                    q_row["accuracy"] = 1
                                 else:
-                                    if row["accuracy"] == 0:
-                                        q_row["accuracy"] = 1
-                                    else:
-                                        q_row["accuracy"] = 0
+                                    q_row["accuracy"] = 0
                                 new_row = pd.DataFrame.from_records([q_row])
                                 output = pd.concat([output, new_row], ignore_index=True)
                         except IndexError as e:

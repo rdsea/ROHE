@@ -15,7 +15,7 @@ logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
 
-DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
+DEFAULT_CONFIG_PATH = "/config/orchestrationConfigLocal.yaml"
 
 app = Flask(__name__)
 api = Api(app)
@@ -39,18 +39,18 @@ if __name__ == "__main__":
         configuration = rohe_utils.load_config(config_file)
         logging.debug(configuration)
 
-        dbConfig = DBConf.parse_obj(configuration["db_authentication"])
-        dbClient = MDBClient(dbConfig)
-        nodeCollection = DBCollection.parse_obj(configuration["db_node_collection"])
-        serviceCollection = DBCollection.parse_obj(
+        db_config = DBConf.parse_obj(configuration["db_authentication"])
+        db_client = MDBClient(db_config)
+        node_collection = DBCollection.parse_obj(configuration["db_node_collection"])
+        service_collection = DBCollection.parse_obj(
             configuration["db_service_collection"]
         )
 
-        restConfig = configuration.update(
+        rest_config = configuration.update(
             {
-                "dbClient": dbClient,
-                "node_collection": nodeCollection,
-                "service_collection": serviceCollection,
+                "db_client": db_client,
+                "node_collection": node_collection,
+                "service_collection": service_collection,
             }
         )
 

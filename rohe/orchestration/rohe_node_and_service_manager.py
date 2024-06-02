@@ -16,7 +16,7 @@ class RoheNodeAndServiceManager(Resource):
             super().__init__()
             self.conf = kwargs
             self.agent = self.conf["agent"]
-            self.dbClient = self.conf["dbClient"]
+            self.db_client = self.conf["db_client"]
             self.node_collection = self.conf["node_collection"]
             self.service_collection = self.conf["service_collection"]
         except Exception as e:
@@ -27,7 +27,7 @@ class RoheNodeAndServiceManager(Resource):
     def is_node_exist(self, mac_add) -> bool:
         try:
             # find node by MAC address
-            node = list(self.dbClient.find(self.node_collection, {"mac": mac_add}))
+            node = list(self.db_client.find(self.node_collection, {"mac": mac_add}))
             return bool(node)
         except Exception as e:
             logging.error(
@@ -40,7 +40,7 @@ class RoheNodeAndServiceManager(Resource):
         # get node status by MAC address
         try:
             node_db = list(
-                self.dbClient.aggregate(
+                self.db_client.aggregate(
                     self.node_collection,
                     {"mac": mac_add},
                     [("timestamp", pymongo.DESCENDING)],
@@ -56,7 +56,7 @@ class RoheNodeAndServiceManager(Resource):
     def delete_node(self, mac_add):
         try:
             # Delete node from MAC address
-            self.dbClient.delete_many(self.node_collection, {"mac": mac_add})
+            self.db_client.delete_many(self.node_collection, {"mac": mac_add})
         except Exception as e:
             logging.error(
                 "Error in `delete_node` RoheNodeAndServiceManager: {}".format(e)
@@ -65,7 +65,7 @@ class RoheNodeAndServiceManager(Resource):
     def update_node_to_db(self, node):
         try:
             node_db = list(
-                self.dbClient.aggregate(
+                self.db_client.aggregate(
                     self.node_collection,
                     {"mac": node["MAC"]},
                     [("timestamp", pymongo.DESCENDING)],
@@ -77,7 +77,7 @@ class RoheNodeAndServiceManager(Resource):
             node_db["data"] = node
             # To do: improve merge_dict function to update node
             # node_db["data"] = merge_dict(node_db["data"],node)
-            self.dbClient.insert_one(self.node_collection, node_db)
+            self.db_client.insert_one(self.node_collection, node_db)
         except Exception as e:
             logging.error(
                 "Error in `update_node_to_db` RoheNodeAndServiceManager: {}".format(e)
@@ -90,7 +90,7 @@ class RoheNodeAndServiceManager(Resource):
             metadata["timestamp"] = time.time()
             metadata["data"] = node
             metadata["mac"] = node["MAC"]
-            self.dbClient.insert_one(self.node_collection, metadata)
+            self.db_client.insert_one(self.node_collection, metadata)
         except Exception as e:
             logging.error(
                 "Error in `add_node_to_db` RoheNodeAndServiceManager: {}".format(e)
@@ -118,7 +118,7 @@ class RoheNodeAndServiceManager(Resource):
 
     def remove_node_db(self, node):
         try:
-            self.dbClient.delete_many(self.node_collection, {"mac": node["MAC"]})
+            self.db_client.delete_many(self.node_collection, {"mac": node["MAC"]})
         except Exception as e:
             logging.error(
                 "Error in `remove_node_db` RoheNodeAndServiceManager: {}".format(e)
@@ -151,7 +151,7 @@ class RoheNodeAndServiceManager(Resource):
                     }
                 },
             ]
-            node_list = list(self.dbClient.get(self.node_collection, pipeline))
+            node_list = list(self.db_client.get(self.node_collection, pipeline))
             return node_list
         except Exception as e:
             logging.error(
@@ -164,7 +164,7 @@ class RoheNodeAndServiceManager(Resource):
     def is_service_exist(self, service_id) -> bool:
         try:
             service = list(
-                self.dbClient.find(self.service_collection, {"service_id": service_id})
+                self.db_client.find(self.service_collection, {"service_id": service_id})
             )
             return bool(service)
         except Exception as e:
@@ -176,7 +176,7 @@ class RoheNodeAndServiceManager(Resource):
     def get_service_status(self, service_id) -> dict:
         try:
             service_db = list(
-                self.dbClient.aggregate(
+                self.db_client.aggregate(
                     self.service_collection,
                     {"service_id": service_id},
                     [("timestamp", pymongo.DESCENDING)],
@@ -196,7 +196,7 @@ class RoheNodeAndServiceManager(Resource):
 
     def remove_service_db(self, service):
         try:
-            self.dbClient.delete_many(
+            self.db_client.delete_many(
                 self.service_collection, {"service_id": service["service_id"]}
             )
         except Exception as e:
@@ -230,7 +230,7 @@ class RoheNodeAndServiceManager(Resource):
             metadata["timestamp"] = time.time()
             metadata["data"] = service
             metadata["service_id"] = service["service_id"]
-            self.dbClient.insert_one(self.service_collection, metadata)
+            self.db_client.insert_one(self.service_collection, metadata)
         except Exception as e:
             logging.error(
                 "Error in `add_service_to_db` RoheNodeAndServiceManager: {}".format(e)
@@ -259,7 +259,7 @@ class RoheNodeAndServiceManager(Resource):
     def update_service_to_db(self, service):
         try:
             service_db = list(
-                self.dbClient.aggregate(
+                self.db_client.aggregate(
                     self.service_collection,
                     {"service_id": service["service_id"]},
                     [("timestamp", pymongo.DESCENDING)],
@@ -273,7 +273,7 @@ class RoheNodeAndServiceManager(Resource):
             service_db["data"] = service
             # To do: improve merge_dict function to update service
             # service_db["data"] = merge_dict(service_db["data"],service)
-            self.dbClient.insert_one(self.service_collection, service_db)
+            self.db_client.insert_one(self.service_collection, service_db)
         except Exception as e:
             logging.error(
                 "Error in `update_service_to_db` RoheNodeAndServiceManager: {}".format(
@@ -295,7 +295,7 @@ class RoheNodeAndServiceManager(Resource):
                     }
                 },
             ]
-            service_list = list(self.dbClient.get(self.service_collection, pipeline))
+            service_list = list(self.db_client.get(self.service_collection, pipeline))
             return service_list
         except Exception as e:
             logging.error(
@@ -326,14 +326,14 @@ class RoheNodeAndServiceManager(Resource):
                     if command == "ADD NODE":
                         response = self.add_nodes(args["data"])
                     elif command == "REMOVE ALL NODE":
-                        self.dbClient.drop(self.node_collection)
+                        self.db_client.drop(self.node_collection)
                         response = {"result": "All nodes removed"}
                     elif command == "REMOVE NODE":
                         response = self.remove_nodes(args["data"])
                     elif command == "ADD SERVICE":
                         response = self.add_services(args["data"])
                     elif command == "REMOVE ALL SERVICE":
-                        self.dbClient.drop(self.service_collection)
+                        self.db_client.drop(self.service_collection)
                         response = {"result": "All services removed"}
                     elif command == "REMOVE SERVICE":
                         response = self.remove_services(args["data"])

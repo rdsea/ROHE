@@ -63,3 +63,5 @@ disable="missing-function-docstring, missing-class-docstring, missing-module-doc
 [tool.isort]
 profile = "black"
 
+[tool.ruff.lint]
+select = ["F"]

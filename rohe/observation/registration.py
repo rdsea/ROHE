@@ -19,11 +19,11 @@ class RoheRegistration(RoheRestObject):
             self.conf = kwargs
 
             # Init Database connection
-            self.dbClient = self.conf["dbClient"]
-            self.dbCollection = self.conf["dbCollection"]
+            self.db_client = self.conf["db_client"]
+            self.db_collection = self.conf["db_collection"]
             # Init default messageing connection
-            self.connectorConf = self.conf["connectorConfig"]
-            self.collectorConf = self.conf["collectorConfig"]
+            self.connector_config = self.conf["connector_config"]
+            self.collector_config = self.conf["collector_config"]
         except Exception as e:
             logging.error("Error in `__init__` RoheRegistration: {}".format(e))
 
@@ -46,7 +46,7 @@ class RoheRegistration(RoheRestObject):
                     }
                 },
             ]
-            app_list = list(self.dbClient.get(self.dbCollection, pipeline))
+            app_list = list(self.db_client.get(self.db_collection, pipeline))
             # Get application from application list
             for app in app_list:
                 if app["application_name"] == application_name:
@@ -59,7 +59,7 @@ class RoheRegistration(RoheRestObject):
     def update_app(self, metadata):
         try:
             # update application configuration
-            return self.dbClient.insert_one(self.dbCollection, metadata)
+            return self.db_client.insert_one(self.db_collection, metadata)
         except Exception as e:
             logging.error("Error in `update_app` RoheRegistration: {}".format(e))
             return {}
@@ -67,18 +67,18 @@ class RoheRegistration(RoheRestObject):
     def generate_agent_conf(self, metadata) -> dict:
         try:
             # Database configuration
-            agent_db_config = copy.deepcopy(self.dbCollection)
+            agent_db_config = copy.deepcopy(self.db_collection)
             agent_db_config.database = (
                 "application_" + metadata["application_name"] + "_" + metadata["appID"]
             )
             agent_db_config.collection = "metric_collection_" + metadata["run_id"]
             # Collector configuration
-            collector = copy.deepcopy(self.collectorConf)
+            collector = copy.deepcopy(self.collector_config)
             i_config = collector.config
             i_config["exchange_name"] = str(metadata["application_name"]) + "_exchange"
             i_config["in_routing_key"] = str(metadata["application_name"]) + ".#"
             agent_config = {}
-            agent_config["db_authentication"] = self.dbClient.to_dict()
+            agent_config["db_authentication"] = self.db_client.to_dict()
             agent_config["db_collection"] = agent_db_config.dict()
             agent_config["collector"] = collector.dict()
             return agent_config
@@ -100,7 +100,7 @@ class RoheRegistration(RoheRestObject):
             metadata["timestamp"] = time.time()
             metadata["client_count"] = 1
             metadata["agent_config"] = self.generate_agent_conf(metadata)
-            self.dbClient.insert_one(self.dbCollection, metadata)
+            self.db_client.insert_one(self.db_collection, metadata)
             return metadata
         except Exception as e:
             logging.error("Error in `register_app` RoheRegistration: {}".format(e))
@@ -143,7 +143,7 @@ class RoheRegistration(RoheRestObject):
                     # Check user_id, role, stage_id, instance_id
 
                     # Prepare connector for QoA Client
-                    connector = copy.deepcopy(self.connectorConf)
+                    connector = copy.deepcopy(self.connector_config)
                     i_config = connector.config
                     i_config["exchange_name"] = str(application_name) + "_exchange"
                     i_config["out_routing_key"] = str(application_name)

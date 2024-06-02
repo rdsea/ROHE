@@ -15,10 +15,11 @@ logging.basicConfig(
 )
 
 
-DEFAULT_CONFIG_PATH = "/config/observationConfig.yaml"
+DEFAULT_CONFIG_PATH = "/config/observationConfigLocal.yaml"
 
 if __name__ == "__main__":
     # init_env_variables()
+    # TODO: can be improved with autocomplete
     parser = argparse.ArgumentParser(
         description="Argument for Rohe Observation Service"
     )
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--port", help="default port", default=5010)
 
     # Parse the parameters
+    #
     args = parser.parse_args()
     config_file = args.conf
     # config_path = args.path
@@ -39,27 +41,28 @@ if __name__ == "__main__":
     try:
         configuration = rohe_utils.load_config(config_file)
         logging.debug(configuration)
-        dbConfig = DBConf.parse_obj(configuration["db_authentication"])
-        dbCollection = DBCollection.parse_obj(configuration["db_collection"])
-        dbClient = MDBClient(dbConfig)
+        db_config = DBConf.parse_obj(configuration["db_authentication"])
+        db_collection = DBCollection.parse_obj(configuration["db_collection"])
+        print(db_config)
+        db_client = MDBClient(db_config)
 
-        connectorConfig = MessagingConnectionConfig.parse_obj(
+        connector_config = MessagingConnectionConfig.parse_obj(
             configuration["connector"]
         )
-        collectorConfig = MessagingConnectionConfig.parse_obj(
+        collector_config = MessagingConnectionConfig.parse_obj(
             configuration["collector"]
         )
 
-        restConfig = {
-            "dbClient": dbClient,
-            "dbCollection": dbCollection,
-            "connectorConfig": connectorConfig,
-            "collectorConfig": collectorConfig,
+        rest_config = {
+            "db_client": db_client,
+            "db_collection": db_collection,
+            "connector_config": connector_config,
+            "collector_config": collector_config,
             "agent_image": configuration["agent_image"],
         }
-        observationService = RoheRestService(restConfig)
-        observationService.add_resource(RoheRegistration, "/registration")
-        observationService.add_resource(RoheAgentManager, "/agent")
-        observationService.run(port=port)
+        observation_service = RoheRestService(rest_config)
+        observation_service.add_resource(RoheRegistration, "/registration")
+        observation_service.add_resource(RoheAgentManager, "/agent")
+        observation_service.run(port=port)
     except Exception as e:
         logging.error("Error in starting Observation service: {}".format(e))
