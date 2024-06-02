@@ -3,6 +3,7 @@ import uuid
 from queue import PriorityQueue
 
 import numpy as np
+from devtools import debug
 
 # import sys
 # main_path = config_file = qoaUtils.get_parent_dir(__file__,2)
@@ -97,6 +98,7 @@ class Service(object):
 
     def update(self, config):
         self.config = config
+        debug(self.config)
         self.name = self.config["service_name"]
         self.cpu = self.config["cpu"]
         self.memory = self.config["memory"]

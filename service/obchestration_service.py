@@ -15,7 +15,7 @@ logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
 
-DEFAULT_CONFIG_PATH = "/config/orchestrationConfigLocal.yaml"
+DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
 
 app = Flask(__name__)
 api = Api(app)

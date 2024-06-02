@@ -49,16 +49,12 @@ dependencies = [
   # Dev dependencies
   "pre-commit",
   "black",
-  "isort"
+  "isort",
+  "devtools"
 ]
 
 [project.urls]
 Repository = "https://github.com/rdsea/ROHE"
-
-[tool.pylint.'MESSAGES CONTROL']
-extension-pkg-whitelist = "pydantic"
-disable="missing-function-docstring, missing-class-docstring, missing-module-docstring"
-
 
 [tool.isort]
 profile = "black"

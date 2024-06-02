@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 
 
-DEFAULT_CONFIG_PATH = "/config/observationConfigLocal.yaml"
+DEFAULT_CONFIG_PATH = "/config/observationConfig.yaml"
 
 if __name__ == "__main__":
     # init_env_variables()
@@ -43,7 +43,6 @@ if __name__ == "__main__":
         logging.debug(configuration)
         db_config = DBConf.parse_obj(configuration["db_authentication"])
         db_collection = DBCollection.parse_obj(configuration["db_collection"])
-        print(db_config)
         db_client = MDBClient(db_config)
 
         connector_config = MessagingConnectionConfig.parse_obj(

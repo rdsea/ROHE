@@ -20,12 +20,12 @@ class RoheAgentV1(RoheObject):
         try:
             super().__init__(logging_level=log_lev)
             self.conf = configuration
-            self.dbClient = self.conf["dbClient"]
+            self.db_client = self.conf["db_client"]
             self.node_collection = self.conf["node_collection"]
             self.service_collection = self.conf["service_collection"]
             self.nodes = {}
             self.services = {}
-            self.orchestrateConfig = configuration["orchestrateConfig"]
+            self.orchestrate_config = configuration["orchestrate_config"]
             self.service_queue = ServiceQueue(configuration["service_queue"])
             if sync:
                 self.sync_from_db()
@@ -64,7 +64,7 @@ class RoheAgentV1(RoheObject):
                     self.nodes,
                     self.services,
                     self.service_queue,
-                    self.orchestrateConfig,
+                    self.orchestrate_config,
                 )
                 self.show_services()
                 self.sync_node_to_db()
@@ -87,7 +87,7 @@ class RoheAgentV1(RoheObject):
             if node_mac is not None:
                 # query node from db
                 node_res = list(
-                    self.dbClient.aggregate(
+                    self.db_client.aggregate(
                         self.node_collection,
                         {"mac": node_mac},
                         [("timestamp", pymongo.DESCENDING)],
@@ -114,7 +114,7 @@ class RoheAgentV1(RoheObject):
                         }
                     },
                 ]
-                node_list = list(self.dbClient.get(self.node_collection, pipeline))
+                node_list = list(self.db_client.get(self.node_collection, pipeline))
                 self.nodes = {}
                 for node in node_list:
                     # if replace -> completely replace local nodes by nodes from database
@@ -133,7 +133,7 @@ class RoheAgentV1(RoheObject):
             if service_id is not None:
                 # query service from db
                 service_res = list(
-                    self.dbClient.aggregate(
+                    self.db_client.aggregate(
                         self.service_collection,
                         {"service_id": service_id},
                         [("timestamp", pymongo.DESCENDING)],
@@ -161,7 +161,7 @@ class RoheAgentV1(RoheObject):
                     },
                 ]
                 service_list = list(
-                    self.dbClient.get(self.service_collection, pipeline)
+                    self.db_client.get(self.service_collection, pipeline)
                 )
                 self.services = {}
                 for service in service_list:
@@ -179,7 +179,7 @@ class RoheAgentV1(RoheObject):
         try:
             if node_mac is not None:
                 node_db = list(
-                    self.dbClient.aggregate(
+                    self.db_client.aggregate(
                         self.node_collection,
                         {"mac": node_mac},
                         [("timestamp", pymongo.DESCENDING)],
@@ -188,7 +188,7 @@ class RoheAgentV1(RoheObject):
                 node_db["data"] = self.nodes[node_mac].config
                 node_db.pop("_id")
                 node_db["timestamp"] = time.time()
-                self.dbClient.insert_one(self.node_collection, node_db)
+                self.db_client.insert_one(self.node_collection, node_db)
             else:
                 for key in self.nodes:
                     self.sync_node_to_db(key)
@@ -199,7 +199,7 @@ class RoheAgentV1(RoheObject):
         try:
             if service_id is not None:
                 service_db = list(
-                    self.dbClient.aggregate(
+                    self.db_client.aggregate(
                         self.service_collection,
                         {"service_id": service_id},
                         [("timestamp", pymongo.DESCENDING)],
@@ -210,7 +210,7 @@ class RoheAgentV1(RoheObject):
                 service_db["running"] = self.services[service_id].running
                 service_db.pop("_id")
                 service_db["timestamp"] = time.time()
-                self.dbClient.insert_one(self.service_collection, service_db)
+                self.db_client.insert_one(self.service_collection, service_db)
             else:
                 for key in self.services:
                     logging.info(key)
