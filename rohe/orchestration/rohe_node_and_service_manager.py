@@ -316,41 +316,39 @@ class RoheNodeAndServiceManager(Resource):
             )
             return jsonify({"status": "unsupported"})
 
-    def post(self):
+    def post(self, command: str):
         try:
             if request.is_json:
                 args = request.get_json(force=True)
                 response = {}
-                if "command" in args:
-                    command = args["command"]
-                    if command == "ADD NODE":
-                        response = self.add_nodes(args["data"])
-                    elif command == "REMOVE ALL NODE":
-                        self.db_client.drop(self.node_collection)
-                        response = {"result": "All nodes removed"}
-                    elif command == "REMOVE NODE":
-                        response = self.remove_nodes(args["data"])
-                    elif command == "ADD SERVICE":
-                        response = self.add_services(args["data"])
-                    elif command == "REMOVE ALL SERVICE":
-                        self.db_client.drop(self.service_collection)
-                        response = {"result": "All services removed"}
-                    elif command == "REMOVE SERVICE":
-                        response = self.remove_services(args["data"])
-                    elif command == "GET ALL SERVICES":
-                        response = {"result": self.get_services()}
-                    elif command == "GET ALL NODES":
-                        response = {"result": self.get_nodes()}
-                    elif command == "START AGENT":
-                        self.agent.start()
-                        response = {"result": "Agent started"}
-                    elif command == "STOP AGENT":
-                        self.agent.stop()
-                        response = {"result": "Agent Stop"}
-                    else:
-                        response = {"result": "Unknow command"}
+                if command == "add-node":
+                    response = self.add_nodes(args["data"])
+                elif command == "remove-all-nodes":
+                    self.db_client.drop(self.node_collection)
+                    response = {"result": "All nodes removed"}
+                elif command == "remove-node":
+                    response = self.remove_nodes(args["data"])
+                elif command == "add-service":
+                    response = self.add_services(args["data"])
+                elif command == "remove-all-services":
+                    self.db_client.drop(self.service_collection)
+                    response = {"result": "All services removed"}
+                elif command == "remove-service":
+                    response = self.remove_services(args["data"])
+                elif command == "get-all-services":
+                    response = {"result": self.get_services()}
+                elif command == "get-all-nodes":
+                    response = {"result": self.get_nodes()}
+                elif command == "start-agent":
+                    self.agent.start()
+                    response = {"result": "Agent started"}
+                elif command == "stop-agent":
+                    self.agent.stop()
+                    response = {"result": "Agent Stop"}
                 else:
-                    response = {"result": "Command not found"}
+                    response = {"result": "Unknow command"}
+            else:
+                response = {"result": "only support json type"}
             return jsonify({"status": "success", "response": response})
         except Exception as e:
             logging.error(

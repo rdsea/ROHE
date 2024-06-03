@@ -59,6 +59,7 @@ if __name__ == "__main__":
         api.add_resource(
             RoheNodeAndServiceManager,
             "/management",
+            "/management/<string:command>",
             resource_class_kwargs=configuration,
         )
         app.run(debug=True, port=port)

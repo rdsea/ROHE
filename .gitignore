@@ -22,6 +22,8 @@ test_image/
 examples/profiling/object_classification/result
 app/object_classification/modules/draft
 core/profiling/result
+config/observationConfig.yaml
+config/orchestrationConfig.yaml
 
 app/object_classification/modules/draft
 app/object_classification/services/test_services/clients
