@@ -27,8 +27,8 @@ class RoheAgentManager(RoheRestObject):
             self.conf = kwargs
 
             # Init Database connection
-            self.dbClient = self.conf["dbClient"]
-            self.dbCollection = self.conf["dbCollection"]
+            self.db_client = self.conf["db_client"]
+            self.db_collection = self.conf["db_collection"]
             self.default_agent_image = self.conf["agent_image"]
             # local docker for testing
             self.docker_client = docker.from_env()
@@ -58,7 +58,7 @@ class RoheAgentManager(RoheRestObject):
     def update_app(self, metadata):
         try:
             # update application configuration
-            return self.dbClient.insert_one(self.dbCollection, metadata)
+            return self.db_client.insert_one(self.db_collection, metadata)
         except Exception as e:
             logging.error("Error in `update_app` RoheAgentManager: {}".format(e))
             return {}
@@ -67,7 +67,7 @@ class RoheAgentManager(RoheRestObject):
         try:
             # Get application configuration from database
             # Prepare query pipeline
-            pipeline = [
+            query = [
                 {"$sort": {"timestamp": 1}},
                 {
                     "$group": {
@@ -82,7 +82,7 @@ class RoheAgentManager(RoheRestObject):
                     }
                 },
             ]
-            app_list = list(self.dbClient.get(self.dbCollection, pipeline))
+            app_list = list(self.db_client.get(self.db_collection, query))
             # Get application from application list
             for app in app_list:
                 if app["application_name"] == application_name:
@@ -98,9 +98,9 @@ class RoheAgentManager(RoheRestObject):
             logging.info("Agent: {}".format(agent_dict))
         except Exception as e:
             logging.error("Error in `show_agent` RoheAgentManager: {}".format(e))
-            return None
+            return
 
-    def post(self):
+    def post(self, command: str):
         try:
             # Processing POST request
             response = {}
@@ -125,89 +125,88 @@ class RoheAgentManager(RoheRestObject):
                             agent_image = args["agent_image"]
                         else:
                             agent_image = self.default_agent_image
-                        if "command" in args:
-                            # Check command
-                            command = args["command"]
-                            metadata = app
-                            if command == "start":
-                                # Check agent of the application status
-                                if metadata["_id"] in agent_dict:
-                                    # If agent is created locally
-                                    agent = agent_dict[metadata["_id"]]
-                                    if agent["status"] != 1:
-                                        agent["docker"] = self.start_docker(
-                                            str(agent_image), application_name
-                                        )
-                                        agent["status"] = 1
-                                else:
-                                    # If agent is not found - create new agent and start
-                                    docker_agent = self.start_docker(
+                        metadata = app
+                        if command == "start":
+                            # Check agent of the application status
+                            if metadata["_id"] in agent_dict:
+                                # If agent is created locally
+                                agent = agent_dict[metadata["_id"]]
+                                if agent["status"] != 1:
+                                    agent["docker"] = self.start_docker(
                                         str(agent_image), application_name
                                     )
-                                    agent = {"docker": docker_agent, "status": 1}
-                                    agent_dict[metadata["_id"]] = agent
-                                if "stream_config" in args:
-                                    metadata["appID"] = copy.deepcopy(metadata["_id"])
-                                    metadata.pop("_id")
-                                    metadata["agent_config"]["stream_config"] = args[
-                                        "stream_config"
-                                    ]
-                                    self.update_app(metadata)
-                                self.show_agent()  # for debugging
-                                # create a response
-                                response[application_name] = (
-                                    "Application agent for application '{}' started ".format(
-                                        application_name
-                                    )
+                                    agent["status"] = 1
+                            else:
+                                # If agent is not found - create new agent and start
+                                docker_agent = self.start_docker(
+                                    str(agent_image), application_name
                                 )
-                            if command == "log":
-                                if metadata["_id"] in agent_dict:
-                                    agent = agent_dict[metadata["_id"]]
+                                agent = {"docker": docker_agent, "status": 1}
+                                agent_dict[metadata["_id"]] = agent
+                            if "stream_config" in args:
+                                metadata["appID"] = copy.deepcopy(metadata["_id"])
+                                metadata.pop("_id")
+                                metadata["agent_config"]["stream_config"] = args[
+                                    "stream_config"
+                                ]
+                                self.update_app(metadata)
+                            self.show_agent()  # for debugging
+                            # create a response
+                            response[application_name] = (
+                                "Application agent for application '{}' started ".format(
+                                    application_name
+                                )
+                            )
+                        elif command == "log":
+                            if metadata["_id"] in agent_dict:
+                                agent = agent_dict[metadata["_id"]]
+                                docker_agent = agent["docker"]
+
+                                logging.info(docker_agent.logs(tail=20))
+
+                        elif command == "stop":
+                            if metadata["_id"] in agent_dict:
+                                # if agent exist locally
+                                agent = agent_dict[metadata["_id"]]
+                                if agent["status"] == 1:
+                                    # if ageent is running
                                     docker_agent = agent["docker"]
+                                    docker_agent.stop()
+                                    agent["status"] = 0
 
-                                    logging.info(docker_agent.logs(tail=20))
-
-                            if command == "stop":
-                                if metadata["_id"] in agent_dict:
-                                    # if agent exist locally
-                                    agent = agent_dict[metadata["_id"]]
-                                    if agent["status"] == 1:
-                                        # if ageent is running
-                                        docker_agent = agent["docker"]
-                                        docker_agent.stop()
-                                        agent["status"] = 0
-
-                                # create a response
-                                response[application_name] = (
-                                    "Application agent for {} stopped ".format(
-                                        application_name
-                                    )
+                            # create a response
+                            response[application_name] = (
+                                "Application agent for {} stopped ".format(
+                                    application_name
                                 )
-                            if command == "delete":
-                                if metadata["_id"] in agent_dict:
-                                    # if agent exist locally
-                                    agent = agent_dict.pop(metadata["_id"])
-                                    # kill agent
-                                    if agent["status"] == 1:
-                                        # if ageent is running
-                                        docker_agent = agent["docker"]
-                                        docker_agent.stop()
-                                        agent["status"] = 0
-                                # Delete the application from databased
-                                self.dbClient.delete_many(
-                                    self.dbCollection,
-                                    {"application_name": application_name},
+                            )
+                        elif command == "delete":
+                            if metadata["_id"] in agent_dict:
+                                # if agent exist locally
+                                agent = agent_dict.pop(metadata["_id"])
+                                # kill agent
+                                if agent["status"] == 1:
+                                    # if ageent is running
+                                    docker_agent = agent["docker"]
+                                    docker_agent.stop()
+                                    agent["status"] = 0
+                            # Delete the application from databased
+                            self.db_client.delete_many(
+                                self.db_collection,
+                                {"application_name": application_name},
+                            )
+                            # create a response
+                            response[application_name] = (
+                                "Application agent for {} deleted ".format(
+                                    application_name
                                 )
-                                # create a response
-                                response[application_name] = (
-                                    "Application agent for {} deleted ".format(
-                                        application_name
-                                    )
-                                )
-                            if command == "kill_all_agent":
-                                for agent in list(agent_dict.keys()):
-                                    agent_dict[agent]["status"] = 0
-                                    agent_dict[agent]["docker"].stop()
+                            )
+                        elif command == "kill-all":
+                            for agent in list(agent_dict.keys()):
+                                agent_dict[agent]["status"] = 0
+                                agent_dict[agent]["docker"].stop()
+                        else:
+                            response = "Command not found"
             # Return the response
             return jsonify({"status": "success", "response": response})
         except Exception as e:

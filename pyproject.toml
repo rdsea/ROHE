@@ -60,4 +60,10 @@ Repository = "https://github.com/rdsea/ROHE"
 profile = "black"
 
 [tool.ruff.lint]
-select = ["F"]
+select = ["F", "C", "E", "R", "W"]
+ignore = [
+  "E501", # Line too long
+  "RET504", # Unnecessary assignment
+  "RET505", # Unnecessary else after return
+  "C901" # Too complex function
+]

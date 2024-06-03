@@ -45,14 +45,14 @@ class MDBClient(DBClient):
         try:
             super().__init__(mdbConfig)
 
-            self.mdbClient = get_mdb_client(self.dbConfig)
+            self.mdb_client = get_mdb_client(self.dbConfig)
         except Exception as e:
             logging.error("Error in __init__ MDBClient: {}".format(e))
 
     def get(self, dbCollection: DBCollection, query: Any) -> dict:
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 data = collection.aggregate(query)
             return data
@@ -62,8 +62,8 @@ class MDBClient(DBClient):
 
     def insert_one(self, dbCollection: DBCollection, data: dict):
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 response = collection.insert_one(data)
             return response
@@ -73,8 +73,8 @@ class MDBClient(DBClient):
 
     def insert_many(self, dbCollection: DBCollection, data: list):
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 response = collection.insert_many(data)
             return response
@@ -84,8 +84,8 @@ class MDBClient(DBClient):
 
     def delete_many(self, dbCollection: DBCollection, data: list):
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 response = collection.delete_many(data)
             return response
@@ -95,8 +95,8 @@ class MDBClient(DBClient):
 
     def find(self, dbCollection: DBCollection, query: Any) -> dict:
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 data = collection.find(query)
             return data
@@ -108,8 +108,8 @@ class MDBClient(DBClient):
         self, dbCollection: DBCollection, find_query: Any, sort_query: Any
     ) -> dict:
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 data = collection.find(find_query).sort(sort_query)
             return data
@@ -119,8 +119,8 @@ class MDBClient(DBClient):
 
     def drop(self, dbCollection: DBCollection) -> dict:
         try:
-            if self.mdbClient is not None:
-                db = self.mdbClient[dbCollection.database]
+            if self.mdb_client is not None:
+                db = self.mdb_client[dbCollection.database]
                 collection = db[dbCollection.collection]
                 collection.drop()
             return True

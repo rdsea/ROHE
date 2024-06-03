@@ -28,10 +28,11 @@ class RoheRegistration(RoheRestObject):
             logging.error("Error in `__init__` RoheRegistration: {}".format(e))
 
     def get_app(self, application_name):
+        """
+        Get application configuration from database
+        """
         try:
-            # Get application configuration from database
-            # Prepare query pipeline
-            pipeline = [
+            query = [
                 {"$sort": {"timestamp": 1}},
                 {
                     "$group": {
@@ -46,7 +47,7 @@ class RoheRegistration(RoheRestObject):
                     }
                 },
             ]
-            app_list = list(self.db_client.get(self.db_collection, pipeline))
+            app_list = list(self.db_client.get(self.db_collection, query))
             # Get application from application list
             for app in app_list:
                 if app["application_name"] == application_name:
@@ -57,8 +58,10 @@ class RoheRegistration(RoheRestObject):
             return {}
 
     def update_app(self, metadata):
+        """
+        Update application configuration
+        """
         try:
-            # update application configuration
             return self.db_client.insert_one(self.db_collection, metadata)
         except Exception as e:
             logging.error("Error in `update_app` RoheRegistration: {}".format(e))

@@ -75,9 +75,7 @@ def selecting_node(node_ranks, strategy=0, debug=False):
         if strategy == 0:  # first fit
             node_id = list(node_ranks.keys())[0]
         else:
-            sort_nodes = {
-                k: v for k, v in sorted(node_ranks.items(), key=lambda item: item[1])
-            }
+            sort_nodes = dict(sorted(node_ranks.items(), key=lambda item: item[1]))
             if strategy == 1:  # best fit
                 node_id = list(sort_nodes.keys())[-1]
             elif strategy == 2:  # worst fit
@@ -132,11 +130,10 @@ def orchestrate(nodes, services, service_queue, configuration):
                 p_service, nodes, configuration["weights"], configuration["strategy"]
             )
             continue
-        else:
-            allocate_service(
-                p_service,
-                nodes,
-                configuration["weights"],
-                configuration["strategy"],
-                replica,
-            )
+        allocate_service(
+            p_service,
+            nodes,
+            configuration["weights"],
+            configuration["strategy"],
+            replica,
+        )

@@ -61,7 +61,7 @@ if __name__ == "__main__":
         }
         observation_service = RoheRestService(rest_config)
         observation_service.add_resource(RoheRegistration, "/registration")
-        observation_service.add_resource(RoheAgentManager, "/agent")
+        observation_service.add_resource(RoheAgentManager, "/agent/<string:command>")
         observation_service.run(port=port)
     except Exception as e:
         logging.error("Error in starting Observation service: {}".format(e))

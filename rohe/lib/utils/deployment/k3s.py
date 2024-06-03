@@ -25,3 +25,4 @@ def convert_boolean(dict_obj):
         except Exception as e:
             print("Unable to convert some attribute:", e)
         return dict_obj
+    return None

@@ -1,9 +1,18 @@
 import logging
 import time
+from typing import Dict
 
 import pymongo
 from flask import jsonify, request
 from flask_restful import Resource
+
+from ..common.data_models import (
+    AddNodeRequest,
+    AddServiceRequest,
+    NodeData,
+    ServiceData,
+)
+from ..storage.abstract import MDBClient
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -16,7 +25,7 @@ class RoheNodeAndServiceManager(Resource):
             super().__init__()
             self.conf = kwargs
             self.agent = self.conf["agent"]
-            self.db_client = self.conf["db_client"]
+            self.db_client: MDBClient = self.conf["db_client"]
             self.node_collection = self.conf["node_collection"]
             self.service_collection = self.conf["service_collection"]
         except Exception as e:
@@ -24,10 +33,10 @@ class RoheNodeAndServiceManager(Resource):
 
     ################################ NODE FUNCTIONS ################################
     # check if node exist in database
-    def is_node_exist(self, mac_add) -> bool:
+    def is_node_exist(self, mac_address: str) -> bool:
         try:
             # find node by MAC address
-            node = list(self.db_client.find(self.node_collection, {"mac": mac_add}))
+            node = list(self.db_client.find(self.node_collection, {"mac": mac_address}))
             return bool(node)
         except Exception as e:
             logging.error(
@@ -83,27 +92,26 @@ class RoheNodeAndServiceManager(Resource):
                 "Error in `update_node_to_db` RoheNodeAndServiceManager: {}".format(e)
             )
 
-    def add_node_to_db(self, node):
+    def add_node_to_db(self, node: NodeData):
         try:
             metadata = {}
-            metadata["status"] = node["status"]
+            metadata["status"] = node.status
             metadata["timestamp"] = time.time()
-            metadata["data"] = node
-            metadata["mac"] = node["MAC"]
+            metadata["data"] = node.model_dump()
+            metadata["mac_address"] = node.mac_address
             self.db_client.insert_one(self.node_collection, metadata)
         except Exception as e:
             logging.error(
                 "Error in `add_node_to_db` RoheNodeAndServiceManager: {}".format(e)
             )
 
-    def add_nodes(self, node_data) -> dict:
+    def add_nodes(self, node_data: Dict[str, NodeData]) -> dict:
         try:
             # add multiple nodes (as dictionary) to database - node_data contains node configurations
             results = {}
-            for node_key in node_data:
-                node = node_data[node_key]
+            for node_key, node in node_data.items():
 
-                if self.is_node_exist(node["MAC"]):
+                if self.is_node_exist(node.mac_address):
                     self.update_node_to_db(node)
                     results[node_key] = "Updated"
                 else:
@@ -140,7 +148,7 @@ class RoheNodeAndServiceManager(Resource):
 
     def get_nodes(self):
         try:
-            pipeline = [
+            query = [
                 {"$sort": {"timestamp": 1}},
                 {
                     "$group": {
@@ -151,7 +159,7 @@ class RoheNodeAndServiceManager(Resource):
                     }
                 },
             ]
-            node_list = list(self.db_client.get(self.node_collection, pipeline))
+            node_list = list(self.db_client.get(self.node_collection, query))
             return node_list
         except Exception as e:
             logging.error(
@@ -161,7 +169,7 @@ class RoheNodeAndServiceManager(Resource):
 
     ################################ SERVICE FUNCTIONS ################################
 
-    def is_service_exist(self, service_id) -> bool:
+    def is_service_exist(self, service_id: str) -> bool:
         try:
             service = list(
                 self.db_client.find(self.service_collection, {"service_id": service_id})
@@ -220,35 +228,33 @@ class RoheNodeAndServiceManager(Resource):
             )
             return {"result": "fail"}
 
-    def add_service_to_db(self, service, application_name):
+    def add_service_to_db(self, service_data: ServiceData, application_name: str):
         try:
             metadata = {}
-            metadata["status"] = service["status"]
-            metadata["replicas"] = service["replicas"]
-            metadata["running"] = service["running"]
+            metadata["status"] = service_data.status
+            metadata["replicas"] = service_data.replicas
+            metadata["running"] = service_data.running
             metadata["application_name"] = application_name
             metadata["timestamp"] = time.time()
-            metadata["data"] = service
-            metadata["service_id"] = service["service_id"]
+            metadata["data"] = service_data.model_dump()
+            metadata["service_id"] = service_data.service_id
             self.db_client.insert_one(self.service_collection, metadata)
         except Exception as e:
             logging.error(
                 "Error in `add_service_to_db` RoheNodeAndServiceManager: {}".format(e)
             )
 
-    def add_services(self, data):
+    def add_services(self, data: Dict[str, Dict[str, ServiceData]]):
         try:
             results = {}
-            for app_key in data:
-                application_name = data[app_key]
-                for s_key in application_name:
-                    service = application_name[s_key]
-                    if self.is_service_exist(service["service_id"]):
-                        self.update_service_to_db(service)
-                        results[s_key] = "Updated"
+            for application_name, services in data.items():
+                for service_key, service_data in services.items():
+                    if self.is_service_exist(service_data.service_id):
+                        self.update_service_to_db(service_data)
+                        results[service_key] = "Updated"
                     else:
-                        self.add_service_to_db(service, app_key)
-                        results[s_key] = "Added"
+                        self.add_service_to_db(service_data, application_name)
+                        results[service_key] = "Added"
             return {"result": results}
         except Exception as e:
             logging.error(
@@ -256,21 +262,22 @@ class RoheNodeAndServiceManager(Resource):
             )
             return {"result": "fail"}
 
-    def update_service_to_db(self, service):
+    def update_service_to_db(self, service: ServiceData):
         try:
             service_db = list(
                 self.db_client.aggregate(
                     self.service_collection,
-                    {"service_id": service["service_id"]},
+                    {"service_id": service.service_id},
                     [("timestamp", pymongo.DESCENDING)],
                 )
             )[0]
             service_db.pop("_id")
-            service_db["status"] = service["status"]
-            service_db["replicas"] = service["replicas"]
-            service_db["running"] = service["running"]
+            service_db["status"] = service.status.value
+            service_db["replicas"] = service.replicas
+            service_db["running"] = service.running
             service_db["timestamp"] = time.time()
-            service_db["data"] = service
+            service_db["data"] = service.model_dump()
+
             # To do: improve merge_dict function to update service
             # service_db["data"] = merge_dict(service_db["data"],service)
             self.db_client.insert_one(self.service_collection, service_db)
@@ -322,29 +329,43 @@ class RoheNodeAndServiceManager(Resource):
                 args = request.get_json(force=True)
                 response = {}
                 if command == "add-node":
-                    response = self.add_nodes(args["data"])
+                    node_data = AddNodeRequest.model_validate(request.data)
+                    response = self.add_nodes(node_data.data)
+
                 elif command == "remove-all-nodes":
                     self.db_client.drop(self.node_collection)
                     response = {"result": "All nodes removed"}
+
                 elif command == "remove-node":
+                    # TODO: improve this, the body is too big now
                     response = self.remove_nodes(args["data"])
+
                 elif command == "add-service":
-                    response = self.add_services(args["data"])
+                    service_data = AddServiceRequest.model_validate(request.data)
+                    response = self.add_services(service_data.data)
+
                 elif command == "remove-all-services":
                     self.db_client.drop(self.service_collection)
                     response = {"result": "All services removed"}
+
+                # TODO: improve this, the body is too big now
                 elif command == "remove-service":
                     response = self.remove_services(args["data"])
+
                 elif command == "get-all-services":
                     response = {"result": self.get_services()}
+
                 elif command == "get-all-nodes":
                     response = {"result": self.get_nodes()}
+
                 elif command == "start-agent":
                     self.agent.start()
                     response = {"result": "Agent started"}
+
                 elif command == "stop-agent":
                     self.agent.stop()
                     response = {"result": "Agent Stop"}
+
                 else:
                     response = {"result": "Unknow command"}
             else:

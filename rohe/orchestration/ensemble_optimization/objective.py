@@ -73,6 +73,7 @@ def calculate_scaled_value(value, max_value, min_value, objective, scale, logbas
         return scaled_value
     elif objective == "min":
         return 1 - scaled_value
+    return None
 
 
 def score_estimation(ensemble: list, contract: dict):

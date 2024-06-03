@@ -150,6 +150,7 @@ class Yolo8(object):
             # Label object and annotate
             result, annotate = prediction_processing(prediction, annotator)
             return {self.param: result}, annotate
+        return None
 
     def yolov_inference(self, image):
         annotator = Annotator(image, line_width=1)
