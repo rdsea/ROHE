@@ -21,10 +21,10 @@ jinja_env = Environment(loader=FileSystemLoader(template_folder))
 deployment = jinja_env.get_template("deployment_templates.yaml")
 
 
-def kube_generator(serviceInstance):
+def kube_generator(service_instance):
     jinja_var = {}
-    service = serviceInstance.service
-    node = serviceInstance.node
+    service = service_instance.service
+    node = service_instance.node
     folder_path = temporary_folder
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -37,6 +37,6 @@ def kube_generator(serviceInstance):
     jinja_var["service_replica"] = service.replicas
     jinja_var["ports"] = service.ports
     jinja_var["port_mapping"] = service.port_mapping
-    file_path = folder_path + "/" + serviceInstance.id + ".yaml"
+    file_path = folder_path + "/" + service_instance.id + ".yaml"
     with open(file_path, "w") as f:
         f.write(deployment.render(jinja_var))

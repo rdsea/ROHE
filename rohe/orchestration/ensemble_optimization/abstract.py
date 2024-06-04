@@ -36,6 +36,6 @@ class EnsembleOptimization(ABC, object):
         return {}
 
     @abstractmethod
-    def select(self, mlServiceList: list, contract: dict) -> dict:
+    def select(self, ml_service_list: list, contract: dict) -> dict:
         "From list of ML services return optimal ensemble of ML services using the objective function (self.objective_function)"
         return []

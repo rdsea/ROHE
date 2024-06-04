@@ -46,14 +46,14 @@ class ImageInferenceObject(RoheRestObject):
             data["image"] = request.files["image"].read()
             if "report" in request.files:
                 data["report"] = json.loads(request.files["report"].read())
-            json_data = self.imageProcessing(data)
+            json_data = self.image_processing(data)
         except Exception as e:
             json_data = '{"error":"some error occurred in Rest processing service"}'
             print(e)
         result = json.dumps(json_data)
         return Response(response=result, status=200)
 
-    def imageProcessing(self, image):
+    def image_processing(self, image):
         return {}
 
 

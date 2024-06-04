@@ -28,7 +28,7 @@ class ConsulClient(object):
         self.deregisterLink = self.url + "/v1/agent/service/deregister/"
         self.getServiceLink = self.url + "/v1/catalog/services"
 
-    def serviceRegister(
+    def service_register(
         self,
         name: str,
         id: str = "",
@@ -37,10 +37,10 @@ class ConsulClient(object):
         metadata: dict = None,
         port: int = 0,
         kind: str = "",
-        Check=None,
-        Checks=None,
-        enableTagOverride: bool = False,
-        Weight=None,
+        check=None,
+        checks=None,
+        enable_tag_override: bool = False,
+        weight=None,
     ):
         service_conf = {"Name": name}
 
@@ -57,7 +57,7 @@ class ConsulClient(object):
 
         service_conf["ID"] = id
         service_conf["Port"] = port
-        service_conf["EnableTagOverride"] = enableTagOverride
+        service_conf["EnableTagOverride"] = enable_tag_override
 
         response = requests.put(
             url=self.registerLink, headers=headers, data=json.dumps(service_conf)
@@ -69,7 +69,7 @@ class ConsulClient(object):
             logging.error("Unable to register for service {}".format(name))
             return None
 
-    def serviceDeregister(self, id):
+    def service_deregister(self, id):
         response = requests.put(url=self.deregisterLink + str(id))
         if response.status_code == 200:
             return True
@@ -77,7 +77,7 @@ class ConsulClient(object):
             logging.error("Unable to register for service {}".format(id))
             return False
 
-    def queryService(self, name: str, tags: list = None):
+    def query_service(self, name: str, tags: list = None):
         service_url = self.url + "/v1/catalog/service/" + name
         params = {}
         if tags:
@@ -108,29 +108,29 @@ class ConsulClient(object):
             )
             return []
 
-    def getAllServiceInstances(self, name: str, tags: list = None):
+    def get_all_service_instances(self, name: str, tags: list = None):
         """
         Get all service instances based on name and tags.
         """
-        services = self.queryService(name, tags)
+        services = self.query_service(name, tags)
         return services
 
-    def getNRandomServiceInstances(self, name: str, tags: list = None, n: int = 3):
+    def get_n_random_service_instances(self, name: str, tags: list = None, n: int = 3):
         """
         Get N random service instances based on name and tags.
         """
-        services = self.queryService(name, tags)
+        services = self.query_service(name, tags)
         if n >= len(services):
             return services
         return random.sample(services, n)
 
-    def getQuorumServiceInstances(self, name: str, tags: list = None):
+    def get_quorum_service_instances(self, name: str, tags: list = None):
         """
         Get a quorum (majority) of service instances, randomly selected, based on name and tags.
         """
-        services = self.queryService(name, tags)
+        services = self.query_service(name, tags)
         quorum = (len(services) // 2) + 1
-        return self.getNRandomServiceInstances(name, tags, quorum)
+        return self.get_n_random_service_instances(name, tags, quorum)
 
     # def retrieve_inference_service_address(self, service_info: list):
 

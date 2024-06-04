@@ -7,7 +7,7 @@ class MLServicePerformance(BaseModel):
     last_update: dict = None
     metrics: dict = None
     scale: int = None
-    baseCost: float = None
+    base_cost: float = None
 
     def to_dict(self):
         self_dict = dict(self)

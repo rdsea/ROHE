@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -16,9 +16,19 @@ class SensitivityEnum(int, Enum):
     cpu_memory_sensitive = 3
 
 
-class NodeResources(BaseModel):
-    capacity: List[float] | Dict | float
-    used: List[float] | Dict | float
+class MemoryNodeResources(BaseModel):
+    capacity: Dict
+    used: Dict
+
+
+class CpuNodeResources(BaseModel):
+    capacity: float
+    used: float
+
+
+class CoresNodeResources(BaseModel):
+    capacity: List[float]
+    used: List[float]
 
 
 class AcceleratorResource(BaseModel):
@@ -35,9 +45,10 @@ class NodeData(BaseModel):
     status: StatusEnum
     frequency: float
     accelerator: Dict[str, AcceleratorResource]
-    cpu: NodeResources
-    memory: NodeResources
-    cores: NodeResources
+    cpu: CpuNodeResources
+    memory: MemoryNodeResources
+    cores: CoresNodeResources
+    services: Optional[Dict] = None
 
 
 class ServiceData(BaseModel):
@@ -46,14 +57,15 @@ class ServiceData(BaseModel):
     node: Dict
     status: StatusEnum
     instance_ids: List
-    running: bool
+    running: int
+    image: str
     # NOTE: why this should be a list
     ports: List
     port_mapping: List[Dict]
     cpu_required: int
     accelerator_required: Dict
     memory_required: Dict
-    cores: List
+    cores_required: List
     sensitivity: SensitivityEnum
     replicas: int
 

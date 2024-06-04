@@ -1,8 +1,11 @@
 import logging
 import sys
 import traceback
+from typing import Any, Dict
 
 import numpy as np
+
+from ..resource_management.resource import Node, ServiceQueue
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -93,14 +96,14 @@ def selecting_node(node_ranks, strategy=0, debug=False):
     return node_id
 
 
-def assign(nodes, node_id, service):
+def assign(nodes: Dict[Any, Node], node_id, service):
     if node_id in nodes:
         nodes[node_id].allocate(service)
         # print("assign success")
         logging.info(str("Assign {} to {}".format(service.name, nodes[node_id].name)))
 
 
-def allocate_service(service, nodes, weights, strategy, replicas):
+def allocate_service(service, nodes: Dict[Any, Node], weights, strategy, replicas):
     for i in range(replicas):
         fil_nodes = filtering_node(nodes, service)
         ranking_list = ranking(nodes, fil_nodes, service, weights)
@@ -116,7 +119,9 @@ def deallocate_service(service, nodes, weights, strategy):
     pass
 
 
-def orchestrate(nodes, services, service_queue, configuration):
+def orchestrate(
+    nodes: Dict[Any, Node], services, service_queue: ServiceQueue, configuration
+):
     for key in services:
         service = services[key]
         if service.running != service.replicas:

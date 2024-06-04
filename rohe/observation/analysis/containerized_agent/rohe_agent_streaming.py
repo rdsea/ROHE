@@ -166,13 +166,13 @@ class RoheObservationAgent(RoheObject):
         if function_name == "dummy":
             pass
         else:
-            procFunc = getattr(self.proc_module, self.proc_config["function"])
+            proc_func = getattr(self.proc_module, self.proc_config["function"])
             feature_list = self.proc_config["parser"]["feature"]
 
             # data, feature_list = parser(self.buffer, self.proc_config["parser"])
             #
             for feature in feature_list:
-                result_df, model = procFunc(data, feature)
+                result_df, model = proc_func(data, feature)
                 if result_df is not None:
                     rohe_utils.make_folder(self.temp_path)
                     file_path = self.temp_path + "/" + str(feature) + ".csv"

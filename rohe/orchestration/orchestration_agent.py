@@ -6,7 +6,7 @@ import pymongo
 
 from ..common.rohe_object import RoheObject
 from ..orchestration.ensemble_optimization.scoring import (
-    orchestrate as scoringOrchestrate,
+    orchestrate as scoring_orchestrate,
 )
 from .resource_management.resource import Node, Service, ServiceQueue
 
@@ -60,7 +60,7 @@ class RoheAgentV1(RoheObject):
                 logging.info("Agent Start Orchestrating")
                 self.sync_from_db()
                 logging.info("Sync completed")
-                scoringOrchestrate(
+                scoring_orchestrate(
                     self.nodes,
                     self.services,
                     self.service_queue,

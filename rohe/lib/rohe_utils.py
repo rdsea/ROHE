@@ -98,16 +98,16 @@ def to_yaml(file_path: str, conf: dict):
 
 
 def download_file_from_google_drive(
-    id, destination, URL="https://docs.google.com/uc?export=download&confirm=1"
+    id, destination, url="https://docs.google.com/uc?export=download&confirm=1"
 ):
     session = requests.Session()
 
-    response = session.get(URL, params={"id": id}, stream=True)
+    response = session.get(url, params={"id": id}, stream=True)
     token = get_confirm_token(response)
 
     if token:
         params = {"id": id, "confirm": token}
-        response = session.get(URL, params=params, stream=True)
+        response = session.get(url, params=params, stream=True)
 
     save_response_content(response, destination)
 
@@ -120,9 +120,9 @@ def get_confirm_token(response):
     return None
 
 
-def save_response_content(response, destination, CHUNK_SIZE=32768):
+def save_response_content(response, destination, chunk_size=32768):
     with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
+        for chunk in response.iter_content(chunk_size):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
@@ -147,12 +147,12 @@ def message_deserialize(string_object) -> dict:
 #     # yaml_config = to_yaml(yaml_path, config)
 
 
-def separate_ds_by_class(X, y):
+def separate_ds_by_class(x, y):
     """
     Separates a multi-dimensional numpy array (X) and a 2D numpy array (y) into smaller arrays according to the class labels (y),
     creating a nested dictionary with the separated X and y for each class label.
 
-    :param X: Multi-dimensional numpy array, representing the dataset to be separated. Can have shape
+    :param x: Multi-dimensional numpy array, representing the dataset to be separated. Can have shape
               (num_samples, height, width, channels) for RGB images or (num_samples, height, width) for grayscale images.
     :param y: 2D numpy array of shape (num_samples, num_classes), representing the one-hot encoded class labels corresponding to the samples in X.
     :return: dict, a nested dictionary where the outer keys are class labels, and the values are dictionaries with keys 'X' and 'y'
@@ -165,7 +165,7 @@ def separate_ds_by_class(X, y):
 
     for label in unique_class_labels:
         indices = np.where(class_labels == label)
-        class_datasets[label] = {"X": X[indices], "y": y[indices]}
+        class_datasets[label] = {"x": x[indices], "y": y[indices]}
 
     return class_datasets
 
@@ -258,7 +258,7 @@ def list_files(folder_path):
     return file_list
 
 
-def getNSampleInRange(n, start, end):
+def get_n_sample_in_range(n, start, end):
     numbers = list(range(start, end))
     random_numbers = []
 

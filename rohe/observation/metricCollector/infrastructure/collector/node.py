@@ -165,7 +165,7 @@ class Node(object):
         return json.dumps(self.attributes, indent=2)
 
 
-class Node_Jet(Node):
+class NodeJet(Node):
     def __init__(self, name_node, accesspoint, prom_host, metric_map):
         super().__init__(name_node, accesspoint, prom_host, metric_map)
 
@@ -208,7 +208,7 @@ class Node_Jet(Node):
         )["value"]
 
 
-class Node_Rock(Node):
+class NodeRock(Node):
     def __init__(self, name_node, accesspoint, prom_host, metric_map):
         super().__init__(name_node, accesspoint, prom_host, metric_map)
 

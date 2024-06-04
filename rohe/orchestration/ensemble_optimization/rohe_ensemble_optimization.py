@@ -13,7 +13,7 @@ from .abstract import EnsembleOptimization
 
 class RoheEnsembleOptimization(EnsembleOptimization):
     def __init__(
-        self, dbConfig, of_name: str, model_list: list, infrastructure_list: list
+        self, db_config, of_name: str, model_list: list, infrastructure_list: list
     ):
         # init basic attribute in parent class:
         # self.model_list = model_list
@@ -23,7 +23,7 @@ class RoheEnsembleOptimization(EnsembleOptimization):
         super().__init__(of_name, model_list, infrastructure_list)
 
         # init mongoClient to query data from Database
-        self.mongoClient = get_mdb_client(dbConfig)
+        self.mongo_client = get_mdb_client(db_config)
 
     def get_ml_service_performance(
         self,
@@ -32,13 +32,13 @@ class RoheEnsembleOptimization(EnsembleOptimization):
         infrastructure_collection: str,
         model_cost_collection: str,
         infrastructure_cost_collection: str,
-        metricConf: dict,
+        metric_config: dict,
         timestamp=None,
         limit=10000,
     ) -> dict:
         # from config, query and calculate runtime metrics based on user description
         # specify database name
-        self.db = self.mongoClient[database]
+        self.db = self.mongo_client[database]
         # specify collection for model performance
         self.model_collection = self.db[model_collection]
         # specify infrastructure collection
@@ -64,7 +64,7 @@ class RoheEnsembleOptimization(EnsembleOptimization):
             last_update = {"ml_metric": timestamp}
 
             # query and caculate individual metrics
-            for key, metric in metricConf.items():
+            for key, metric in metric_config.items():
                 metrics[key] = execute_metric_queries(
                     self.model_collection,
                     metric,
@@ -110,12 +110,12 @@ class RoheEnsembleOptimization(EnsembleOptimization):
 
         return ml_performance_list
 
-    def select(self, mlServiceList: list, contract: dict) -> list:
+    def select(self, ml_service_list: list, contract: dict) -> list:
         # must be call after "set_optimization_algorithm"
         ensemble = self.optimization_algorithm(
             self.model_list,
             self.infrastructure_list,
-            mlServiceList,
+            ml_service_list,
             self.objective_funtion,
             contract,
         )
