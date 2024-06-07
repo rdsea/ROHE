@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 import uuid
 from queue import PriorityQueue
+from typing import Tuple
 
 import numpy as np
 
@@ -128,7 +129,7 @@ class Service(object):
         self.config.running = self.running
         self.config.instance_ids = self.instance_ids
 
-    def assign(self, node):
+    def assign(self, node: Node):
         if node.id in self.node_list:
             self.node_list[node.id] += 1
         else:
@@ -192,18 +193,18 @@ class ServiceQueue(object):
         self.priority_factor = config["priority"]
         self.queue_balance = config["queue_balance"]
         self.priority_count = 0
-        self.p_queue = PriorityQueue()
-        self.np_queue = PriorityQueue()
+        self.p_queue = PriorityQueue[Tuple[int, Service]]()
+        self.np_queue = PriorityQueue[Tuple[int, Service]]()
         self.update_flag = False
 
     def empty(self):
         return self.p_queue.empty() and self.np_queue.empty()
 
-    def put(self, service):
+    def put(self, service: Service):
         if (self.priority_factor > 0) and (
             (service.sensitivity == self.priority_factor) or (service.sensitivity == 3)
         ):
-            service.set_qtime(time.time())
+            service.set_qtime()
             if self.priority_factor <= 1:
                 self.p_queue.put((-service.cpu, service))
             elif self.priority_factor == 2:
@@ -223,7 +224,7 @@ class ServiceQueue(object):
 
 
 class Node(object):
-    def __init__(self, config):
+    def __init__(self, config: NodeData):
         # configuration - dictionary, including:
         # node_name - string
         # address (ip) - string

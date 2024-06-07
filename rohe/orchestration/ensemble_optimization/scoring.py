@@ -1,23 +1,23 @@
 import logging
 import sys
 import traceback
-from typing import Any, Dict
+from typing import Dict
 
 import numpy as np
 
-from ..resource_management.resource import Node, ServiceQueue
+from ..resource_management.resource import Node, Service, ServiceQueue
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
 
 
-def filtering_node(nodes, service):
+def filtering_node(nodes: Dict[str, Node], service: Service):
     key_list = []
     for key in nodes:
         node_flag = False
-        av_cpu = nodes[key].cpu["capacity"] - nodes[key].cpu["used"]
-        av_mem = nodes[key].memory["capacity"]["rss"] - nodes[key].memory["used"]["rss"]
+        av_cpu = nodes[key].cpu.capacity - nodes[key].cpu.used
+        av_mem = nodes[key].memory.capacity["rss"] - nodes[key].memory.used["rss"]
         if service.cpu <= av_cpu and service.memory["rss"] <= av_mem:
             for dev in service.accelerator:
                 if service.accelerator[dev] == 0:
@@ -25,11 +25,11 @@ def filtering_node(nodes, service):
                 else:
                     for device in nodes[key].accelerator:
                         av_accelerator = (
-                            nodes[key].accelerator[device]["capacity"]
-                            - nodes[key].accelerator[device]["used"]
+                            nodes[key].accelerator[device].capacity
+                            - nodes[key].accelerator[device].used
                         )
                         if (
-                            nodes[key].accelerator[device]["type"] == dev
+                            nodes[key].accelerator[device].accelerator_type == dev
                             and service.accelerator[dev] < av_accelerator
                         ):
                             node_flag = True
@@ -39,18 +39,20 @@ def filtering_node(nodes, service):
     return key_list
 
 
-def ranking(nodes, keys, service, weights={"cpu": 1, "memory": 1}):
+def ranking(
+    nodes: Dict[str, Node], keys, service: Service, weights={"cpu": 1, "memory": 1}
+):
     node_ranks = {}
     for key in keys:
         selected_node = nodes[key]
 
         remain_proc = np.sort(
             (
-                np.array(selected_node.processor["capacity"])
-                - np.array(selected_node.processor["used"])
+                np.array(selected_node.cores.capacity)
+                - np.array(selected_node.cores.used)
             )
         )
-        req_proc = np.array(service.processor)
+        req_proc = np.array(service.cores)
         req_proc.resize(remain_proc.shape)
         req_proc = np.sort(req_proc)
         remain_proc = remain_proc - req_proc
@@ -60,12 +62,11 @@ def ranking(nodes, keys, service, weights={"cpu": 1, "memory": 1}):
             rank_proc = np.sum(remain_proc) / (remain_proc.size * 100)
 
             remain_mem = (
-                selected_node.memory["capacity"]["rss"]
-                - selected_node.memory["used"]["rss"]
+                selected_node.memory.capacity["rss"] - selected_node.memory.used["rss"]
             )
-            rank_mem = (remain_mem - service.memory["rss"]) / selected_node.memory[
-                "capacity"
-            ]["rss"]
+            rank_mem = (
+                remain_mem - service.memory["rss"]
+            ) / selected_node.memory.capacity["rss"]
             node_ranks[key] = weights["cpu"] * rank_proc + weights["memory"] * rank_mem
 
     node_ranks = {k: v for k, v in node_ranks.items() if v > 0}
@@ -96,14 +97,16 @@ def selecting_node(node_ranks, strategy=0, debug=False):
     return node_id
 
 
-def assign(nodes: Dict[Any, Node], node_id, service):
+def assign(nodes: Dict[str, Node], node_id, service):
     if node_id in nodes:
         nodes[node_id].allocate(service)
         # print("assign success")
         logging.info(str("Assign {} to {}".format(service.name, nodes[node_id].name)))
 
 
-def allocate_service(service, nodes: Dict[Any, Node], weights, strategy, replicas):
+def allocate_service(
+    service: Service, nodes: Dict[str, Node], weights, strategy, replicas
+):
     for i in range(replicas):
         fil_nodes = filtering_node(nodes, service)
         ranking_list = ranking(nodes, fil_nodes, service, weights)
@@ -120,7 +123,10 @@ def deallocate_service(service, nodes, weights, strategy):
 
 
 def orchestrate(
-    nodes: Dict[Any, Node], services, service_queue: ServiceQueue, configuration
+    nodes: Dict[str, Node],
+    services: Dict[str, Service],
+    service_queue: ServiceQueue,
+    configuration,
 ):
     for key in services:
         service = services[key]
@@ -129,6 +135,8 @@ def orchestrate(
 
     while not service_queue.empty():
         p_service = service_queue.get()
+        if p_service is None:
+            break
         replica = p_service.replicas - p_service.running
         if p_service.replicas < services[p_service.id].replicas:
             deallocate_service(

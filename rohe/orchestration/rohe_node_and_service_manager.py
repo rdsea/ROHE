@@ -13,6 +13,7 @@ from ..common.data_models import (
     ServiceData,
 )
 from ..storage.abstract import MDBClient
+from .resource_management.resource import Node, Service
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -51,7 +52,7 @@ class RoheNodeAndServiceManager(Resource):
             node_db = list(
                 self.db_client.aggregate(
                     self.node_collection,
-                    {"mac": mac_add},
+                    {"mac_address": mac_add},
                     [("timestamp", pymongo.DESCENDING)],
                 )
             )[0]
@@ -62,10 +63,10 @@ class RoheNodeAndServiceManager(Resource):
             )
             return None
 
-    def delete_node(self, mac_add):
+    def delete_node(self, mac_add: str):
         try:
             # Delete node from MAC address
-            self.db_client.delete_many(self.node_collection, {"mac": mac_add})
+            self.db_client.delete_many(self.node_collection, {"mac_address": mac_add})
         except Exception as e:
             logging.error(
                 "Error in `delete_node` RoheNodeAndServiceManager: {}".format(e)
@@ -76,7 +77,7 @@ class RoheNodeAndServiceManager(Resource):
             node_db = list(
                 self.db_client.aggregate(
                     self.node_collection,
-                    {"mac": node["MAC"]},
+                    {"mac_address": node["MAC"]},
                     [("timestamp", pymongo.DESCENDING)],
                 )
             )[0]
@@ -110,7 +111,6 @@ class RoheNodeAndServiceManager(Resource):
             # add multiple nodes (as dictionary) to database - node_data contains node configurations
             results = {}
             for node_key, node in node_data.items():
-
                 if self.is_node_exist(node.mac_address):
                     self.update_node_to_db(node)
                     results[node_key] = "Updated"
@@ -124,9 +124,11 @@ class RoheNodeAndServiceManager(Resource):
             )
             return {"result": "fail"}
 
-    def remove_node_db(self, node):
+    def remove_node_db(self, node: Node):
         try:
-            self.db_client.delete_many(self.node_collection, {"mac": node["MAC"]})
+            self.db_client.delete_many(
+                self.node_collection, {"mac_address": node.mac_address}
+            )
         except Exception as e:
             logging.error(
                 "Error in `remove_node_db` RoheNodeAndServiceManager: {}".format(e)
@@ -152,7 +154,7 @@ class RoheNodeAndServiceManager(Resource):
                 {"$sort": {"timestamp": 1}},
                 {
                     "$group": {
-                        "_id": "$mac",
+                        "_id": "$mac_address",
                         "status": {"$last": "$status"},
                         "timestamp": {"$last": "$timestamp"},
                         "data": {"$last": "$data"},
@@ -181,7 +183,7 @@ class RoheNodeAndServiceManager(Resource):
             )
             return False
 
-    def get_service_status(self, service_id) -> dict:
+    def get_service_status(self, service_id: str) -> dict:
         try:
             service_db = list(
                 self.db_client.aggregate(
@@ -202,10 +204,10 @@ class RoheNodeAndServiceManager(Resource):
             )
             return {"status": "fail"}
 
-    def remove_service_db(self, service):
+    def remove_service_db(self, service: Service):
         try:
             self.db_client.delete_many(
-                self.service_collection, {"service_id": service["service_id"]}
+                self.service_collection, {"service_id": service.id}
             )
         except Exception as e:
             logging.error(
@@ -329,7 +331,7 @@ class RoheNodeAndServiceManager(Resource):
                 args = request.get_json(force=True)
                 response = {}
                 if command == "add-node":
-                    node_data = AddNodeRequest.model_validate(request.data)
+                    node_data = AddNodeRequest.model_validate_json(request.data)
                     response = self.add_nodes(node_data.data)
 
                 elif command == "remove-all-nodes":
@@ -341,7 +343,7 @@ class RoheNodeAndServiceManager(Resource):
                     response = self.remove_nodes(args["data"])
 
                 elif command == "add-service":
-                    service_data = AddServiceRequest.model_validate(request.data)
+                    service_data = AddServiceRequest.model_validate_json(request.data)
                     response = self.add_services(service_data.data)
 
                 elif command == "remove-all-services":
