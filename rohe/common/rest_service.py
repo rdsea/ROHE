@@ -1,6 +1,6 @@
 import json
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, request
 from flask_restful import Api, Resource
 
 from .rohe_object import RoheObject
@@ -10,29 +10,29 @@ class RoheRestObject(Resource, RoheObject):
     def __init__(self, log_level: int = 2) -> None:
         super().__init__(logging_level=log_level)
 
-    def get(self):
-        # Processing GET request
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({"status": args})
-
-    def post(self):
-        # Processing GET request
-        args = request.query_string.decode("utf-8").split("&")
-        # get param from args here
-        return jsonify({"status": args})
-
-    def put(self):
-        # if request.is_json:
-        #     args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({"status": True})
-
-    def delete(self):
-        if request.is_json:
-            args = request.get_json(force=True)
-        # get param from args here
-        return jsonify({"status": args})
+    # def get(self):
+    #     # Processing GET request
+    #     args = request.query_string.decode("utf-8").split("&")
+    #     # get param from args here
+    #     return jsonify({"status": args})
+    #
+    # def post(self):
+    #     # Processing GET request
+    #     args = request.query_string.decode("utf-8").split("&")
+    #     # get param from args here
+    #     return jsonify({"status": args})
+    #
+    # def put(self):
+    #     # if request.is_json:
+    #     #     args = request.get_json(force=True)
+    #     # get param from args here
+    #     return jsonify({"status": True})
+    #
+    # def delete(self):
+    #     if request.is_json:
+    #         args = request.get_json(force=True)
+    #     # get param from args here
+    #     return jsonify({"status": args})
 
 
 class ImageInferenceObject(RoheRestObject):

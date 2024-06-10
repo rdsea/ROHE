@@ -66,3 +66,9 @@ ignore = [
   "RET505", # Unnecessary else after return
   "C901" # Too complex function
 ]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+
