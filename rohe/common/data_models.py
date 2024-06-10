@@ -74,5 +74,27 @@ class AddNodeRequest(BaseModel):
     data: Dict[str, NodeData]
 
 
+class NodeAddress(BaseModel):
+    mac_address: str
+
+
+class RemoveNodeRequest(BaseModel):
+    data: Dict[str, NodeAddress]
+
+
 class AddServiceRequest(BaseModel):
     data: Dict[str, Dict[str, ServiceData]]
+
+
+class RegistrationRequest(BaseModel):
+    application_name: str
+    run_id: str
+    user_id: str
+    stage_id: Optional[str] = None
+    instance_id: Optional[str] = None
+
+
+class AgentMangerRequest(BaseModel):
+    application_name: str
+    agent_image: Optional[str] = None
+    stream_config: Optional[Dict] = None

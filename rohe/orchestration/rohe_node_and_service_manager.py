@@ -9,11 +9,13 @@ from flask_restful import Resource
 from ..common.data_models import (
     AddNodeRequest,
     AddServiceRequest,
+    NodeAddress,
     NodeData,
+    RemoveNodeRequest,
     ServiceData,
 )
 from ..storage.abstract import MDBClient
-from .resource_management.resource import Node, Service
+from .resource_management.resource import Service
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -124,22 +126,21 @@ class RoheNodeAndServiceManager(Resource):
             )
             return {"result": "fail"}
 
-    def remove_node_db(self, node: Node):
+    def remove_node_db(self, node_address: NodeAddress):
         try:
             self.db_client.delete_many(
-                self.node_collection, {"mac_address": node.mac_address}
+                self.node_collection, {"mac_address": node_address.mac_address}
             )
         except Exception as e:
             logging.error(
                 "Error in `remove_node_db` RoheNodeAndServiceManager: {}".format(e)
             )
 
-    def remove_nodes(self, node_data) -> dict:
+    def remove_nodes(self, node_data: Dict[str, NodeAddress]) -> dict:
         try:
             results = {}
-            for node_key in node_data:
-                node = node_data[node_key]
-                self.remove_node_db(node)
+            for node_key, node_address in node_data.items():
+                self.remove_node_db(node_address)
                 results[node_key] = "Removed"
             return {"result": results}
         except Exception as e:
@@ -327,51 +328,50 @@ class RoheNodeAndServiceManager(Resource):
 
     def post(self, command: str):
         try:
-            if request.is_json:
-                args = request.get_json(force=True)
-                response = {}
-                if command == "add-node":
-                    node_data = AddNodeRequest.model_validate_json(request.data)
-                    response = self.add_nodes(node_data.data)
-
-                elif command == "remove-all-nodes":
-                    self.db_client.drop(self.node_collection)
-                    response = {"result": "All nodes removed"}
-
-                elif command == "remove-node":
-                    # TODO: improve this, the body is too big now
-                    response = self.remove_nodes(args["data"])
-
-                elif command == "add-service":
-                    service_data = AddServiceRequest.model_validate_json(request.data)
-                    response = self.add_services(service_data.data)
-
-                elif command == "remove-all-services":
-                    self.db_client.drop(self.service_collection)
-                    response = {"result": "All services removed"}
-
-                # TODO: improve this, the body is too big now
-                elif command == "remove-service":
-                    response = self.remove_services(args["data"])
-
-                elif command == "get-all-services":
-                    response = {"result": self.get_services()}
-
-                elif command == "get-all-nodes":
-                    response = {"result": self.get_nodes()}
-
-                elif command == "start-agent":
-                    self.agent.start()
-                    response = {"result": "Agent started"}
-
-                elif command == "stop-agent":
-                    self.agent.stop()
-                    response = {"result": "Agent Stop"}
-
-                else:
-                    response = {"result": "Unknow command"}
-            else:
+            if not request.is_json:
                 response = {"result": "only support json type"}
+            args = request.get_json(force=True)
+            response = {}
+            if command == "add-node":
+                node_data = AddNodeRequest.model_validate_json(request.data)
+                response = self.add_nodes(node_data.data)
+
+            elif command == "remove-all-nodes":
+                self.db_client.drop(self.node_collection)
+                response = {"result": "All nodes removed"}
+
+            elif command == "remove-node":
+                node_data = RemoveNodeRequest.model_validate_json(request.data)
+                response = self.remove_nodes(node_data.data)
+
+            elif command == "add-service":
+                service_data = AddServiceRequest.model_validate_json(request.data)
+                response = self.add_services(service_data.data)
+
+            elif command == "remove-all-services":
+                self.db_client.drop(self.service_collection)
+                response = {"result": "All services removed"}
+
+            # TODO: improve this, the body is too big now
+            elif command == "remove-service":
+                response = self.remove_services(args["data"])
+
+            elif command == "get-all-services":
+                response = {"result": self.get_services()}
+
+            elif command == "get-all-nodes":
+                response = {"result": self.get_nodes()}
+
+            elif command == "start-agent":
+                self.agent.start()
+                response = {"result": "Agent started"}
+
+            elif command == "stop-agent":
+                self.agent.stop()
+                response = {"result": "Agent Stop"}
+
+            else:
+                response = {"result": "Unknow command"}
             return jsonify({"status": "success", "response": response})
         except Exception as e:
             logging.error(

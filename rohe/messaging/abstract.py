@@ -28,7 +28,7 @@ class MessagingConnectionConfig(BaseModel):
         try:
             self_dict = {
                 "name": self.name,
-                "connectorType": self.connector_type,
+                "connector_type": self.connector_type,
                 "config": self.config,
             }
             return self_dict

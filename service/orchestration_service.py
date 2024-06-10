@@ -18,6 +18,7 @@ logging.basicConfig(
 )
 
 DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
+DEFAULT_PORT = 5002
 
 app = Flask(__name__)
 api = Api(app)
@@ -28,7 +29,7 @@ rohe_agent = None
 # parser.add_argument("--conf", help="configuration file", default=None)
 # args = parser.parse_args()
 config_file = None
-port = 5002
+port = DEFAULT_PORT
 if not config_file:
     config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
     logging.info(config_file)

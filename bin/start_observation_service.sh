@@ -1,5 +1,5 @@
 #!/bin/bash
 
 obser_service="$(dirname $(pwd))/service/observation_service.py"
-echo $obser_service
-python $obser_service
+echo $orches_service
+flask --app $orches_service run --port 5010 --debug
