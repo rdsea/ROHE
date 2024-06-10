@@ -82,7 +82,7 @@ class MDBClient(DBClient):
             logging.error("Error in `insert_many` MDBClient: {}".format(e))
             return {}
 
-    def delete_many(self, db_collection: DBCollection, data: list):
+    def delete_many(self, db_collection: DBCollection, data: dict):
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]

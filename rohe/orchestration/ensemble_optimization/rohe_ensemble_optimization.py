@@ -35,7 +35,7 @@ class RoheEnsembleOptimization(EnsembleOptimization):
         metric_config: dict,
         timestamp=None,
         limit=10000,
-    ) -> dict:
+    ) -> list:
         # from config, query and calculate runtime metrics based on user description
         # specify database name
         self.db = self.mongo_client[database]

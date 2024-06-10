@@ -4,7 +4,7 @@ from ...lib import rohe_utils
 from . import algorithm
 
 
-class EnsembleOptimization(ABC, object):
+class EnsembleOptimization(ABC):
     """
     Abstract class for ensemble optimiztion of services in EEMLS
     Init the class using ofConfig: configuration include name and module to load the objective funtion
@@ -31,11 +31,21 @@ class EnsembleOptimization(ABC, object):
         )
 
     @abstractmethod
-    def get_ml_service_performance(self) -> dict:
+    def get_ml_service_performance(
+        self,
+        database,
+        model_collection: str,
+        infrastructure_collection: str,
+        model_cost_collection: str,
+        infrastructure_cost_collection: str,
+        metric_config: dict,
+        timestamp=None,
+        limit=10000,
+    ) -> list:
         """Return list of ML services (deployments of specific ML models on specific infrastructures) with their performance"""
-        return {}
+        return []
 
     @abstractmethod
-    def select(self, ml_service_list: list, contract: dict) -> dict:
+    def select(self, ml_service_list: list, contract: dict) -> list:
         "From list of ML services return optimal ensemble of ML services using the objective function (self.objective_function)"
         return []

@@ -2,7 +2,7 @@ import copy
 import logging
 import time
 import uuid
-from typing import Dict
+from typing import Any, Dict
 
 from flask import jsonify, request
 from qoa4ml.config.configs import (
@@ -113,7 +113,7 @@ class RoheRegistration(RoheRestObject):
     def register_app(self, application_name: str, run_id: str, user_id: str) -> dict:
         try:
             # Create new application configuration and push to database
-            metadata = {}
+            metadata: Dict[str, Any] = {}
             metadata["application_name"] = application_name
             metadata["run_id"] = run_id
             metadata["user_id"] = user_id

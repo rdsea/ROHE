@@ -13,7 +13,7 @@ def get_mdb_client(mdb_conf):
         m_uri = (
             mdb_conf.prefix + mdb_conf.username + ":" + mdb_conf.password + mdb_conf.url
         )
-        client = MongoClient(m_uri, server_api=ServerApi("1"))
+        client: MongoClient = MongoClient(m_uri, server_api=ServerApi("1"))
         client.admin.command("ping")
         logging.info("Pinged your deployment. You successfully connected to MongoDB!")
         return client

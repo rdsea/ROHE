@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import uuid
 from queue import PriorityQueue
-from typing import Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -93,7 +93,7 @@ class Service(object):
     def __init__(self, config: ServiceData):
         self.q_time = time.time()
         self.update(config)
-        self.instances = {}
+        self.instances: Dict[str, ServiceInstance] = {}
         self.queueing = self.replicas
 
     def update(self, config: ServiceData):

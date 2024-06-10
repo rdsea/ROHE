@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Dict
+from typing import Any, Dict
 
 import pymongo
 from flask import jsonify, request
@@ -97,7 +97,7 @@ class RoheNodeAndServiceManager(Resource):
 
     def add_node_to_db(self, node: NodeData):
         try:
-            metadata = {}
+            metadata: Dict[str, Any] = {}
             metadata["status"] = node.status
             metadata["timestamp"] = time.time()
             metadata["data"] = node.model_dump()
@@ -233,7 +233,7 @@ class RoheNodeAndServiceManager(Resource):
 
     def add_service_to_db(self, service_data: ServiceData, application_name: str):
         try:
-            metadata = {}
+            metadata: Dict[str, Any] = {}
             metadata["status"] = service_data.status
             metadata["replicas"] = service_data.replicas
             metadata["running"] = service_data.running
@@ -330,7 +330,6 @@ class RoheNodeAndServiceManager(Resource):
         try:
             if not request.is_json:
                 response = {"result": "only support json type"}
-            args = request.get_json(force=True)
             response = {}
             if command == "add-node":
                 node_data = AddNodeRequest.model_validate_json(request.data)
@@ -341,8 +340,8 @@ class RoheNodeAndServiceManager(Resource):
                 response = {"result": "All nodes removed"}
 
             elif command == "remove-node":
-                node_data = RemoveNodeRequest.model_validate_json(request.data)
-                response = self.remove_nodes(node_data.data)
+                remove_node_data = RemoveNodeRequest.model_validate_json(request.data)
+                response = self.remove_nodes(remove_node_data.data)
 
             elif command == "add-service":
                 service_data = AddServiceRequest.model_validate_json(request.data)
@@ -354,7 +353,8 @@ class RoheNodeAndServiceManager(Resource):
 
             # TODO: improve this, the body is too big now
             elif command == "remove-service":
-                response = self.remove_services(args["data"])
+                pass
+                # response = self.remove_services(args["data"])
 
             elif command == "get-all-services":
                 response = {"result": self.get_services()}

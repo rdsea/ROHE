@@ -1,5 +1,6 @@
 import copy
 import logging
+from typing import Any, Dict
 
 import docker
 from flask import jsonify, request
@@ -40,7 +41,7 @@ class RoheAgentManager(RoheRestObject):
             # if "agent_dict" not in globals():
             #     global agent_dict
             #     agent_dict = {}
-            self.agent_dict = {}
+            self.agent_dict: Dict[str, Any] = {}
         except Exception as e:
             logging.error("Error in `__init__` RoheAgentManager: {}".format(e))
 
@@ -205,7 +206,7 @@ class RoheAgentManager(RoheRestObject):
                         self.agent_dict[agent]["status"] = 0
                         self.agent_dict[agent]["docker"].stop()
                 else:
-                    response = "Command not found"
+                    response = {"status": "failed", "response": "Command not found"}
             # Return the response
             return jsonify({"status": "success", "response": response})
         except Exception as e:

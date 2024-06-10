@@ -18,7 +18,9 @@ logging.basicConfig(
 )
 
 
-def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
+def get_function_from_module(
+    module: types.ModuleType, func_name: str
+) -> Callable | None:
     """Retrieves a function by name from a given module"""
     try:
         func: Callable = getattr(module, func_name)
@@ -64,7 +66,7 @@ def get_parent_dir(file, parent_level=1, to_string=True):
         return current_dir
 
 
-def load_config(file_path: str) -> dict:
+def load_config(file_path: str) -> dict | None:
     """
     file_path: file path to load config
     """
