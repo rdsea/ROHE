@@ -21,8 +21,8 @@ spec:
         - name: object_detection_web_service
           image: rdsea/od_web:2.0
           imagePullPolicy: "Always"
-          ports: 
-            - containerPort: 4002 
+          ports:
+            - containerPort: 4002
           env:
             - name: NODE_NAME
               valueFrom:
@@ -39,10 +39,10 @@ kind: Service
 metadata:
   name: object_detection_web_service-service
 spec:
-  ports: 
-  - port: 4002 
-    targetPort: 4002  
-  - port: 4003 
-    targetPort: 4003  
+  ports:
+  - port: 4002
+    targetPort: 4002
+  - port: 4003
+    targetPort: 4003
   selector:
     app: object_detection_web_service

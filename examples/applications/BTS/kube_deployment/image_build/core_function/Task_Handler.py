@@ -1,8 +1,12 @@
-from utilities.transceiver import Amqp_Transceiver, Zmq_Transceiver, Rest_Transceiver
-import threading, json, queue
 # import string, random
 import importlib.machinery
 import importlib.util
+import json
+import queue
+import threading
+
+from utilities.transceiver import Amqp_Transceiver, Rest_Transceiver, Zmq_Transceiver
+
 
 class Task_Handler(object):
     def __init__(self, configuration):
@@ -15,60 +19,75 @@ class Task_Handler(object):
         # self.processing_task = importlib.util.module_from_spec(spec)
         # loader.exec_module(self.processing_task)
         # self.method_to_call = getattr(self.processing_task, self.task_conf['function']['main_function'])
-        
-        user_module =  __import__('userapp.'+self.task_conf['function']['package'], fromlist=[self.task_conf['function']['module_name']])
-        self.user_class = getattr(user_module, self.task_conf['function']['module_name'])
+
+        user_module = __import__(
+            "userapp." + self.task_conf["function"]["package"],
+            fromlist=[self.task_conf["function"]["module_name"]],
+        )
+        self.user_class = getattr(
+            user_module, self.task_conf["function"]["module_name"]
+        )
         self.user_object = self.user_class(self.task_conf)
-        self.user_function = getattr(self.user_object, self.task_conf['function']['function_name'])
-        
+        self.user_function = getattr(
+            self.user_object, self.task_conf["function"]["function_name"]
+        )
 
         # Init Task Queue
         self.task_queue = queue.Queue(configuration["queue_size"])
 
         # Init data downstream
         self.downstream_conf = configuration["downstream"][0]
-        if (self.downstream_conf["protocol"] == "AMQP"):
+        if self.downstream_conf["protocol"] == "AMQP":
             # self.downstream_conf["configuration"]["in_queue"] =  self.downstream_conf["configuration"]["in_queue"] + self.get_random_string(5)
-            self.downstream = Amqp_Transceiver(self, self.downstream_conf["configuration"])
-        elif (self.downstream_conf["protocol"] == "REST"):
-            self.downstream = Rest_Transceiver(self, self.downstream_conf["configuration"])
-        elif (self.downstream_conf["protocol"] == "ZMQ"):
-            self.downstream = Zmq_Transceiver(self, self.downstream_conf["configuration"])
-        
+            self.downstream = Amqp_Transceiver(
+                self, self.downstream_conf["configuration"]
+            )
+        elif self.downstream_conf["protocol"] == "REST":
+            self.downstream = Rest_Transceiver(
+                self, self.downstream_conf["configuration"]
+            )
+        elif self.downstream_conf["protocol"] == "ZMQ":
+            self.downstream = Zmq_Transceiver(
+                self, self.downstream_conf["configuration"]
+            )
 
         # Init data upstream (to next task)
         self.upstream_conf = configuration["upstream"][0]
-        if (self.upstream_conf["protocol"] == "AMQP"):
+        if self.upstream_conf["protocol"] == "AMQP":
             self.upstream = Amqp_Transceiver(self, self.upstream_conf["configuration"])
-        elif (self.upstream_conf["protocol"] == "REST"):
+        elif self.upstream_conf["protocol"] == "REST":
             self.upstream = Rest_Transceiver(self, self.upstream_conf["configuration"])
-        elif (self.upstream_conf["protocol"] == "ZMQ"):
+        elif self.upstream_conf["protocol"] == "ZMQ":
             self.upstream = Zmq_Transceiver(self, self.upstream_conf["configuration"])
 
         # Create a thread for receiving data
         self.mess_sub_thread = threading.Thread(target=self.upstream.run)
-        
+
         # Init task monitor
         self.monitor_conf = configuration["monitor"]
         self.heartbeat_time = self.monitor_conf["heartbeat"]
         self.report_metadata = {}
-        self.report_metadata["routing_key"] = self.monitor_conf["configuration"]["routing_key"]
-        self.report_metadata["exchange_name"] = self.monitor_conf["configuration"]["exchange_name"]
+        self.report_metadata["routing_key"] = self.monitor_conf["configuration"][
+            "routing_key"
+        ]
+        self.report_metadata["exchange_name"] = self.monitor_conf["configuration"][
+            "exchange_name"
+        ]
         self.report_metadata["corr_id"] = "0"
         self.report = {}
         self.report["task_id"] = self.monitor_conf["task_id"]
         self.count_request = 0
         self.last_count = 0
         self.report["waiting_request"] = self.task_queue.qsize()
-        self.monitor = Amqp_Transceiver(self,self.monitor_conf["configuration"])
+        self.monitor = Amqp_Transceiver(self, self.monitor_conf["configuration"])
         self.mess_received = 0
 
-
         # Init heartbeat to update task status
-        self.heartbeat = threading.Timer(self.heartbeat_time,self.send_task_report)
+        self.heartbeat = threading.Timer(self.heartbeat_time, self.send_task_report)
 
         # Start - Stop Flag
         self.run_flag = True
+
     def attache_header(self, mess, metadata):
         try:
             data = {}
@@ -99,52 +118,49 @@ class Task_Handler(object):
         self.task_queue.put_nowait(obj_mess)
         print("Current waiting queue: ", self.task_queue.qsize())
 
-
     def send(self, data):
         # Return result to client
-        if (self.downstream_conf["protocol"] == "AMQP"): 
+        if self.downstream_conf["protocol"] == "AMQP":
             metadata = {}
             metadata["routing_key"] = data["header"]["routing_key"]
             metadata["corr_id"] = data["header"]["corr_id"]
-            metadata["exchange_name"] = ''
+            metadata["exchange_name"] = ""
             mess = data["content"]
             mess["request"] = data["raw"]
-            self.downstream.send(str(json.dumps(mess)),metadata)
+            self.downstream.send(str(json.dumps(mess)), metadata)
         # Send data to the next task
         else:
             self.downstream.send(str(json.dumps(data)))
-    
+
     def send_task_report(self):
         n_request = self.count_request - self.last_count
         self.last_count = self.count_request
         self.report["waiting_request"] = self.task_queue.qsize()
-        self.report["request_proc"] = n_request/self.heartbeat_time
+        self.report["request_proc"] = n_request / self.heartbeat_time
         self.report["count_request"] = self.count_request
         self.report["mess_received"] = self.mess_received
-        self.monitor.send(str(json.dumps(self.report)),self.report_metadata)
+        self.monitor.send(str(json.dumps(self.report)), self.report_metadata)
         print("send report: ", self.report)
-        self.heartbeat = threading.Timer(self.heartbeat_time,self.send_task_report)
+        self.heartbeat = threading.Timer(self.heartbeat_time, self.send_task_report)
         self.heartbeat.start()
 
-        
     def run(self):
         # Start a thread for receiving data
         self.mess_sub_thread.start()
         self.heartbeat.start()
         # Take the request from task Queue to process
         while self.run_flag:
-            if (self.task_queue.empty() == False):
+            if self.task_queue.empty() == False:
                 data = self.task_queue.get_nowait()
                 self.count_request += 1
                 data["content"] = self.processing(data["content"])
                 if data != None:
                     self.send(data)
-        
 
     def stop(self):
         self.run_flag = False
         self.heartbeat.cancel()
-    
+
     def processing(self, data):
         # Invoke user processing application
         return self.user_function(data)
@@ -156,6 +172,7 @@ class Task_Handler(object):
             return mess
         else:
             return str(mess.decode("utf-8"))
+
     # def get_random_string(self, length):
     #     # choose from all lowercase letter
     #     letters = string.ascii_lowercase

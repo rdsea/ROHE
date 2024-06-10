@@ -3,7 +3,7 @@ processing_config:
   min_request_period: 1
   max_request_period: 30
   image_dim: "32,32,3"
-  
+
 redis_server:
   url: "http://localhost:5000/image_info_server"
 

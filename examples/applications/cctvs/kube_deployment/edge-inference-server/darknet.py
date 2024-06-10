@@ -1,55 +1,54 @@
-# Customized library loader from the official git repo 
+# Customized library loader from the official git repo
 # for pre-built object detection through tiny-yolov3
 # Warning: Will work only for the edge-inference-server containers
 # - Rohit
 # Original source code at: https://github.com/pjreddie/darknet/blob/master/python/darknet.py
-from ctypes import *
 import math
 import random
+from ctypes import *
+
 
 def sample(probs):
     s = sum(probs)
-    probs = [a/s for a in probs]
+    probs = [a / s for a in probs]
     r = random.uniform(0, 1)
     for i in range(len(probs)):
         r = r - probs[i]
         if r <= 0:
             return i
-    return len(probs)-1
+    return len(probs) - 1
+
 
 def c_array(ctype, values):
-    arr = (ctype*len(values))()
+    arr = (ctype * len(values))()
     arr[:] = values
     return arr
 
+
 class BOX(Structure):
-    _fields_ = [("x", c_float),
-                ("y", c_float),
-                ("w", c_float),
-                ("h", c_float)]
+    _fields_ = [("x", c_float), ("y", c_float), ("w", c_float), ("h", c_float)]
+
 
 class DETECTION(Structure):
-    _fields_ = [("bbox", BOX),
-                ("classes", c_int),
-                ("prob", POINTER(c_float)),
-                ("mask", POINTER(c_float)),
-                ("objectness", c_float),
-                ("sort_class", c_int)]
+    _fields_ = [
+        ("bbox", BOX),
+        ("classes", c_int),
+        ("prob", POINTER(c_float)),
+        ("mask", POINTER(c_float)),
+        ("objectness", c_float),
+        ("sort_class", c_int),
+    ]
 
 
 class IMAGE(Structure):
-    _fields_ = [("w", c_int),
-                ("h", c_int),
-                ("c", c_int),
-                ("data", POINTER(c_float))]
+    _fields_ = [("w", c_int), ("h", c_int), ("c", c_int), ("data", POINTER(c_float))]
+
 
 class METADATA(Structure):
-    _fields_ = [("classes", c_int),
-                ("names", POINTER(c_char_p))]
+    _fields_ = [("classes", c_int), ("names", POINTER(c_char_p))]
 
-    
 
-#lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
+# lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
 lib = CDLL("/inference/darknet/libdarknet.so", RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
@@ -68,7 +67,16 @@ make_image.argtypes = [c_int, c_int, c_int]
 make_image.restype = IMAGE
 
 get_network_boxes = lib.get_network_boxes
-get_network_boxes.argtypes = [c_void_p, c_int, c_int, c_float, c_float, POINTER(c_int), c_int, POINTER(c_int)]
+get_network_boxes.argtypes = [
+    c_void_p,
+    c_int,
+    c_int,
+    c_float,
+    c_float,
+    POINTER(c_int),
+    c_int,
+    POINTER(c_int),
+]
 get_network_boxes.restype = POINTER(DETECTION)
 
 make_network_boxes = lib.make_network_boxes
@@ -119,8 +127,13 @@ predict_image = lib.network_predict_image
 predict_image.argtypes = [c_void_p, IMAGE]
 predict_image.restype = POINTER(c_float)
 
-net = load_net(b"/inference/darknet/cfg/yolov3-tiny.cfg", b"/inference/darknet/yolov3-tiny.weights", 0)
+net = load_net(
+    b"/inference/darknet/cfg/yolov3-tiny.cfg",
+    b"/inference/darknet/yolov3-tiny.weights",
+    0,
+)
 meta = load_meta(b"/inference/darknet/cfg/coco.data")
+
 
 def classify(net, meta, im):
     out = predict_image(net, im)
@@ -130,35 +143,45 @@ def classify(net, meta, im):
     res = sorted(res, key=lambda x: -x[1])
     return res
 
-def detect(net, meta, image, thresh=.5, hier_thresh=.5, nms=.45):
+
+def detect(net, meta, image, thresh=0.5, hier_thresh=0.5, nms=0.45):
     im = load_image_from_path(image)
     num = c_int(0)
     pnum = pointer(num)
     predict_image(net, im)
     dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, None, 0, pnum)
     num = pnum[0]
-    if (nms): do_nms_obj(dets, num, meta.classes, nms);
+    if nms:
+        do_nms_obj(dets, num, meta.classes, nms)
 
     res = []
     for j in range(num):
         for i in range(meta.classes):
             if dets[j].prob[i] > 0:
                 b = dets[j].bbox
-                res.append((meta.names[i].decode("utf-8"), dets[j].prob[i], (b.x, b.y, b.w, b.h)))
+                res.append(
+                    (
+                        meta.names[i].decode("utf-8"),
+                        dets[j].prob[i],
+                        (b.x, b.y, b.w, b.h),
+                    )
+                )
     res = sorted(res, key=lambda x: -x[1])
     free_image(im)
     free_detections(dets, num)
     return res
 
+
 def load_image_from_path(path):
-    return load_image(bytes(path,encoding='utf-8'), 0, 0)
+    return load_image(bytes(path, encoding="utf-8"), 0, 0)
+
 
 def get_tiny_yolo_detection(image_path):
     set_gpu(0)
     return detect(net, meta, image_path)
 
-    #net = load_net("cfg/densenet201.cfg", "/home/pjreddie/trained/densenet201.weights", 0)
-    #im = load_image("data/wolf.jpg", 0, 0)
-    #meta = load_meta("cfg/imagenet1k.data")
-    #r = classify(net, meta, im)
-    #print r[:10]
+    # net = load_net("cfg/densenet201.cfg", "/home/pjreddie/trained/densenet201.weights", 0)
+    # im = load_image("data/wolf.jpg", 0, 0)
+    # meta = load_meta("cfg/imagenet1k.data")
+    # r = classify(net, meta, im)
+    # print r[:10]

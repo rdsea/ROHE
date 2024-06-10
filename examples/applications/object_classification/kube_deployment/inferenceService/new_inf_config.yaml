@@ -43,14 +43,14 @@ model_config:
   # shared parameters (common for all ML models)
   inference_timeout: 5000   # Time in milliseconds before inference times out
   inference_backend: "tensorflow"  # Backend used for inference, e.g: tensorflow, pyTorch, etc.
-  default_threshold: null   
+  default_threshold: null
     # option:
     # - null: make decision with whatever the largest probability
-    # - specify the threshold to make decision (e.g: 0.5) 
+    # - specify the threshold to make decision (e.g: 0.5)
   preferred_device: null    # gpu, 'cpu', or null
   # other params
 
-  
+
   # model type with their details
   model_type:
     # every model must have
@@ -102,7 +102,7 @@ model_config:
   object_classification:
 
   # unique features
-  - data_set: 
+  - data_set:
     # - abc_1
     description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
     input_shape: "32,32,3"
@@ -123,7 +123,7 @@ model_config:
       - train
       - truck
 
-  - data_set: 
+  - data_set:
     name: abc_2
     description: "Object classification model trained on the BDD100k dataset to recognize and classify 13 distinct objects commonly found in urban and driving scenarios."
     input_shape: "64,64,3"

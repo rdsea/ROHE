@@ -1,18 +1,19 @@
-from flask import request
-import requests
 import json
-import uuid
 import random
 import string
+import uuid
 
+import requests
 
 # from app.object_classification.lib.roheService import RoheRestObject
 from core.common.restService import RoheRestObject
-
-from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
-import app.object_classification.modules.utils as pipeline_utils
-
+from flask import request
 from qoa4ml.QoaClient import QoaClient
+
+import app.object_classification.modules.utils as pipeline_utils
+from app.object_classification.lib.connectors.storage.minioStorageConnector import (
+    MinioConnector,
+)
 
 
 class IngestionService(RoheRestObject):
@@ -21,16 +22,16 @@ class IngestionService(RoheRestObject):
         # to get configuration for resource
         configuration = kwargs
         self.conf = configuration
-        log_lev = self.conf.get('log_lev', 2)
-        self.set_logger_level(logging_level= log_lev)
+        log_lev = self.conf.get("log_lev", 2)
+        self.set_logger_level(logging_level=log_lev)
 
-        self.minio_connector: MinioConnector = self.conf['minio_connector']
-        self.image_info_service_url: str = self.conf['image_info_service']['url']
+        self.minio_connector: MinioConnector = self.conf["minio_connector"]
+        self.image_info_service_url: str = self.conf["image_info_service"]["url"]
 
         print(f"\n\n\n this is configuration file: {self.conf}")
-        if 'qoaClient' in self.conf:
+        if "qoaClient" in self.conf:
             print(f"\n\nThere is qoa service enable in the server")
-            self.qoaClient: QoaClient = self.conf['qoaClient']
+            self.qoaClient: QoaClient = self.conf["qoaClient"]
             print(f"This is qoa client: {self.qoaClient}")
 
         else:
@@ -41,8 +42,11 @@ class IngestionService(RoheRestObject):
         return message to client to notify them that they are accessing the correct ingestion server
         """
         response = "Welcome to Ingestion Server of Object Classification pipeline. You can send either numpy array or imag. Accepted format are [npy, jpg, jpeg, png, webp]"
-        return json.dumps({"response": response}), 200, {'Content-Type': 'application/json'}
-
+        return (
+            json.dumps({"response": response}),
+            200,
+            {"Content-Type": "application/json"},
+        )
 
     def post(self):
         """
@@ -69,22 +73,27 @@ class IngestionService(RoheRestObject):
         :return: JSON response indicating the status of the command or an error message.
         """
         if self.qoaClient:
-            self.qoaClient.timer() 
+            self.qoaClient.timer()
 
         # Retrieve the metadata from the form-data
-        timestamp = request.form.get('timestamp')
-        device_id = request.form.get('device_id')
-        image_extension = request.form.get('image_extension')
+        timestamp = request.form.get("timestamp")
+        device_id = request.form.get("device_id")
+        image_extension = request.form.get("image_extension")
 
         if not image_extension:
-            return json.dumps({"message": "No image type provided. cannot further process"}), 400
+            return (
+                json.dumps(
+                    {"message": "No image type provided. cannot further process"}
+                ),
+                400,
+            )
 
-        # check whether the file format is supported 
+        # check whether the file format is supported
         # if ingestion_func.validate_image_extension(image_extension):
         if self._validate_image_extension(image_extension):
-            binary_file = request.files.get('image')
+            binary_file = request.files.get("image")
             if binary_file is None:
-                return json.dumps({'message': 'No image provided'}), 400
+                return json.dumps({"message": "No image provided"}), 400
 
             # upload image to minio storage
             # generate request id
@@ -94,14 +103,20 @@ class IngestionService(RoheRestObject):
             try:
                 # use the datetime the request provided
                 # if any problem, use the current datetime
-                date_str = pipeline_utils.convert_str_to_datetime(str_time=timestamp, option= 'date_only')
+                date_str = pipeline_utils.convert_str_to_datetime(
+                    str_time=timestamp, option="date_only"
+                )
             except:
-                date_str = pipeline_utils.get_current_utc_timestamp(option='date_only')
+                date_str = pipeline_utils.get_current_utc_timestamp(option="date_only")
 
-            remote_filename = f"{device_id}/{str(date_str)}/{request_id}.{image_extension}"
+            remote_filename = (
+                f"{device_id}/{str(date_str)}/{request_id}.{image_extension}"
+            )
 
             ### DATA #### binary_file
-            upload_success = self.minio_connector.upload_binary_data(binary_data= binary_file, remote_file_path= remote_filename)
+            upload_success = self.minio_connector.upload_binary_data(
+                binary_data=binary_file, remote_file_path=remote_filename
+            )
 
             # send request info to image info service
             if not upload_success:
@@ -109,18 +124,18 @@ class IngestionService(RoheRestObject):
                 return json.dumps({"response": response}), 400
 
             else:
-                # if the image is an array, 
+                # if the image is an array,
                 # # need to have info about dtype and shape to retrieve the image
                 if image_extension == "npy":
-                    dtype = request.form.get('dtype')
-                    shape = request.form.get('shape')
+                    dtype = request.form.get("dtype")
+                    shape = request.form.get("shape")
                 else:
                     dtype = None
                     shape = None
 
                 if self.qoaClient:
                     self.qoaClient.timer()
-                    
+
                     report = self.qoaClient.report(submit=False)
 
                 # Prepare the payload for Image Info service
@@ -129,10 +144,10 @@ class IngestionService(RoheRestObject):
                     "request_id": request_id,
                     "timestamp": pipeline_utils.get_current_utc_timestamp(),
                     "device_id": device_id,
-                    'image_url': remote_filename,
-                    'dtype': dtype,
-                    'shape': shape,
-                    'report': report,
+                    "image_url": remote_filename,
+                    "dtype": dtype,
+                    "shape": shape,
+                    "report": report,
                 }
 
                 print(f"This is the payload: {payload}")
@@ -140,26 +155,34 @@ class IngestionService(RoheRestObject):
                 # upload request info to Image Info Service
                 response = requests.post(self.image_info_service_url, data=payload)
                 if response.status_code == 200:
-                    print(f"\nSuccessfully upload request {request_id} to Image Info Service")
+                    print(
+                        f"\nSuccessfully upload request {request_id} to Image Info Service"
+                    )
                     # return True
                     response = f"Successfully forward the request to the next step. Request id: {request_id}"
 
-
-                    
-                    return json.dumps({"response": response}), 200, {'Content-Type': 'application/json'}
+                    return (
+                        json.dumps({"response": response}),
+                        200,
+                        {"Content-Type": "application/json"},
+                    )
 
                 else:
-                    print(f"\n\nThis is the response from image info server: {response.json()}")
-                    message = f"Failed to upload request {request_id} to Image Info Service"
+                    print(
+                        f"\n\nThis is the response from image info server: {response.json()}"
+                    )
+                    message = (
+                        f"Failed to upload request {request_id} to Image Info Service"
+                    )
                     print(message)
                     # return False
                     return json.dumps({"response": message}), 400
 
-
-
-    def _validate_image_extension(self, file_extension, supported_extensions: list = None):
+    def _validate_image_extension(
+        self, file_extension, supported_extensions: list = None
+    ):
         if not supported_extensions:
-            supported_extensions = ['npy', 'jpg', 'jpeg', 'png', 'webp']
+            supported_extensions = ["npy", "jpg", "jpeg", "png", "webp"]
         # print("This is supported extension: ")
         return file_extension.lower() in supported_extensions
 
@@ -169,9 +192,9 @@ class IngestionService(RoheRestObject):
         # Generate a random UUID4
         uuid_str = str(uuid.uuid4())
         # Generate additional random string of 16 characters
-        additional_str = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+        additional_str = "".join(
+            random.choices(string.ascii_letters + string.digits, k=16)
+        )
         # Combine them to create the request_id
         request_id = f"{date_str}-{uuid_str}-{additional_str}"
         return request_id
-
-

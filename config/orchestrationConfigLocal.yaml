@@ -16,7 +16,7 @@ false_rate: 3
 service_queue:
   priority: 0
   queue_balance: 3
-orchestrateConfig:
+orchestrate_config:
   name: Priority Orchestration
   weights:
     cpu: 1

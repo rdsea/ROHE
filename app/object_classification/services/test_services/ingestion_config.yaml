@@ -31,4 +31,3 @@ external_services:
       image_info:   # dynamic endpoint
         type: one
         tags: ['nii_case']
-    

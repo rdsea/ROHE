@@ -1,23 +1,24 @@
-import quixstreams as qx
-import pandas as pd
 import datetime
-
 from abc import ABC, abstractmethod
+
+import pandas as pd
+import quixstreams as qx
 
 
 class QuixStreamListener(ABC):
-    '''
+    """
     abstract class with abstract method of handling dataframe message type
-    '''
+    """
+
     def __init__(self, kafka_address: str, topic_name: str):
         self.kafka_address = kafka_address
         self.topic_name = topic_name
         self.client = qx.KafkaStreamingClient(self.kafka_address)
         print("Establish connection")
         self.topic_consumer = self.client.get_topic_consumer(
-            self.topic_name, 
-            consumer_group=None, 
-            auto_offset_reset=qx.AutoOffsetReset.Latest
+            self.topic_name,
+            consumer_group=None,
+            auto_offset_reset=qx.AutoOffsetReset.Latest,
         )
         self.hook_events()
 
@@ -27,7 +28,7 @@ class QuixStreamListener(ABC):
     @abstractmethod
     def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
         pass
-    
+
     # def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
     #     stream_received.timeseries.on_dataframe_received = self.on_dataframe_received_handler
 
@@ -36,26 +37,33 @@ class QuixStreamListener(ABC):
     #     pass
 
     def run(self):
-        print(f"Listening to streams from topic '{self.topic_name}' at Kafka address '{self.kafka_address}'. Press CTRL-C to exit.")
+        print(
+            f"Listening to streams from topic '{self.topic_name}' at Kafka address '{self.kafka_address}'. Press CTRL-C to exit."
+        )
         qx.App.run()
 
 
 class QuixStreamDataframeHandler(QuixStreamListener):
-    def __init__(self, kafka_address: str, topic_name: str, 
-                host_object):
+    def __init__(self, kafka_address: str, topic_name: str, host_object):
         super().__init__(kafka_address, topic_name)
         self.host_object = host_object
 
     def on_stream_received_handler(self, stream_received: qx.StreamConsumer):
-        stream_received.timeseries.on_dataframe_received = self.host_object.on_receive_data_as_dataframe
-        
+        stream_received.timeseries.on_dataframe_received = (
+            self.host_object.on_receive_data_as_dataframe
+        )
+
 
 # class QuixStreamProducer(ABC):
-class QuixStreamProducer():
-    '''
+class QuixStreamProducer:
+    """ """
 
-    '''
-    def __init__(self, kafka_address: str, topic_name: str, stream_name: str = "inference_serivce"):
+    def __init__(
+        self,
+        kafka_address: str,
+        topic_name: str,
+        stream_name: str = "inference_serivce",
+    ):
         self.kafka_address = kafka_address
         self.topic_name = topic_name
         self.stream_name = stream_name
@@ -67,7 +75,9 @@ class QuixStreamProducer():
     def init_stream(self):
         self.stream.properties.name = self.stream_name
         self.stream.properties.metadata["my-metadata"] = "my-metadata-value"
-        self.stream.timeseries.buffer.time_span_in_milliseconds = 100  # Send data in 100 ms chunks
+        self.stream.timeseries.buffer.time_span_in_milliseconds = (
+            100  # Send data in 100 ms chunks
+        )
 
     def close_stream(self):
         print("Closing stream")
@@ -81,7 +91,7 @@ class QuixStreamProducer():
 
         # Loop over each key-value pair in the message and add them to the buffer
         for key, value in message.items():
-            print(f'about to add key {key} with value {value}')
+            print(f"about to add key {key} with value {value}")
             buffer.add_value(key, value)
 
         # Publish the buffer

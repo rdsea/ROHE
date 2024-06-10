@@ -1,35 +1,35 @@
-
-from datetime import datetime
-import numpy as np
 import json
 import os
 import re
-import types 
-from typing import Callable
 import socket
+import types
+from datetime import datetime
+from typing import Callable
 
-
+import numpy as np
 from core.serviceRegistry.consul import ConsulClient
 
+
 def get_function_from_module(module: types.ModuleType, func_name: str) -> Callable:
-    '''
+    """
     Retrieves a function by name from a given module
-    '''
-    try: 
+    """
+    try:
         func: Callable = getattr(module, func_name)
         return func
     except:
         return None
-        
+
+
 def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tuple):
-    '''
+    """
     this function decode an binary object into a numpy array
     input:
     - binary_encoded (bytes): binary file-like object
     - dtype (np.dtype): data type of original array
     - shape (tuple): shape of numpy array
     output: a numpy array
-    '''
+    """
     try:
         image = np.frombuffer(binary_encoded_object, dtype=dtype)
         image = image.reshape(shape)
@@ -37,15 +37,16 @@ def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tu
         image = None
     return image
 
+
 def save_numpy_array(self, arr, file_path):
-    '''
+    """
     Saves a numpy array to a file at the specified file path.
-    '''
+    """
     np.save(file_path, arr)
 
-    
+
 def convert_str_to_datetime(str_time: str, option: str = None):
-    time = datetime.strptime(str_time, '%Y-%m-%dT%H:%M:%SZ')
+    time = datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%SZ")
     if option == "date_only":
         # Extract day, month, and year
         day = time.day
@@ -57,36 +58,38 @@ def convert_str_to_datetime(str_time: str, option: str = None):
     else:
         return time
 
-                             
+
 def get_current_utc_timestamp(option: str = None):
-    '''
-    get current utc timestamp 
+    """
+    get current utc timestamp
     either date only (option='date_only')
     or both date and time (default)
-    '''
+    """
     if option == "date_only":
-        return datetime.utcnow().strftime('%d-%m-%y')
-    return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        return datetime.utcnow().strftime("%d-%m-%y")
+    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+
 
 def message_serialize(dictionary) -> str:
-    '''
+    """
     convert object (dict) into string
-    '''
+    """
     return json.dumps(dictionary)
 
+
 def message_deserialize(string_object) -> dict:
-    '''
+    """
     convert string to object (dict)
-    '''
+    """
     return json.loads(string_object.decode("utf-8"))
 
 
 def extract_file_extension(url):
-    '''
+    """
     Extracts the file extension from a URL or file path
-    '''
+    """
     # Regular expression to match the file extension
-    match = re.search(r'\.([^.\/]+)$', url)
+    match = re.search(r"\.([^.\/]+)$", url)
     if match:
         return match.group(1)
     else:
@@ -94,7 +97,7 @@ def extract_file_extension(url):
 
 
 def convert_str_to_tuple(str_obj) -> tuple:
-    return tuple(map(int, str_obj.split(',')))
+    return tuple(map(int, str_obj.split(",")))
 
 
 def get_local_ip():
@@ -121,14 +124,17 @@ def parse_time(time_str) -> int:
         raise ValueError(f"Invalid time format: {time_str}")
 
     value, unit = int(match.group(1)), match.group(2)
-    if unit == 's':
+    if unit == "s":
         return value
-    elif unit == 'm':
+    elif unit == "m":
         return value * 60
-    elif unit == 'h':
+    elif unit == "h":
         return value * 3600
-    
-def handle_service_query(consul_client: ConsulClient, service_name, query_type, tags=None):
+
+
+def handle_service_query(
+    consul_client: ConsulClient, service_name, query_type, tags=None
+):
     if query_type == "all":
         return consul_client.getAllServiceInstances(service_name, tags)
 
@@ -139,5 +145,4 @@ def handle_service_query(consul_client: ConsulClient, service_name, query_type, 
         return consul_client.getQuorumServiceInstances(service_name, tags)
 
     # raise ValueError(f"Unknown service type: {service_type}")
-    return 
-
+    return

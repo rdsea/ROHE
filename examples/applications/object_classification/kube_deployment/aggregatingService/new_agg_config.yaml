@@ -29,7 +29,7 @@ aggregating_service:
   min_messages: 3
 
   # Name of the function used for aggregation.
-  function: average_probability 
+  function: average_probability
 
 # Existing aggregation functions metadata
 aggregation_functions:
@@ -37,27 +37,27 @@ aggregation_functions:
   average_probability:
     module_path: ""
     description: "Takes the average of probabilities and selects the highest class."
-    parameters: 
+    parameters:
     # add specific params for each function
     - min_message_requirement: 2
     # search for time parser
     - window_time: 5
     # modify to be more general (like using * (regrex))
     applicable_pipelines: ["pipeline_1", "pipeline_2"]
-  
+
   weighted_average:
     module_path: ""
     description: "Takes a weighted average based on model confidence or other metrics."
-    parameters: 
+    parameters:
     - model_weights
 
     applicable_pipelines: ["pipeline_2", "pipeline_3"]
-  
+
   max_probability:
     module_path: ""
     description: "Selects the class with maximum probability across all messages."
     parameters:
-    - 
+    -
     applicable_pipelines: ["pipeline_3"]
-  
-  # other aggregation functions can be added 
+
+  # other aggregation functions can be added

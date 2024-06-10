@@ -21,8 +21,8 @@ spec:
         - name: bts_inference_service
           image: rdsea/bts_ml_proc:2.0
           imagePullPolicy: "Always"
-          ports: 
-            - containerPort: 4002 
+          ports:
+            - containerPort: 4002
           env:
             - name: NODE_NAME
               valueFrom:
@@ -39,10 +39,10 @@ kind: Service
 metadata:
   name: bts_inference_service-service
 spec:
-  ports: 
-  - port: 4002 
-    targetPort: 4002  
-  - port: 4003 
-    targetPort: 4003  
+  ports:
+  - port: 4002
+    targetPort: 4002
+  - port: 4003
+    targetPort: 4003
   selector:
     app: bts_inference_service

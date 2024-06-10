@@ -45,11 +45,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ray-code-single
-data: 
+data:
   sample_code.py: |
     import ray
     from os import environ
-    redis_pass = environ.get("REDIS_PASSWORD") 
+    redis_pass = environ.get("REDIS_PASSWORD")
     print("trying to connect to Ray!")
     ray.init(address="auto", _redis_password=redis_pass)
     print("now executing some code with Ray!")

@@ -49,7 +49,7 @@ external_services:
         # - quorum: Selects and returns more than half of the available servers, ensuring a majority.
         # Tags (optional) can be used as a filter with any type
         type: all # Options: all, one, quorum
-        
+
         # 'tags' (optional): A list of tags used to filter servers regardless of the 'type' selected.
         # If 'tags' is empty or not specified, all servers matching the 'type' criteria are considered.
         # Examples:

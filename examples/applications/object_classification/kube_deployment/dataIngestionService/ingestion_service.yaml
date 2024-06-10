@@ -21,4 +21,3 @@ mqtt_config:
 
 redis_server:
   url: "http://localhost:5000/task_coordinator"
-

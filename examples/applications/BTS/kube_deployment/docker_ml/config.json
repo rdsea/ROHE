@@ -1,52 +1,52 @@
 {
-    "monitor": {
-        "task_id": "lstm_ml",
-        "protocol": "AMQP",
-        "heartbeat": 5,
-        "configuration": {
-            "url": "localhost",
-            "user_id": "aaltosea1",
-            "exchange_name": "task_report",
-            "exchange_type": "topic",
-            "routing_key": "task.report.lstm_ml",
-            "log": "False",
-            "type": "sender"
-        }
+  "downstream": [
+    {
+      "configuration": {
+        "exchange_name": "lstm_bts",
+        "exchange_type": "topic",
+        "log": "False",
+        "type": "receiver",
+        "url": "localhost",
+        "user_id": "aaltosea1"
+      },
+      "defalt": "True",
+      "id": 1,
+      "protocol": "AMQP"
+    }
+  ],
+  "monitor": {
+    "configuration": {
+      "exchange_name": "task_report",
+      "exchange_type": "topic",
+      "log": "False",
+      "routing_key": "task.report.lstm_ml",
+      "type": "sender",
+      "url": "localhost",
+      "user_id": "aaltosea1"
     },
-    "queue_size": 10000,
-    "task_configuration": {
-        "function": {
-            "package": "processing_task",
-            "module_name": "LSTM_Prediction",
-            "function_name": "process"
-        },
-        "model": {
-            "name": "LSTM",
-            "path": "./exported_models/LSTM_single_series"
-        }
+    "heartbeat": 5,
+    "protocol": "AMQP",
+    "task_id": "lstm_ml"
+  },
+  "queue_size": 10000,
+  "task_configuration": {
+    "function": {
+      "function_name": "process",
+      "module_name": "LSTM_Prediction",
+      "package": "processing_task"
     },
-    "upstream": [
-        {
-            "name": "default",
-            "protocol": "ZMQ",
-            "configuration": {
-                "url": "tcp://0.0.0.0:5555"
-            }
-        }
-    ],
-    "downstream": [
-        {
-            "id": 1,
-            "defalt": "True",
-            "protocol": "AMQP",
-            "configuration": {
-                "url": "localhost",
-                "user_id": "aaltosea1",
-                "exchange_name": "lstm_bts",
-                "exchange_type": "topic",
-                "log": "False",
-                "type": "receiver"
-            }
-        }
-    ]
+    "model": {
+      "name": "LSTM",
+      "path": "./exported_models/LSTM_single_series"
+    }
+  },
+  "upstream": [
+    {
+      "configuration": {
+        "url": "tcp://0.0.0.0:5555"
+      },
+      "name": "default",
+      "protocol": "ZMQ"
+    }
+  ]
 }

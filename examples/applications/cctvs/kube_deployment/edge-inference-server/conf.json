@@ -1,12 +1,12 @@
 {
-    "composition":[
-        {
-            "model": "Yolov5",
-            "parameter": "yolov5l"
-        },
-        {
-            "model": "Yolov8",
-            "parameter": "yolov8n"
-        }     
-    ]
+  "composition": [
+    {
+      "model": "Yolov5",
+      "parameter": "yolov5l"
+    },
+    {
+      "model": "Yolov8",
+      "parameter": "yolov8n"
+    }
+  ]
 }

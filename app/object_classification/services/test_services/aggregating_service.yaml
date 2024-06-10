@@ -27,7 +27,7 @@ external_services:
   mongodb:
     username: admin_user
     password: admin_pass
-    host: localhost 
+    host: localhost
     port: 27017
     database_name: nii_case
     collection_name: ensemble

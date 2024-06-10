@@ -92,7 +92,7 @@ spec:
 #    scaleStrategy:
 #      workersToDelete:
       #- raycluster-heterogeneous-worker-medium-group-7bv5h
-    #  - worker-4k2ih 
+    #  - worker-4k2ih
     # the following params are used to complete the ray start: ray start --block --node-ip-address= ...
     rayStartParams:
       block: "true"
