@@ -56,7 +56,7 @@ def register_app(app, run, user, url, output_dir):
         logging.debug(response.json())
 
         # get application ID from the registration service response
-        res_data["appID"] = response.json()["response"]["appID"]
+        res_data["app_id"] = response.json()["response"]["app_id"]
 
         # get QoA configuration from the registration service response
         qoa_conf = {"client": res_data, "registration_url": url}
@@ -119,13 +119,14 @@ def stop_obsagent(app, conf, url):
 @click.option("--app", help="application name", default="dummy")
 @click.option("--run", help="application name", default="experiment1")
 @click.option("--user", help="application name", default="aaltosea1")
-@click.option("--url", help="registration url", default="http://localhost:5010/agent")
+@click.option(
+    "--url", help="registration url", default="http://localhost:5010/agent/delete"
+)
 def delete_app(app, run, user, url):
     try:
         res_data = {"application_name": app}
         res_data["run_id"] = run
         res_data["user_id"] = user
-        res_data["command"] = "delete"
 
         logging.debug(res_data)
         # Send delete application command to registration service
