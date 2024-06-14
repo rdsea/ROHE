@@ -7,7 +7,7 @@ name = "rohe"
 
 [project]
 name = "rohe"
-version = "0.0.1"
+version = "0.0.2"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 authors = []
 readme = "README.md"
