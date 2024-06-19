@@ -1,5 +1,5 @@
 #!/bin/bash
 
-obser_service="$(dirname $(pwd))/service/observation_service.py"
-echo $orches_service
-flask --app $orches_service run --port 5010 --debug
+obser_service="$(dirname "$(realpath "$0")")/../service/observation_service"
+echo $obser_service
+flask --app $obser_service run --port 5010 --debug
