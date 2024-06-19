@@ -36,3 +36,7 @@ repos:
     -   id: ruff
         args: [--fix]
         files: ^rohe/.*\.py$
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
