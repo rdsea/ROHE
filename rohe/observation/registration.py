@@ -9,6 +9,7 @@ from qoa4ml.config.configs import (
     AMQPCollectorConfig,
     AMQPConnectorConfig,
     CollectorConfig,
+    ConnectorConfig,
 )
 
 from rohe.common.data_models import RegistrationRequest
@@ -32,14 +33,15 @@ class RoheRegistration(RoheRestObject):
             self.db_client: MDBClient = self.conf["db_client"]
             self.db_collection: DBCollection = self.conf["db_collection"]
             # Init default messageing connection
-            self.connector_config: CollectorConfig = self.conf["connector_config"]
+            self.connector_config: ConnectorConfig = self.conf["connector_config"]
+
+            self.collector_config: CollectorConfig = self.conf["collector_config"]
 
             assert isinstance(self.connector_config.config, AMQPConnectorConfig)
 
             assert isinstance(self.collector_config.config, AMQPCollectorConfig)
             # if not isinstance(self.connector_config.config, AMQPConnectorConfig):
             #     raise RuntimeError("Currently only work with AMQP")
-            self.collector_config: CollectorConfig = self.conf["collector_config"]
         except Exception as e:
             logging.error("Error in `__init__` RoheRegistration: {}".format(e))
 
