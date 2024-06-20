@@ -4,8 +4,11 @@ import traceback
 from typing import Dict
 
 import numpy as np
+from devtools import debug
 
-from ..resource_management.resource import Node, Service, ServiceQueue
+from ..resource_management.node import Node
+from ..resource_management.service import Service
+from ..resource_management.service_queue import ServiceQueue
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -99,6 +102,7 @@ def selecting_node(node_ranks, strategy=0, debug=False):
 
 def assign(nodes: Dict[str, Node], node_id, service):
     if node_id in nodes:
+        # debug(nodes[node_id], service)
         nodes[node_id].allocate(service)
         # print("assign success")
         logging.info(str("Assign {} to {}".format(service.name, nodes[node_id].name)))
@@ -135,6 +139,7 @@ def orchestrate(
 
     while not service_queue.empty():
         p_service = service_queue.get()
+        debug(p_service)
         if p_service is None:
             break
         replica = p_service.replicas - p_service.running

@@ -15,7 +15,7 @@ from ..common.data_models import (
     ServiceData,
 )
 from ..storage.abstract import MDBClient
-from .resource_management.resource import Service
+from .resource_management.service import Service
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO

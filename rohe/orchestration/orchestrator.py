@@ -13,14 +13,16 @@ from ..common.rohe_object import RoheObject
 from ..orchestration.ensemble_optimization.scoring import (
     orchestrate as scoring_orchestrate,
 )
-from .resource_management.resource import Node, Service, ServiceQueue
+from .resource_management.node import Node
+from .resource_management.service import Service
+from .resource_management.service_queue import ServiceQueue
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
 
 
-class RoheAgentV1(RoheObject):
+class Orchestrator(RoheObject):
     def __init__(self, configuration, sync=True, log_lev=2):
         try:
             super().__init__(logging_level=log_lev)
@@ -39,7 +41,7 @@ class RoheAgentV1(RoheObject):
             # self.show_services()
             # self.show_nodes()
         except Exception as e:
-            logging.error("Error in `__init__` RoheAgentV1: {}".format(e))
+            logging.error("Error in `__init__` Orchestrator: {}".format(e))
 
     def start(self):
         try:
@@ -47,7 +49,7 @@ class RoheAgentV1(RoheObject):
             self.orches_flag = True
             self.orchestrate()
         except Exception as e:
-            logging.error("Error in `start` RoheAgentV1: {}".format(e))
+            logging.error("Error in `start` Orchestrator: {}".format(e))
 
     def allocate_service(self):
         pass
@@ -57,7 +59,7 @@ class RoheAgentV1(RoheObject):
             self.sync_node_from_db()
             self.sync_service_from_db()
         except Exception as e:
-            logging.error("Error in `sync_from_db` RoheAgentV1: {}".format(e))
+            logging.error("Error in `sync_from_db` Orchestrator: {}".format(e))
 
     def orchestrate(self):
         try:
@@ -71,7 +73,7 @@ class RoheAgentV1(RoheObject):
                     self.service_queue,
                     self.orchestrate_config,
                 )
-                self.show_services()
+                # self.show_services()
                 self.sync_node_to_db()
                 self.sync_service_to_db()
                 logging.info("Sync nodes and services to Database completed")
@@ -79,13 +81,13 @@ class RoheAgentV1(RoheObject):
                 self.timer.start()
         except Exception as e:
             print(traceback.format_exc())
-            logging.error("Error in `orchestrate` RoheAgentV1: {}".format(e))
+            logging.error("Error in `orchestrate` Orchestrator: {}".format(e))
 
     def stop(self):
         try:
             self.orches_flag = False
         except Exception as e:
-            logging.error("Error in `stop` RoheAgentV1: {}".format(e))
+            logging.error("Error in `stop` Orchestrator: {}".format(e))
 
     def sync_node_from_db(self, node_mac=None, replace=True):
         try:
@@ -131,7 +133,7 @@ class RoheAgentV1(RoheObject):
                         pass
             logging.info("Agent Sync nodes from Database complete")
         except Exception as e:
-            logging.error("Error in `sync_node_from_db` RoheAgentV1: {}".format(e))
+            logging.error("Error in `sync_node_from_db` Orchestrator: {}".format(e))
 
     def sync_service_from_db(self, service_id=None, replace=True):
         try:
@@ -180,7 +182,7 @@ class RoheAgentV1(RoheObject):
                         pass
             logging.info("Agent Sync services from Database complete")
         except Exception as e:
-            logging.error("Error in `sync_service_from_db` RoheAgentV1: {}".format(e))
+            logging.error("Error in `sync_service_from_db` Orchestrator: {}".format(e))
             # print(traceback.print_exc())
 
     def sync_node_to_db(self, node_mac=None):
@@ -202,7 +204,7 @@ class RoheAgentV1(RoheObject):
                 for key in self.nodes:
                     self.sync_node_to_db(key)
         except Exception as e:
-            logging.error("Error in `sync_node_to_db` RoheAgentV1: {}".format(e))
+            logging.error("Error in `sync_node_to_db` Orchestrator: {}".format(e))
             # print(traceback.format_exc())
 
     def sync_service_to_db(self, service_id=None):
@@ -226,7 +228,7 @@ class RoheAgentV1(RoheObject):
                     logging.info(key)
                     self.sync_service_to_db(key)
         except Exception as e:
-            logging.error("Error in `sync_service_to_db` RoheAgentV1: {}".format(e))
+            logging.error("Error in `sync_service_to_db` Orchestrator: {}".format(e))
 
     def show_nodes(self):
         try:
@@ -235,7 +237,7 @@ class RoheAgentV1(RoheObject):
                 logging.info("{} : {}".format(self.nodes[node_key], node_key))
             logging.info("Nodes Size: {}".format(len(self.nodes)))
         except Exception as e:
-            logging.error("Error in `show_nodes` RoheAgentV1: {}".format(e))
+            logging.error("Error in `show_nodes` Orchestrator: {}".format(e))
 
     def show_services(self):
         try:
@@ -244,4 +246,4 @@ class RoheAgentV1(RoheObject):
                 logging.info(self.services[service_key])
             logging.info("Services Size: ".format())
         except Exception as e:
-            logging.error("Error in `show_services` RoheAgentV1: {}".format(e))
+            logging.error("Error in `show_services` Orchestrator: {}".format(e))

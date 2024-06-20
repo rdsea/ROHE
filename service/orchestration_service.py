@@ -5,7 +5,7 @@ from flask import Flask
 from flask_restful import Api
 
 import rohe.lib.rohe_utils as rohe_utils
-from rohe.orchestration.orchestration_agent import RoheAgentV1
+from rohe.orchestration.orchestrator import Orchestrator
 from rohe.orchestration.rohe_node_and_service_manager import RoheNodeAndServiceManager
 from rohe.storage.abstract import DBCollection, DBConf, MDBClient
 from rohe.variable import ROHE_PATH
@@ -50,7 +50,7 @@ rest_config = configuration.update(
     }
 )
 
-rohe_agent = RoheAgentV1(configuration, False)
+rohe_agent = Orchestrator(configuration, False)
 configuration["agent"] = rohe_agent
 api.add_resource(
     RoheNodeAndServiceManager,

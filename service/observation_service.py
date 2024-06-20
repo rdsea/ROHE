@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+from devtools import debug
 from flask import Flask
 from flask_restful import Api
 from qoa4ml.config.configs import CollectorConfig, ConnectorConfig
@@ -16,7 +17,6 @@ from rohe.variable import ROHE_PATH
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
-
 
 DEFAULT_PORT = 5010
 DEFAULT_CONFIG_PATH = "/config/observationConfig.yaml"
@@ -42,32 +42,30 @@ if not config_file:
     config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
     logging.debug(config_file)
 
-try:
-    configuration = rohe_utils.load_config(config_file)
-    logging.debug(configuration)
-    db_config = DBConf(**configuration["db_authentication"])
-    db_collection = DBCollection(**configuration["db_collection"])
-    db_client = MDBClient(db_config)
+configuration = rohe_utils.load_config(config_file)
+logging.debug(configuration)
+db_config = DBConf(**configuration["db_authentication"])
+db_collection = DBCollection(**configuration["db_collection"])
+db_client = MDBClient(db_config)
 
-    connector_config = ConnectorConfig(**configuration["connector"])
-    collector_config = CollectorConfig(**configuration["collector"])
+connector_config = ConnectorConfig(**configuration["connector"])
+collector_config = CollectorConfig(**configuration["collector"])
 
-    rest_config = {
-        "db_client": db_client,
-        "db_collection": db_collection,
-        "connector_config": connector_config,
-        "collector_config": collector_config,
-        "agent_image": configuration["agent_image"],
-    }
-    api.add_resource(
-        RoheRegistration,
-        "/registration",
-        resource_class_kwargs=rest_config,
-    )
-    api.add_resource(
-        RoheAgentManager,
-        "/agent/<string:command>",
-        resource_class_kwargs=rest_config,
-    )
-except Exception as e:
-    logging.error("Error in starting Observation service: {}".format(e))
+rest_config = {
+    "db_client": db_client,
+    "db_collection": db_collection,
+    "connector_config": connector_config,
+    "collector_config": collector_config,
+    "agent_image": configuration["agent_image"],
+}
+debug(rest_config)
+api.add_resource(
+    RoheRegistration,
+    "/registration",
+    resource_class_kwargs=rest_config,
+)
+api.add_resource(
+    RoheAgentManager,
+    "/agent/<string:command>",
+    resource_class_kwargs=rest_config,
+)
