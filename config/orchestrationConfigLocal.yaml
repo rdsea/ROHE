@@ -9,11 +9,11 @@ db_node_collection:
 db_service_collection:
   collection: service_collection
   database: rohe_orchestration
-timer: 10
+orchestration_interval: 10
 output_folder: "/results/"
 sample_rate: 50
 false_rate: 3
-service_queue:
+service_queue_config:
   priority: 0
   queue_balance: 3
 orchestrate_config:

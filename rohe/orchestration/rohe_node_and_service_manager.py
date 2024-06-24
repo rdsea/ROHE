@@ -11,10 +11,12 @@ from ..common.data_models import (
     AddServiceRequest,
     NodeAddress,
     NodeData,
+    OrchestrationServiceConfig,
     RemoveNodeRequest,
     ServiceData,
 )
 from ..storage.abstract import MDBClient
+from .orchestration_agent import OrchestrationAgent
 from .resource_management.service import Service
 
 logging.basicConfig(
@@ -25,12 +27,19 @@ logging.basicConfig(
 class RoheNodeAndServiceManager(Resource):
     def __init__(self, **kwargs) -> None:
         try:
-            super().__init__()
-            self.conf = kwargs
-            self.agent = self.conf["agent"]
-            self.db_client: MDBClient = self.conf["db_client"]
-            self.node_collection = self.conf["node_collection"]
-            self.service_collection = self.conf["service_collection"]
+            self.config: OrchestrationServiceConfig = kwargs["configuration"]
+            self.db_client: MDBClient = MDBClient(self.config.db_authentication)
+            self.node_collection = self.config.db_node_collection
+            self.service_collection = self.config.db_service_collection
+
+            self.orchestration_agent = OrchestrationAgent(
+                self.db_client,
+                self.node_collection,
+                self.service_collection,
+                self.config.orchestrate_config,
+                self.config.orchestration_interval,
+                self.config.service_queue_config,
+            )
         except Exception as e:
             logging.error("Error in `__init__` RoheNodeAndServiceManager: {}".format(e))
 
@@ -363,11 +372,11 @@ class RoheNodeAndServiceManager(Resource):
                 response = {"result": self.get_nodes()}
 
             elif command == "start-agent":
-                self.agent.start()
+                self.orchestration_agent.start()
                 response = {"result": "Agent started"}
 
             elif command == "stop-agent":
-                self.agent.stop()
+                self.orchestration_agent.stop()
                 response = {"result": "Agent Stop"}
 
             else:

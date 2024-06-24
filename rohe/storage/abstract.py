@@ -2,8 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 
-from pydantic import BaseModel
-
+from ..common.data_models import MongoAuthentication, MongoCollection
 from ..lib.common.mongo_utils import get_mdb_client
 
 logging.basicConfig(
@@ -11,20 +10,8 @@ logging.basicConfig(
 )
 
 
-class DBConf(BaseModel):
-    url: str
-    prefix: str
-    username: str
-    password: str
-
-
-class DBCollection(BaseModel):
-    database: str
-    collection: str
-
-
 class DBClient(ABC):
-    def __init__(self, db_config: DBConf) -> None:
+    def __init__(self, db_config: MongoAuthentication) -> None:
         try:
             super().__init__()
             self.db_config = db_config
@@ -32,7 +19,7 @@ class DBClient(ABC):
             logging.error("Error in __init__ DBClient: {}".format(e))
 
     @abstractmethod
-    def get(self, collection: DBCollection, query: Any) -> dict:
+    def get(self, collection: MongoCollection, query: Any) -> dict:
         """Return data"""
         return {}
 
@@ -41,7 +28,7 @@ class DBClient(ABC):
 
 
 class MDBClient(DBClient):
-    def __init__(self, mdb_config: DBConf) -> None:
+    def __init__(self, mdb_config: MongoAuthentication) -> None:
         try:
             super().__init__(mdb_config)
 
@@ -49,7 +36,7 @@ class MDBClient(DBClient):
         except Exception as e:
             logging.error("Error in __init__ MDBClient: {}".format(e))
 
-    def get(self, db_collection: DBCollection, query: Any) -> dict:
+    def get(self, db_collection: MongoCollection, query: Any) -> dict:
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]
@@ -60,7 +47,7 @@ class MDBClient(DBClient):
             logging.error("Error in `get` MDBClient: {}".format(e))
             return {}
 
-    def insert_one(self, db_collection: DBCollection, data: dict):
+    def insert_one(self, db_collection: MongoCollection, data: dict):
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]
@@ -71,7 +58,7 @@ class MDBClient(DBClient):
             logging.error("Error in `insert_one` MDBClient: {}".format(e))
             return {}
 
-    def insert_many(self, db_collection: DBCollection, data: list):
+    def insert_many(self, db_collection: MongoCollection, data: list):
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]
@@ -82,7 +69,7 @@ class MDBClient(DBClient):
             logging.error("Error in `insert_many` MDBClient: {}".format(e))
             return {}
 
-    def delete_many(self, db_collection: DBCollection, data: dict):
+    def delete_many(self, db_collection: MongoCollection, data: dict):
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]
@@ -93,7 +80,7 @@ class MDBClient(DBClient):
             logging.error("Error in `delete_many` MDBClient: {}".format(e))
             return {}
 
-    def find(self, db_collection: DBCollection, query: Any) -> dict:
+    def find(self, db_collection: MongoCollection, query: Any) -> dict:
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]
@@ -105,7 +92,7 @@ class MDBClient(DBClient):
             return {}
 
     def aggregate(
-        self, db_collection: DBCollection, find_query: Any, sort_query: Any
+        self, db_collection: MongoCollection, find_query: Any, sort_query: Any
     ) -> dict:
         try:
             if self.mdb_client is not None:
@@ -117,7 +104,7 @@ class MDBClient(DBClient):
             logging.error("Error in `find` MDBClient: {}".format(e))
             return {}
 
-    def drop(self, db_collection: DBCollection) -> dict:
+    def drop(self, db_collection: MongoCollection) -> dict:
         try:
             if self.mdb_client is not None:
                 db = self.mdb_client[db_collection.database]

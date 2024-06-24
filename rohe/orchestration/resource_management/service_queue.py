@@ -1,16 +1,17 @@
 from queue import PriorityQueue
 from typing import Tuple
 
+from ...common.data_models import ServiceQueueConfig
 from .service import Service
 
 
 class ServiceQueue(object):
-    def __init__(self, config):
+    def __init__(self, config: ServiceQueueConfig):
         self.config = config
         # Priority:
         # 0 - No Priority; 1 - CPU sensitive priority; 2 - Memory sensitve priority
-        self.priority_factor = config["priority"]
-        self.queue_balance = config["queue_balance"]
+        self.priority_factor = config.priority
+        self.queue_balance = config.queue_balance
         self.priority_count = 0
         self.p_queue = PriorityQueue[Tuple[int, Service]]()
         self.np_queue = PriorityQueue[Tuple[int, Service]]()

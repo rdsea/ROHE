@@ -98,3 +98,36 @@ class AgentMangerRequest(BaseModel):
     application_name: str
     agent_image: Optional[str] = None
     stream_config: Optional[Dict] = None
+
+
+class MongoAuthentication(BaseModel):
+    url: str
+    prefix: str
+    username: str
+    password: str
+
+
+class MongoCollection(BaseModel):
+    collection: str
+    database: str
+
+
+class ServiceQueueConfig(BaseModel):
+    priority: int
+    queue_balance: int
+
+
+class OrchestrateConfig(BaseModel):
+    name: str
+    weights: Dict[str, int]
+    strategy: int
+
+
+class OrchestrationServiceConfig(BaseModel):
+    db_authentication: MongoAuthentication
+    db_node_collection: MongoCollection
+    db_service_collection: MongoCollection
+    orchestration_interval: float
+    output_folder: str
+    service_queue_config: ServiceQueueConfig
+    orchestrate_config: OrchestrateConfig
