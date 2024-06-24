@@ -5,19 +5,14 @@ from typing import Dict
 
 from rohe.common.data_models import (
     MongoCollection,
-    OrchestrateConfig,
+    OrchestrateAlgorithmConfig,
     ServiceQueueConfig,
 )
 from rohe.storage.abstract import MDBClient
 
 from ..common.rohe_object import RoheObject
-from ..orchestration.ensemble_optimization.scoring import (
-    orchestrate as scoring_orchestrate,
-)
-from .resource_management.allocator import Allocator
-from .resource_management.node import Node
-from .resource_management.service import Service
-from .resource_management.service_queue import ServiceQueue
+from .allocator import Allocator
+from .resource_management import Node, Service, ServiceQueue
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -30,39 +25,36 @@ class OrchestrationAgent(RoheObject):
         db_client: MDBClient,
         node_collection: MongoCollection,
         service_collection: MongoCollection,
-        orchestration_config: OrchestrateConfig,
+        orchestrate_algorithm_config: OrchestrateAlgorithmConfig,
         orchestration_interval: float,
         service_queue_config: ServiceQueueConfig,
         sync=True,
         log_lev=2,
     ):
-        try:
-            super().__init__(logging_level=log_lev)
-            # self.conf = configuration
-            self.db_client: MDBClient = db_client
-            self.node_collection = node_collection
-            self.service_collection = service_collection
-            self.nodes: Dict[str, Node] = {}
-            self.services: Dict[str, Service] = {}
-            self.orchestrate_config = orchestration_config
-            self.orchestration_interval = orchestration_interval
-            self.service_queue = ServiceQueue(service_queue_config)
-            self.allocator = Allocator(
-                self.db_client,
-                self.node_collection,
-                self.service_collection,
-                self.service_queue,
-                self.nodes,
-                self.services,
-            )
-            if sync:
-                self.allocator.sync_from_db()
-            self.orches_flag = True
-            self.update_flag = False
-            # self.show_services()
-            # self.show_nodes()
-        except Exception as e:
-            logging.error("Error in `__init__` OrchestrationAgent: {}".format(e))
+        super().__init__(logging_level=log_lev)
+        # self.conf = configuration
+        self.db_client: MDBClient = db_client
+        self.node_collection = node_collection
+        self.service_collection = service_collection
+        self.nodes: Dict[str, Node] = {}
+        self.services: Dict[str, Service] = {}
+        self.orchestration_interval = orchestration_interval
+        self.service_queue = ServiceQueue(service_queue_config)
+        self.allocator = Allocator(
+            self.db_client,
+            self.node_collection,
+            self.service_collection,
+            self.service_queue,
+            self.nodes,
+            self.services,
+            orchestrate_algorithm_config,
+        )
+        if sync:
+            self.allocator.sync_from_db()
+        self.orches_flag = True
+        self.update_flag = False
+        # self.show_services()
+        # self.show_nodes()
 
     def start(self):
         try:
@@ -79,18 +71,8 @@ class OrchestrationAgent(RoheObject):
         try:
             if self.orches_flag:
                 logging.info("Agent Start Orchestrating")
-                self.allocator.sync_from_db()
-                logging.info("Sync completed")
-                scoring_orchestrate(
-                    self.nodes,
-                    self.services,
-                    self.service_queue,
-                    self.orchestrate_config,
-                )
-                # self.show_services()
-                self.allocator.sync_node_to_db()
-                self.allocator.sync_service_to_db()
-                logging.info("Sync nodes and services to Database completed")
+                self.allocator.allocate()
+                logging.info("Agent Finish Orchestrating")
                 self.timer = Timer(self.orchestration_interval, self.orchestrate)
                 self.timer.start()
         except Exception as e:

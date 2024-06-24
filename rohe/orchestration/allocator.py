@@ -1,16 +1,19 @@
 import logging
 import time
+from typing import Dict
 
 import numpy as np
 import pymongo
-from qoa4ml.config.configs import Dict
 
-from rohe.storage.abstract import MDBClient
-
-from ...common.data_models import MongoCollection, NodeData, ServiceData
-from .node import Node
-from .service import Service, ServiceInstance
-from .service_queue import ServiceQueue
+from ..common.data_models import (
+    MongoCollection,
+    NodeData,
+    OrchestrateAlgorithmConfig,
+    ServiceData,
+)
+from ..storage.abstract import MDBClient
+from .orchestration_algorithm.mananger import AlgorithmManager
+from .resource_management import Node, Service, ServiceInstance, ServiceQueue
 
 
 class Allocator:
@@ -22,6 +25,7 @@ class Allocator:
         service_queue: ServiceQueue,
         nodes: Dict[str, Node],
         services: Dict[str, Service],
+        orchestrate_algorithm_config: OrchestrateAlgorithmConfig,
     ) -> None:
         self.db_client = db_client
         self.node_collection = node_collection
@@ -29,6 +33,8 @@ class Allocator:
         self.service_queue = service_queue
         self.nodes = nodes
         self.services = services
+        self.orchestrate_config = orchestrate_algorithm_config
+        self.algorithm_manager = AlgorithmManager(self.orchestrate_config)
 
     # TODO: refactor into a query to database
     def sync_node_from_db(self, node_mac=None, replace=True):
@@ -225,4 +231,21 @@ class Allocator:
             node.service_list[service.id] = 1
         node.self_update()
 
-    # def allocate(self,)
+    def build_service_queue(self):
+        for key in self.services:
+            service = self.services[key]
+            if service.running != service.replicas:
+                self.service_queue.put(service)
+
+    def allocate(self):
+        self.sync_from_db()
+        logging.info("Sync completed")
+        self.build_service_queue()
+        self.algorithm_manager.calculate(
+            self.nodes,
+            self.services,
+            self.service_queue,
+        )
+        # self.show_services()
+        self.sync_node_to_db()
+        self.sync_service_to_db()

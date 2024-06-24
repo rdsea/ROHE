@@ -1,19 +1,8 @@
-from enum import Enum
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-
-class StatusEnum(str, Enum):
-    running = "running"
-    queueing = "queueing"
-
-
-class SensitivityEnum(int, Enum):
-    not_sensitive = 0
-    cpu_sensitive = 1
-    memory_sensitive = 2
-    cpu_memory_sensitive = 3
+from .rohe_enum import OrchestrateAlgorithmEnum, SensitivityEnum, StatusEnum
 
 
 class MemoryNodeResources(BaseModel):
@@ -117,8 +106,9 @@ class ServiceQueueConfig(BaseModel):
     queue_balance: int
 
 
-class OrchestrateConfig(BaseModel):
-    name: str
+# TODO:custom error when algorithm name is wrong
+class OrchestrateAlgorithmConfig(BaseModel):
+    algorithm: OrchestrateAlgorithmEnum
     weights: Dict[str, int]
     strategy: int
 
@@ -130,4 +120,4 @@ class OrchestrationServiceConfig(BaseModel):
     orchestration_interval: float
     output_folder: str
     service_queue_config: ServiceQueueConfig
-    orchestrate_config: OrchestrateConfig
+    orchestrate_algorithm_config: OrchestrateAlgorithmConfig

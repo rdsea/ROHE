@@ -26,22 +26,19 @@ logging.basicConfig(
 
 class RoheNodeAndServiceManager(Resource):
     def __init__(self, **kwargs) -> None:
-        try:
-            self.config: OrchestrationServiceConfig = kwargs["configuration"]
-            self.db_client: MDBClient = MDBClient(self.config.db_authentication)
-            self.node_collection = self.config.db_node_collection
-            self.service_collection = self.config.db_service_collection
+        self.config: OrchestrationServiceConfig = kwargs["configuration"]
+        self.db_client: MDBClient = MDBClient(self.config.db_authentication)
+        self.node_collection = self.config.db_node_collection
+        self.service_collection = self.config.db_service_collection
 
-            self.orchestration_agent = OrchestrationAgent(
-                self.db_client,
-                self.node_collection,
-                self.service_collection,
-                self.config.orchestrate_config,
-                self.config.orchestration_interval,
-                self.config.service_queue_config,
-            )
-        except Exception as e:
-            logging.error("Error in `__init__` RoheNodeAndServiceManager: {}".format(e))
+        self.orchestration_agent = OrchestrationAgent(
+            self.db_client,
+            self.node_collection,
+            self.service_collection,
+            self.config.orchestrate_algorithm_config,
+            self.config.orchestration_interval,
+            self.config.service_queue_config,
+        )
 
     ################################ NODE FUNCTIONS ################################
     # check if node exist in database

@@ -17,7 +17,7 @@ service_queue_config:
   priority: 0
   queue_balance: 3
 orchestrate_config:
-  name: Priority Orchestration
+  algorithm: priority
   weights:
     cpu: 1
     memory: 1
