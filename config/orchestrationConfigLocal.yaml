@@ -16,7 +16,7 @@ false_rate: 3
 service_queue_config:
   priority: 0
   queue_balance: 3
-orchestrate_config:
+orchestrate_algorithm_config:
   algorithm: priority
   weights:
     cpu: 1

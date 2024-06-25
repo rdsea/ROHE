@@ -12,7 +12,7 @@ from ..common.data_models import (
     ServiceData,
 )
 from ..storage.abstract import MDBClient
-from .orchestration_algorithm.mananger import AlgorithmManager
+from .orchestration_algorithm.manager import AlgorithmManager
 from .resource_management import Node, Service, ServiceInstance, ServiceQueue
 
 

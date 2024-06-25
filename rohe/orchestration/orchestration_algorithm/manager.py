@@ -21,7 +21,9 @@ class AlgorithmManager:
 
     def load_algorithm(self, algorithm: OrchestrateAlgorithmEnum):
         if algorithm == OrchestrateAlgorithmEnum.priority:
-            priority_module = importlib.import_module(".priority", package=__name__)
+            priority_module = importlib.import_module(
+                "rohe.orchestration.orchestration_algorithm.priority"
+            )
             self.__current_algorithm = priority_module.PriorityAlgorithm()
         else:
             raise ValueError(f"{algorithm} hasn't been implemented")
