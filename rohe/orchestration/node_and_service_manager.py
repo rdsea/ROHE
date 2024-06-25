@@ -3,16 +3,11 @@ import time
 from typing import Any, Dict
 
 import pymongo
-from flask import jsonify, request
-from flask_restful import Resource
 
 from ..common.data_models import (
-    AddNodeRequest,
-    AddServiceRequest,
     NodeAddress,
     NodeData,
     OrchestrationServiceConfig,
-    RemoveNodeRequest,
     ServiceData,
 )
 from ..storage.abstract import MDBClient
@@ -24,9 +19,9 @@ logging.basicConfig(
 )
 
 
-class RoheNodeAndServiceManager(Resource):
-    def __init__(self, **kwargs) -> None:
-        self.config: OrchestrationServiceConfig = kwargs["configuration"]
+class NodeAndServiceManager:
+    def __init__(self, config: OrchestrationServiceConfig) -> None:
+        self.config: OrchestrationServiceConfig = config
         self.db_client: MDBClient = MDBClient(self.config.db_authentication)
         self.node_collection = self.config.db_node_collection
         self.service_collection = self.config.db_service_collection
@@ -318,93 +313,3 @@ class RoheNodeAndServiceManager(Resource):
                 "Error in `get_services` RoheNodeAndServiceManager: {}".format(e)
             )
             return []
-
-    ################################ REST FUNCTIONS ################################
-
-    def get(self):
-        try:
-            args = request.query_string.decode("utf-8").split("&")
-            # get param from args here
-            return jsonify({"status": args})
-        except Exception as e:
-            logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
-            return jsonify({"status": "unsupported"})
-
-    def post(self, command: str):
-        try:
-            if not request.is_json:
-                response = {"result": "only support json type"}
-            response = {}
-            if command == "add-node":
-                node_data = AddNodeRequest.model_validate_json(request.data)
-                response = self.add_nodes(node_data.data)
-
-            elif command == "remove-all-nodes":
-                self.db_client.drop(self.node_collection)
-                response = {"result": "All nodes removed"}
-
-            elif command == "remove-node":
-                remove_node_data = RemoveNodeRequest.model_validate_json(request.data)
-                response = self.remove_nodes(remove_node_data.data)
-
-            elif command == "add-service":
-                service_data = AddServiceRequest.model_validate_json(request.data)
-                response = self.add_services(service_data.data)
-
-            elif command == "remove-all-services":
-                self.db_client.drop(self.service_collection)
-                response = {"result": "All services removed"}
-
-            # TODO: improve this, the body is too big now
-            elif command == "remove-service":
-                pass
-                # response = self.remove_services(args["data"])
-
-            elif command == "get-all-services":
-                response = {"result": self.get_services()}
-
-            elif command == "get-all-nodes":
-                response = {"result": self.get_nodes()}
-
-            elif command == "start-agent":
-                self.orchestration_agent.start()
-                response = {"result": "Agent started"}
-
-            elif command == "stop-agent":
-                self.orchestration_agent.stop()
-                response = {"result": "Agent Stop"}
-
-            else:
-                response = {"result": "Unknow command"}
-            return jsonify({"status": "success", "response": response})
-        except Exception as e:
-            logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
-            return jsonify({"status": "fail"})
-
-    def put(self):
-        try:
-            if request.is_json:
-                args = request.get_json(force=True)
-            # get param from args here
-            return jsonify({"status": args})
-        except Exception as e:
-            logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
-            return jsonify({"status": "unsupported"})
-
-    def delete(self):
-        try:
-            if request.is_json:
-                args = request.get_json(force=True)
-            # get param from args here
-            return jsonify({"status": args})
-        except Exception as e:
-            logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
-            return jsonify({"status": "unsupported"})

@@ -4,8 +4,9 @@ from flask import Flask
 from flask_restful import Api
 
 import rohe.lib.rohe_utils as rohe_utils
+from rohe.api.orchestration_resource import OrchestationResource
 from rohe.common.data_models import OrchestrationServiceConfig
-from rohe.orchestration.rohe_node_and_service_manager import RoheNodeAndServiceManager
+from rohe.orchestration.node_and_service_manager import NodeAndServiceManager
 from rohe.variable import ROHE_PATH
 
 logging.basicConfig(
@@ -29,9 +30,11 @@ configuration = rohe_utils.load_config(config_file)
 assert configuration is not None
 
 orchestration_service_config = OrchestrationServiceConfig.parse_obj(configuration)
+node_and_service_manager = NodeAndServiceManager(orchestration_service_config)
+
 api.add_resource(
-    RoheNodeAndServiceManager,
+    OrchestationResource,
     "/management",
     "/management/<string:command>",
-    resource_class_kwargs={"configuration": orchestration_service_config},
+    resource_class_kwargs={"node_and_service_manager": node_and_service_manager},
 )
