@@ -12,6 +12,8 @@ modules/orchestration/temp/
 *.pyd
 .ipynb_checkpoints/
 
+.pypirc
+
 .env
 *.ipynb
 

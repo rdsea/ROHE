@@ -37,7 +37,7 @@ dependencies = [
   "python-dotenv==1.0.0",
   "PyYAML==6.0.1",
   "pyzmq==25.1.1",
-  "qoa4ml==0.2.6",
+  "qoa4ml==0.2.8",
   "quixstreams==0.5.7",
   # "ray==2.4.0",
   #NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
@@ -51,15 +51,9 @@ ml = [
   "torch==2.1.0",
   "ultralytics==8.0.200",
 ]
-dev = [
-  "pre-commit",
-  "black",
-  "isort",
-  "devtools",
-  "flit"
-]
+dev = ["pre-commit", "black", "isort", "devtools", "flit"]
 
-all =["rohe[ml,dev]"]
+all = ["rohe[ml,dev]"]
 
 
 [project.urls]
@@ -71,10 +65,10 @@ profile = "black"
 [tool.ruff.lint]
 select = ["F", "C", "E", "R", "W", "N"]
 ignore = [
-  "E501", # Line too long
+  "E501",   # Line too long
   "RET504", # Unnecessary assignment
   "RET505", # Unnecessary else after return
-  "C901" # Too complex function
+  "C901",   # Too complex function
 ]
 
 [tool.mypy]
@@ -85,4 +79,3 @@ warn_unused_ignores = true
 extra_checks = true
 check_untyped_defs = true
 ignore_missing_imports = true
-
