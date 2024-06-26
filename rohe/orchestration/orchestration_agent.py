@@ -32,7 +32,6 @@ class OrchestrationAgent(RoheObject):
         log_lev=2,
     ):
         super().__init__(logging_level=log_lev)
-        # self.conf = configuration
         self.db_client: MDBClient = db_client
         self.node_collection = node_collection
         self.service_collection = service_collection
@@ -72,6 +71,7 @@ class OrchestrationAgent(RoheObject):
             if self.orches_flag:
                 logging.info("Agent Start Orchestrating")
                 self.allocator.allocate()
+                self.show_services()
                 logging.info("Agent Finish Orchestrating")
                 self.timer = Timer(self.orchestration_interval, self.orchestrate)
                 self.timer.start()
@@ -99,6 +99,6 @@ class OrchestrationAgent(RoheObject):
             logging.info("############ SERVICES LIST ############")
             for service_key in self.services:
                 logging.info(self.services[service_key])
-            logging.info("Services Size: ".format())
+            logging.info(f"Services Size: {len(self.services.keys())}")
         except Exception as e:
             logging.error("Error in `show_services` OrchestrationAgent: {}".format(e))

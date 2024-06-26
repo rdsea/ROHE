@@ -71,7 +71,9 @@ class Allocator:
                     },
                 ]
                 node_list = list(self.db_client.get(self.node_collection, query))
-                self.nodes = {}
+                # WARNING: if you try to clear the dict by assigning to {}, it'll be assigned another object and the change
+                # will not be reflected in orchestration agent!!!!
+                self.nodes.clear()
                 for node in node_list:
                     # if replace -> completely replace local nodes by nodes from database
                     if replace:
@@ -121,7 +123,8 @@ class Allocator:
                 service_list = list(
                     self.db_client.get(self.service_collection, pipeline)
                 )
-                self.services = {}
+                # WARNING: Same as updating nodes
+                self.services.clear()
                 for service in service_list:
                     # if replace -> completely replace local services by services from database
                     if replace:
@@ -190,7 +193,7 @@ class Allocator:
         except Exception as e:
             logging.error("Error in `sync_from_db` OrchestrationAgent: {}".format(e))
 
-    def update_service(self, node: Node, service: Service):
+    def update_service(self, service: Service, node: Node):
         if node.id in service.node_list:
             service.node_list[node.id] += 1
         else:
@@ -200,7 +203,8 @@ class Allocator:
         service.instance_ids = list(service.instances.keys())
         service.running = len(service.instance_ids)
         service.self_update_config()
-        new_instance.generate_deployment()
+        # TODO: update
+        # new_instance.generate_deployment()
 
     def update_node(self, node: Node, service: Service):
         node.cpu.used = node.cpu.used + service.cpu
@@ -221,7 +225,7 @@ class Allocator:
         used_proc = np.sort(np.array(node.cores.used))
         req_proc = np.array(service.cores)
         req_proc.resize(used_proc.shape)
-        self.update_service(node, service)
+        self.update_service(service, node)
         req_proc = -np.sort(-req_proc)
         used_proc = used_proc + req_proc
         node.cores.used = used_proc.tolist()
@@ -232,20 +236,42 @@ class Allocator:
         node.self_update()
 
     def build_service_queue(self):
-        for key in self.services:
-            service = self.services[key]
+        for service in self.services.values():
             if service.running != service.replicas:
                 self.service_queue.put(service)
+
+    def deallocate_service(self):
+        pass
 
     def allocate(self):
         self.sync_from_db()
         logging.info("Sync completed")
         self.build_service_queue()
-        self.algorithm_manager.calculate(
-            self.nodes,
-            self.services,
-            self.service_queue,
-        )
-        # self.show_services()
+
+        while not self.service_queue.empty():
+            p_service = self.service_queue.get()
+            if p_service is None:
+                break
+            desired_state_different = p_service.replicas - p_service.running
+            if desired_state_different < 0:
+                for _ in range(-desired_state_different):
+                    node_id = self.algorithm_manager.find_deallocate(
+                        p_service,
+                        self.nodes,
+                    )
+
+                    if node_id is None:
+                        raise RuntimeError(
+                            "Why we can't find anything to deallocate?????"
+                        )
+            else:
+                for _ in range(desired_state_different):
+                    node_id = self.algorithm_manager.find_allocate(
+                        p_service,
+                        self.nodes,
+                    )
+                    if node_id is None:
+                        break
+                    self.update_node(self.nodes[node_id], p_service)
         self.sync_node_to_db()
         self.sync_service_to_db()

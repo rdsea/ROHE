@@ -10,7 +10,7 @@ from rohe.orchestration.orchestration_algorithm.generic_algorithm import (
     GenericAlgorithm,
 )
 
-from ..resource_management import Node, Service, ServiceQueue
+from ..resource_management import Node, Service
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -90,7 +90,7 @@ class PriorityAlgorithm(GenericAlgorithm):
         return node_ranks
 
     def selecting_node(self, node_ranks, strategy=0, debug=False):
-        node_id = -1
+        node_id = None
         try:
             if strategy == 0:  # first fit
                 node_id = list(node_ranks.keys())[0]
@@ -134,36 +134,26 @@ class PriorityAlgorithm(GenericAlgorithm):
             else:
                 self.assign(nodes, node_id, service)
 
-    def deallocate_service(self, service, nodes, weights, strategy):
-        pass
-
-    def calculate(
+    def find_deallocate(
         self,
+        p_service: Service,
         nodes: Dict[str, Node],
-        services: Dict[str, Service],
-        service_queue: ServiceQueue,
         config: OrchestrateAlgorithmConfig,
     ):
-        while not service_queue.empty():
-            p_service = service_queue.get()
-            if p_service is None:
-                break
-            replica = p_service.replicas - p_service.running
-            if p_service.replicas < services[p_service.id].replicas:
-                self.deallocate_service(
-                    p_service,
-                    nodes,
-                    config.weights,
-                    config.strategy,
-                )
-                continue
-            self.allocate_service(
-                p_service,
-                nodes,
-                config.weights,
-                config.strategy,
-                replica,
-            )
+        pass
+
+    def find_allocate(
+        self,
+        p_service: Service,
+        nodes: Dict[str, Node],
+        config: OrchestrateAlgorithmConfig,
+    ):
+        fil_nodes = self.filtering_node(nodes, p_service)
+        ranking_list = self.ranking(nodes, fil_nodes, p_service, config.weights)
+        node_id = self.selecting_node(ranking_list, config.strategy)
+        if node_id is None:
+            logging.warning(str("Cannot find node for service: {}".format(p_service)))
+        return node_id
 
     def __str__(self) -> str:
         return "Priority Algorithm"

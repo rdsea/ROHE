@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from ...common.data_models import OrchestrateAlgorithmConfig
 from ...common.rohe_enum import OrchestrateAlgorithmEnum
-from ..resource_management import Node, Service, ServiceQueue
+from ..resource_management import Node, Service
 from .generic_algorithm import GenericAlgorithm
 
 
@@ -28,14 +28,18 @@ class AlgorithmManager:
         else:
             raise ValueError(f"{algorithm} hasn't been implemented")
 
-    def calculate(
+    def find_allocate(
         self,
+        p_service: Service,
         nodes: Dict[str, Node],
-        services: Dict[str, Service],
-        service_queue: ServiceQueue,
-    ):
+    ) -> Optional[str]:
         if self.__current_algorithm is None:
             raise RuntimeError("No algorithm is currently loaded")
-        return self.__current_algorithm.calculate(
-            nodes, services, service_queue, self.config
-        )
+        return self.__current_algorithm.find_allocate(p_service, nodes, self.config)
+
+    def find_deallocate(
+        self,
+        p_service: Service,
+        nodes: Dict[str, Node],
+    ):
+        pass
