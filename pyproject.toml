@@ -9,9 +9,15 @@ name = "rohe"
 name = "rohe"
 version = "0.0.2"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
-authors = []
+authors = [{ name = "AaltoSEA", email = "tri.m.nguyen@aalto.fi" }]
 readme = "README.md"
 requires-python = ">=3.8"
+
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3.10",
+]
 
 dependencies = [
   "boto3==1.24.90",
@@ -24,7 +30,7 @@ dependencies = [
   "GitPython==3.1.40",
   "h5py==3.7.0",
   "Jinja2==3.1.2",
-  "kubernetes==28.1.0",
+  "kubernetes==30.1.0",
   "matplotlib==3.6.2",
   "networkx==3.2",
   "numpy==1.23.5",
@@ -39,6 +45,7 @@ dependencies = [
   "pyzmq==25.1.1",
   "qoa4ml@git+https://github.com/rdsea/QoA4ML.git",
   "quixstreams==0.5.7",
+  "pydantic>=2.7.4,<2.8",
   # "ray==2.4.0",
   #NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
   "Werkzeug==2.2.2",
@@ -51,7 +58,15 @@ ml = [
   "torch==2.1.0",
   "ultralytics==8.0.200",
 ]
-dev = ["pre-commit", "black", "isort", "devtools", "flit"]
+dev = [
+  "pre-commit",
+  "black",
+  "isort",
+  "devtools",
+  "flit",
+  "datamodel-code-generator",
+  "mkdocs-material[imaging]",
+]
 
 all = ["rohe[ml,dev]"]
 

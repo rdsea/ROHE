@@ -5,12 +5,9 @@ from typing import Dict
 
 import numpy as np
 
-from rohe.common.data_models import OrchestrateAlgorithmConfig
-from rohe.orchestration.orchestration_algorithm.generic_algorithm import (
-    GenericAlgorithm,
-)
-
+from ...common.data_models import OrchestrateAlgorithmConfig
 from ..resource_management import Node, Service
+from .generic_algorithm import GenericAlgorithm
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -111,28 +108,6 @@ class PriorityAlgorithm(GenericAlgorithm):
             else:
                 logging.warning("Cannot selecting node in priorityOrchestration")
         return node_id
-
-    def assign(self, nodes: Dict[str, Node], node_id, service):
-        if node_id in nodes:
-            # debug(nodes[node_id], service)
-            nodes[node_id].allocate(service)
-            # print("assign success")
-            logging.info(
-                str("Assign {} to {}".format(service.name, nodes[node_id].name))
-            )
-
-    def allocate_service(
-        self, service: Service, nodes: Dict[str, Node], weights, strategy, replicas
-    ):
-        for _ in range(replicas):
-            fil_nodes = self.filtering_node(nodes, service)
-            ranking_list = self.ranking(nodes, fil_nodes, service, weights)
-            # print(ranking_list)
-            node_id = self.selecting_node(ranking_list, strategy)
-            if node_id == -1:
-                logging.warning(str("Cannot find node for service: {}".format(service)))
-            else:
-                self.assign(nodes, node_id, service)
 
     def find_deallocate(
         self,

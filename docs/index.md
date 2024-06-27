@@ -1,20 +1,8 @@
-# ROHE
-
----
-
-[![Documentation](https://img.shields.io/badge/Documentation-gray?logo=materialformkdocs)](https://rdsea.github.io/rohe/)
-![PyPI - Status](https://img.shields.io/pypi/status/rohe)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/rohe)
-![PyPI - Version](https://img.shields.io/pypi/v/rohe)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rohe)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rdsea/rohe/python-ci.yml?logo=github&label=Github%20Actions)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
 ## High-level view
 
 <figure>
 <p style="text-align:center">
-<img src="documents/img/architecture.png" alt="ROHE High-level View" width="1000"/>
+<img src="img/architecture.png" alt="ROHE High-level View" width="1000"/>
 </p>
 <figcaption>
 <p style="text-align:center">
@@ -284,7 +272,7 @@ Current implementation: Scoring Algorithm
   ```
 
 Workflow of Scoring Algorithm:
-![Scoring Workflow](documents/img/workflow_scoring.png)
+![Scoring Workflow](img/workflow_scoring.png)
 
 - Updating Microservice Queue
 - Filtering Nodes from the Node Collection
@@ -359,8 +347,3 @@ year = {2023}
 - Hong-Linh Truong
 - Vuong Nguyen
 - Anh-Dung Nguyen
-
-## License
-
-[Apache License](./LICENSE)
-

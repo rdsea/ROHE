@@ -14,6 +14,7 @@ modules/orchestration/temp/
 .pypirc
 .env
 *.ipynb
+.cache
 
 artifact
 tmp_image_folder/
@@ -28,3 +29,6 @@ config/orchestrationConfig.yaml
 app/object_classification/modules/draft
 app/object_classification/services/test_services/clients
 app/object_classification/services_old
+
+rohe/external/k8s/apis__apps__v1_openapi.json
+

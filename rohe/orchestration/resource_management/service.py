@@ -5,8 +5,7 @@ import uuid
 from typing import Dict
 
 from ...common.data_models import ServiceData
-
-# from ..deployment_management.kube_generator import kube_generator
+from ..deployment_management.kube_generator import kube_generator
 
 """
 Service config:
@@ -36,7 +35,7 @@ class ServiceInstance(object):
 
     def generate_deployment(self):
         if not self.gen_deployment:
-            # kube_generator(self)
+            kube_generator(self)
             self.gen_deployment = True
 
     def __str__(self):

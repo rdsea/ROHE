@@ -10,6 +10,7 @@ from ..common.data_models import (
     NodeData,
     OrchestrateAlgorithmConfig,
     ServiceData,
+    ServiceQueueConfig,
 )
 from ..storage.abstract import MDBClient
 from .orchestration_algorithm.manager import AlgorithmManager
@@ -22,17 +23,15 @@ class Allocator:
         db_client: MDBClient,
         node_collection: MongoCollection,
         service_collection: MongoCollection,
-        service_queue: ServiceQueue,
-        nodes: Dict[str, Node],
-        services: Dict[str, Service],
+        service_queue_config: ServiceQueueConfig,
         orchestrate_algorithm_config: OrchestrateAlgorithmConfig,
-    ) -> None:
+    ):
         self.db_client = db_client
         self.node_collection = node_collection
         self.service_collection = service_collection
-        self.service_queue = service_queue
-        self.nodes = nodes
-        self.services = services
+        self.service_queue = ServiceQueue(service_queue_config)
+        self.nodes: Dict[str, Node] = {}
+        self.services: Dict[str, Service] = {}
         self.orchestrate_config = orchestrate_algorithm_config
         self.algorithm_manager = AlgorithmManager(self.orchestrate_config)
 
@@ -71,8 +70,6 @@ class Allocator:
                     },
                 ]
                 node_list = list(self.db_client.get(self.node_collection, query))
-                # WARNING: if you try to clear the dict by assigning to {}, it'll be assigned another object and the change
-                # will not be reflected in orchestration agent!!!!
                 self.nodes.clear()
                 for node in node_list:
                     # if replace -> completely replace local nodes by nodes from database
@@ -123,7 +120,6 @@ class Allocator:
                 service_list = list(
                     self.db_client.get(self.service_collection, pipeline)
                 )
-                # WARNING: Same as updating nodes
                 self.services.clear()
                 for service in service_list:
                     # if replace -> completely replace local services by services from database
