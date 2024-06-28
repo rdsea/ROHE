@@ -15,7 +15,8 @@ modules/orchestration/temp/
 .env
 *.ipynb
 .cache
-
+.venv
+dist
 artifact
 tmp_image_folder/
 test_image/

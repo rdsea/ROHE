@@ -5,8 +5,6 @@ import yaml
 from kubernetes import client
 from kubernetes.client.rest import ApiException
 
-from ..resource_management.service import ServiceInstance
-
 
 class K8sClient(object):
     def __init__(self, deploy_config, namespace, api_client):
@@ -99,5 +97,6 @@ class K8sClient(object):
                 % e
             )
 
-    def generate_deployment(self, service_instance: ServiceInstance):
-        pass
+    # def generate_deployment(self, service_instance: ServiceInstance):
+    #     adsfsadf = Test()
+    #     test = Deployment()

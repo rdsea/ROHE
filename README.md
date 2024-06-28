@@ -2,7 +2,7 @@
 
 ---
 
-[![Documentation](https://img.shields.io/badge/Documentation-gray?logo=materialformkdocs)](https://rdsea.github.io/rohe/)
+[![Documentation](https://img.shields.io/badge/Documentation-gray?logo=materialformkdocs)](https://rdsea.github.io/ROHE/)
 ![PyPI - Status](https://img.shields.io/pypi/status/rohe)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/rohe)
 ![PyPI - Version](https://img.shields.io/pypi/v/rohe)
@@ -14,7 +14,7 @@
 
 <figure>
 <p style="text-align:center">
-<img src="documents/img/architecture.png" alt="ROHE High-level View" width="1000"/>
+<img src="docs/img/architecture.png" alt="ROHE High-level View" width="1000"/>
 </p>
 <figcaption>
 <p style="text-align:center">
@@ -284,7 +284,7 @@ Current implementation: Scoring Algorithm
   ```
 
 Workflow of Scoring Algorithm:
-![Scoring Workflow](documents/img/workflow_scoring.png)
+![Scoring Workflow](docs/img/workflow_scoring.png)
 
 - Updating Microservice Queue
 - Filtering Nodes from the Node Collection
