@@ -7,8 +7,10 @@ name = "rohe"
 version = "0.0.2"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 authors = ["AaltoSEA <tri.m.nguyen@aalto.fi>"]
+maintainers = ["Anh-Dung Nguyen <anh-dung.nguyen@aalto.fi>"]
 readme = "README.md"
 packages = [{ include = "rohe" }]
+homepage = "https://rdsea.github.io/"
 repository = "https://github.com/rdsea/ROHE"
 license = "Apache-2.0"
 documentation = "https://rdsea.github.io/ROHE/"
@@ -60,12 +62,14 @@ pre-commit = "*"
 black = "*"
 isort = "*"
 devtools = "*"
-flit = "*"
+ruff = "*"
 datamodel-code-generator = "*"
+mypy = "*"
 
 
 [tool.poetry.extras]
 ml = ["scikit_learn", "tensorflow", "torch", "ultralytics"]
+
 [tool.isort]
 profile = "black"
 

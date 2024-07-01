@@ -199,8 +199,8 @@ class Allocator:
         service.instance_ids = list(service.instances.keys())
         service.running = len(service.instance_ids)
         service.self_update_config()
-        # TODO: update
-        # new_instance.generate_deployment()
+
+        return new_instance
 
     def update_node(self, node: Node, service: Service):
         node.cpu.used = node.cpu.used + service.cpu
@@ -221,7 +221,7 @@ class Allocator:
         used_proc = np.sort(np.array(node.cores.used))
         req_proc = np.array(service.cores)
         req_proc.resize(used_proc.shape)
-        self.update_service(service, node)
+        new_instance = self.update_service(service, node)
         req_proc = -np.sort(-req_proc)
         used_proc = used_proc + req_proc
         node.cores.used = used_proc.tolist()
@@ -230,6 +230,7 @@ class Allocator:
         else:
             node.service_list[service.id] = 1
         node.self_update()
+        return new_instance
 
     def build_service_queue(self):
         for service in self.services.values():
@@ -243,7 +244,7 @@ class Allocator:
         self.sync_from_db()
         logging.info("Sync completed")
         self.build_service_queue()
-
+        new_service_instances = []
         while not self.service_queue.empty():
             p_service = self.service_queue.get()
             if p_service is None:
@@ -268,6 +269,10 @@ class Allocator:
                     )
                     if node_id is None:
                         break
-                    self.update_node(self.nodes[node_id], p_service)
+
+                    new_service_instances.append(
+                        self.update_node(self.nodes[node_id], p_service)
+                    )
         self.sync_node_to_db()
         self.sync_service_to_db()
+        return new_service_instances

@@ -2,6 +2,10 @@ import logging
 import traceback
 from threading import Timer
 
+from devtools import debug
+
+from rohe.orchestration.deployment_management.k8s_client import K8sClient
+
 from ..common.data_models import (
     MongoCollection,
     OrchestrateAlgorithmConfig,
@@ -33,6 +37,7 @@ class OrchestrationAgent(RoheObject):
         self.node_collection = node_collection
         self.service_collection = service_collection
         self.orchestration_interval = orchestration_interval
+        self.k8s_client = K8sClient()
         self.allocator = Allocator(
             self.db_client,
             self.node_collection,
@@ -50,8 +55,8 @@ class OrchestrationAgent(RoheObject):
             # Periodically check service queue and allocate service
             self.orches_flag = True
             self.orchestrate()
-            self.show_nodes()
-            self.show_services()
+            # self.show_nodes()
+            # self.show_services()
         except Exception as e:
             logging.error("Error in `start` OrchestrationAgent: {}".format(e))
 
@@ -62,7 +67,9 @@ class OrchestrationAgent(RoheObject):
         try:
             if self.orches_flag:
                 logging.info("Agent Start Orchestrating")
-                self.allocator.allocate()
+                new_service_instances = self.allocator.allocate()
+                debug(new_service_instances)
+                self.k8s_client.generate_deployment((new_service_instances[0]))
                 # self.show_services()
                 logging.info("Agent Finish Orchestrating")
                 self.timer = Timer(self.orchestration_interval, self.orchestrate)

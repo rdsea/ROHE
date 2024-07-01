@@ -1,19 +1,38 @@
 import datetime
 
 import pytz
-import yaml
-from kubernetes import client
+from devtools import debug
 from kubernetes.client.rest import ApiException
+
+from ...external.k8s.datamodel.api.apps.v1 import Deployment, DeploymentSpec
+from ...external.k8s.datamodel.api.core.v1 import (
+    Container,
+    ContainerPort,
+    EnvVar,
+    EnvVarSource,
+    ObjectFieldSelector,
+    PodSpec,
+    PodTemplateSpec,
+)
+from ...external.k8s.datamodel.apimachinery.pkg.apis.meta.v1 import (
+    LabelSelector,
+    ObjectMeta,
+)
+from ..resource_management import ServiceInstance
 
 
 class K8sClient(object):
-    def __init__(self, deploy_config, namespace, api_client):
-        self.deploy_config = yaml.safe_load(open(deploy_config))
-        self.namespace = namespace
-        self.name = self.deploy_config["metadata"]["name"]
-        self.api_client = api_client
-        self.deployment = None
-        self.client_v1 = client.CoreV1Api()
+    def __init__(
+        self,
+        # deploy_config, namespace, api_client
+    ):
+        pass
+        # self.deploy_config = yaml.safe_load(open(deploy_config))
+        # self.namespace = namespace
+        # self.name = self.deploy_config["metadata"]["name"]
+        # self.api_client = api_client
+        # self.deployment = None
+        # self.client_v1 = client.CoreV1Api()
 
     def create(self):
         try:
@@ -97,6 +116,55 @@ class K8sClient(object):
                 % e
             )
 
-    # def generate_deployment(self, service_instance: ServiceInstance):
-    #     adsfsadf = Test()
-    #     test = Deployment()
+    def generate_deployment(self, service_instance: ServiceInstance):
+        task_name = service_instance.service.name
+        node_name = service_instance.node.name
+        test = Deployment(
+            apiVersion="apps/v1",
+            kind="Deployment",
+            metadata=ObjectMeta(
+                name=f"{task_name}-{service_instance.node.name}",
+                labels={"app": task_name},
+            ),
+            spec=DeploymentSpec(
+                replicas=1,
+                selector=LabelSelector(matchLabels={"app": task_name}),
+                template=PodTemplateSpec(
+                    metadata=ObjectMeta(labels={"app": task_name}),
+                    spec=PodSpec(
+                        restartPolicy="Always",
+                        nodeSelector={"kubernetes.io/hostname": node_name},
+                        containers=[
+                            Container(
+                                name=task_name,
+                                image=service_instance.service.image,
+                                imagePullPolicy="Always",
+                                ports=[
+                                    ContainerPort(containerPort=port)
+                                    for port in service_instance.service.ports
+                                ],
+                                env=[
+                                    EnvVar(
+                                        name="NODE_NAME",
+                                        valueFrom=EnvVarSource(
+                                            fieldRef=ObjectFieldSelector(
+                                                fieldPath="spec.nodeName"
+                                            )
+                                        ),
+                                    ),
+                                    EnvVar(
+                                        name="POD_ID",
+                                        valueFrom=EnvVarSource(
+                                            fieldRef=ObjectFieldSelector(
+                                                fieldPath="metadata.name"
+                                            )
+                                        ),
+                                    ),
+                                ],
+                            )
+                        ],
+                    ),
+                ),
+            ),
+        )
+        debug(test.model_dump(exclude_defaults=True))

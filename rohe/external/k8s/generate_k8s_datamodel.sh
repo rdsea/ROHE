@@ -20,14 +20,15 @@ echo "Recreated the datamodel folder."
 datamodel-codegen --snake-case-field --input "$SCRIPT_DIR/apis__apps__v1_openapi.json" --output "$DATAMODEL_DIR" \
 	--output-model-type=pydantic_v2.BaseModel \
 	--target-python-version=3.10 \
-	--use-annotated \
-	--collapse-root-models
+	--collapse-root-models \
+	--use-default-kwarg
 
 datamodel-codegen --snake-case-field --input "$SCRIPT_DIR/api__v1_openapi.json" --output "$DATAMODEL_DIR" \
 	--output-model-type=pydantic_v2.BaseModel \
 	--target-python-version=3.10 \
-	--use-annotated \
-	--collapse-root-models
+	--collapse-root-models \
+	--use-default-kwarg
+
 mv "$DATAMODEL_DIR/io/k8s/api" "$DATAMODEL_DIR"
 mv "$DATAMODEL_DIR/io/k8s/apimachinery" "$DATAMODEL_DIR"
 rm -r "$DATAMODEL_DIR/io"
