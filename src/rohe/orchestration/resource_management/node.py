@@ -29,7 +29,7 @@ Node config:
 """
 
 
-class Node(object):
+class Node:
     def __init__(self, config: NodeData):
         # configuration - dictionary, including:
         # node_name - string

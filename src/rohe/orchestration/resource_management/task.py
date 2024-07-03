@@ -1,7 +1,7 @@
 import json
 
 
-class TaskOrc(object):
+class TaskOrc:
     def __init__(self, configuration, pre_task, next_task):
         self.name = configuration["name"]
         self.resource_avg = configuration["resource_avg"]
@@ -45,7 +45,6 @@ class TaskOrc(object):
         # To Do
         # Send scale deployment to 0 replicas
         self.scale(0)
-        pass
 
     def restart(self):
         # To Do

@@ -80,9 +80,7 @@ class Allocator:
                         pass
             logging.info("Agent Sync nodes from Database complete")
         except Exception as e:
-            logging.error(
-                "Error in `sync_node_from_db` OrchestrationAgent: {}".format(e)
-            )
+            logging.error(f"Error in `sync_node_from_db` OrchestrationAgent: {e}")
 
     def sync_service_from_db(self, service_id=None, replace=True):
         try:
@@ -131,21 +129,21 @@ class Allocator:
                         pass
             logging.info("Agent Sync services from Database complete")
         except Exception as e:
-            logging.error(
-                "Error in `sync_service_from_db` OrchestrationAgent: {}".format(e)
-            )
+            logging.error(f"Error in `sync_service_from_db` OrchestrationAgent: {e}")
             # print(traceback.print_exc())
 
     def sync_node_to_db(self, node_mac=None):
         try:
             if node_mac is not None:
-                node_db = list(
-                    self.db_client.aggregate(
-                        self.node_collection,
-                        {"mac_address": node_mac},
-                        [("timestamp", pymongo.DESCENDING)],
+                node_db = next(
+                    iter(
+                        self.db_client.aggregate(
+                            self.node_collection,
+                            {"mac_address": node_mac},
+                            [("timestamp", pymongo.DESCENDING)],
+                        )
                     )
-                )[0]
+                )
                 node_db["data"] = self.nodes[node_mac].config.model_dump()
                 node_db.pop("_id")
                 node_db["timestamp"] = time.time()
@@ -154,19 +152,21 @@ class Allocator:
                 for key in self.nodes:
                     self.sync_node_to_db(key)
         except Exception as e:
-            logging.error("Error in `sync_node_to_db` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `sync_node_to_db` OrchestrationAgent: {e}")
             # print(traceback.format_exc())
 
     def sync_service_to_db(self, service_id=None):
         try:
             if service_id is not None:
-                service_db = list(
-                    self.db_client.aggregate(
-                        self.service_collection,
-                        {"service_id": service_id},
-                        [("timestamp", pymongo.DESCENDING)],
+                service_db = next(
+                    iter(
+                        self.db_client.aggregate(
+                            self.service_collection,
+                            {"service_id": service_id},
+                            [("timestamp", pymongo.DESCENDING)],
+                        )
                     )
-                )[0]
+                )
                 service_db["data"] = self.services[service_id].config.model_dump()
                 service_db["replicas"] = self.services[service_id].replicas
                 service_db["running"] = self.services[service_id].running
@@ -178,16 +178,14 @@ class Allocator:
                     logging.info(key)
                     self.sync_service_to_db(key)
         except Exception as e:
-            logging.error(
-                "Error in `sync_service_to_db` OrchestrationAgent: {}".format(e)
-            )
+            logging.error(f"Error in `sync_service_to_db` OrchestrationAgent: {e}")
 
     def sync_from_db(self):
         try:
             self.sync_node_from_db()
             self.sync_service_from_db()
         except Exception as e:
-            logging.error("Error in `sync_from_db` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `sync_from_db` OrchestrationAgent: {e}")
 
     def update_service(self, service: Service, node: Node):
         if node.id in service.node_list:

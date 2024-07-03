@@ -21,7 +21,7 @@ class MessagingConnectionConfig(BaseModel):
             }
             return self_dict
         except Exception as e:
-            logging.error("Error in `to_dict` MessagingConnection: {}".format(e))
+            logging.error(f"Error in `to_dict` MessagingConnection: {e}")
             return {}
 
     def to_dict(self):
@@ -33,5 +33,5 @@ class MessagingConnectionConfig(BaseModel):
             }
             return self_dict
         except Exception as e:
-            logging.error("Error in `to_dict` MessagingConnection: {}".format(e))
+            logging.error(f"Error in `to_dict` MessagingConnection: {e}")
             return {}

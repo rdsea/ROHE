@@ -43,7 +43,7 @@ def merge_dict(f_dict, i_dict, prio=False):
             else:
                 return i_dict
     except Exception as e:
-        print("[ERROR] - Error {} in merge_dict: {}".format(type(e), e.__traceback__))
+        print(f"[ERROR] - Error {type(e)} in merge_dict: {e.__traceback__}")
         traceback.print_exception(*sys.exc_info())
     return f_dict
 
@@ -58,7 +58,7 @@ def get_dict_at(dict, i=0):
 
 def get_parent_dir(file, parent_level=1, to_string=True):
     current_dir = get_file_dir(file=file, to_string=False)
-    for i in range(parent_level):
+    for _i in range(parent_level):
         current_dir = current_dir.parent.absolute()
     if to_string:
         return str(current_dir)
@@ -72,10 +72,10 @@ def load_config(file_path: str) -> dict | None:
     """
     try:
         if "json" in file_path:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 return json.load(f)
         if ("yaml" in file_path) or ("yml" in file_path):
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 return yaml.safe_load(f)
         else:
             return None
@@ -130,7 +130,7 @@ def save_response_content(response, destination, chunk_size=32768):
 
 
 def load_yaml_config(file_path):
-    with open(file_path, "r") as yaml_file:
+    with open(file_path) as yaml_file:
         config = yaml.safe_load(yaml_file)
     return config
 
@@ -234,7 +234,7 @@ def get_file_dir(file, to_string=True):
 
 def get_rohe_dir(file, level=1, to_string=True):
     current_dir = get_file_dir(file=file, to_string=False)
-    for i in range(level):
+    for _i in range(level):
         current_dir = current_dir.parent.absolute()
     if to_string:
         return str(current_dir)
@@ -252,7 +252,7 @@ def load_module(file_path, module_name):
 def list_files(folder_path):
     print(folder_path)
     file_list = {}
-    for root, dirs, files in os.walk(folder_path):
+    for _root, _dirs, files in os.walk(folder_path):
         for item in files:
             file_path = os.path.abspath(os.path.join(folder_path, item))
             file = {item: file_path}

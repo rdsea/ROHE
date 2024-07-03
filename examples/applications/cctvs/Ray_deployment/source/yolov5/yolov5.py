@@ -32,7 +32,7 @@ def compare_box(box1, box2):
     return True
 
 
-class Yolo5(object):
+class Yolo5:
     def __init__(self, param=None):
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.param = param if param is not None else "yolov5s"

@@ -43,17 +43,16 @@ def filtering_node(nodes: Dict[str, Node], service: Service):
 
 
 def ranking(
-    nodes: Dict[str, Node], keys, service: Service, weights={"cpu": 1, "memory": 1}
+    nodes: Dict[str, Node], keys, service: Service, weights=None
 ):
+    if weights is None:
+        weights = {"cpu": 1, "memory": 1}
     node_ranks = {}
     for key in keys:
         selected_node = nodes[key]
 
         remain_proc = np.sort(
-            (
-                np.array(selected_node.cores.capacity)
-                - np.array(selected_node.cores.used)
-            )
+            np.array(selected_node.cores.capacity) - np.array(selected_node.cores.used)
         )
         req_proc = np.array(service.cores)
         req_proc.resize(remain_proc.shape)
@@ -80,20 +79,16 @@ def selecting_node(node_ranks, strategy=0, debug=False):
     node_id = -1
     try:
         if strategy == 0:  # first fit
-            node_id = list(node_ranks.keys())[0]
+            node_id = next(iter(node_ranks.keys()))
         else:
             sort_nodes = dict(sorted(node_ranks.items(), key=lambda item: item[1]))
             if strategy == 1:  # best fit
                 node_id = list(sort_nodes.keys())[-1]
             elif strategy == 2:  # worst fit
-                node_id = list(sort_nodes.keys())[0]
+                node_id = next(iter(sort_nodes.keys()))
     except Exception as e:
         if debug:
-            print(
-                "[ERROR] - Error {} while sellecting node: {}".format(
-                    type(e), e.__traceback__
-                )
-            )
+            print(f"[ERROR] - Error {type(e)} while sellecting node: {e.__traceback__}")
             traceback.print_exception(*sys.exc_info())
         else:
             logging.warning("Cannot selecting node in priorityOrchestration")
@@ -105,19 +100,19 @@ def assign(nodes: Dict[str, Node], node_id, service):
         # debug(nodes[node_id], service)
         nodes[node_id].allocate(service)
         # print("assign success")
-        logging.info(str("Assign {} to {}".format(service.name, nodes[node_id].name)))
+        logging.info(str(f"Assign {service.name} to {nodes[node_id].name}"))
 
 
 def allocate_service(
     service: Service, nodes: Dict[str, Node], weights, strategy, replicas
 ):
-    for i in range(replicas):
+    for _i in range(replicas):
         fil_nodes = filtering_node(nodes, service)
         ranking_list = ranking(nodes, fil_nodes, service, weights)
         # print(ranking_list)
         node_id = selecting_node(ranking_list, strategy)
         if node_id == -1:
-            logging.warning(str("Cannot find node for service: {}".format(service)))
+            logging.warning(str(f"Cannot find node for service: {service}"))
         else:
             assign(nodes, node_id, service)
 

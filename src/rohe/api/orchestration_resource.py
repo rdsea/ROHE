@@ -17,7 +17,7 @@ class OrchestationResource(Resource):
             return jsonify({"status": args})
         except Exception as e:
             logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
             )
             return jsonify({"status": "unsupported"})
 
@@ -76,7 +76,7 @@ class OrchestationResource(Resource):
             return jsonify({"status": "success", "response": response})
         except Exception as e:
             logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
             )
             return jsonify({"status": "fail"})
 
@@ -88,7 +88,7 @@ class OrchestationResource(Resource):
             return jsonify({"status": args})
         except Exception as e:
             logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
             )
             return jsonify({"status": "unsupported"})
 
@@ -100,6 +100,6 @@ class OrchestationResource(Resource):
             return jsonify({"status": args})
         except Exception as e:
             logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
             )
             return jsonify({"status": "unsupported"})

@@ -3,7 +3,7 @@ from kubernetes import dynamic
 from kubernetes.client import api_client
 
 
-class ConfigMap(object):
+class ConfigMap:
     # """
     # Example of an api client:
     #     client = dynamic.DynamicClient(

@@ -3,7 +3,7 @@ import sys
 import traceback
 
 
-class RoheObject(object):
+class RoheObject:
     def __init__(self, logging_level=2):
         logging.basicConfig(
             format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.NOTSET
@@ -42,5 +42,5 @@ class RoheObject(object):
             elif level == 5:
                 self.logger.critical(message)
         except Exception as e:
-            self.log("Error {} while logging: {}".format(type(e), e.__traceback__), 4)
+            self.log(f"Error {type(e)} while logging: {e.__traceback__}", 4)
             traceback.print_exception(*sys.exc_info())

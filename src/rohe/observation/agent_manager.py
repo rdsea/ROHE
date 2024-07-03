@@ -43,7 +43,7 @@ class RoheAgentManager(RoheRestObject):
             #     agent_dict = {}
             self.agent_dict: Dict[str, Any] = {}
         except Exception as e:
-            logging.error("Error in `__init__` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `__init__` RoheAgentManager: {e}")
 
     def start_docker(self, image: str, application_name: str):
         try:
@@ -56,7 +56,7 @@ class RoheAgentManager(RoheRestObject):
             )
             return container
         except Exception as e:
-            logging.error("Error in `start_docker` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `start_docker` RoheAgentManager: {e}")
             return {}
 
     def update_app(self, metadata):
@@ -64,7 +64,7 @@ class RoheAgentManager(RoheRestObject):
             # update application configuration
             return self.db_client.insert_one(self.db_collection, metadata)
         except Exception as e:
-            logging.error("Error in `update_app` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `update_app` RoheAgentManager: {e}")
             return {}
 
     def get_app(self, application_name):
@@ -93,15 +93,15 @@ class RoheAgentManager(RoheRestObject):
                     return app
             return None
         except Exception as e:
-            logging.error("Error in `get_app` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `get_app` RoheAgentManager: {e}")
             return None
 
     def show_agent(self):
         try:
             # Show list of agent and its status for debugging
-            logging.info("Agent: {}".format(self.agent_dict))
+            logging.info(f"Agent: {self.agent_dict}")
         except Exception as e:
-            logging.error("Error in `show_agent` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `show_agent` RoheAgentManager: {e}")
             return
 
     def post(self, command: str):
@@ -120,9 +120,7 @@ class RoheAgentManager(RoheRestObject):
             logging.info(app)
             if app is None:
                 # Application has not been registered
-                response[application_name] = "Application {} not exist".format(
-                    application_name
-                )
+                response[application_name] = f"Application {application_name} not exist"
             else:
                 # If application exist
                 if request_data.agent_image is not None:
@@ -180,7 +178,7 @@ class RoheAgentManager(RoheRestObject):
 
                     # create a response
                     response[application_name] = (
-                        "Application agent for {} stopped ".format(application_name)
+                        f"Application agent for {application_name} stopped "
                     )
                 elif command == "delete":
                     if metadata["_id"] in self.agent_dict:
@@ -199,7 +197,7 @@ class RoheAgentManager(RoheRestObject):
                     )
                     # create a response
                     response[application_name] = (
-                        "Application agent for {} deleted ".format(application_name)
+                        f"Application agent for {application_name} deleted "
                     )
                 elif command == "kill-all":
                     for agent in list(self.agent_dict.keys()):
@@ -210,5 +208,5 @@ class RoheAgentManager(RoheRestObject):
             # Return the response
             return jsonify({"status": "success", "response": response})
         except Exception as e:
-            logging.error("Error in `post` RoheAgentManager: {}".format(e))
+            logging.error(f"Error in `post` RoheAgentManager: {e}")
             return jsonify({"status": "request fail"})

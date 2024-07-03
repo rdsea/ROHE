@@ -10,7 +10,7 @@ def get_dict_at(dict, i):
     return dict[keys[i]], keys[i]
 
 
-class RoheObservationAgent(object):
+class RoheObservationAgent:
     def __init__(self, configuration, mg_db=True):
         self.conf = configuration
         colletor_conf = self.conf["collector"]

@@ -58,7 +58,7 @@ class OrchestrationAgent(RoheObject):
             # self.show_nodes()
             # self.show_services()
         except Exception as e:
-            logging.error("Error in `start` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `start` OrchestrationAgent: {e}")
 
     def allocate_service(self):
         pass
@@ -69,29 +69,29 @@ class OrchestrationAgent(RoheObject):
                 logging.info("Agent Start Orchestrating")
                 new_service_instances = self.allocator.allocate()
                 debug(new_service_instances)
-                self.k8s_client.generate_deployment((new_service_instances[0]))
+                self.k8s_client.generate_deployment(new_service_instances[0])
                 # self.show_services()
                 logging.info("Agent Finish Orchestrating")
                 self.timer = Timer(self.orchestration_interval, self.orchestrate)
                 self.timer.start()
         except Exception as e:
             print(traceback.format_exc())
-            logging.error("Error in `orchestrate` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `orchestrate` OrchestrationAgent: {e}")
 
     def stop(self):
         try:
             self.orches_flag = False
         except Exception as e:
-            logging.error("Error in `stop` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `stop` OrchestrationAgent: {e}")
 
     def show_nodes(self):
         try:
             logging.info("############ NODES LIST ############")
             for node_key in self.allocator.nodes:
-                logging.info("{} : {}".format(self.allocator.nodes[node_key], node_key))
-            logging.info("Nodes Size: {}".format(len(self.allocator.nodes)))
+                logging.info(f"{self.allocator.nodes[node_key]} : {node_key}")
+            logging.info(f"Nodes Size: {len(self.allocator.nodes)}")
         except Exception as e:
-            logging.error("Error in `show_nodes` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `show_nodes` OrchestrationAgent: {e}")
 
     def show_services(self):
         try:
@@ -100,4 +100,4 @@ class OrchestrationAgent(RoheObject):
                 logging.info(self.allocator.services[service_key])
             logging.info(f"Services Size: {len(self.allocator.services.keys())}")
         except Exception as e:
-            logging.error("Error in `show_services` OrchestrationAgent: {}".format(e))
+            logging.error(f"Error in `show_services` OrchestrationAgent: {e}")

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import time
 import uuid
-from typing import Dict
 
 from ...common.data_models import ServiceData
 
@@ -62,11 +61,11 @@ class ServiceInstance:
         return instance_info
 
 
-class Service(object):
+class Service:
     def __init__(self, config: ServiceData):
         self.q_time = time.time()
         self.update(config)
-        self.instances: Dict[str, ServiceInstance] = {}
+        self.instances: dict[str, ServiceInstance] = {}
         self.queueing = self.replicas
 
     def update(self, config: ServiceData):

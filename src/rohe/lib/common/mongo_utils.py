@@ -18,5 +18,5 @@ def get_mdb_client(mdb_conf):
         logging.info("Pinged your deployment. You successfully connected to MongoDB!")
         return client
     except Exception as e:
-        logging.error("Error in get_mdb_client: {}".format(e))
+        logging.error(f"Error in get_mdb_client: {e}")
         return None

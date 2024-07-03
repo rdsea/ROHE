@@ -18,7 +18,7 @@ def get_dict_at(dict, i):
     return dict[keys[i]], keys[i]
 
 
-class ObservabilityAgent(object):
+class ObservabilityAgent:
     def __init__(self, conf_file):
         self.conf = conf_file
         colletor_conf = self.conf["collector"]
@@ -55,7 +55,7 @@ class ObservabilityAgent(object):
                 new_row = pd.DataFrame.from_records([dict_start])
                 output = pd.concat([output, new_row], ignore_index=True)
         except Exception as e:
-            print("[ERROR] - Error {} while handling resource report: ".format(type(e)))
+            print(f"[ERROR] - Error {type(e)} while handling resource report: ")
             traceback.print_exception(*sys.exc_info())
         return output
 
@@ -139,7 +139,7 @@ class ObservabilityAgent(object):
         try:
             if df_feedback.empty and not df_quality_report.empty:
                 try:
-                    for index, row in df_quality_report.iterrows():
+                    for _index, row in df_quality_report.iterrows():
                         if random.randint(1, 100) < self.sample_rate:
                             row["accuracy"] = row["confidence"]
                             new_row = pd.DataFrame.from_records([row])
@@ -148,7 +148,7 @@ class ObservabilityAgent(object):
                     print("Error while match accuracy (no feedback): ", e)
                     traceback.print_exception(*sys.exc_info())
             else:
-                for index, row in df_feedback.iterrows():
+                for _index, row in df_feedback.iterrows():
                     predictions = list(row["source"])
                     for prediction in predictions:
                         try:
@@ -182,9 +182,7 @@ class ObservabilityAgent(object):
             row["contribution"] = -row["confidence"]
         elif int(row["accuracy"]) == 0 and int(row["value"]) == 0:
             row["contribution"] = -penalty * row["confidence"]
-        elif int(row["accuracy"]) == 1 and int(row["value"]) == 1:
-            row["contribution"] = row["confidence"]
-        elif int(row["accuracy"]) == 1 and int(row["value"]) == 0:
+        elif int(row["accuracy"]) == 1 and int(row["value"]) == 1 or int(row["accuracy"]) == 1 and int(row["value"]) == 0:
             row["contribution"] = row["confidence"]
         return row
 

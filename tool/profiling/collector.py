@@ -12,7 +12,7 @@ sys.path.append(ROHE_PATH)
 from userModule.common.parser import OCParser
 
 
-class Collector(object):
+class Collector:
     def __init__(self, config) -> None:
         self.config = config
         self.collector = Amqp_Collector(self.config["collector"], self)

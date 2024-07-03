@@ -95,6 +95,6 @@ def scale_reduction(
         for key, metric in contract["mlSpecific"].items():
             file_name += str(key)
             file_name += "{}_".format(str(metric["weight"]))
-        data_df.to_csv(TEMP_PATH + "{}.csv".format(file_name))
+        data_df.to_csv(TEMP_PATH + f"{file_name}.csv")
     highest_row = data_df.loc[data_df["total_score"].idxmax()]
     return highest_row.to_dict()

@@ -33,11 +33,11 @@ def compare_box(box1, box2):
 
 
 path = os.path.dirname(os.path.abspath(__file__)) + "/class.yml"
-with open(path, "r") as f:
+with open(path) as f:
     names = yaml.safe_load(f)
 
 
-class Yolo8(object):
+class Yolo8:
     def __init__(self, param=None):
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.names = names

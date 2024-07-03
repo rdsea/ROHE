@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Data_Processing(object):
+class Data_Processing:
     def __init__(self, configuration):
         pass
 

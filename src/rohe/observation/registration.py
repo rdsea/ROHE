@@ -43,7 +43,7 @@ class RoheRegistration(RoheRestObject):
             # if not isinstance(self.connector_config.config, AMQPConnectorConfig):
             #     raise RuntimeError("Currently only work with AMQP")
         except Exception as e:
-            logging.error("Error in `__init__` RoheRegistration: {}".format(e))
+            logging.error(f"Error in `__init__` RoheRegistration: {e}")
 
     def get_app(self, application_name: str):
         """
@@ -72,7 +72,7 @@ class RoheRegistration(RoheRestObject):
                     return app
             return None
         except Exception as e:
-            logging.error("Error in `get_app` RoheRegistration: {}".format(e))
+            logging.error(f"Error in `get_app` RoheRegistration: {e}")
             return {}
 
     def update_app(self, metadata: Dict):
@@ -82,7 +82,7 @@ class RoheRegistration(RoheRestObject):
         try:
             return self.db_client.insert_one(self.db_collection, metadata)
         except Exception as e:
-            logging.error("Error in `update_app` RoheRegistration: {}".format(e))
+            logging.error(f"Error in `update_app` RoheRegistration: {e}")
             return {}
 
     def generate_agent_conf(self, metadata: Dict) -> dict:
@@ -108,7 +108,7 @@ class RoheRegistration(RoheRestObject):
             return agent_config
         except Exception as e:
             logging.error(
-                "Error in `generate_agent_conf` RoheRegistration: {}".format(e)
+                f"Error in `generate_agent_conf` RoheRegistration: {e}"
             )
             return {}
 
@@ -129,7 +129,7 @@ class RoheRegistration(RoheRestObject):
             self.db_client.insert_one(self.db_collection, metadata)
             return metadata
         except Exception as e:
-            logging.error("Error in `register_app` RoheRegistration: {}".format(e))
+            logging.error(f"Error in `register_app` RoheRegistration: {e}")
             return {}
 
     def post(self):
@@ -206,5 +206,5 @@ class RoheRegistration(RoheRestObject):
 
             return jsonify({"status": "success", "response": response})
         except Exception as e:
-            logging.error("Error in `post` RoheRegistration: {}".format(e))
+            logging.error(f"Error in `post` RoheRegistration: {e}")
             return jsonify({"status": "request fail"})

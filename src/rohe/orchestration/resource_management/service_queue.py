@@ -5,7 +5,7 @@ from ...common.data_models import ServiceQueueConfig
 from .service import Service
 
 
-class ServiceQueue(object):
+class ServiceQueue:
     def __init__(self, config: ServiceQueueConfig):
         self.config = config
         # Priority:

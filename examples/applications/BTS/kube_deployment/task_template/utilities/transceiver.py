@@ -11,7 +11,7 @@ from .mess_logging import Mess_Logging
 headers = {"Content-Type": "application/json"}
 
 
-class Transceiver(object):
+class Transceiver:
     def __init__(self, host):
         # To do
         self.host = host

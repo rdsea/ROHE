@@ -43,27 +43,25 @@ class NodeAndServiceManager:
             node = list(self.db_client.find(self.node_collection, {"mac": mac_address}))
             return bool(node)
         except Exception as e:
-            logging.error(
-                "Error in `is_node_exist` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `is_node_exist` RoheNodeAndServiceManager: {e}")
             return False
 
     # check node status
     def get_node_status(self, mac_add):
         # get node status by MAC address
         try:
-            node_db = list(
-                self.db_client.aggregate(
-                    self.node_collection,
-                    {"mac_address": mac_add},
-                    [("timestamp", pymongo.DESCENDING)],
+            node_db = next(
+                iter(
+                    self.db_client.aggregate(
+                        self.node_collection,
+                        {"mac_address": mac_add},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
                 )
-            )[0]
+            )
             return node_db["status"]
         except Exception as e:
-            logging.error(
-                "Error in `get_node_status` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `get_node_status` RoheNodeAndServiceManager: {e}")
             return None
 
     def delete_node(self, mac_add: str):
@@ -71,19 +69,19 @@ class NodeAndServiceManager:
             # Delete node from MAC address
             self.db_client.delete_many(self.node_collection, {"mac_address": mac_add})
         except Exception as e:
-            logging.error(
-                "Error in `delete_node` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `delete_node` RoheNodeAndServiceManager: {e}")
 
     def update_node_to_db(self, node):
         try:
-            node_db = list(
-                self.db_client.aggregate(
-                    self.node_collection,
-                    {"mac_address": node["MAC"]},
-                    [("timestamp", pymongo.DESCENDING)],
+            node_db = next(
+                iter(
+                    self.db_client.aggregate(
+                        self.node_collection,
+                        {"mac_address": node["MAC"]},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
                 )
-            )[0]
+            )
             node_db.pop("_id")
             node_db["status"] = node["status"]
             node_db["timestamp"] = time.time()
@@ -93,7 +91,7 @@ class NodeAndServiceManager:
             self.db_client.insert_one(self.node_collection, node_db)
         except Exception as e:
             logging.error(
-                "Error in `update_node_to_db` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `update_node_to_db` RoheNodeAndServiceManager: {e}"
             )
 
     def add_node_to_db(self, node: NodeData):
@@ -105,9 +103,7 @@ class NodeAndServiceManager:
             metadata["mac_address"] = node.mac_address
             self.db_client.insert_one(self.node_collection, metadata)
         except Exception as e:
-            logging.error(
-                "Error in `add_node_to_db` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `add_node_to_db` RoheNodeAndServiceManager: {e}")
 
     def add_nodes(self, node_data: Dict[str, NodeData]) -> dict:
         try:
@@ -122,9 +118,7 @@ class NodeAndServiceManager:
                     results[node_key] = "Added"
             return {"result": results}
         except Exception as e:
-            logging.error(
-                "Error in `add_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `add_nodes` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def remove_node_db(self, node_address: NodeAddress):
@@ -133,9 +127,7 @@ class NodeAndServiceManager:
                 self.node_collection, {"mac_address": node_address.mac_address}
             )
         except Exception as e:
-            logging.error(
-                "Error in `remove_node_db` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `remove_node_db` RoheNodeAndServiceManager: {e}")
 
     def remove_nodes(self, node_data: Dict[str, NodeAddress]) -> dict:
         try:
@@ -145,9 +137,7 @@ class NodeAndServiceManager:
                 results[node_key] = "Removed"
             return {"result": results}
         except Exception as e:
-            logging.error(
-                "Error in `remove_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `remove_nodes` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def get_nodes(self):
@@ -166,9 +156,7 @@ class NodeAndServiceManager:
             node_list = list(self.db_client.get(self.node_collection, query))
             return node_list
         except Exception as e:
-            logging.error(
-                "Error in `get_nodes` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return []
 
     ################################ SERVICE FUNCTIONS ################################
@@ -180,20 +168,20 @@ class NodeAndServiceManager:
             )
             return bool(service)
         except Exception as e:
-            logging.error(
-                "Error in `is_service_exist` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `is_service_exist` RoheNodeAndServiceManager: {e}")
             return False
 
     def get_service_status(self, service_id: str) -> dict:
         try:
-            service_db = list(
-                self.db_client.aggregate(
-                    self.service_collection,
-                    {"service_id": service_id},
-                    [("timestamp", pymongo.DESCENDING)],
+            service_db = next(
+                iter(
+                    self.db_client.aggregate(
+                        self.service_collection,
+                        {"service_id": service_id},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
                 )
-            )[0]
+            )
             return {
                 "status": {
                     "running": service_db["running"],
@@ -202,7 +190,7 @@ class NodeAndServiceManager:
             }
         except Exception as e:
             logging.error(
-                "Error in `get_service_status` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `get_service_status` RoheNodeAndServiceManager: {e}"
             )
             return {"status": "fail"}
 
@@ -213,7 +201,7 @@ class NodeAndServiceManager:
             )
         except Exception as e:
             logging.error(
-                "Error in `remove_service_db` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `remove_service_db` RoheNodeAndServiceManager: {e}"
             )
 
     def remove_services(self, service_data) -> dict:
@@ -227,9 +215,7 @@ class NodeAndServiceManager:
                     results[s_key] = "Removed"
             return {"result": results}
         except Exception as e:
-            logging.error(
-                "Error in `remove_services` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `remove_services` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def add_service_to_db(self, service_data: ServiceData, application_name: str):
@@ -245,7 +231,7 @@ class NodeAndServiceManager:
             self.db_client.insert_one(self.service_collection, metadata)
         except Exception as e:
             logging.error(
-                "Error in `add_service_to_db` RoheNodeAndServiceManager: {}".format(e)
+                f"Error in `add_service_to_db` RoheNodeAndServiceManager: {e}"
             )
 
     def add_services(self, data: Dict[str, Dict[str, ServiceData]]):
@@ -261,20 +247,20 @@ class NodeAndServiceManager:
                         results[service_key] = "Added"
             return {"result": results}
         except Exception as e:
-            logging.error(
-                "Error in `add_services` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `add_services` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def update_service_to_db(self, service: ServiceData):
         try:
-            service_db = list(
-                self.db_client.aggregate(
-                    self.service_collection,
-                    {"service_id": service.service_id},
-                    [("timestamp", pymongo.DESCENDING)],
+            service_db = next(
+                iter(
+                    self.db_client.aggregate(
+                        self.service_collection,
+                        {"service_id": service.service_id},
+                        [("timestamp", pymongo.DESCENDING)],
+                    )
                 )
-            )[0]
+            )
             service_db.pop("_id")
             service_db["status"] = service.status.value
             service_db["replicas"] = service.replicas
@@ -287,9 +273,7 @@ class NodeAndServiceManager:
             self.db_client.insert_one(self.service_collection, service_db)
         except Exception as e:
             logging.error(
-                "Error in `update_service_to_db` RoheNodeAndServiceManager: {}".format(
-                    e
-                )
+                f"Error in `update_service_to_db` RoheNodeAndServiceManager: {e}"
             )
 
     def get_services(self):
@@ -309,7 +293,5 @@ class NodeAndServiceManager:
             service_list = list(self.db_client.get(self.service_collection, pipeline))
             return service_list
         except Exception as e:
-            logging.error(
-                "Error in `get_services` RoheNodeAndServiceManager: {}".format(e)
-            )
+            logging.error(f"Error in `get_services` RoheNodeAndServiceManager: {e}")
             return []

@@ -2,7 +2,7 @@ import numpy as np
 from userapp.ML_Loader import ML_Loader
 
 
-class LSTM_Prediction(object):
+class LSTM_Prediction:
     def __init__(self, configuration):
         # Init the queue for ML request and load the ML model
         self.model_info = configuration["model"]

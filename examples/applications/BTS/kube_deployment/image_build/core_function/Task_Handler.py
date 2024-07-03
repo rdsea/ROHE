@@ -8,7 +8,7 @@ import threading
 from utilities.transceiver import Amqp_Transceiver, Rest_Transceiver, Zmq_Transceiver
 
 
-class Task_Handler(object):
+class Task_Handler:
     def __init__(self, configuration):
         # Init the main process of the task
         self.task_conf = configuration["task_configuration"]

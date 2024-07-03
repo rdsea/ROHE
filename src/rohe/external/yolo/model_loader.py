@@ -19,7 +19,9 @@ class YoloInference:
         elif version == 8:
             self.model = Yolo8(config, param)
 
-    def predict(self, image, report_list=[]):
+    def predict(self, image, report_list=None):
+        if report_list is None:
+            report_list = []
         prediction, pre_img = self.model.yolov_inference(image)
         return {"prediction": prediction, "image": pre_img}, {}
 
@@ -46,7 +48,7 @@ def compare_box(box1, box2):
 
 
 def prediction_processing(prediction, annotator):
-    for index, row in prediction.iterrows():
+    for _index, row in prediction.iterrows():
         xyxy = row.values.flatten().tolist()[:-2]
         c = int(row["class"])
         label = row["name"] + ":" + str(row["confidence"])
@@ -76,7 +78,7 @@ def prediction_processing(prediction, annotator):
     return prediction, annotator.result()
 
 
-class Yolo5(object):
+class Yolo5:
     def __init__(self, config, param=None):
         self.lib_path = config["artifact"]["lib"]
         print(self.lib_path)
@@ -119,7 +121,7 @@ class Yolo5(object):
         return self.convert_results(results, annotator)
 
 
-class Yolo8(object):
+class Yolo8:
     def __init__(self, config, param=None):
         self.artifact_path = config["artifact"]["dir"]
         self.conf = config
@@ -129,7 +131,7 @@ class Yolo8(object):
                 file_url, self.artifact_path + "yolo.zip", postprocess=gdown.extractall
             )
         class_conf = self.artifact_path + "yolo/class.yml"
-        with open(class_conf, "r") as f:
+        with open(class_conf) as f:
             self.names = yaml.safe_load(f)
         self.param = param if param is not None else "yolov8s"
         self.model = YOLO(self.artifact_path + "yolo/" + self.param + ".pt")

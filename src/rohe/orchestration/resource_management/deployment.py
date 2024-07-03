@@ -6,7 +6,7 @@ import yaml
 from kubernetes.client.rest import ApiException
 
 
-class Deployment(object):
+class Deployment:
     def __init__(self, deploy_config, namespace, api_client):
         self.deploy_config = yaml.safe_load(open(deploy_config))
         self.namespace = namespace

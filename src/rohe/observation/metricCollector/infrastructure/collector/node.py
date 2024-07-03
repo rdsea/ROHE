@@ -4,7 +4,7 @@ import time
 import requests
 
 
-class Crawler(object):
+class Crawler:
     def __init__(self, prom_host, metric_map):
         self.prom_host = prom_host
         self.metric_map = json.load(open(metric_map))
@@ -13,7 +13,7 @@ class Crawler(object):
         self.prom_host = prom_host
 
     def get_by_metric(self, name_node, metric):
-        temp_query = '%s{job="%s"}' % (metric, name_node)
+        temp_query = f'{metric}{{job="{name_node}"}}'
         return self.get_by_query(temp_query)
 
     def get_by_query(self, query):
@@ -23,17 +23,17 @@ class Crawler(object):
             )
             data_json = json.loads(response.text)["data"]["result"]
         except Exception as e:
-            print("Error while querying data: {}".format(e))
+            print(f"Error while querying data: {e}")
         result = {"time": time.time(), "value": -1}
         try:
             result["time"] = data_json[0]["value"][0]
             result["value"] = float(data_json[0]["value"][1])
         except Exception as e:
-            print("Error while parsing data: {}".format(e))
+            print(f"Error while parsing data: {e}")
         return result
 
 
-class Node(object):
+class Node:
     def __init__(self, name_node, accesspoint, prom_host, metric_map):
         self.name_node = name_node
         self.accesspoint = accesspoint
@@ -59,11 +59,11 @@ class Node(object):
             self.attributes[key] = value
 
     def set_metric_map(self, metric_dict):
-        for key, value in self.attributes:
+        for key, _value in self.attributes:
             try:
                 self.metric_map[key] = metric_dict[key]
             except Exception as e:
-                print("Missing metric for {}: {}".format(key, e))
+                print(f"Missing metric for {key}: {e}")
 
     def set_label(self, label):
         self.node_label[label] = True
@@ -82,7 +82,7 @@ class Node(object):
             return self.crawler.get_by_query(query)
         except Exception as e:
             self.node_status = 0
-            print(warning + "{}".format(e))
+            print(warning + f"{e}")
 
     def get_by_name(self, metric_name, warning):
         try:
@@ -100,7 +100,7 @@ class Node(object):
         self.attributes["last_update"] = time.time()
 
     def update_cpu(self, offset="1m"):
-        temp_query = '100 - (avg(rate(%s{job="%s",mode="idle"}[%s])) * 100)' % (
+        temp_query = '100 - (avg(rate({}{{job="{}",mode="idle"}}[{}])) * 100)'.format(
             self.crawler.metric_map["cpu_usage"]["name"],
             self.name_node,
             offset,
@@ -109,7 +109,7 @@ class Node(object):
             temp_query, "Error while update CPU usage: "
         )["value"]
 
-        temp_query = 'avg(%s{job="%s"})' % (
+        temp_query = 'avg({}{{job="{}"}})'.format(
             self.crawler.metric_map["cpu_freq"]["name"],
             self.name_node,
         )
@@ -137,7 +137,7 @@ class Node(object):
             "Error while update buffered memory: ",
         )["value"]
 
-        temp_query = '((%s{job="%s"} - %s{job="%s"}) / %s{job="%s"}) * 100' % (
+        temp_query = '(({}{{job="{}"}} - {}{{job="{}"}}) / {}{{job="{}"}}) * 100'.format(
             self.crawler.metric_map["mem_total"]["name"],
             self.name_node,
             self.crawler.metric_map["mem_free"]["name"],
@@ -171,7 +171,7 @@ class NodeJet(Node):
 
     def update_cpu(self, offset="1m"):
         super().update_cpu(offset=offset)
-        temp_query = '%s{job="%s_gpu", machine_part="CPU"}' % (
+        temp_query = '{}{{job="{}_gpu", machine_part="CPU"}}'.format(
             self.crawler.metric_map["temperature"]["name"],
             self.name_node,
         )
@@ -180,7 +180,7 @@ class NodeJet(Node):
         )["value"]
 
     def update_gpu(self):
-        temp_query = '%s{job="%s_gpu"}' % (
+        temp_query = '{}{{job="{}_gpu"}}'.format(
             self.crawler.metric_map["gpu_usage"]["name"],
             self.name_node,
         )
@@ -188,7 +188,7 @@ class NodeJet(Node):
             temp_query, "Error while update memory usage: "
         )["value"]
 
-        temp_query = '%s{job="%s_gpu", machine_part="GPU"}' % (
+        temp_query = '{}{{job="{}_gpu", machine_part="GPU"}}'.format(
             self.crawler.metric_map["temperature"]["name"],
             self.name_node,
         )

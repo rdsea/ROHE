@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 
-class Mess_Logging(object):
+class Mess_Logging:
     def __init__(self, log_id, cap=500):
         column_names = ["id", "request", "response"]
         self.log = pd.DataFrame(index=range(cap), columns=column_names)

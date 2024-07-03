@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 
-class ML_Loader(object):
+class ML_Loader:
     def __init__(self, model_info):
         # Init loader by loading model into the object
         # self.interpreter = tflite.Interpreter(model_info["path"])

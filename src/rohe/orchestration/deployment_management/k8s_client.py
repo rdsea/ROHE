@@ -21,7 +21,7 @@ from ...external.k8s.datamodel.apimachinery.pkg.apis.meta.v1 import (
 from ..resource_management import ServiceInstance
 
 
-class K8sClient(object):
+class K8sClient:
     def __init__(
         self,
         # deploy_config, namespace, api_client

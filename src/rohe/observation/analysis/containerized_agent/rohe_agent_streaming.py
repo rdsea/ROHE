@@ -147,7 +147,7 @@ class RoheObservationAgent(RoheObject):
             if self.insert_db:
                 # Insert raw data to databased if insert_db is set to True
                 insert_id = self.metric_collection.insert_one(mess)
-                self.log("Insert to database {}".format(insert_id), 2)
+                self.log(f"Insert to database {insert_id}", 2)
 
             # Check event trigger
             if self.trigger["type"] == 2:
@@ -205,9 +205,7 @@ class RoheObservationAgent(RoheObject):
             self.timer.start()
         except Exception as e:
             self.log(
-                "Error {} while estimating contribution: {}".format(
-                    type(e), e.__traceback__
-                ),
+                f"Error {type(e)} while estimating contribution: {e.__traceback__}",
                 4,
             )
 

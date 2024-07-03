@@ -21,13 +21,17 @@ datamodel-codegen --snake-case-field --input "$SCRIPT_DIR/apis__apps__v1_openapi
 	--output-model-type=pydantic_v2.BaseModel \
 	--target-python-version=3.10 \
 	--collapse-root-models \
-	--use-default-kwarg
+	--use-default-kwarg \
+	--use-union-operator \
+	--use-standard-collections
 
 datamodel-codegen --snake-case-field --input "$SCRIPT_DIR/api__v1_openapi.json" --output "$DATAMODEL_DIR" \
 	--output-model-type=pydantic_v2.BaseModel \
 	--target-python-version=3.10 \
 	--collapse-root-models \
-	--use-default-kwarg
+	--use-default-kwarg \
+	--use-union-operator \
+	--use-standard-collections
 
 mv "$DATAMODEL_DIR/io/k8s/api" "$DATAMODEL_DIR"
 mv "$DATAMODEL_DIR/io/k8s/apimachinery" "$DATAMODEL_DIR"

@@ -57,8 +57,10 @@ class ImageInferenceObject(RoheRestObject):
         return {}
 
 
-class RoheRestService(object):
-    def __init__(self, config={}) -> None:
+class RoheRestService:
+    def __init__(self, config=None) -> None:
+        if config is None:
+            config = {}
         super().__init__()
         self.app = Flask(__name__)
         self.api = Api(self.app)

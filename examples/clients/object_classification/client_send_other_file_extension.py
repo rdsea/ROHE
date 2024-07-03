@@ -141,7 +141,7 @@ if __name__ == "__main__":
     config_file = args.conf
 
     # load configuration file
-    with open(config_file, "r") as json_file:
+    with open(config_file) as json_file:
         config = json.load(json_file)
 
     config = {

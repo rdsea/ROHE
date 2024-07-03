@@ -8,7 +8,7 @@ import requests
 headers = {"Content-Type": "application/json"}
 
 
-class ConsulClient(object):
+class ConsulClient:
     def __init__(self, config) -> None:
         """
         Example config:
@@ -32,9 +32,9 @@ class ConsulClient(object):
         self,
         name: str,
         id: str = "",
-        tag: list = None,
+        tag: list | None = None,
         address: str = "",
-        metadata: dict = None,
+        metadata: dict | None = None,
         port: int = 0,
         kind: str = "",
         check=None,
@@ -66,7 +66,7 @@ class ConsulClient(object):
         if response.status_code == 200:
             return id
         else:
-            logging.error("Unable to register for service {}".format(name))
+            logging.error(f"Unable to register for service {name}")
             return None
 
     def service_deregister(self, id):
@@ -74,10 +74,10 @@ class ConsulClient(object):
         if response.status_code == 200:
             return True
         else:
-            logging.error("Unable to register for service {}".format(id))
+            logging.error(f"Unable to register for service {id}")
             return False
 
-    def query_service(self, name: str, tags: list = None):
+    def query_service(self, name: str, tags: list | None = None):
         service_url = self.url + "/v1/catalog/service/" + name
         params = {}
         if tags:
@@ -108,14 +108,16 @@ class ConsulClient(object):
             )
             return []
 
-    def get_all_service_instances(self, name: str, tags: list = None):
+    def get_all_service_instances(self, name: str, tags: list | None = None):
         """
         Get all service instances based on name and tags.
         """
         services = self.query_service(name, tags)
         return services
 
-    def get_n_random_service_instances(self, name: str, tags: list = None, n: int = 3):
+    def get_n_random_service_instances(
+        self, name: str, tags: list | None = None, n: int = 3
+    ):
         """
         Get N random service instances based on name and tags.
         """
@@ -124,7 +126,7 @@ class ConsulClient(object):
             return services
         return random.sample(services, n)
 
-    def get_quorum_service_instances(self, name: str, tags: list = None):
+    def get_quorum_service_instances(self, name: str, tags: list | None = None):
         """
         Get a quorum (majority) of service instances, randomly selected, based on name and tags.
         """

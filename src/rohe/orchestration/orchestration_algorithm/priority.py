@@ -51,17 +51,17 @@ class PriorityAlgorithm(GenericAlgorithm):
         nodes: Dict[str, Node],
         keys,
         service: Service,
-        weights={"cpu": 1, "memory": 1},
+        weights=None,
     ):
+        if weights is None:
+            weights = {"cpu": 1, "memory": 1}
         node_ranks = {}
         for key in keys:
             selected_node = nodes[key]
 
             remain_proc = np.sort(
-                (
-                    np.array(selected_node.cores.capacity)
-                    - np.array(selected_node.cores.used)
-                )
+                np.array(selected_node.cores.capacity)
+                - np.array(selected_node.cores.used)
             )
             req_proc = np.array(service.cores)
             req_proc.resize(remain_proc.shape)
@@ -90,19 +90,17 @@ class PriorityAlgorithm(GenericAlgorithm):
         node_id = None
         try:
             if strategy == 0:  # first fit
-                node_id = list(node_ranks.keys())[0]
+                node_id = next(iter(node_ranks.keys()))
             else:
                 sort_nodes = dict(sorted(node_ranks.items(), key=lambda item: item[1]))
                 if strategy == 1:  # best fit
                     node_id = list(sort_nodes.keys())[-1]
                 elif strategy == 2:  # worst fit
-                    node_id = list(sort_nodes.keys())[0]
+                    node_id = next(iter(sort_nodes.keys()))
         except Exception as e:
             if debug:
                 print(
-                    "[ERROR] - Error {} while sellecting node: {}".format(
-                        type(e), e.__traceback__
-                    )
+                    f"[ERROR] - Error {type(e)} while sellecting node: {e.__traceback__}"
                 )
                 traceback.print_exception(*sys.exc_info())
             else:
@@ -127,7 +125,7 @@ class PriorityAlgorithm(GenericAlgorithm):
         ranking_list = self.ranking(nodes, fil_nodes, p_service, config.weights)
         node_id = self.selecting_node(ranking_list, config.strategy)
         if node_id is None:
-            logging.warning(str("Cannot find node for service: {}".format(p_service)))
+            logging.warning(str(f"Cannot find node for service: {p_service}"))
         return node_id
 
     def __str__(self) -> str:

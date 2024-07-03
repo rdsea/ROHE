@@ -42,7 +42,7 @@ def run():
     # Listing service `frontend-service` in the `default` namespace
     service_created = api.get(name=service.metadata.name, namespace="default")
 
-    print("%s\t%s" % ("NAMESPACE", "NAME"))
+    print("{}\t{}".format("NAMESPACE", "NAME"))
     print(
         "%s\t\t%s\n"
         % (service_created.metadata.namespace, service_created.metadata.name)
@@ -59,7 +59,7 @@ def run():
     )
 
     print("\n[INFO] service `frontend-service` patched\n")
-    print("%s\t%s\t\t\t%s" % ("NAMESPACE", "NAME", "PORTS"))
+    print("{}\t{}\t\t\t{}".format("NAMESPACE", "NAME", "PORTS"))
     print(
         "%s\t\t%s\t%s\n"
         % (
