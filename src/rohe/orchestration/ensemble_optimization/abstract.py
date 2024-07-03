@@ -6,8 +6,8 @@ from . import algorithm
 
 class EnsembleOptimization(ABC):
     """
-    Abstract class for ensemble optimiztion of services in EEMLS
-    Init the class using ofConfig: configuration include name and module to load the objective funtion
+    Abstract class for ensemble optimization of services in EEMLS
+    Init the class using ofConfig: configuration include name and module to load the objective function
     """
 
     def __init__(

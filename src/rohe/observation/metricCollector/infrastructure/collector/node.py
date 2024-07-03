@@ -150,15 +150,15 @@ class Node(object):
         )["value"]
 
     def update_gpu(self):
-        # overide in child classes
+        # override in child classes
         pass
 
     def update_tpu(self):
-        # overide in child classes
+        # override in child classes
         pass
 
     def update_other_metrics(self):
-        # overide in child classes
+        # override in child classes
         pass
 
     def __str__(self):

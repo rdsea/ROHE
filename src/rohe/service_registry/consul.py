@@ -23,7 +23,7 @@ class ConsulClient(object):
             self.url = config["url"]
         else:
             self.url = "http://localhost:8500"
-            logging.debug("Consul ULR is not set! Using defaul localhost")
+            logging.debug("Consul ULR is not set! Using default localhost")
         self.registerLink = self.url + "/v1/agent/service/register"
         self.deregisterLink = self.url + "/v1/agent/service/deregister/"
         self.getServiceLink = self.url + "/v1/catalog/services"

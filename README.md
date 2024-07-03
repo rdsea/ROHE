@@ -7,6 +7,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/rohe)
 ![PyPI - Version](https://img.shields.io/pypi/v/rohe)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rohe)
+[![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/format.json)](https://github.com/astral-sh/ruff)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rdsea/rohe/python-ci.yml?logo=github&label=Github%20Actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -363,4 +364,3 @@ year = {2023}
 ## License
 
 [Apache License](./LICENSE)
-

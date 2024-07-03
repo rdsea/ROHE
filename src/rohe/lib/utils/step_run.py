@@ -8,7 +8,7 @@ from .deployment.profiling_deployment import profiling_deploy
 
 if __name__ == "__main__":
     # Parse the input args
-    parser = argparse.ArgumentParser(description="Profiling BTS Applicaiton")
+    parser = argparse.ArgumentParser(description="Profiling BTS Application")
     parser.add_argument(
         "--conf", help="configuration file", default="./bts/profiling_config.json"
     )

@@ -63,7 +63,7 @@ class RoheEnsembleOptimization(EnsembleOptimization):
             metrics = {}
             last_update = {"ml_metric": timestamp}
 
-            # query and caculate individual metrics
+            # query and calculate individual metrics
             for key, metric in metric_config.items():
                 metrics[key] = execute_metric_queries(
                     self.model_collection,

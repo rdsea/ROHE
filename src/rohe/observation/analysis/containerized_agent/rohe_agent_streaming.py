@@ -20,7 +20,7 @@ DEFAULT_MODULE_PATH = "/agent/userModule/"
 
 def get_app(collection, application_name):
     # get application data from databased
-    # Create sorted pipepline to query application list
+    # Create sorted pipeline to query application list
     pipeline = [
         {"$sort": {"timestamp": 1}},
         {

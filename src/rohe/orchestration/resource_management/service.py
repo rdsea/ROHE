@@ -78,7 +78,7 @@ class Service(object):
         self.accelerator = self.config.accelerator_required
         self.sensitivity = self.config.sensitivity
         # Sensitivity:
-        # 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitve; 3 CPU & Memory sensitive
+        # 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitive; 3 CPU & Memory sensitive
         self.replicas = self.config.replicas
         self.image = self.config.image
         self.ports = self.config.ports

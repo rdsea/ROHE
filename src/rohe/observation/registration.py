@@ -134,7 +134,7 @@ class RoheRegistration(RoheRestObject):
 
     def post(self):
         try:
-            # Functon to handle POST request
+            # Function to handle POST request
             if not request.is_json:
                 return jsonify(
                     {"status": "failed", "response": "Currently only accept json"}

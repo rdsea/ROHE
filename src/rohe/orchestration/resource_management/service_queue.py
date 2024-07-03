@@ -9,7 +9,7 @@ class ServiceQueue(object):
     def __init__(self, config: ServiceQueueConfig):
         self.config = config
         # Priority:
-        # 0 - No Priority; 1 - CPU sensitive priority; 2 - Memory sensitve priority
+        # 0 - No Priority; 1 - CPU sensitive priority; 2 - Memory sensitive priority
         self.priority_factor = config.priority
         self.queue_balance = config.queue_balance
         self.priority_count = 0

@@ -190,7 +190,7 @@ class ObservabilityAgent(object):
 
     def estimate_contribution(self):
         print(time.time())
-        sumary = {}
+        summary = {}
         try:
             quality_report = self.quality_temp_col.find().sort(
                 [("timestamp", pymongo.DESCENDING)]
@@ -205,31 +205,31 @@ class ObservabilityAgent(object):
             if resource:
                 df_resource = self.handle_resource(list(resource))
                 resource_util = self.aggreagate_resource(df_resource)
-                sumary["resource_utilization"] = resource_util
+                summary["resource_utilization"] = resource_util
 
             if quality_report:
                 df_quality_report = self.handle_quality_report(list(quality_report))
                 if not df_quality_report.empty:
-                    sumary["total_prediction"] = len(
+                    summary["total_prediction"] = len(
                         df_quality_report.loc[
                             df_quality_report["source"].str.len() != 0
                         ].index
                     )
                 else:
-                    sumary["quality_report"] = "No quality reported"
+                    summary["quality_report"] = "No quality reported"
 
             if feedback:
                 df_feedback = self.handle_feedback(list(feedback))
                 if not df_feedback.empty:
-                    sumary["false_prediction"] = len(
+                    summary["false_prediction"] = len(
                         df_feedback.loc[df_feedback["accuracy"] == 0].index
                     )
-                    sumary["total_feedback"] = len(df_feedback.index)
-                    sumary["service_accuracy"] = (
-                        1 - sumary["false_prediction"] / sumary["total_prediction"]
+                    summary["total_feedback"] = len(df_feedback.index)
+                    summary["service_accuracy"] = (
+                        1 - summary["false_prediction"] / summary["total_prediction"]
                     ) * 100
                 else:
-                    sumary["feed_back"] = "No feedback"
+                    summary["feed_back"] = "No feedback"
 
             df_contr = self.estimate_feedback(df_quality_report, df_feedback)
             if len(df_contr.index) == 0:
@@ -241,17 +241,17 @@ class ObservabilityAgent(object):
                 print(df_contr)
                 df_con = df_contr.groupby("instance_id")["contribution"].sum()
                 print(df_con)
-                sumary["contribution"] = df_con.to_dict()
+                summary["contribution"] = df_con.to_dict()
                 config_path = os.path.dirname(os.path.abspath(__file__))
                 output_folder = config_path + self.conf["output_folder"]
-                json_object = json.dumps(sumary, indent=4)
+                json_object = json.dumps(summary, indent=4)
                 with open(
                     output_folder + "sumary_at_" + str(time.time()) + ".json", "w"
                 ) as outfile:
                     outfile.write(json_object)
             self.reset_temp_db()
 
-            print(sumary)
+            print(summary)
             self.false_count = 0
             self.timer = Timer(self.conf["timer"], self.estimate_contribution)
             self.timer.start()
@@ -294,11 +294,11 @@ class ObservabilityAgent(object):
             elif report["role"] == "customer":
                 return 2  # feedback report
             else:
-                return 0  # unknow
+                return 0  # unknown
         elif "proc_cpu_stats" in report:
             return 3  # resource monitoring report
         else:
-            return 0  # unknow
+            return 0  # unknown
 
     def check_feedback(self, mess):
         prediction, key = get_dict_at(mess["prediction"], 0)
@@ -329,7 +329,7 @@ class ObservabilityAgent(object):
                 insert_id = self.resource_temp_col.insert_one(mess)
                 print("Insert to database", insert_id)
             else:
-                print("Unknow report: ", mess)
+                print("Unknown report: ", mess)
 
     def stop(self):
         # self.collector.stop()

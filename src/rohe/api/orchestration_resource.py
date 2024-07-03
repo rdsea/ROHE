@@ -72,7 +72,7 @@ class OrchestationResource(Resource):
                 response = {"result": "Agent Stop"}
 
             else:
-                response = {"result": "Unknow command"}
+                response = {"result": "Unknown command"}
             return jsonify({"status": "success", "response": response})
         except Exception as e:
             logging.error(

@@ -65,25 +65,35 @@ devtools = "*"
 ruff = "*"
 datamodel-code-generator = "*"
 mypy = "*"
+codespell = "^2.3.0"
 
 
 [tool.poetry.extras]
 ml = ["scikit_learn", "tensorflow", "torch", "ultralytics"]
 
+
+[tool.ruff]
+src = ["src"]
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
 [tool.ruff.lint]
-select = ["F", "C", "E", "R", "W", "N"]
+select = [
+  "F", # Pyflakes
+  "C", # Pylint convention
+  "R", # Pylint refactor
+  "E", # Pycode styles
+  "W", # Pycode styles
+  "N", # Pep8 naming
+  "I", # Isort
+]
 ignore = [
   "E501",   # Line too long
   "RET504", # Unnecessary assignment
   "RET505", # Unnecessary else after return
   "C901",   # Too complex function
 ]
-
-[tool.isort]
-profile = "black"
 
 [tool.mypy]
 python_version = "3.10"
@@ -93,3 +103,6 @@ warn_unused_ignores = true
 extra_checks = true
 check_untyped_defs = true
 ignore_missing_imports = true
+
+[tool.codespell]
+skip = '*/k8s/*'
