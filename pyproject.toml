@@ -81,8 +81,7 @@ src = ["src"]
 [tool.ruff.lint]
 select = [
   "F",   # Pyflakes
-  "C",   # Pylint convention
-  "R",   # Pylint refactor
+  "PL",  # Pylint convention
   "E",   # Pycode styles
   "W",   # Pycode styles
   "N",   # Pep8 naming
@@ -100,6 +99,7 @@ ignore = [
   "RET505", # Unnecessary else after return
   "C901",   # Too complex function
   "B904",   # raise-without-from-inside-except, enable when understand more
+  "PLR",
 ]
 
 [tool.mypy]

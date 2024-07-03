@@ -150,8 +150,8 @@ class Yolo8:
                 lambda x: self.names["names"][x]
             )
             # Label object and annotate
-            result, annotate = prediction_processing(prediction, annotator)
-            return {self.param: result}, annotate
+            return_result, annotate = prediction_processing(prediction, annotator)
+            return {self.param: return_result}, annotate
         return None
 
     def yolov_inference(self, image):

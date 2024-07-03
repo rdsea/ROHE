@@ -34,7 +34,7 @@ def construct_query(conditions):
         field_name = condition["field"]
         operator = condition["operator"]
         value = condition["value"]
-        query_criteria[field_name] = {"$%s" % operator: value}
+        query_criteria[field_name] = {f"${operator}": value}
     return query_criteria
 
 
@@ -74,7 +74,9 @@ def execute_metric_queries(
                     "$group": {
                         "_id": None,
                         "metric_value": {
-                            "$%s" % query["aggregation"]: "$%s" % query["field"]
+                            "${}".format(query["aggregation"]): "${}".format(
+                                query["field"]
+                            )
                         },
                     }
                 }
@@ -88,7 +90,12 @@ def execute_metric_queries(
 
         else:
             aggregation_pipeline.append(
-                {"$group": {"_id": None, "%s" % query["aggregation"]: {"$sum": 1}}}
+                {
+                    "$group": {
+                        "_id": None,
+                        "{}".format(query["aggregation"]): {"$sum": 1},
+                    }
+                }
             )
             result = collection.aggregate(aggregation_pipeline)
             r_list = list(result)

@@ -42,9 +42,7 @@ def filtering_node(nodes: Dict[str, Node], service: Service):
     return key_list
 
 
-def ranking(
-    nodes: Dict[str, Node], keys, service: Service, weights=None
-):
+def ranking(nodes: Dict[str, Node], keys, service: Service, weights=None):
     if weights is None:
         weights = {"cpu": 1, "memory": 1}
     node_ranks = {}

@@ -22,7 +22,7 @@ class ServiceQueue:
 
     def put(self, service: Service):
         if (self.priority_factor > 0) and (
-            (service.sensitivity == self.priority_factor) or (service.sensitivity == 3)
+            service.sensitivity in (self.priority_factor, 3)
         ):
             service.set_qtime()
             if self.priority_factor <= 1:

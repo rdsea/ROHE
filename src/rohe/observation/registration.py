@@ -107,9 +107,7 @@ class RoheRegistration(RoheRestObject):
             agent_config["collector"] = collector.model_dump()
             return agent_config
         except Exception as e:
-            logging.error(
-                f"Error in `generate_agent_conf` RoheRegistration: {e}"
-            )
+            logging.error(f"Error in `generate_agent_conf` RoheRegistration: {e}")
             return {}
 
     def register_app(self, application_name: str, run_id: str, user_id: str) -> dict:
@@ -162,9 +160,7 @@ class RoheRegistration(RoheRestObject):
             if app is None:
                 metadata = self.register_app(application_name, run_id, user_id)
                 response[application_name] = (
-                    "Application {} created for user {} with run ID: {}".format(
-                        application_name, user_id, run_id
-                    )
+                    f"Application {application_name} created for user {user_id} with run ID: {run_id}"
                 )
             # if app is found - update the existing app
             else:

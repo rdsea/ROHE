@@ -78,9 +78,7 @@ class ObservabilityAgent:
                     output = pd.concat([output, new_row], ignore_index=True)
         except Exception as e:
             print(
-                "[ERROR] - Error {} while handling feedback report: {}".format(
-                    type(e), e.__traceback__
-                )
+                f"[ERROR] - Error {type(e)} while handling feedback report: {e.__traceback__}"
             )
             traceback.print_exception(*sys.exc_info())
         return output
@@ -106,9 +104,7 @@ class ObservabilityAgent:
                         output = pd.concat([output, new_row], ignore_index=True)
         except Exception as e:
             print(
-                "[ERROR] - Error {} while handling service quality report: {}".format(
-                    type(e), e.__traceback__
-                )
+                f"[ERROR] - Error {type(e)} while handling service quality report: {e.__traceback__}"
             )
             traceback.print_exception(*sys.exc_info())
         print(output)
@@ -127,9 +123,7 @@ class ObservabilityAgent:
                 return output
         except Exception as e:
             print(
-                "[ERROR] - Error {} while estimating resource report: {}".format(
-                    type(e), e.__traceback__
-                )
+                f"[ERROR] - Error {type(e)} while estimating resource report: {e.__traceback__}"
             )
             traceback.print_exception(*sys.exc_info())
         return "No resource usage reported"
@@ -170,9 +164,7 @@ class ObservabilityAgent:
                             traceback.print_exception(*sys.exc_info())
         except Exception as e:
             print(
-                "[ERROR] - Error {} while estimating feedback report: {}".format(
-                    type(e), e.__traceback__
-                )
+                f"[ERROR] - Error {type(e)} while estimating feedback report: {e.__traceback__}"
             )
             traceback.print_exception(*sys.exc_info())
         return output
@@ -182,7 +174,12 @@ class ObservabilityAgent:
             row["contribution"] = -row["confidence"]
         elif int(row["accuracy"]) == 0 and int(row["value"]) == 0:
             row["contribution"] = -penalty * row["confidence"]
-        elif int(row["accuracy"]) == 1 and int(row["value"]) == 1 or int(row["accuracy"]) == 1 and int(row["value"]) == 0:
+        elif (
+            int(row["accuracy"]) == 1
+            and int(row["value"]) == 1
+            or int(row["accuracy"]) == 1
+            and int(row["value"]) == 0
+        ):
             row["contribution"] = row["confidence"]
         return row
 
@@ -256,9 +253,7 @@ class ObservabilityAgent:
 
         except Exception as e:
             print(
-                "[ERROR] - Error {} while estimating contribution: {}".format(
-                    type(e), e.__traceback__
-                )
+                f"[ERROR] - Error {type(e)} while estimating contribution: {e.__traceback__}"
             )
             traceback.print_exception(*sys.exc_info())
 

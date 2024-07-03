@@ -36,9 +36,7 @@ for app_key in deploy_conf:
                     "kubernetes.io/hostname"
                 ] = temp_file["spec"]["template"]["spec"]["nodeSelector"][
                     "kubernetes.io/hostname"
-                ].replace(
-                    "node_name", node["node_name"]
-                )
+                ].replace("node_name", node["node_name"])
             temp_file["spec"]["replicas"] = node["replicas"]
             with open(
                 "./deployed/"

@@ -137,13 +137,15 @@ class Node:
             "Error while update buffered memory: ",
         )["value"]
 
-        temp_query = '(({}{{job="{}"}} - {}{{job="{}"}}) / {}{{job="{}"}}) * 100'.format(
-            self.crawler.metric_map["mem_total"]["name"],
-            self.name_node,
-            self.crawler.metric_map["mem_free"]["name"],
-            self.name_node,
-            self.crawler.metric_map["mem_total"]["name"],
-            self.name_node,
+        temp_query = (
+            '(({}{{job="{}"}} - {}{{job="{}"}}) / {}{{job="{}"}}) * 100'.format(
+                self.crawler.metric_map["mem_total"]["name"],
+                self.name_node,
+                self.crawler.metric_map["mem_free"]["name"],
+                self.name_node,
+                self.crawler.metric_map["mem_total"]["name"],
+                self.name_node,
+            )
         )
         self.attributes["mem_usage"] = self.get_by_query(
             temp_query, "Error while update memory usage: "
@@ -197,12 +199,12 @@ class NodeJet(Node):
         )["value"]
 
     def update_other_metrics(self):
-        temp_query = 'swap{job="%s_gpu", statistic="total"}' % (self.name_node)
+        temp_query = f'swap{{job="{self.name_node}_gpu", statistic="total"}}'
         self.attributes["swap_total"] = self.get_by_query(
             temp_query, "Error while update total swap memory: "
         )["value"]
 
-        temp_query = 'swap{job="%s_gpu", statistic="used"}' % (self.name_node)
+        temp_query = f'swap{{job="{self.name_node}_gpu", statistic="used"}}'
         self.attributes["swap_used"] = self.get_by_query(
             temp_query, "Error while update used swap memory: "
         )["value"]

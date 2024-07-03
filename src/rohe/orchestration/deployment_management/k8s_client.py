@@ -40,11 +40,10 @@ class K8sClient:
                 body=self.deploy_config, namespace=self.namespace
             )
             self.deployment = api_response
-            print("Deployment created: %s" % self.name)
+            print(f"Deployment created: {self.name}")
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->create_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->create_namespaced_deployment: {e}\n"
             )
 
     def delete(self):
@@ -52,11 +51,10 @@ class K8sClient:
             api_response = self.client_v1.delete_namespaced_deployment(
                 name=self.name, namespace=self.namespace
             )
-            print("Deployment deleted: \n%s" % api_response.status)
+            print(f"Deployment deleted: \n{api_response.status}")
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->delete_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->delete_namespaced_deployment: {e}\n"
             )
 
     def update(self, deploy_config):
@@ -64,12 +62,11 @@ class K8sClient:
             api_response = self.client_v1.patch_namespaced_deployment(
                 name=self.name, namespace=self.namespace, body=deploy_config
             )
-            print("Deployment updated: \n%s" % api_response)
+            print(f"Deployment updated: \n{api_response}")
             self.deploy_config = deploy_config
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->patch_namespaced_deployment: {e}\n"
             )
 
     def get_info(self):
@@ -77,12 +74,11 @@ class K8sClient:
             api_response = self.client_v1.read_namespaced_deployment(
                 name=self.name, namespace=self.namespace
             )
-            print("Deployment deleted: \n%s" % api_response)
+            print(f"Deployment deleted: \n{api_response}")
             return api_response
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->delete_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->delete_namespaced_deployment: {e}\n"
             )
 
     def replace(self, deploy_config):
@@ -90,12 +86,11 @@ class K8sClient:
             api_response = self.client_v1.replace_namespaced_deployment(
                 name=self.name, namespace=self.namespace, body=deploy_config
             )
-            print("Deployment updated: \n%s" % api_response)
+            print(f"Deployment updated: \n{api_response}")
             self.deploy_config = deploy_config
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->replace_namespaced_deployment: {e}\n"
             )
 
     def restart(self):
@@ -109,11 +104,10 @@ class K8sClient:
             api_response = self.client_v1.patch_namespaced_deployment(
                 name=self.name, namespace=self.namespace, body=self.deployment
             )
-            print("Deployment updated: \n%s" % api_response)
+            print(f"Deployment updated: \n{api_response}")
         except ApiException as e:
             print(
-                "Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n"
-                % e
+                f"Exception when calling AppsV1Api->patch_namespaced_deployment: {e}\n"
             )
 
     def generate_deployment(self, service_instance: ServiceInstance):

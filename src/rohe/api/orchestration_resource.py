@@ -16,9 +16,7 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(
-                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
-            )
+            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})
 
     def post(self, command: str):
@@ -75,9 +73,7 @@ class OrchestationResource(Resource):
                 response = {"result": "Unknown command"}
             return jsonify({"status": "success", "response": response})
         except Exception as e:
-            logging.error(
-                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
-            )
+            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "fail"})
 
     def put(self):
@@ -87,9 +83,7 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(
-                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
-            )
+            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})
 
     def delete(self):
@@ -99,7 +93,5 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(
-                f"Error in `get_nodes` RoheNodeAndServiceManager: {e}"
-            )
+            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})

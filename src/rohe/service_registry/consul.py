@@ -102,9 +102,7 @@ class ConsulClient:
             return services
         else:
             logging.error(
-                "Failed to query services. Status code: {}. Response: {}".format(
-                    response.status_code, response.text
-                )
+                f"Failed to query services. Status code: {response.status_code}. Response: {response.text}"
             )
             return []
 

@@ -49,7 +49,7 @@ def calculate_statistic(column, statistic):
         return column.min()
     elif statistic == "sum":
         return column.sum()
-    elif statistic == "avg" or statistic == "mean":
+    elif statistic in ("avg", "mean"):
         return column.mean()
     elif statistic == "prod":
         return column.prod()

@@ -23,36 +23,36 @@ class KubeService:
             self.service = self.api_client.create(
                 body=self.service_config, namespace=self.namespace
             )
-            print("Service created: %s" % self.service)
+            print(f"Service created: {self.service}")
             self.name = self.service.metadata.name
         except Exception as e:
-            print("Exception when calling service create: %s\n" % e)
+            print(f"Exception when calling service create: {e}\n")
 
     def get(self):
         try:
             self.service = self.api_client.create(
                 name=self.name, namespace=self.namespace
             )
-            print("Service created: %s" % self.service)
+            print(f"Service created: {self.service}")
             return self.service
         except Exception as e:
-            print("Exception when calling service create: %s\n" % e)
+            print(f"Exception when calling service create: {e}\n")
 
     def update(self, service_config):
         try:
             self.service = self.api_client.patch(
                 body=service_config, name=self.name, namespace=self.namespace
             )
-            print("Service created: %s" % self.service)
+            print(f"Service created: {self.service}")
         except Exception as e:
-            print("Exception when calling service patch: %s\n" % e)
+            print(f"Exception when calling service patch: {e}\n")
 
     def delete(self):
         try:
             api_response = self.api_client.delete(
                 body={}, name=self.name, namespace=self.namespace
             )
-            print("Service created: %s" % api_response)
+            print(f"Service created: {api_response}")
             self.service = None
         except Exception as e:
-            print("Exception when calling service delete: %s\n" % e)
+            print(f"Exception when calling service delete: {e}\n")

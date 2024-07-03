@@ -108,7 +108,6 @@ class RoheAgentManager(RoheRestObject):
         try:
             # Processing POST request
             response = {}
-            #
             if not request.is_json:
                 return jsonify({"status": "request failed, only support json"})
             self.show_agent()  # for debugging
@@ -148,16 +147,14 @@ class RoheAgentManager(RoheRestObject):
                     if request_data.stream_config is not None:
                         metadata["app_id"] = copy.deepcopy(metadata["_id"])
                         metadata.pop("_id")
-                        metadata["agent_config"][
-                            "stream_config"
-                        ] = request_data.stream_config
+                        metadata["agent_config"]["stream_config"] = (
+                            request_data.stream_config
+                        )
                         self.update_app(metadata)
                     self.show_agent()  # for debugging
                     # create a response
                     response[application_name] = (
-                        "Application agent for application '{}' started ".format(
-                            application_name
-                        )
+                        f"Application agent for application '{application_name}' started "
                     )
                 elif command == "log":
                     if metadata["_id"] in self.agent_dict:
