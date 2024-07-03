@@ -4,3 +4,4 @@
 
 # Pymongo
 
+https://www.suse.com/c/running-edge-artificial-intelligence-k3s-cluster-with-nvidia-jetson-nano-boards-src/
