@@ -27,6 +27,7 @@ if not config_file:
     logger.debug(config_file)
 
 configuration = rohe_utils.load_config(config_file)
+assert configuration is not None
 logger.debug(configuration)
 db_config = MongoAuthentication(**configuration["db_authentication"])
 db_collection = MongoCollection(**configuration["db_collection"])
@@ -35,13 +36,6 @@ db_client = MDBClient(db_config)
 connector_config = ConnectorConfig(**configuration["connector"])
 collector_config = CollectorConfig(**configuration["collector"])
 
-rest_config = {
-    "db_client": db_client,
-    "db_collection": db_collection,
-    "connector_config": connector_config,
-    "collector_config": collector_config,
-    "agent_image": configuration["agent_image"],
-}
 registration_manager = RegistrationManager(
     db_client, db_collection, connector_config, collector_config
 )

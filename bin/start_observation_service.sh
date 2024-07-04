@@ -1,5 +1,8 @@
 #!/bin/bash
 
-obser_service="$(dirname "$(realpath "$0")")/../service/observation_service"
-echo "$obser_service"
-flask --app "$obser_service" run --port 5010 --debug
+service_dir="$(dirname "$(dirname "$(realpath "$0")")")/service"
+if [[ "$1" == "--debug" ]]; then
+	flask --app "$service_dir/observation_service" run --port 5002 --debug
+else
+	gunicorn --chdir "$service_dir" "observation_service:app"
+fi
