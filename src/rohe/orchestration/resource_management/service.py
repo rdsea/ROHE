@@ -25,6 +25,8 @@ Service config:
 }
 """
 
+EPSILON = 1e-9
+
 
 class ServiceInstance:
     def __init__(self, service, node):
@@ -120,7 +122,7 @@ class Service:
         return self.q_time >= other.q_time
 
     def __eq__(self, other):
-        return (self.q_time - other.q_time) < 1e-9
+        return (self.q_time - other.q_time) < EPSILON
 
     def __str__(self):
         service_info = (

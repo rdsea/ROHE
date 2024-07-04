@@ -1,5 +1,3 @@
-import logging
-import traceback
 from threading import Timer
 
 from devtools import debug
@@ -11,16 +9,12 @@ from ..common.data_models import (
     OrchestrateAlgorithmConfig,
     ServiceQueueConfig,
 )
-from ..common.rohe_object import RoheObject
+from ..common.logger import logger
 from ..storage.abstract import MDBClient
 from .allocator import Allocator
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
 
-
-class OrchestrationAgent(RoheObject):
+class OrchestrationAgent:
     def __init__(
         self,
         db_client: MDBClient,
@@ -30,9 +24,7 @@ class OrchestrationAgent(RoheObject):
         orchestration_interval: float,
         service_queue_config: ServiceQueueConfig,
         sync=True,
-        log_lev=2,
     ):
-        super().__init__(logging_level=log_lev)
         self.db_client: MDBClient = db_client
         self.node_collection = node_collection
         self.service_collection = service_collection
@@ -58,7 +50,7 @@ class OrchestrationAgent(RoheObject):
             # self.show_nodes()
             # self.show_services()
         except Exception as e:
-            logging.error(f"Error in `start` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `start` OrchestrationAgent: {e}")
 
     def allocate_service(self):
         pass
@@ -66,38 +58,37 @@ class OrchestrationAgent(RoheObject):
     def orchestrate(self):
         try:
             if self.orches_flag:
-                logging.info("Agent Start Orchestrating")
+                logger.info("Agent Start Orchestrating")
                 new_service_instances = self.allocator.allocate()
                 debug(new_service_instances)
                 self.k8s_client.generate_deployment(new_service_instances[0])
                 # self.show_services()
-                logging.info("Agent Finish Orchestrating")
+                logger.info("Agent Finish Orchestrating")
                 self.timer = Timer(self.orchestration_interval, self.orchestrate)
                 self.timer.start()
         except Exception as e:
-            print(traceback.format_exc())
-            logging.error(f"Error in `orchestrate` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `orchestrate` OrchestrationAgent: {e}")
 
     def stop(self):
         try:
             self.orches_flag = False
         except Exception as e:
-            logging.error(f"Error in `stop` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `stop` OrchestrationAgent: {e}")
 
     def show_nodes(self):
         try:
-            logging.info("############ NODES LIST ############")
+            logger.info("############ NODES LIST ############")
             for node_key in self.allocator.nodes:
-                logging.info(f"{self.allocator.nodes[node_key]} : {node_key}")
-            logging.info(f"Nodes Size: {len(self.allocator.nodes)}")
+                logger.info(f"{self.allocator.nodes[node_key]} : {node_key}")
+            logger.info(f"Nodes Size: {len(self.allocator.nodes)}")
         except Exception as e:
-            logging.error(f"Error in `show_nodes` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `show_nodes` OrchestrationAgent: {e}")
 
     def show_services(self):
         try:
-            logging.info("############ SERVICES LIST ############")
+            logger.info("############ SERVICES LIST ############")
             for service_key in self.allocator.services:
-                logging.info(self.allocator.services[service_key])
-            logging.info(f"Services Size: {len(self.allocator.services.keys())}")
+                logger.info(self.allocator.services[service_key])
+            logger.info(f"Services Size: {len(self.allocator.services.keys())}")
         except Exception as e:
-            logging.error(f"Error in `show_services` OrchestrationAgent: {e}")
+            logger.error(f"Error in `show_services` OrchestrationAgent: {e}")

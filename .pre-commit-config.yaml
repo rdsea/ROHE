@@ -24,10 +24,10 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.0
     hooks:
+      - id: ruff-format
       - id: ruff
         args: [--fix, --unsafe-fixes]
         files: ^src/rohe/.*\.py$
-      - id: ruff-format
 
   # - repo: https://github.com/shellcheck-py/shellcheck-py
   #   rev: "v0.10.0.1"

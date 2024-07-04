@@ -3,13 +3,10 @@ from collections import deque
 
 import pandas as pd
 
-from .rohe_object import RoheObject
 
-
-class EventBuffer(RoheObject):
+class EventBuffer:
     # Object handling Event window as a buffer
-    def __init__(self, size=100, log_lev=2):
-        super().__init__(logging_level=log_lev)
+    def __init__(self, size=100):
         self.size = size
         self.buffer = deque(maxlen=size)
 
@@ -34,10 +31,9 @@ class EventBuffer(RoheObject):
         self.buffer.pop()
 
 
-class TimeBuffer(RoheObject):
-    def __init__(self, windowside=100, maxsize=100000, log_lev=2):
+class TimeBuffer:
+    def __init__(self, windowside=100, maxsize=100000):
         # Object handling Time window as a buffer
-        super().__init__(logging_level=log_lev)
         self.size = maxsize
         self.buffer = deque(maxlen=maxsize)
         self.windowside = windowside

@@ -101,6 +101,8 @@ ignore = [
   "B904",   # raise-without-from-inside-except, enable when understand more
   "PLR",
 ]
+[tool.ruff.lint.pylint]
+max-args = 10
 
 [tool.mypy]
 python_version = "3.10"

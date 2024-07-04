@@ -1,4 +1,3 @@
-import logging
 import sys
 import traceback
 from typing import Dict
@@ -6,12 +5,13 @@ from typing import Dict
 import numpy as np
 
 from ...common.data_models import OrchestrateAlgorithmConfig
+from ...common.logger import logger
 from ..resource_management import Node, Service
 from .generic_algorithm import GenericAlgorithm
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
+FIRST_FIT = 0
+BEST_FIT = 1
+WORST_FIT = 2
 
 
 class PriorityAlgorithm(GenericAlgorithm):
@@ -89,13 +89,13 @@ class PriorityAlgorithm(GenericAlgorithm):
     def selecting_node(self, node_ranks, strategy=0, debug=False):
         node_id = None
         try:
-            if strategy == 0:  # first fit
+            if strategy == FIRST_FIT:  # first fit
                 node_id = next(iter(node_ranks.keys()))
             else:
                 sort_nodes = dict(sorted(node_ranks.items(), key=lambda item: item[1]))
-                if strategy == 1:  # best fit
+                if strategy == BEST_FIT:  # best fit
                     node_id = list(sort_nodes.keys())[-1]
-                elif strategy == 2:  # worst fit
+                elif strategy == WORST_FIT:  # worst fit
                     node_id = next(iter(sort_nodes.keys()))
         except Exception as e:
             if debug:
@@ -104,7 +104,7 @@ class PriorityAlgorithm(GenericAlgorithm):
                 )
                 traceback.print_exception(*sys.exc_info())
             else:
-                logging.warning("Cannot selecting node in priorityOrchestration")
+                logger.warning("Cannot selecting node in priorityOrchestration")
         return node_id
 
     def find_deallocate(
@@ -125,7 +125,7 @@ class PriorityAlgorithm(GenericAlgorithm):
         ranking_list = self.ranking(nodes, fil_nodes, p_service, config.weights)
         node_id = self.selecting_node(ranking_list, config.strategy)
         if node_id is None:
-            logging.warning(str(f"Cannot find node for service: {p_service}"))
+            logger.warning(str(f"Cannot find node for service: {p_service}"))
         return node_id
 
     def __str__(self) -> str:

@@ -27,7 +27,7 @@ theme:
       accent: lime
 
 plugins:
-  - social
+  # - social
   - search
 
 markdown_extensions:

@@ -1,9 +1,8 @@
-import logging
-
 from flask import jsonify, request
 from flask_restful import Resource
 
-from rohe.common.data_models import AddNodeRequest, AddServiceRequest, RemoveNodeRequest
+from ..common.data_models import AddNodeRequest, AddServiceRequest, RemoveNodeRequest
+from ..common.logger import logger
 
 
 class OrchestationResource(Resource):
@@ -16,7 +15,7 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})
 
     def post(self, command: str):
@@ -28,52 +27,52 @@ class OrchestationResource(Resource):
                 node_data = AddNodeRequest.model_validate_json(request.data)
                 response = self.node_and_service_manager.add_nodes(node_data.data)
 
-            elif command == "remove-all-nodes":
+            if command == "remove-all-nodes":
                 self.node_and_service_manager.db_client.drop(
                     self.node_and_service_manager.node_collection
                 )
                 response = {"result": "All nodes removed"}
 
-            elif command == "remove-node":
+            if command == "remove-node":
                 remove_node_data = RemoveNodeRequest.model_validate_json(request.data)
                 response = self.node_and_service_manager.remove_nodes(
                     remove_node_data.data
                 )
 
-            elif command == "add-service":
+            if command == "add-service":
                 service_data = AddServiceRequest.model_validate_json(request.data)
                 response = self.node_and_service_manager.add_services(service_data.data)
 
-            elif command == "remove-all-services":
+            if command == "remove-all-services":
                 self.node_and_service_manager.db_client.drop(
                     self.node_and_service_manager.service_collection
                 )
                 response = {"result": "All services removed"}
 
             # TODO: improve this, the body is too big now
-            elif command == "remove-service":
+            if command == "remove-service":
                 pass
                 # response = self.remove_services(args["data"])
 
-            elif command == "get-all-services":
+            if command == "get-all-services":
                 response = {"result": self.node_and_service_manager.get_services()}
 
-            elif command == "get-all-nodes":
+            if command == "get-all-nodes":
                 response = {"result": self.node_and_service_manager.get_nodes()}
 
-            elif command == "start-agent":
+            if command == "start-agent":
                 self.node_and_service_manager.orchestration_agent.start()
                 response = {"result": "Agent started"}
 
-            elif command == "stop-agent":
+            if command == "stop-agent":
                 self.node_and_service_manager.orchestration_agent.stop()
                 response = {"result": "Agent Stop"}
 
-            else:
+            if not response:
                 response = {"result": "Unknown command"}
             return jsonify({"status": "success", "response": response})
         except Exception as e:
-            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "fail"})
 
     def put(self):
@@ -83,7 +82,7 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})
 
     def delete(self):
@@ -93,5 +92,5 @@ class OrchestationResource(Resource):
             # get param from args here
             return jsonify({"status": args})
         except Exception as e:
-            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return jsonify({"status": "unsupported"})

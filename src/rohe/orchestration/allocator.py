@@ -1,4 +1,3 @@
-import logging
 import time
 from typing import Dict
 
@@ -12,6 +11,7 @@ from ..common.data_models import (
     ServiceData,
     ServiceQueueConfig,
 )
+from ..common.logger import logger
 from ..storage.abstract import MDBClient
 from .orchestration_algorithm.manager import AlgorithmManager
 from .resource_management import Node, Service, ServiceInstance, ServiceQueue
@@ -78,9 +78,9 @@ class Allocator:
                     # if not replace -> update local nodes using nodes from database: To do
                     else:
                         pass
-            logging.info("Agent Sync nodes from Database complete")
+            logger.info("Agent Sync nodes from Database complete")
         except Exception as e:
-            logging.error(f"Error in `sync_node_from_db` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `sync_node_from_db` OrchestrationAgent: {e}")
 
     def sync_service_from_db(self, service_id=None, replace=True):
         try:
@@ -127,9 +127,9 @@ class Allocator:
                         )
                     else:
                         pass
-            logging.info("Agent Sync services from Database complete")
+            logger.info("Agent Sync services from Database complete")
         except Exception as e:
-            logging.error(f"Error in `sync_service_from_db` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `sync_service_from_db` OrchestrationAgent: {e}")
             # print(traceback.print_exc())
 
     def sync_node_to_db(self, node_mac=None):
@@ -152,7 +152,7 @@ class Allocator:
                 for key in self.nodes:
                     self.sync_node_to_db(key)
         except Exception as e:
-            logging.error(f"Error in `sync_node_to_db` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `sync_node_to_db` OrchestrationAgent: {e}")
             # print(traceback.format_exc())
 
     def sync_service_to_db(self, service_id=None):
@@ -175,17 +175,17 @@ class Allocator:
                 self.db_client.insert_one(self.service_collection, service_db)
             else:
                 for key in self.services:
-                    logging.info(key)
+                    logger.info(key)
                     self.sync_service_to_db(key)
         except Exception as e:
-            logging.error(f"Error in `sync_service_to_db` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `sync_service_to_db` OrchestrationAgent: {e}")
 
     def sync_from_db(self):
         try:
             self.sync_node_from_db()
             self.sync_service_from_db()
         except Exception as e:
-            logging.error(f"Error in `sync_from_db` OrchestrationAgent: {e}")
+            logger.exception(f"Error in `sync_from_db` OrchestrationAgent: {e}")
 
     def update_service(self, service: Service, node: Node):
         if node.id in service.node_list:
@@ -240,7 +240,7 @@ class Allocator:
 
     def allocate(self):
         self.sync_from_db()
-        logging.info("Sync completed")
+        logger.info("Sync completed")
         self.build_service_queue()
         new_service_instances = []
         while not self.service_queue.empty():

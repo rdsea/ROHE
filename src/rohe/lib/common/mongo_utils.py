@@ -1,11 +1,7 @@
-import logging
-
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
+from ...common.logger import logger
 
 
 def get_mdb_client(mdb_conf):
@@ -15,8 +11,8 @@ def get_mdb_client(mdb_conf):
         )
         client: MongoClient = MongoClient(m_uri, server_api=ServerApi("1"))
         client.admin.command("ping")
-        logging.info("Pinged your deployment. You successfully connected to MongoDB!")
+        logger.info("Pinged your deployment. You successfully connected to MongoDB!")
         return client
     except Exception as e:
-        logging.error(f"Error in get_mdb_client: {e}")
+        logger.exception(f"Error in get_mdb_client: {e}")
         return None

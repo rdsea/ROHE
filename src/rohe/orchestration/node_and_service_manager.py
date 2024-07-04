@@ -1,4 +1,3 @@
-import logging
 import time
 from typing import Any, Dict
 
@@ -10,13 +9,10 @@ from ..common.data_models import (
     OrchestrationServiceConfig,
     ServiceData,
 )
+from ..common.logger import logger
 from ..storage.abstract import MDBClient
 from .orchestration_agent import OrchestrationAgent
 from .resource_management.service import Service
-
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
 
 
 class NodeAndServiceManager:
@@ -43,7 +39,7 @@ class NodeAndServiceManager:
             node = list(self.db_client.find(self.node_collection, {"mac": mac_address}))
             return bool(node)
         except Exception as e:
-            logging.error(f"Error in `is_node_exist` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `is_node_exist` RoheNodeAndServiceManager: {e}")
             return False
 
     # check node status
@@ -61,7 +57,9 @@ class NodeAndServiceManager:
             )
             return node_db["status"]
         except Exception as e:
-            logging.error(f"Error in `get_node_status` RoheNodeAndServiceManager: {e}")
+            logger.exception(
+                f"Error in `get_node_status` RoheNodeAndServiceManager: {e}"
+            )
             return None
 
     def delete_node(self, mac_add: str):
@@ -69,7 +67,7 @@ class NodeAndServiceManager:
             # Delete node from MAC address
             self.db_client.delete_many(self.node_collection, {"mac_address": mac_add})
         except Exception as e:
-            logging.error(f"Error in `delete_node` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `delete_node` RoheNodeAndServiceManager: {e}")
 
     def update_node_to_db(self, node):
         try:
@@ -90,7 +88,7 @@ class NodeAndServiceManager:
             # node_db["data"] = merge_dict(node_db["data"],node)
             self.db_client.insert_one(self.node_collection, node_db)
         except Exception as e:
-            logging.error(
+            logger.exception(
                 f"Error in `update_node_to_db` RoheNodeAndServiceManager: {e}"
             )
 
@@ -103,7 +101,9 @@ class NodeAndServiceManager:
             metadata["mac_address"] = node.mac_address
             self.db_client.insert_one(self.node_collection, metadata)
         except Exception as e:
-            logging.error(f"Error in `add_node_to_db` RoheNodeAndServiceManager: {e}")
+            logger.exception(
+                f"Error in `add_node_to_db` RoheNodeAndServiceManager: {e}"
+            )
 
     def add_nodes(self, node_data: Dict[str, NodeData]) -> dict:
         try:
@@ -118,7 +118,7 @@ class NodeAndServiceManager:
                     results[node_key] = "Added"
             return {"result": results}
         except Exception as e:
-            logging.error(f"Error in `add_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `add_nodes` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def remove_node_db(self, node_address: NodeAddress):
@@ -127,7 +127,9 @@ class NodeAndServiceManager:
                 self.node_collection, {"mac_address": node_address.mac_address}
             )
         except Exception as e:
-            logging.error(f"Error in `remove_node_db` RoheNodeAndServiceManager: {e}")
+            logger.exception(
+                f"Error in `remove_node_db` RoheNodeAndServiceManager: {e}"
+            )
 
     def remove_nodes(self, node_data: Dict[str, NodeAddress]) -> dict:
         try:
@@ -137,7 +139,7 @@ class NodeAndServiceManager:
                 results[node_key] = "Removed"
             return {"result": results}
         except Exception as e:
-            logging.error(f"Error in `remove_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `remove_nodes` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def get_nodes(self):
@@ -156,7 +158,7 @@ class NodeAndServiceManager:
             node_list = list(self.db_client.get(self.node_collection, query))
             return node_list
         except Exception as e:
-            logging.error(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_nodes` RoheNodeAndServiceManager: {e}")
             return []
 
     ################################ SERVICE FUNCTIONS ################################
@@ -168,7 +170,9 @@ class NodeAndServiceManager:
             )
             return bool(service)
         except Exception as e:
-            logging.error(f"Error in `is_service_exist` RoheNodeAndServiceManager: {e}")
+            logger.exception(
+                f"Error in `is_service_exist` RoheNodeAndServiceManager: {e}"
+            )
             return False
 
     def get_service_status(self, service_id: str) -> dict:
@@ -189,7 +193,7 @@ class NodeAndServiceManager:
                 }
             }
         except Exception as e:
-            logging.error(
+            logger.exception(
                 f"Error in `get_service_status` RoheNodeAndServiceManager: {e}"
             )
             return {"status": "fail"}
@@ -200,7 +204,7 @@ class NodeAndServiceManager:
                 self.service_collection, {"service_id": service.id}
             )
         except Exception as e:
-            logging.error(
+            logger.exception(
                 f"Error in `remove_service_db` RoheNodeAndServiceManager: {e}"
             )
 
@@ -215,7 +219,9 @@ class NodeAndServiceManager:
                     results[s_key] = "Removed"
             return {"result": results}
         except Exception as e:
-            logging.error(f"Error in `remove_services` RoheNodeAndServiceManager: {e}")
+            logger.exception(
+                f"Error in `remove_services` RoheNodeAndServiceManager: {e}"
+            )
             return {"result": "fail"}
 
     def add_service_to_db(self, service_data: ServiceData, application_name: str):
@@ -230,7 +236,7 @@ class NodeAndServiceManager:
             metadata["service_id"] = service_data.service_id
             self.db_client.insert_one(self.service_collection, metadata)
         except Exception as e:
-            logging.error(
+            logger.exception(
                 f"Error in `add_service_to_db` RoheNodeAndServiceManager: {e}"
             )
 
@@ -247,7 +253,7 @@ class NodeAndServiceManager:
                         results[service_key] = "Added"
             return {"result": results}
         except Exception as e:
-            logging.error(f"Error in `add_services` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `add_services` RoheNodeAndServiceManager: {e}")
             return {"result": "fail"}
 
     def update_service_to_db(self, service: ServiceData):
@@ -272,7 +278,7 @@ class NodeAndServiceManager:
             # service_db["data"] = merge_dict(service_db["data"],service)
             self.db_client.insert_one(self.service_collection, service_db)
         except Exception as e:
-            logging.error(
+            logger.exception(
                 f"Error in `update_service_to_db` RoheNodeAndServiceManager: {e}"
             )
 
@@ -293,5 +299,5 @@ class NodeAndServiceManager:
             service_list = list(self.db_client.get(self.service_collection, pipeline))
             return service_list
         except Exception as e:
-            logging.error(f"Error in `get_services` RoheNodeAndServiceManager: {e}")
+            logger.exception(f"Error in `get_services` RoheNodeAndServiceManager: {e}")
             return []

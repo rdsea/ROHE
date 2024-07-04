@@ -1,5 +1,3 @@
-import logging
-
 from flask import Flask
 from flask_restful import Api
 
@@ -8,10 +6,8 @@ from rohe.api.orchestration_resource import OrchestationResource
 from rohe.common.data_models import OrchestrationServiceConfig
 from rohe.orchestration.node_and_service_manager import NodeAndServiceManager
 from rohe.variable import ROHE_PATH
+from rohe.common.logger import logger
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
 
 DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
 DEFAULT_PORT = 5002
@@ -24,7 +20,7 @@ config_file = None
 port = DEFAULT_PORT
 if not config_file:
     config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
-    logging.info(config_file)
+    logger.info(config_file)
 
 configuration = rohe_utils.load_config(config_file)
 assert configuration is not None

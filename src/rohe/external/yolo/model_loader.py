@@ -9,14 +9,16 @@ import yaml
 from ultralytics import YOLO
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
+NOT_APPROXIMATE_THRESHOLD = 10
+
 
 class YoloInference:
     def __init__(self, config, version, param):
         self.param = param
         self.config = config
-        if version == 5:
+        if version == "Yolov5":
             self.model = Yolo5(config, param)
-        elif version == 8:
+        elif version == "Yolov8":
             self.model = Yolo8(config, param)
 
     def predict(self, image, report_list=None):
@@ -27,7 +29,7 @@ class YoloInference:
 
 
 def not_approximate(a, b):
-    if abs(a - b) < 10:
+    if abs(a - b) < NOT_APPROXIMATE_THRESHOLD:
         return False
     else:
         return True

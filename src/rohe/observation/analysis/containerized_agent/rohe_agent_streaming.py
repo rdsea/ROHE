@@ -1,13 +1,12 @@
 import argparse
 import json
 import os
-import traceback
 from threading import Thread, Timer
 
 import pymongo
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 
-from ....common.rohe_object import RoheObject
+from ....common.logger import logger
 from ....common.window import EventBuffer, TimeBuffer
 from ....lib import rohe_utils
 from ....variable import ROHE_PATH
@@ -44,9 +43,8 @@ def get_app(collection, application_name):
     return None
 
 
-class RoheObservationAgent(RoheObject):
-    def __init__(self, configuration, mg_db=False, log_lev=2):
-        super().__init__(logging_level=log_lev)
+class RoheObservationAgent:
+    def __init__(self, configuration, mg_db=False):
         self.conf = configuration
         self.application_name = configuration["application_name"]
         self.temp_path = DEFAULT_DATA_PATH + self.application_name
@@ -55,7 +53,7 @@ class RoheObservationAgent(RoheObject):
         self.collector = Amqp_Collector(
             colletor_conf["amqp_collector"]["conf"], host_object=self
         )
-        self.log(self.conf["collector"], 1)  # for debugging
+        logger.debug(self.conf["collector"])  # for debugging
 
         # Init Database connection
         db_conf = self.conf["database"]
@@ -103,7 +101,7 @@ class RoheObservationAgent(RoheObject):
 
     # Start consumming metric reports
     def start_consuming(self):
-        self.log("Start Consuming", 2)
+        logger.info("Start Consuming")
         self.collector.start()
 
     # Public start function
@@ -113,7 +111,7 @@ class RoheObservationAgent(RoheObject):
         # Start consumming metric reports from messaging broker
         sub_thread = Thread(target=self.start_consuming)
         sub_thread.start()
-        self.log("Start consumming message", 2)
+        logger.info("Start consumming message")
 
         # Start trigger for window processing
         if self.trigger["type"] == 1:
@@ -131,7 +129,7 @@ class RoheObservationAgent(RoheObject):
         # Get parser from configuration
         parser_name = self.proc_config["parser"]["name"]
         if parser_name == "dummy":
-            self.log(mess, 2)
+            logger.info(mess)
         else:
             # get parser by its name from userModule
             parser = getattr(self.proc_module, self.proc_config["parser"]["name"])
@@ -142,12 +140,12 @@ class RoheObservationAgent(RoheObject):
 
             # Add metric report as dataframe to buffer - processing window
             self.buffer.append(df_mess)
-            self.log(len(self.buffer.get()), 2)
+            logger.info(len(self.buffer.get()))
 
             if self.insert_db:
                 # Insert raw data to databased if insert_db is set to True
                 insert_id = self.metric_collection.insert_one(mess)
-                self.log(f"Insert to database {insert_id}", 2)
+                logger.info(f"Insert to database {insert_id}")
 
             # Check event trigger
             if self.trigger["type"] == 2:
@@ -155,7 +153,7 @@ class RoheObservationAgent(RoheObject):
 
     # Function for processing window
     def window_processing(self):
-        self.log("Start Window Processing")
+        logger.info("Start Window Processing")
         # Get data from buffer processing window
         data = self.buffer.get(dataframe=True)
 
@@ -204,9 +202,8 @@ class RoheObservationAgent(RoheObject):
             self.timer = Timer(self.trigger["value"], self.time_trigger)
             self.timer.start()
         except Exception as e:
-            self.log(
-                f"Error {type(e)} while estimating contribution: {e.__traceback__}",
-                4,
+            logger.exception(
+                f"Error {type(e)} while estimating contribution",
             )
 
     def stop(self):
@@ -256,4 +253,4 @@ if __name__ == "__main__":
         agent = RoheObservationAgent(agent_config)
         agent.start()
     except Exception:
-        traceback.print_exc()
+        logger.exception("Exception in rohe_agent_streaming")

@@ -2,6 +2,7 @@ from queue import PriorityQueue
 from typing import Tuple
 
 from ...common.data_models import ServiceQueueConfig
+from ...common.rohe_enum import SensitivityEnum
 from .service import Service
 
 
@@ -25,9 +26,9 @@ class ServiceQueue:
             service.sensitivity in (self.priority_factor, 3)
         ):
             service.set_qtime()
-            if self.priority_factor <= 1:
+            if self.priority_factor <= SensitivityEnum.cpu_sensitive:
                 self.p_queue.put((-service.cpu, service))
-            elif self.priority_factor == 2:
+            elif self.priority_factor == SensitivityEnum.memory_sensitive:
                 self.p_queue.put((-service.memory["rss"], service))
         else:
             self.np_queue.put((-service.cpu, service))

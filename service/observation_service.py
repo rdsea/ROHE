@@ -1,4 +1,3 @@
-import argparse
 import logging
 
 from devtools import debug
@@ -7,11 +6,9 @@ from flask_restful import Api
 from qoa4ml.config.configs import CollectorConfig, ConnectorConfig
 
 import rohe.lib.rohe_utils as rohe_utils
-from rohe.common.rest_service import RoheRestService
-from rohe.messaging.abstract import MessagingConnectionConfig
 from rohe.observation.agent_manager import RoheAgentManager
 from rohe.observation.registration import RoheRegistration
-from rohe.storage.abstract import DBCollection, DBConf, MDBClient
+from rohe.storage.abstract import MDBClient
 from rohe.variable import ROHE_PATH
 
 logging.basicConfig(
