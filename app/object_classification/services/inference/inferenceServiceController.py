@@ -1,17 +1,12 @@
 import json
 import os
 
-from core.common.restService import RoheRestObject
-from flask import request
-
-import app.object_classification.modules.utils as pipeline_utils
-from app.object_classification.lib.connectors.storage.minioStorageConnector import (
-    MinioConnector,
-)
 from app.object_classification.modules.common import InferenceEnsembleState
 from app.object_classification.modules.objectClassificationAgent import (
     ObjectClassificationAgent,
 )
+from core.common.restService import RoheRestObject
+from flask import request
 
 
 class InferenceServiceController(RoheRestObject):
@@ -156,7 +151,9 @@ class InferenceServiceController(RoheRestObject):
             return message
 
         except Exception as e:
-            return f"Local model case. Failed to update new weights or architecture: {str(e)}"
+            return (
+                f"Local model case. Failed to update new weights or architecture: {e!s}"
+            )
 
     # def _get_ensemble_mode(self) -> bool:
     #     return self.ensemble
@@ -189,7 +186,9 @@ class InferenceServiceController(RoheRestObject):
             return "Local file case. Sucessfully change the model"
 
         except Exception as e:
-            return f"Local model case. Failed to update new weights or architecture: {str(e)}"
+            return (
+                f"Local model case. Failed to update new weights or architecture: {e!s}"
+            )
 
     # def _handle_load_new_remote_model_req(self, request: request):
     #     # Download weights file

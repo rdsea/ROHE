@@ -26,9 +26,7 @@ def train_isolation_forest(historical_data, feature, random_seed=1, contaminatio
         return model_if
     except Exception as e:
         logging.error(
-            "Error {} while training isolation forest: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while training isolation forest: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None
@@ -42,9 +40,7 @@ def train_local_outlier_factor(historical_data, feature, n_neighbors=2, novelty=
         return model_lof
     except Exception as e:
         logging.error(
-            "Error {} while training local outlier factor: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while training local outlier factor: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None
@@ -70,9 +66,7 @@ def detect_local_outlier_factor(data, feature, n_neighbors=2, novelty=True):
         return test, model_lof
     except Exception as e:
         logging.error(
-            "Error {} while predicting with local outlier factor: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while predicting with local outlier factor: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None
@@ -97,9 +91,7 @@ def detect_isolation_forest(data, feature, random_seed=1, contamination=0.05):
         return test, model_if
     except Exception as e:
         logging.error(
-            "Error {} while predicting isolation forest: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while predicting isolation forest: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None
@@ -238,9 +230,7 @@ def sdnParser(item, parser_conf):
         return switch_df
     except Exception as e:
         logging.error(
-            "Error {} while parsing data in sdnParser: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while parsing data in sdnParser: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None, None

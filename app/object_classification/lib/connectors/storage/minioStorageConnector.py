@@ -1,7 +1,6 @@
 import boto3
-from botocore.client import Config
-
 from app.object_classification.modules.common import StorageInfo
+from botocore.client import Config
 
 from .boto3StorageConnector import Boto3Connector
 
@@ -36,7 +35,7 @@ class MinioConnector(Boto3Connector):
         try:
             self._s3.list_buckets()
             # logging.info(f'Connected to MinIO server')
-            print(f"Connected to MinIO server")
+            print("Connected to MinIO server")
         except Exception as e:
             # logging.error("Invalid MinIO Key.")
             print("Invalid MinIO Key.")

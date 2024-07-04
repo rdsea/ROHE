@@ -1,17 +1,14 @@
 import concurrent.futures
-import logging
 import time
 from threading import Lock
 from typing import Callable
 
+import app.object_classification.modules.model_aggregating_functions as aggregating_func
+import app.object_classification.modules.utils as pipeline_utils
 import numpy as np
 
 # import quixstreams as qx
 import pandas as pd
-from core.common.roheObject import RoheObject
-
-import app.object_classification.modules.model_aggregating_functions as aggregating_func
-import app.object_classification.modules.utils as pipeline_utils
 from app.object_classification.lib.connectors.quixStream import (
     QuixStreamDataframeHandler,
 )
@@ -19,6 +16,7 @@ from app.object_classification.lib.connectors.storage.mongoDBConnector import (
     MongoDBConnector,
 )
 from app.object_classification.modules.common import MongoDBInfo, TimeLimitedCache
+from core.common.roheObject import RoheObject
 
 
 class AggregatingServiceExecutor(RoheObject):

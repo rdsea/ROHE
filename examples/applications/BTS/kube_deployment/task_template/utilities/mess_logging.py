@@ -32,7 +32,7 @@ class Mess_Logging:
     def save_to_file(self, bot_lim, top_lim):
         print(self.log)
         self.log.loc[bot_lim:top_lim,].to_csv(
-            "./log/log_{}_{}.csv".format(self.log_id, time.time()), index=False
+            f"./log/log_{self.log_id}_{time.time()}.csv", index=False
         )
 
     def set_capacity(self, cap):

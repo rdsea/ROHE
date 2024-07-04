@@ -1,12 +1,12 @@
 import json
 
-# from app.object_classification.lib.roheService import RoheRestObject
-from core.common.restService import RoheRestObject
-from flask import request
-
 from app.object_classification.services.aggregating.aggregatingServiceExecutor import (
     AggregatingServiceExecutor,
 )
+
+# from app.object_classification.lib.roheService import RoheRestObject
+from core.common.restService import RoheRestObject
+from flask import request
 
 # import app.object_classification.modules.utils as pipeline_utils
 
@@ -81,8 +81,8 @@ class AggregatingServiceController(RoheRestObject):
         )
         if success:
             response = (
-                f"Successfully change image info service url of the processing service"
+                "Successfully change image info service url of the processing service"
             )
         else:
-            response = f"Something went wrong"
+            response = "Something went wrong"
         return success, response

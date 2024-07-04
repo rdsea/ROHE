@@ -7,18 +7,17 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 
 import aiohttp
+import app.object_classification.modules.image_processing_functions as image_processing_func
+import app.object_classification.modules.utils as pipeline_utils
 import cv2
 import numpy as np
 import requests
 from aiohttp import FormData
-from core.common.roheObject import RoheObject
-from qoa4ml.QoaClient import QoaClient
-
-import app.object_classification.modules.image_processing_functions as image_processing_func
-import app.object_classification.modules.utils as pipeline_utils
 from app.object_classification.lib.connectors.storage.minioStorageConnector import (
     MinioConnector,
 )
+from core.common.roheObject import RoheObject
+from qoa4ml.QoaClient import QoaClient
 
 
 class ProcessingServiceExecutor(RoheObject):
@@ -60,7 +59,7 @@ class ProcessingServiceExecutor(RoheObject):
             os.mkdir(self.tmp_folder)
 
         if "qoaClient" in config:
-            print(f"\n\nThere is qoa service enable in the server")
+            print("\n\nThere is qoa service enable in the server")
             self.qoaClient: QoaClient = config["qoaClient"]
             print(f"This is qoa client: {self.qoaClient}")
 
@@ -130,7 +129,7 @@ class ProcessingServiceExecutor(RoheObject):
         # print(f"After downloading process")
         # if download fail, stop
         if not temp_local_path:
-            logging.info(f"fail to download the image")
+            logging.info("fail to download the image")
             return None
 
         task["temp_local_path"] = temp_local_path
@@ -141,7 +140,7 @@ class ProcessingServiceExecutor(RoheObject):
 
         # if fail to process the image
         if processed_image is None:
-            logging.info(f"fail to process the image")
+            logging.info("fail to process the image")
             return None
 
         processing_result = {
@@ -175,7 +174,7 @@ class ProcessingServiceExecutor(RoheObject):
             response_dict = json.loads(response.text)
             try:
                 task = response_dict["image_info"]
-            except Exception as e:
+            except Exception:
                 # print(f"This is the error: {e}")
                 # attempt to double decode to make it to be a dict
                 task = json.loads(response_dict)["image_info"]

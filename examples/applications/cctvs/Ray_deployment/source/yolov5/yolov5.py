@@ -1,13 +1,11 @@
 import argparse
 import json
 import os
-import random
 
 import cv2
 import numpy as np
 import pandas as pd
 import torch
-from PIL import Image
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
 
@@ -201,7 +199,7 @@ if __name__ == "__main__":
                         )
                         df.to_csv(configuration["output"], mode="a", header=False)
         except Exception as e:
-            print("[ERROR] {}".format(e))
+            print(f"[ERROR] {e}")
 
     # cv2.imshow("lable",pre_img)
     # cv2.waitKey(0)

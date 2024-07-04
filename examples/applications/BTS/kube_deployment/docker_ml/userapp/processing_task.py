@@ -1,4 +1,5 @@
 import numpy as np
+
 from userapp.ML_Loader import ML_Loader
 
 
@@ -34,7 +35,7 @@ class LSTM_Prediction:
     def print_result(self, data):
         prediction = ""
         for key in data:
-            prediction += "\n# {} : {} ".format(key, data[key])
+            prediction += f"\n# {key} : {data[key]} "
 
         prediction_to_str = f"""{'='*40}
         # Prediction Server:{prediction}

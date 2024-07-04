@@ -1,8 +1,5 @@
 from threading import Lock
 
-from core.common.restService import RoheRestService
-from qoa4ml.QoaClient import QoaClient
-
 from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 from app.object_classification.lib.connectors.storage.minioStorageConnector import (
     MinioConnector,
@@ -20,6 +17,8 @@ from app.object_classification.services.inference.inferenceServiceController imp
 from app.object_classification.services.inference.inferenceServiceExecutor import (
     InferenceServiceExecutor,
 )
+from core.common.restService import RoheRestService
+from qoa4ml.QoaClient import QoaClient
 
 
 class InferenceService:

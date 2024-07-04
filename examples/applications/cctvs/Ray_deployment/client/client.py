@@ -4,7 +4,6 @@ import random
 import time
 from threading import Thread
 
-import numpy as np
 import qoa4ml.qoaUtils as qoa_utils
 import requests
 from qoa4ml.reports import Qoa_Client

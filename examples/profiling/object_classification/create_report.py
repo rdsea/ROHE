@@ -3,7 +3,6 @@ import os
 import sys
 
 import pandas as pd
-import qoa4ml.qoaUtils as qoa_utils
 
 # set the ROHE to be in the system path
 from dotenv import load_dotenv

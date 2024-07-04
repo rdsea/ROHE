@@ -4,7 +4,6 @@ import pika
 import requests
 import zmq
 from flask import Flask, request
-from flask.helpers import send_file
 
 from .mess_logging import Mess_Logging
 
@@ -90,7 +89,7 @@ class Amqp_Transceiver(Transceiver):
             if self.log_flag:
                 self.mess_logging.log_request(mess, corr_id)
         except Exception as e:
-            print("Amqp sending data unsuccessful {}".format(e))
+            print(f"Amqp sending data unsuccessful {e}")
 
 
 class Rest_Transceiver(Transceiver):
@@ -115,8 +114,8 @@ class Rest_Transceiver(Transceiver):
             try:
                 self.host.message_processing(mess=req_data)
             except Exception as e:
-                print("Call host processing unsuccessful {}".format(e))
-            return "the data is {}".format(req_data)
+                print(f"Call host processing unsuccessful {e}")
+            return f"the data is {req_data}"
 
         return app
 
@@ -134,7 +133,7 @@ class Rest_Transceiver(Transceiver):
                 "POST", url, headers=headers, data=json.dumps(data), timeout=0.1
             )
         except Exception as e:
-            print("Error while sending data via REST: {}".format(e))
+            print(f"Error while sending data via REST: {e}")
 
 
 class Zmq_Transceiver(Transceiver):
@@ -164,7 +163,7 @@ class Zmq_Transceiver(Transceiver):
             sender.connect(url)
             sender.send_json(data)
         except Exception as e:
-            print("Error while sending data via Zmq: {}".format(e))
+            print(f"Error while sending data via Zmq: {e}")
 
     def stop(self):
         self.run_flag = False

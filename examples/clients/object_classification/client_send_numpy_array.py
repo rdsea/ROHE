@@ -13,8 +13,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import os
-import sys
 
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)

@@ -1,9 +1,7 @@
 # import kubernetes.client
 # from kubernetes.client.rest import ApiException
 # from pprint import pprint
-import time
 
-import kubernetes.client
 import yaml
 from kubernetes import config, dynamic
 from kubernetes.client import api_client

@@ -1,13 +1,11 @@
 import argparse
 import io
-import json
 import os
 import sys
 
 import aggregation
 import numpy as np
 import qoa4ml.qoaUtils as qoa_utils
-from flask import Response, request
 from PIL import Image
 from qoa4ml.QoaClient import QoaClient
 
@@ -67,7 +65,7 @@ class MLInferenceObject(ImageInferenceObject):
                     "confidence_" + object_name, confidence
                 )
 
-        except Exception as e:
+        except Exception:
             json_data = '{"error":"some error occurred in Inference service"}'
         qoaClient.timer()
         report = qoaClient.report(submit=True)

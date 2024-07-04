@@ -13,6 +13,9 @@ from ...external.k8s.datamodel.api.core.v1 import (
     ObjectFieldSelector,
     PodSpec,
     PodTemplateSpec,
+    Service,
+    ServicePort,
+    ServiceSpec,
 )
 from ...external.k8s.datamodel.apimachinery.pkg.apis.meta.v1 import (
     LabelSelector,
@@ -159,6 +162,19 @@ class K8sClient:
                         ],
                     ),
                 ),
+            ),
+        )
+        Service(
+            apiVersion="v1",
+            kind="Service",
+            metadata=ObjectMeta(
+                name=f"{task_name}-service",
+            ),
+            spec=ServiceSpec(
+                ports=[
+                    ServicePort(port=p_map)
+                    for p_map in service_instance.service.port_mapping
+                ]
             ),
         )
         debug(test.model_dump(exclude_defaults=True))

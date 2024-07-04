@@ -4,7 +4,6 @@ import sys
 
 import numpy as np
 import tensorflow as tf
-
 from app.object_classification.lib.roheMLAgent import RoheMLAgent
 
 ROHE_PATH = os.getenv("ROHE_PATH")

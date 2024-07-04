@@ -4,12 +4,8 @@ import json
 from threading import Lock
 from typing import Dict, Optional, Tuple
 
-import numpy as np
-from core.common.restService import RoheRestObject
-from flask import request
-from qoa4ml.QoaClient import QoaClient
-
 import app.object_classification.modules.utils as pipeline_utils
+import numpy as np
 from app.object_classification.lib.connectors.quixStream import QuixStreamProducer
 
 # from app.object_classification.lib.connectors.storage.minioStorageConnector import MinioConnector
@@ -20,6 +16,9 @@ from app.object_classification.modules.common import InferenceEnsembleState
 from app.object_classification.modules.objectClassificationAgent import (
     ObjectClassificationAgent,
 )
+from core.common.restService import RoheRestObject
+from flask import request
+from qoa4ml.QoaClient import QoaClient
 
 
 class InferenceServiceExecutor(RoheRestObject):
@@ -31,7 +30,7 @@ class InferenceServiceExecutor(RoheRestObject):
         super().__init__(log_level=log_lev)
 
         if "qoaClient" in self.conf:
-            print(f"There is qoa service enable in the server")
+            print("There is qoa service enable in the server")
             self.qoaClient: QoaClient = self.conf["qoaClient"]
             print(f"This is qoa client: {self.qoaClient}")
         else:
@@ -152,12 +151,12 @@ class InferenceServiceExecutor(RoheRestObject):
         ### METADATA ####
         metadata = self._get_image_metadata(request=request)
         if metadata is None:
-            response = f"There is no metadata with this request. Cannot retrieve the image for the inference stage"
+            response = "There is no metadata with this request. Cannot retrieve the image for the inference stage"
             return response, inference_result
         try:
             request_input_shape = pipeline_utils.convert_str_to_tuple(metadata["shape"])
         except:
-            response = f"metadata of the image is wrong."
+            response = "metadata of the image is wrong."
             return response, inference_result
 
         if self.qoaClient:
@@ -178,7 +177,7 @@ class InferenceServiceExecutor(RoheRestObject):
             dtype = metadata["dtype"]
             binary_encoded = request.files["image"].read()
         except:
-            response = f"There is no binary image attached to the request or there is no specification of dtype or both"
+            response = "There is no binary image attached to the request or there is no specification of dtype or both"
             return response, inference_result
 
         # Convert the binary data to a numpy array and decode the image
@@ -207,7 +206,7 @@ class InferenceServiceExecutor(RoheRestObject):
         self._publish_inference_result(
             request_info=metadata, inference_result=inference_result
         )
-        response = f"Success to make inference prediction from the image"
+        response = "Success to make inference prediction from the image"
         return response, inference_result
 
     def _publish_inference_result(self, request_info: dict, inference_result: dict):

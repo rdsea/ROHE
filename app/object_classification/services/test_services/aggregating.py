@@ -11,7 +11,6 @@ sys.path.append(ROHE_PATH)
 
 
 import lib.roheUtils as roheUtils
-
 from app.object_classification.services.aggregating.aggregatingService import (
     AggregatingService,
 )

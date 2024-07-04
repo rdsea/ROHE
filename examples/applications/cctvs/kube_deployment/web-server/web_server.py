@@ -6,9 +6,7 @@ import time
 
 import qoa4ml.qoaUtils as qoa_utils
 import requests as rq
-from flask import Flask, Response, request
 from helpers.custom_logger import CustomLogger
-from PIL import Image
 from qoa4ml.QoaClient import QoaClient
 
 qoa_conf_path = os.environ.get("QOA_CONF_PATH")
@@ -73,7 +71,7 @@ class WebService(ImageInferenceObject):
             json_data["success"] = "true"
             # result = {}
         except Exception as e:
-            logger.exception("Some Error occurred: {}".format(e))
+            logger.exception(f"Some Error occurred: {e}")
             json_data = '{"error":"some error occurred in Web service"}'
 
         return json_data

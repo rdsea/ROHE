@@ -4,10 +4,9 @@ from flask_restful import Api
 import rohe.lib.rohe_utils as rohe_utils
 from rohe.api.orchestration_resource import OrchestationResource
 from rohe.common.data_models import OrchestrationServiceConfig
+from rohe.common.logger import logger
 from rohe.orchestration.node_and_service_manager import NodeAndServiceManager
 from rohe.variable import ROHE_PATH
-from rohe.common.logger import logger
-
 
 DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
 DEFAULT_PORT = 5002

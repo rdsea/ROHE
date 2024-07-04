@@ -1,7 +1,4 @@
-import sys
 from threading import Thread
-
-from core.common.restService import RoheRestService
 
 import app.object_classification.modules.utils as pipeline_utils
 from app.object_classification.services.processing.processingServiceController import (
@@ -10,6 +7,7 @@ from app.object_classification.services.processing.processingServiceController i
 from app.object_classification.services.processing.processingServiceExecutor import (
     ProcessingServiceExecutor,
 )
+from core.common.restService import RoheRestService
 
 
 class ProcessingService:

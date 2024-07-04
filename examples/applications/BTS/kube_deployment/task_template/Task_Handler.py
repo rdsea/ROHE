@@ -76,7 +76,7 @@ class Task_Handler:
             data["raw"] = mess
             return data
         except Exception as e:
-            print("Error when adding header {}".format(e))
+            print(f"Error when adding header {e}")
             return None
 
     # The call-back function when receiving message

@@ -4,7 +4,6 @@ import os
 import re
 import sys
 from abc import ABC, abstractmethod
-from time import sleep
 
 logging.getLogger(__name__)
 
@@ -106,7 +105,7 @@ class Boto3Connector(ABC):
                 )
                 logging.info(f"Saved {remote_file_path} to {local_file_path}")
                 return True
-            except Exception as e:
+            except Exception:
                 # raise e
                 return False
         else:  # call asynchronously

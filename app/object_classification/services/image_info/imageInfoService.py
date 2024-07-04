@@ -1,12 +1,11 @@
 # import redis
 import json
-import logging
+
+import app.object_classification.modules.utils as pipeline_utils
 
 # from app.object_classification.lib.roheService import RoheRestObject
 from core.common.restService import RoheRestObject
 from flask import request
-
-import app.object_classification.modules.utils as pipeline_utils
 
 
 class ImageInfoService(RoheRestObject):

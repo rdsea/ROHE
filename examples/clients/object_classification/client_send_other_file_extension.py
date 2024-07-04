@@ -20,9 +20,6 @@ def get_parent_dir(file_path, levels_up=1):
     return parent_path
 
 
-import os
-import sys
-
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 

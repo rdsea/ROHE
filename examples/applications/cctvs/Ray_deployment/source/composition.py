@@ -1,8 +1,6 @@
 import json
 import os
 import time
-import uuid
-from threading import Thread
 
 import aggregation
 import cv2
@@ -10,8 +8,6 @@ import numpy as np
 import pymongo
 import qoa4ml.qoaUtils as qoa_utils
 import ray
-import requests
-from fastapi import FastAPI
 from qoa4ml.reports import Qoa_Client
 from ray import serve
 from yolov5.yolov5 import Yolo5
@@ -84,12 +80,12 @@ mongo_client = pymongo.MongoClient(env_var["database_url"])
 
 dblist = mongo_client.list_database_names()
 if database_name not in dblist:
-    print("The database {} not exists.".format(database_name))
+    print(f"The database {database_name} not exists.")
 object_detection_db = mongo_client[database_name]
 
 collist = object_detection_db.list_collection_names()
 if u_col_name in collist:
-    print("The collection {} not exists.".format(u_col_name))
+    print(f"The collection {u_col_name} not exists.")
 user_collection = object_detection_db[u_col_name]
 
 last_updated_u_data = None
@@ -102,7 +98,7 @@ while True:
         object_iterator = iter(customer_data)
         last_updated_u_data = object_iterator[0]
         break
-    except TypeError as te:
+    except TypeError:
         print(customer_data, " is not iterable")
         time.sleep(10)
 print("Downloading customer data success: ", last_updated_u_data)
@@ -260,7 +256,7 @@ if last_updated_u_data != None:
                 }
             )
             print("Add instance: ", last_updated_i_data)
-        except TypeError as te:
+        except TypeError:
             print(customer_data, " is not iterable")
             time.sleep(10)
     print("Downloading ensemble composition success: ", conf)
@@ -274,7 +270,7 @@ if last_updated_u_data != None:
             print("Adding instance: ", instance)
             model_list.append(model)
     except Exception as e:
-        print("[Error]: {}".format(e))
+        print(f"[Error]: {e}")
     ensemble = Ensemble_ML.bind(model_list)
 
     serve.run(ensemble, host="0.0.0.0", port="8111")

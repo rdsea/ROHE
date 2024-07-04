@@ -1,12 +1,10 @@
 import argparse
-import json
 import os
 import random
 import time
 from threading import Thread
 
 import qoa4ml.qoaUtils as qoa_utils
-import requests
 from qoa4ml.reports import Qoa_Client
 
 
