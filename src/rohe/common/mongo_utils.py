@@ -1,7 +1,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
-from ...common.logger import logger
+from .logger import logger
 
 
 def get_mdb_client(mdb_conf):

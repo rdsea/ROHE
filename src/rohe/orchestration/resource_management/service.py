@@ -29,7 +29,7 @@ EPSILON = 1e-9
 
 
 class ServiceInstance:
-    def __init__(self, service, node):
+    def __init__(self, service: Service, node):
         self.node = node
         self.service = service
         self.id = str(uuid.uuid4())

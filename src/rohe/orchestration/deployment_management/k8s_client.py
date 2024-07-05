@@ -1,8 +1,7 @@
-import datetime
+from pathlib import Path
 
-import pytz
-from devtools import debug
-from kubernetes.client.rest import ApiException
+import yaml
+from kubernetes import client, config, utils
 
 from ...external.k8s.datamodel.api.apps.v1 import Deployment, DeploymentSpec
 from ...external.k8s.datamodel.api.core.v1 import (
@@ -21,102 +20,21 @@ from ...external.k8s.datamodel.apimachinery.pkg.apis.meta.v1 import (
     LabelSelector,
     ObjectMeta,
 )
+from ...variable import ROHE_PATH
 from ..resource_management import ServiceInstance
 
 
 class K8sClient:
-    def __init__(
-        self,
-        # deploy_config, namespace, api_client
-    ):
-        pass
-        # self.deploy_config = yaml.safe_load(open(deploy_config))
-        # self.namespace = namespace
-        # self.name = self.deploy_config["metadata"]["name"]
-        # self.api_client = api_client
-        # self.deployment = None
-        # self.client_v1 = client.CoreV1Api()
+    def __init__(self):
+        config.load_kube_config()
+        self.client = client.ApiClient()
 
-    def create(self):
-        try:
-            api_response = self.client_v1.create_namespaced_deployment(
-                body=self.deploy_config, namespace=self.namespace
-            )
-            self.deployment = api_response
-            print(f"Deployment created: {self.name}")
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->create_namespaced_deployment: {e}\n"
-            )
-
-    def delete(self):
-        try:
-            api_response = self.client_v1.delete_namespaced_deployment(
-                name=self.name, namespace=self.namespace
-            )
-            print(f"Deployment deleted: \n{api_response.status}")
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->delete_namespaced_deployment: {e}\n"
-            )
-
-    def update(self, deploy_config):
-        try:
-            api_response = self.client_v1.patch_namespaced_deployment(
-                name=self.name, namespace=self.namespace, body=deploy_config
-            )
-            print(f"Deployment updated: \n{api_response}")
-            self.deploy_config = deploy_config
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->patch_namespaced_deployment: {e}\n"
-            )
-
-    def get_info(self):
-        try:
-            api_response = self.client_v1.read_namespaced_deployment(
-                name=self.name, namespace=self.namespace
-            )
-            print(f"Deployment deleted: \n{api_response}")
-            return api_response
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->delete_namespaced_deployment: {e}\n"
-            )
-
-    def replace(self, deploy_config):
-        try:
-            api_response = self.client_v1.replace_namespaced_deployment(
-                name=self.name, namespace=self.namespace, body=deploy_config
-            )
-            print(f"Deployment updated: \n{api_response}")
-            self.deploy_config = deploy_config
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->replace_namespaced_deployment: {e}\n"
-            )
-
-    def restart(self):
-        self.deployment = self.get_info()
-        self.deployment.spec.template.metadata.annotations = {
-            "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow()
-            .replace(tzinfo=pytz.UTC)
-            .isoformat()
-        }
-        try:
-            api_response = self.client_v1.patch_namespaced_deployment(
-                name=self.name, namespace=self.namespace, body=self.deployment
-            )
-            print(f"Deployment updated: \n{api_response}")
-        except ApiException as e:
-            print(
-                f"Exception when calling AppsV1Api->patch_namespaced_deployment: {e}\n"
-            )
+        Path(f"{ROHE_PATH}/temp/k8s_deployment").mkdir(parents=True, exist_ok=True)
 
     def generate_deployment(self, service_instance: ServiceInstance):
         task_name = service_instance.service.name
         node_name = service_instance.node.name
-        test = Deployment(
+        deployment = Deployment(
             apiVersion="apps/v1",
             kind="Deployment",
             metadata=ObjectMeta(
@@ -164,7 +82,11 @@ class K8sClient:
                 ),
             ),
         )
-        Service(
+        return deployment.model_dump(exclude_defaults=True)
+
+    def generate_service(self, service_instance: ServiceInstance):
+        task_name = service_instance.service.name
+        service = Service(
             apiVersion="v1",
             kind="Service",
             metadata=ObjectMeta(
@@ -172,9 +94,23 @@ class K8sClient:
             ),
             spec=ServiceSpec(
                 ports=[
-                    ServicePort(port=p_map)
+                    ServicePort(port=p_map.con_port, targetPort=p_map.phy_port)
                     for p_map in service_instance.service.port_mapping
                 ]
             ),
         )
-        debug(test.model_dump(exclude_defaults=True))
+        return service.model_dump(exclude_defaults=True)
+
+    def deploy_service_instance(self, service_instance: ServiceInstance):
+        service_dict = self.generate_service(service_instance)
+        deployment_dict = self.generate_deployment(service_instance)
+        with open(
+            f"{ROHE_PATH}/temp/k8s_deployment/{service_instance.id}.yml", "w"
+        ) as file:
+            yaml.dump(deployment_dict, file)
+            file.write("\n---\n")
+            yaml.dump(service_dict, file)
+
+        utils.create_from_yaml(
+            self.client, f"{ROHE_PATH}/temp/deployment/{service_instance.id}.yml"
+        )

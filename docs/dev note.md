@@ -8,6 +8,10 @@
 - [mypy](https://mypy-lang.org/): static type check
 - [mkdocs-material](https://squidfunk.github.io/mkdocs-material/): documentation webpage
 
+## Standards
+
+Follows guide at [scientific-python](https://learn.scientific-python.org/development/)
+
 ## Serialization
 
 - model_dump doesn't convert enum to its value. However, by using IntEnum or StrEnum, the enum can be serialized
@@ -17,6 +21,6 @@
 - PEP 585: use list, dict instead of List, Dict
 - PEP 604: use X | Y insated of Union\[X,Y\]
 
-## Standards
+## K8s models
 
-Follows guide at [scientific-python](https://learn.scientific-python.org/development/)
+k8s python client has model auto generated from the openapi spec but is not in pydantic

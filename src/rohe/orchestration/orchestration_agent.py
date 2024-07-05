@@ -1,7 +1,5 @@
 from threading import Timer
 
-from devtools import debug
-
 from rohe.orchestration.deployment_management.k8s_client import K8sClient
 
 from ..common.data_models import (
@@ -47,6 +45,8 @@ class OrchestrationAgent:
             # Periodically check service queue and allocate service
             self.orches_flag = True
             self.orchestrate()
+            self.timer = Timer(self.orchestration_interval, self.orchestrate)
+            self.timer.start()
             # self.show_nodes()
             # self.show_services()
         except Exception as e:
@@ -60,12 +60,10 @@ class OrchestrationAgent:
             if self.orches_flag:
                 logger.info("Agent Start Orchestrating")
                 new_service_instances = self.allocator.allocate()
-                debug(new_service_instances)
-                self.k8s_client.generate_deployment(new_service_instances[0])
+                for service_instance in new_service_instances:
+                    self.k8s_client.deploy_service_instance(service_instance)
                 # self.show_services()
                 logger.info("Agent Finish Orchestrating")
-                self.timer = Timer(self.orchestration_interval, self.orchestrate)
-                self.timer.start()
         except Exception as e:
             logger.exception(f"Error in `orchestrate` OrchestrationAgent: {e}")
 

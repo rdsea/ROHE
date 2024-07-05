@@ -20,6 +20,7 @@ dist
 artifact
 tmp_image_folder/
 test_image/
+temp
 
 examples/profiling/object_classification/result
 app/object_classification/modules/draft

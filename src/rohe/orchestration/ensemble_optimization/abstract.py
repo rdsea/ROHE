@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ...lib import rohe_utils
+from ...common import rohe_utils
 from . import algorithm
 
 

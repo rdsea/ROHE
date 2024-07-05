@@ -40,6 +40,11 @@ class NodeData(BaseModel):
     services: Optional[Dict] = None
 
 
+class PortMapping(BaseModel):
+    con_port: int
+    phy_port: int
+
+
 class ServiceData(BaseModel):
     service_name: str
     service_id: str
@@ -50,7 +55,7 @@ class ServiceData(BaseModel):
     image: str
     # NOTE: why this should be a list
     ports: List
-    port_mapping: List[Dict]
+    port_mapping: List[PortMapping]
     cpu_required: int
     accelerator_required: Dict
     memory_required: Dict

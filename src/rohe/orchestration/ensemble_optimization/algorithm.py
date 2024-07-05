@@ -3,7 +3,7 @@ from itertools import combinations
 
 import pandas as pd
 
-from ...lib import rohe_utils
+from ...common import rohe_utils
 from ...variable import ROHE_PATH
 from . import objective
 

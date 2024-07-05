@@ -6,9 +6,9 @@ from threading import Thread, Timer
 import pymongo
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 
+from ....common import rohe_utils
 from ....common.logger import logger
 from ....common.window import EventBuffer, TimeBuffer
-from ....lib import rohe_utils
 from ....variable import ROHE_PATH
 
 # set default global variable for loading configuration/functions and saving processed data
