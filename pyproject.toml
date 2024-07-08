@@ -26,7 +26,7 @@ rohe-cli = 'rohe.rohe_cli:rohe_cli'
 [tool.poetry.dependencies]
 python = ">=3.10.0,<3.11"
 gdown = "4.7.1"
-GitPython = "3.1.40"
+GitPython = "3.1.41"
 h5py = "3.7.0"
 Jinja2 = "3.1.2"
 kubernetes = "30.1.0"
