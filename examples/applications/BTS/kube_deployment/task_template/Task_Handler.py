@@ -6,7 +6,7 @@ import threading
 from utilities.transceiver import Amqp_Transceiver, Rest_Transceiver, Zmq_Transceiver
 
 
-class Task_Handler(object):
+class Task_Handler:
     def __init__(self, configuration, qoa_client):
         # Init the main process of the task
         self.task_conf = configuration["task_configuration"]
@@ -76,7 +76,7 @@ class Task_Handler(object):
             data["raw"] = mess
             return data
         except Exception as e:
-            print("Error when adding header {}".format(e))
+            print(f"Error when adding header {e}")
             return None
 
     # The call-back function when receiving message

@@ -1,8 +1,9 @@
 import numpy as np
+
 from userapp.ML_Loader import ML_Loader
 
 
-class LSTM_Prediction(object):
+class LSTM_Prediction:
     def __init__(self, configuration):
         # Init the queue for ML request and load the ML model
         self.model_info = configuration["model"]
@@ -15,7 +16,7 @@ class LSTM_Prediction(object):
         return model
 
     def ML_prediction(self, pas_series):
-        # Making prediciton using loader
+        # Making prediction using loader
         result = self.model.prediction(pas_series)
         # result = result.reshape(result.shape[0],result.shape[1])
         # Load the result into json format
@@ -34,7 +35,7 @@ class LSTM_Prediction(object):
     def print_result(self, data):
         prediction = ""
         for key in data:
-            prediction += "\n# {} : {} ".format(key, data[key])
+            prediction += f"\n# {key} : {data[key]} "
 
         prediction_to_str = f"""{'='*40}
         # Prediction Server:{prediction}

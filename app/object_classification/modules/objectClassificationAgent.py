@@ -4,7 +4,6 @@ import sys
 
 import numpy as np
 import tensorflow as tf
-
 from app.object_classification.lib.roheMLAgent import RoheMLAgent
 
 ROHE_PATH = os.getenv("ROHE_PATH")
@@ -122,7 +121,7 @@ class ObjectClassificationAgent(RoheMLAgent):
 
     def _load_model_from_file(self, architecture_file, weights_file):
         """ """
-        with open(architecture_file, "r") as f:
+        with open(architecture_file) as f:
             model_architecture = json.load(f)
             model: tf.keras.Model = tf.keras.models.model_from_config(
                 model_architecture

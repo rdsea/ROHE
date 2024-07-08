@@ -1,13 +1,12 @@
 from threading import Thread
 
-from core.common.restService import RoheRestService
-
 from app.object_classification.services.aggregating.aggregatingServiceController import (
     AggregatingServiceController,
 )
 from app.object_classification.services.aggregating.aggregatingServiceExecutor import (
     AggregatingServiceExecutor,
 )
+from core.common.restService import RoheRestService
 
 
 class AggregatingService:

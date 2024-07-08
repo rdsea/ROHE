@@ -3,16 +3,13 @@ import os
 import sys
 from threading import Thread
 
-from qoa4ml import qoaUtils as utils
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 
 ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
-from userModule.common.parser import OCParser
 
-
-class Collector(object):
+class Collector:
     def __init__(self, config) -> None:
         self.config = config
         self.collector = Amqp_Collector(self.config["collector"], self)

@@ -11,15 +11,16 @@ modules/orchestration/temp/
 *.pyo
 *.pyd
 .ipynb_checkpoints/
-
 .pypirc
-
 .env
 *.ipynb
-
+.cache
+.venv
+dist
 artifact
 tmp_image_folder/
 test_image/
+temp
 
 examples/profiling/object_classification/result
 app/object_classification/modules/draft
@@ -30,3 +31,7 @@ config/orchestrationConfig.yaml
 app/object_classification/modules/draft
 app/object_classification/services/test_services/clients
 app/object_classification/services_old
+
+src/rohe/external/k8s/apis__apps__v1_openapi.json
+src/rohe/external/k8s/api__v1_openapi.json
+

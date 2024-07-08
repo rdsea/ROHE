@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 
-class Mess_Logging(object):
+class Mess_Logging:
     def __init__(self, log_id, cap=500):
         column_names = ["id", "request", "response"]
         self.log = pd.DataFrame(index=range(cap), columns=column_names)
@@ -32,7 +32,7 @@ class Mess_Logging(object):
     def save_to_file(self, bot_lim, top_lim):
         print(self.log)
         self.log.loc[bot_lim:top_lim,].to_csv(
-            "./log/log_{}_{}.csv".format(self.log_id, time.time()), index=False
+            f"./log/log_{self.log_id}_{time.time()}.csv", index=False
         )
 
     def set_capacity(self, cap):

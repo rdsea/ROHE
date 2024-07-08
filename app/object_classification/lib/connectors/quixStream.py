@@ -1,7 +1,6 @@
 import datetime
 from abc import ABC, abstractmethod
 
-import pandas as pd
 import quixstreams as qx
 
 

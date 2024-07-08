@@ -12,15 +12,14 @@ ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
 
-import lib.roheUtils as roheUtils
-from core.common.restService import RoheRestService
-from core.serviceRegistry.consul import ConsulClient
-from qoa4ml.QoaClient import QoaClient
-
 import app.object_classification.modules.utils as pipeline_utils
+import lib.roheUtils as roheUtils
 from app.object_classification.services.image_info.imageInfoService import (
     ImageInfoService,
 )
+from core.common.restService import RoheRestService
+from core.serviceRegistry.consul import ConsulClient
+from qoa4ml.QoaClient import QoaClient
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -76,7 +75,7 @@ if __name__ == "__main__":
     # Register the signal handler for SIGINT
     signal.signal(signal.SIGINT, signal_handler)
 
-    # initialize dependecy before passing to the restful server
+    # initialize dependency before passing to the restful server
     # redis = setup_redis(redis_config= config['redis_server'])
     redis_config = config["external_services"]["redis_server"]
     redis = redis.Redis(

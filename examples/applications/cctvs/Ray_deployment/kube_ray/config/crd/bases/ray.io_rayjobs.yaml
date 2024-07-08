@@ -377,8 +377,8 @@ spec:
                           head service.
                         type: string
                       template:
-                        description: Template is the eaxct pod template used in K8s
-                          depoyments, statefulsets, etc.
+                        description: Template is the exact pod template used in K8s
+                          deployments, statefulsets, etc.
                         properties:
                           metadata:
                             description: 'Standard object''s metadata. More info:
@@ -5848,7 +5848,7 @@ spec:
                                         volumeName:
                                           description: The name of a volume already
                                             created in the ScaleIO system that is
-                                            associated with this volume sourc
+                                            associated with this volume source
                                           type: string
                                       required:
                                       - gateway
@@ -11601,7 +11601,7 @@ spec:
                                           volumeName:
                                             description: The name of a volume already
                                               created in the ScaleIO system that is
-                                              associated with this volume sourc
+                                              associated with this volume source
                                             type: string
                                         required:
                                         - gateway

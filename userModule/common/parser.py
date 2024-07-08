@@ -48,9 +48,7 @@ def cpustatParser(buff, parser_conf):
             proc_df = pd.concat([proc_df, dfi], ignore_index=True)
         return proc_df, ["cpustats"]
     except Exception as e:
-        logging.error(
-            "Error {} while parsing cpustats: {}".format(type(e), e.__traceback__)
-        )
+        logging.error(f"Error {type(e)} while parsing cpustats: {e.__traceback__}")
         traceback.print_exception(*sys.exc_info())
         return None, None
 
@@ -90,9 +88,7 @@ def confidenceParser(buff, parser_conf):
             inf_df = pd.concat([inf_df, dfi], ignore_index=True)
         return inf_df, ["confidence"]
     except Exception as e:
-        logging.error(
-            "Error {} while parsing confidence: {}".format(type(e), e.__traceback__)
-        )
+        logging.error(f"Error {type(e)} while parsing confidence: {e.__traceback__}")
         traceback.print_exception(*sys.exc_info())
         return None, None
 
@@ -130,9 +126,7 @@ def accuracyParser(buff, parser_conf):
             inf_df = pd.concat([inf_df, dfi], ignore_index=True)
         return inf_df, ["accuracy"]
     except Exception as e:
-        logging.error(
-            "Error {} while parsing accuracy: {}".format(type(e), e.__traceback__)
-        )
+        logging.error(f"Error {type(e)} while parsing accuracy: {e.__traceback__}")
         traceback.print_exception(*sys.exc_info())
         return None, None
 
@@ -232,9 +226,7 @@ def objectDetectionParser(item, parser_conf):
         return inf_df
     except Exception as e:
         logging.error(
-            "Error {} while parsing data in objectDetectionParser: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while parsing data in objectDetectionParser: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None, None
@@ -333,9 +325,7 @@ def sdnParser(item, parser_conf):
         return switch_df
     except Exception as e:
         logging.error(
-            "Error {} while parsing data in objectDetectionParser: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while parsing data in objectDetectionParser: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None, None
@@ -507,9 +497,7 @@ def OCParser(item, parser_conf):
         return result
     except Exception as e:
         logging.error(
-            "Error {} while parsing data in objectDetectionParser: {}".format(
-                type(e), e.__traceback__
-            )
+            f"Error {type(e)} while parsing data in objectDetectionParser: {e.__traceback__}"
         )
         traceback.print_exception(*sys.exc_info())
         return None, None

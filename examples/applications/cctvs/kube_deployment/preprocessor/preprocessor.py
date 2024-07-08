@@ -10,9 +10,8 @@ import cv2
 import numpy as np
 import qoa4ml.qoaUtils as qoa_utils
 import requests as rq
-from flask import Flask, Response, request
 from helper.custom_logger import CustomLogger
-from PIL import Image, ImageEnhance
+from PIL import Image
 from qoa4ml.QoaClient import QoaClient
 
 qoa_conf_path = os.environ.get("QOA_CONF_PATH")
@@ -84,7 +83,7 @@ class ProcessService(ImageInferenceObject):
             json_data = {"data": json.loads(r.content)}
             json_data["uid"] = job_id
         except Exception as e:
-            logger.exception("Some Error occurred: {}".format(e))
+            logger.exception(f"Some Error occurred: {e}")
             json_data = '{"error":"some error occurred in Processing service"}'
 
         return json_data

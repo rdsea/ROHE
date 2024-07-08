@@ -1,0 +1,402 @@
+{
+  "data": {
+    "node1": {
+      "accelerator": {},
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:01",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 4096
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "RaspberryPi_01",
+      "status": "running"
+    },
+    "node10": {
+      "accelerator": {
+        "GPU0": {
+          "accelerator_type": "gpu",
+          "capacity": 100,
+          "core": 512,
+          "mode": "pre-emptive",
+          "used": 0
+        }
+      },
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 8000,
+        "used": 0
+      },
+      "frequency": 2.3,
+      "mac_address": "82:ae:30:11:38:10",
+      "memory": {
+        "capacity": {
+          "rss": 16384,
+          "vms": 16384
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "Jetson_xavier_06",
+      "status": "running"
+    },
+    "node2": {
+      "accelerator": {},
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:02",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 4096
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "RaspberryPi_02",
+      "status": "running"
+    },
+    "node3": {
+      "accelerator": {},
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:03",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 4096
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "RaspberryPi_03",
+      "status": "running"
+    },
+    "node4": {
+      "accelerator": {},
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:04",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 4096
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "RaspberryPi_04",
+      "status": "running"
+    },
+    "node5": {
+      "accelerator": {},
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:05",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 4096
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "RaspberryPi_05",
+      "status": "running"
+    },
+    "node6": {
+      "accelerator": {
+        "GPU0": {
+          "accelerator_type": "gpu",
+          "capacity": 100,
+          "core": 128,
+          "mode": "nonpre-emptive",
+          "used": 0
+        }
+      },
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:06",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 2048
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "Jetson_nano_01",
+      "status": "running"
+    },
+    "node7": {
+      "accelerator": {
+        "GPU0": {
+          "accelerator_type": "gpu",
+          "capacity": 100,
+          "core": 128,
+          "mode": "nonpre-emptive",
+          "used": 0
+        }
+      },
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:07",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 2048
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "Jetson_nano_02",
+      "status": "running"
+    },
+    "node8": {
+      "accelerator": {
+        "GPU0": {
+          "accelerator_type": "gpu",
+          "capacity": 100,
+          "core": 128,
+          "mode": "nonpre-emptive",
+          "used": 0
+        }
+      },
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:08",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 2048
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "Jetson_nano_03",
+      "status": "running"
+    },
+    "node9": {
+      "accelerator": {
+        "GPU0": {
+          "accelerator_type": "gpu",
+          "capacity": 100,
+          "core": 128,
+          "mode": "nonpre-emptive",
+          "used": 0
+        }
+      },
+      "cores": {
+        "capacity": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "used": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "cpu": {
+        "capacity": 4000,
+        "used": 0
+      },
+      "frequency": 1.5,
+      "mac_address": "82:ae:30:11:38:09",
+      "memory": {
+        "capacity": {
+          "rss": 4096,
+          "vms": 2048
+        },
+        "used": {
+          "rss": 0,
+          "vms": 0
+        }
+      },
+      "node_name": "Jetson_nano_04",
+      "status": "running"
+    }
+  }
+}

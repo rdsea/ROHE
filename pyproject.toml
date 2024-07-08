@@ -1,75 +1,120 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1"]
 
-[tool.flit.module]
-name = "rohe"
-
-[project]
+[tool.poetry]
 name = "rohe"
 version = "0.0.2"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
-authors = []
+authors = ["AaltoSEA <tri.m.nguyen@aalto.fi>"]
+maintainers = ["Anh-Dung Nguyen <anh-dung.nguyen@aalto.fi>"]
 readme = "README.md"
-requires-python = ">=3.8"
-
-dependencies = [
-  "boto3==1.24.90",
-  "botocore==1.27.90",
-  "docker_py==1.10.6",
-  "fastapi>=0.104.0",
-  "Flask==2.2.3",
-  "flask_restful==0.3.10",
-  "gdown==4.7.1",
-  "GitPython==3.1.40",
-  "h5py==3.7.0",
-  "Jinja2==3.1.2",
-  "kubernetes==28.1.0",
-  "matplotlib==3.6.2",
-  "networkx==3.2",
-  "numpy==1.23.5",
-  "paho_mqtt==1.6.1",
-  "pandas==1.4.3",
-  "pika==1.3.2",
-  "Pillow==10.1.0",
-  "psutil==5.9.2",
-  "pymongo==4.3.3",
-  "python-dotenv==1.0.0",
-  "PyYAML==6.0.1",
-  "pyzmq==25.1.1",
-  "qoa4ml@git+https://github.com/rdsea/QoA4ML.git",
-  "quixstreams==0.5.7",
-  # "ray==2.4.0",
-  #NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
-  "Werkzeug==2.2.2",
+packages = [{ include = "rohe", from = "src" }]
+homepage = "https://rdsea.github.io/"
+repository = "https://github.com/rdsea/ROHE"
+license = "Apache-2.0"
+documentation = "https://rdsea.github.io/ROHE/"
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3.10",
 ]
 
-[project.optional-dependencies]
-ml = [
-  "scikit_learn==1.3.1",
-  "tensorflow==2.10.0",
-  "torch==2.1.0",
-  "ultralytics==8.0.200",
-]
-dev = ["pre-commit", "black", "isort", "devtools", "flit"]
+[tool.poetry.scripts]
+rohe-cli = 'rohe.rohe_cli:rohe_cli'
 
-all = ["rohe[ml,dev]"]
+[tool.poetry.dependencies]
+python = ">=3.10.0,<3.11"
+gdown = "4.7.1"
+GitPython = "3.1.40"
+h5py = "3.7.0"
+Jinja2 = "3.1.2"
+kubernetes = "30.1.0"
+matplotlib = "3.6.2"
+networkx = "3.2"
+numpy = "1.23.5"
+paho_mqtt = "1.6.1"
+pandas = "1.4.3"
+Pillow = "10.1.0"
+pika = "1.3.2"
+psutil = "5.9.2"
+pymongo = "4.3.3"
+python-dotenv = "1.0.0"
+PyYAML = "6.0.1"
+pyzmq = "25.1.1"
+boto3 = "1.24.90"
+botocore = "1.27.90"
+docker_py = "1.10.6"
+fastapi = ">=0.104.0"
+Flask = "2.2.3"
+flask_restful = "0.3.10"
+quixstreams = "0.5.7"
+pydantic = ">=2.7.4,<2.8"
+#NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
+Werkzeug = "2.2.2"
+qoa4ml = "^0.2.8"
+scikit_learn = { version = "1.3.1", optional = true }
+tensorflow = { version = "2.10.0", optional = true }
+torch = { version = "2.1.0", optional = true }
+ultralytics = { version = "8.0.200", optional = true }
+# ray = { version = "2.4.0", optional = true }
+gunicorn = "^22.0.0"
+bytewax = "^0.20.1"
+
+[tool.poetry.group.dev.dependencies]
+mkdocs-material = { version = "*", extras = ["imaging"] }
+pre-commit = "*"
+black = "*"
+isort = "*"
+devtools = "*"
+ruff = "^0.5.0"
+datamodel-code-generator = "*"
+mypy = "*"
+codespell = "^2.3.0"
+mkdocs-click = "^0.8.1"
+mkdocs-awesome-pages-plugin = "^2.9.2"
 
 
-[project.urls]
-Repository = "https://github.com/rdsea/ROHE"
+[tool.poetry.extras]
+ml = ["scikit_learn", "tensorflow", "torch", "ultralytics"]
 
-[tool.isort]
-profile = "black"
+
+[tool.ruff]
+src = ["src"]
+
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.extend-per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.ruff.lint]
-select = ["F", "C", "E", "R", "W", "N"]
+select = [
+  "F",   # Pyflakes
+  "PL",  # Pylint convention
+  "E",   # Pycode styles
+  "W",   # Pycode styles
+  "N",   # Pep8 naming
+  "I",   # Isort,
+  "UP",  # Pyupgrade
+  "C4",  # Flake8 compehension
+  "ISC", # Flake8 implicit str concat
+  "B",   # Flake8 bugbear
+  "PGH", # Pygrep hook
+  "RUF", # Ruff specific rules
+]
 ignore = [
   "E501",   # Line too long
   "RET504", # Unnecessary assignment
   "RET505", # Unnecessary else after return
   "C901",   # Too complex function
+  "B904",   # raise-without-from-inside-except, enable when understand more
+  "PLR",
+  "ISC001",
 ]
+[tool.ruff.lint.pylint]
+max-args = 10
 
 [tool.mypy]
 python_version = "3.10"
@@ -79,3 +124,6 @@ warn_unused_ignores = true
 extra_checks = true
 check_untyped_defs = true
 ignore_missing_imports = true
+
+[tool.codespell]
+skip = '*/k8s/*'

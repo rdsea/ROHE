@@ -34,13 +34,13 @@ metric:
     proc_cpu:
       proc_cpu:
         class: Gauge
-        description: monitor process CPU precentage
+        description: monitor process CPU percentage
         default: 0
         key: used
     proc_mem:
       proc_mem:
         class: Gauge
-        description: monitor process memory precentage
+        description: monitor process memory percentage
         default: 0
         key: used
     gpu:

@@ -4,7 +4,6 @@ import os
 import re
 import sys
 from abc import ABC, abstractmethod
-from time import sleep
 
 logging.getLogger(__name__)
 
@@ -106,7 +105,7 @@ class Boto3Connector(ABC):
                 )
                 logging.info(f"Saved {remote_file_path} to {local_file_path}")
                 return True
-            except Exception as e:
+            except Exception:
                 # raise e
                 return False
         else:  # call asynchronously
@@ -195,7 +194,7 @@ class Boto3Connector(ABC):
         # Bucket name should not contain underscore, double dots, dash next to dots,
         # end with a dash, start with 'xn--', end with '-s3alias' or '--ol-s3'.
         if re.search(
-            "_|\.\.|\-$|\-\.|\.\-|^xn--|\-s3alias$|--ol-s3$", self._bucket_name
+            r"_|\.\.|\-$|\-\.|\.\-|^xn--|\-s3alias$|--ol-s3$", self._bucket_name
         ):
             logging.info(
                 "Bucket name should not contain underscore, double dots, dash next to dots, end with a dash, start with 'xn--', end with '-s3alias' or '--ol-s3'."
@@ -203,7 +202,7 @@ class Boto3Connector(ABC):
             return False
 
         # Bucket name should not be in IP format
-        if re.match("\d+\.\d+\.\d+\.\d+", self._bucket_name):
+        if re.match(r"\d+\.\d+\.\d+\.\d+", self._bucket_name):
             logging.info("Bucket name should not be in IP format.")
             return False
 

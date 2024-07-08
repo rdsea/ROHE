@@ -1,6 +1,40 @@
+fail_fast: true
 default_language_version:
-    python: python3.10
+  python: python3.10
 repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+      - id: pyupgrade
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: "v2.3.0"
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
+        args: ["--write-changes", "--interactive", "3"]
+        files: /.*\.(py|yaml|json|md)$
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^src/.*\.py$
+      - id: ruff-format
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: "v0.10.0.1"
+    hooks:
+      - id: shellcheck
+        files: ^src/.*\.py$
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -17,26 +51,15 @@ repos:
       - id: pretty-format-json
         args: [--autofix]
         files: /.*\.json$
+      - id: check-toml
+        files: /.*\.toml$
+      - id: check-merge-conflict
+      - id: mixed-line-ending
 
-  - repo: https://github.com/psf/black
-    rev: 24.3.0
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.8.3
     hooks:
-      - id: black
-        files: /.*\.py$
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        files: /.*\.py$
-
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.2.0
-    hooks:
-    -   id: ruff
-        args: [--fix]
-        files: ^rohe/.*\.py$
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.16.1
-    hooks:
-      - id: gitleaks
+      - id: poetry-check
+        args: ["-C", "./src/rohe", "--lock"]
+      - id: poetry-lock
+        args: ["-C", "./src/rohe"]

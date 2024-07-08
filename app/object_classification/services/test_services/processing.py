@@ -11,14 +11,13 @@ ROHE_PATH = os.getenv("ROHE_PATH")
 sys.path.append(ROHE_PATH)
 
 
-import lib.roheUtils as roheUtils
-from core.serviceRegistry.consul import ConsulClient
-from qoa4ml.QoaClient import QoaClient
-
 import app.object_classification.modules.utils as pipeline_utils
+import lib.roheUtils as roheUtils
 from app.object_classification.services.processing.processingService import (
     ProcessingService,
 )
+from core.serviceRegistry.consul import ConsulClient
+from qoa4ml.QoaClient import QoaClient
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")

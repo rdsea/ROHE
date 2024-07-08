@@ -33,7 +33,7 @@
         "url": "localhost",
         "user_id": "aaltosea1"
       },
-      "defalt": "True",
+      "default": "True",
       "id": 1,
       "protocol": "AMQP"
     }

@@ -1,12 +1,11 @@
 import json
 
-from core.common.restService import RoheRestObject
-from flask import request
-
 import app.object_classification.modules.utils as pipeline_utils
 from app.object_classification.services.processing.processingServiceExecutor import (
     ProcessingServiceExecutor,
 )
+from core.common.restService import RoheRestObject
+from flask import request
 
 
 class ProcessingServiceController(RoheRestObject):
@@ -81,10 +80,10 @@ class ProcessingServiceController(RoheRestObject):
         )
         if success:
             response = (
-                f"Successfully change image info service url of the processing service"
+                "Successfully change image info service url of the processing service"
             )
         else:
-            response = f"Something went wrong"
+            response = "Something went wrong"
         return success, response
 
     def _handle_change_inference_service_urls(self, request):
@@ -95,10 +94,10 @@ class ProcessingServiceController(RoheRestObject):
         )
         if success:
             response = (
-                f"Successfully change inference service urls of the processing service"
+                "Successfully change inference service urls of the processing service"
             )
         else:
-            response = f"Something went wrong"
+            response = "Something went wrong"
 
         return success, response
 
@@ -108,7 +107,7 @@ class ProcessingServiceController(RoheRestObject):
             func_name=new_func_name
         )
         if success:
-            response = f"Successfully change image processing function of the processing service"
+            response = "Successfully change image processing function of the processing service"
         else:
-            response = f"Something went wrong"
+            response = "Something went wrong"
         return success, response

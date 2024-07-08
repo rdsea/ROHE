@@ -23,15 +23,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node2:
     node_name: RaspberryPi_02
     MAC: 82:ae:30:11:38:02
@@ -50,15 +50,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node3:
     node_name: RaspberryPi_03
     MAC: 82:ae:30:11:38:03
@@ -77,15 +77,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node4:
     node_name: RaspberryPi_04
     MAC: 82:ae:30:11:38:04
@@ -104,15 +104,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node5:
     node_name: RaspberryPi_05
     MAC: 82:ae:30:11:38:05
@@ -131,15 +131,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node6:
     node_name: Jetson_nano_01
     MAC: 82:ae:30:11:38:06
@@ -164,15 +164,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node7:
     node_name: Jetson_nano_02
     MAC: 82:ae:30:11:38:07
@@ -197,15 +197,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node8:
     node_name: Jetson_nano_03
     MAC: 82:ae:30:11:38:08
@@ -230,15 +230,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node9:
     node_name: Jetson_nano_04
     MAC: 82:ae:30:11:38:09
@@ -263,15 +263,15 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
   node10:
     node_name: Jetson_xavier_06
     MAC: 82:ae:30:11:38:10
@@ -296,20 +296,20 @@ data:
         vms: 0
     processor:
       capacity:
-      - 100
-      - 100
-      - 100
-      - 100
-      - 100
-      - 100
-      - 100
-      - 100
+        - 100
+        - 100
+        - 100
+        - 100
+        - 100
+        - 100
+        - 100
+        - 100
       used:
-      - 0
-      - 0
-      - 0
-      - 0
-      - 0
-      - 0
-      - 0
-      - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0
+        - 0

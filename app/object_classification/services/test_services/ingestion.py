@@ -13,17 +13,16 @@ sys.path.append(ROHE_PATH)
 import argparse
 import signal
 
-import lib.roheUtils as roheUtils
-from core.common.restService import RoheRestService
-from core.serviceRegistry.consul import ConsulClient
-
 import app.object_classification.modules.utils as pipeline_utils
+import lib.roheUtils as roheUtils
 from app.object_classification.lib.connectors.storage.minioStorageConnector import (
     MinioConnector,
 )
 from app.object_classification.services.ingestion.ingestionService import (
     IngestionService,
 )
+from core.common.restService import RoheRestService
+from core.serviceRegistry.consul import ConsulClient
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Argument for Ingestion Service")

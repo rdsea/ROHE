@@ -1,13 +1,11 @@
 import argparse
 import json
 import os
-import random
 
 import cv2
 import numpy as np
 import pandas as pd
 import torch
-from PIL import Image
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
 
@@ -32,7 +30,7 @@ def compare_box(box1, box2):
     return True
 
 
-class Yolo5(object):
+class Yolo5:
     def __init__(self, param=None):
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.param = param if param is not None else "yolov5s"
@@ -201,7 +199,7 @@ if __name__ == "__main__":
                         )
                         df.to_csv(configuration["output"], mode="a", header=False)
         except Exception as e:
-            print("[ERROR] {}".format(e))
+            print(f"[ERROR] {e}")
 
     # cv2.imshow("lable",pre_img)
     # cv2.waitKey(0)

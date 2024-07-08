@@ -3,17 +3,16 @@ import random
 import string
 import uuid
 
+import app.object_classification.modules.utils as pipeline_utils
 import requests
+from app.object_classification.lib.connectors.storage.minioStorageConnector import (
+    MinioConnector,
+)
 
 # from app.object_classification.lib.roheService import RoheRestObject
 from core.common.restService import RoheRestObject
 from flask import request
 from qoa4ml.QoaClient import QoaClient
-
-import app.object_classification.modules.utils as pipeline_utils
-from app.object_classification.lib.connectors.storage.minioStorageConnector import (
-    MinioConnector,
-)
 
 
 class IngestionService(RoheRestObject):
@@ -30,7 +29,7 @@ class IngestionService(RoheRestObject):
 
         print(f"\n\n\n this is configuration file: {self.conf}")
         if "qoaClient" in self.conf:
-            print(f"\n\nThere is qoa service enable in the server")
+            print("\n\nThere is qoa service enable in the server")
             self.qoaClient: QoaClient = self.conf["qoaClient"]
             print(f"This is qoa client: {self.qoaClient}")
 
@@ -109,9 +108,7 @@ class IngestionService(RoheRestObject):
             except:
                 date_str = pipeline_utils.get_current_utc_timestamp(option="date_only")
 
-            remote_filename = (
-                f"{device_id}/{str(date_str)}/{request_id}.{image_extension}"
-            )
+            remote_filename = f"{device_id}/{date_str!s}/{request_id}.{image_extension}"
 
             ### DATA #### binary_file
             upload_success = self.minio_connector.upload_binary_data(

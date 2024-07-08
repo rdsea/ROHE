@@ -36,7 +36,7 @@ export PYTHONPATH=$ROHE_ROOT_DIR
 
 ### Running Observation Registration Service
 > Open the first terminal console
-- Enable the environemnt with anaconda3
+- Enable the environment with anaconda3
 
 - Navigate to services/observation/
 - To start the Rohe Observation Service, run:
@@ -57,7 +57,7 @@ $ ./startAgent.sh
 
 ### Start edge-inference-server
 > Open another terminal console 
-- Enable the environemnt with anaconda3
+- Enable the environment with anaconda3
 - Navigate to examples/applications/cctvs/kube_deployment/edge-inference-server
 
 - Environment setup (if conda env failed)
@@ -74,7 +74,7 @@ $ python server.py
 
 ### Start pre-processing server
 > Open another terminal console 
-- Enable the environemnt with anaconda3
+- Enable the environment with anaconda3
 - Navigate to example/application/cctvs/kube_deployment/preprocessor
 
 - Environment setup (if conda env failed)
@@ -85,7 +85,7 @@ $ python preprocessor.py
 
 ### Start web server
 > Open another terminal console 
-- Enable the environemnt with anaconda3
+- Enable the environment with anaconda3
 - Navigate to example/application/cctvs/kube_deployment/web-server
 - Environment setup (if conda env failed)
 - Run web server:

@@ -43,7 +43,7 @@ metadata:
   name: raycluster-ingress-head-ingress
   namespace: default
 spec:
-  ingressClassName: nginx # This should be algined with the ingress-class of the ingress controller
+  ingressClassName: nginx # This should be aligned with the ingress-class of the ingress controller
   rules:
   - http:
       paths:

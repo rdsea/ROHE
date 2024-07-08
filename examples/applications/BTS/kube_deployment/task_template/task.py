@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import uuid
 
 import qoa4ml.qoaUtils as qoa_utils
 from qoa4ml.reports import Qoa_Client

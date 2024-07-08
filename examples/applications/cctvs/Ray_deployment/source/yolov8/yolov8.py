@@ -3,10 +3,8 @@ import json
 import os
 
 import cv2
-import numpy as np
 import pandas as pd
 import yaml
-from PIL import Image
 from ultralytics import YOLO
 from ultralytics.yolo.utils.plotting import Annotator, colors
 
@@ -33,11 +31,11 @@ def compare_box(box1, box2):
 
 
 path = os.path.dirname(os.path.abspath(__file__)) + "/class.yml"
-with open(path, "r") as f:
+with open(path) as f:
     names = yaml.safe_load(f)
 
 
-class Yolo8(object):
+class Yolo8:
     def __init__(self, param=None):
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.names = names
@@ -212,4 +210,4 @@ if __name__ == "__main__":
                         )
                         df.to_csv(configuration["output"], mode="a", header=False)
         except Exception as e:
-            print("[ERROR] {}".format(e))
+            print(f"[ERROR] {e}")
