@@ -17,7 +17,7 @@ headers = {"Content-Type": "application/json"}
 
 @click.group()
 @click.version_option()
-def cli():
+def rohe_cli():
     pass
 
 
@@ -342,9 +342,9 @@ def observation_service(debug, host, port):
     subprocess.run(command, check=False)
 
 
-cli.add_command(start)
-cli.add_command(orchestration)
-cli.add_command(observation)
+rohe_cli.add_command(start)
+rohe_cli.add_command(orchestration)
+rohe_cli.add_command(observation)
 
 if __name__ == "__main__":
-    cli()
+    rohe_cli()

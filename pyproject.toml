@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-rohe_cli = 'rohe.rohe_cli:cli'
+rohe-cli = 'rohe.rohe_cli:rohe_cli'
 
 [tool.poetry.dependencies]
 python = ">=3.10.0,<3.11"
@@ -71,6 +71,8 @@ ruff = "^0.5.0"
 datamodel-code-generator = "*"
 mypy = "*"
 codespell = "^2.3.0"
+mkdocs-click = "^0.8.1"
+mkdocs-awesome-pages-plugin = "^2.9.2"
 
 
 [tool.poetry.extras]

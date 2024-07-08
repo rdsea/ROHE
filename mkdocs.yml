@@ -29,25 +29,27 @@ theme:
 plugins:
   # - social
   - search
+  - awesome-pages
 
 markdown_extensions:
-  toc:
-    permalink: true
-  markdown.extensions.codehilite:
-    guess_lang: false
-  admonition: null
-  codehilite: null
-  extra: null
-  pymdownx.superfences:
-    custom_fences:
-      - name: mermaid
-        class: mermaid
-        format: !!python/name:pymdownx.superfences.fence_code_format ""
-  pymdownx.tabbed:
-    alternate_style: true
-  pymdownx.tilde: null
-  attr_list: null
-  md_in_html: null
+  - toc:
+      permalink: true
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - admonition: null
+  - codehilite: null
+  - extra: null
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format ""
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tilde: null
+  - attr_list: null
+  - md_in_html: null
+  - mkdocs-click
 
 extra:
   social:
