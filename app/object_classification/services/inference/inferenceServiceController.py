@@ -183,7 +183,7 @@ class InferenceServiceController(RoheRestObject):
                     f"\n\n\nThis is the current model id: {self.MLAgent.get_model_id()}"
                 )
 
-            return "Local file case. Sucessfully change the model"
+            return "Local file case. Successfully change the model"
 
         except Exception as e:
             return (

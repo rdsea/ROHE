@@ -4,7 +4,7 @@ The system can be monitored in several layers:
 Node exporter is the system service specific for each physical machine: Raspberry Pi and Jetson.
 Users or collector programs can query these metrics from Prometheus.
 The metrics are exposed with different names specified in the metric maps
-- VM: a client program connect to host service (docker/K3s deamon) to query real-time metrics.
+- VM: a client program connect to host service (docker/K3s daemon) to query real-time metrics.
     - Docker: Monitor VM resource usage at runtime.
     - K3s: Monitor deployment status, resource usages, number of replicas/scale at runtime.
 

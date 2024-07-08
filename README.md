@@ -190,9 +190,9 @@ The module provide the abstract class/object to manage the infrastructure resour
 
 - Node: physical node
 - Deployment: each application has multiple microservices. Each microservice has its own Deployment setup specify: image, resource requirement, replicas, etc
-- Microservice: each microservice is advertized with a microservice name within K3s network so that other microservices can communicate with it.
+- Microservice: each microservice is advertised with a microservice name within K3s network so that other microservices can communicate with it.
 - ConfigMap: provide initial environment variable for docker containers of each deployment when starting.
-- resource: provide abstract, high-level class to mange resources (Microservice Queue and Node Collection).
+- resource: provide abstract, high-level class to manage resources (Microservice Queue and Node Collection).
 
 #### 2.2.2 Deployment Management
 
@@ -213,7 +213,7 @@ Current implementation: Scoring Algorithm
     - CPU requirement (array of CPU requirements on every CPU core). Example: [100,50,50,50] - the microservice use 4 CPUs with 100, 50, 50, and 50 millicpu on each core respectively.
     - Memory requirement (rss, vms - MByte)
     - Accelerator requirement (GPU - %)
-    - Sensitivity: 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitve; 3 CPU & Memory sensitive
+    - Sensitivity: 0 - Not sensitive; 1 - CPU sensitive; 2 - Memory sensitive; 3 CPU & Memory sensitive
     - Other metadata: microservice name, ID, status, node (existing deployment), running (existing running instance), container image, ports configuration
 
   Example:
@@ -308,9 +308,9 @@ Explain:
 
 ### Scenario 1: obsersvation
 Step 1:
-- Registrate application: one time
-    - template file for registrate: example
-    - Run client_registrate -> url: "obervation:register/"
+- Register application: one time
+    - template file for register: example
+    - Run client_registrate -> url: "observation:register/"
     return: qoa4ml config
 
 Step 2:

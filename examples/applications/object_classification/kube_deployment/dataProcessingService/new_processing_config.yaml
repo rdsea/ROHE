@@ -17,7 +17,7 @@ minio_storage_service:
 
 
 #
-# think of the situtation where we need to handle multiple pipeline
+# think of the situation where we need to handle multiple pipeline
 # Inference strategy
 inference_strategy:
   type: "all" # or "specific" ["all", "one", "quorum"]

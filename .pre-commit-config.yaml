@@ -19,7 +19,7 @@ repos:
         additional_dependencies:
           - tomli
         args: ["--write-changes", "--interactive", "3"]
-        files: ^src/rohe/.*\.py$
+        files: /.*\.(py|yaml|json|md)$
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.1

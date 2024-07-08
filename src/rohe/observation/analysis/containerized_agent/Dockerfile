@@ -16,5 +16,5 @@ RUN pip3 install -r requirements.txt
 # Holding container for debugging
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-# Run Streamming agent
+# Run Streaming agent
 CMD ["python", "./core/observation/containerized_agent/rohe_agent_streaming.py"]

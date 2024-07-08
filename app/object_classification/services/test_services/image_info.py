@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Register the signal handler for SIGINT
     signal.signal(signal.SIGINT, signal_handler)
 
-    # initialize dependecy before passing to the restful server
+    # initialize dependency before passing to the restful server
     # redis = setup_redis(redis_config= config['redis_server'])
     redis_config = config["external_services"]["redis_server"]
     redis = redis.Redis(

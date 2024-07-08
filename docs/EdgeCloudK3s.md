@@ -25,7 +25,7 @@ Fig.1 - Edge Cluster - Raspberry Pi & Jetson Boards
 
 ### Application/Service Deployment
 
-- Categorize resouces (nodes) with different features using [label](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
+- Categorize resources (nodes) with different features using [label](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
   - CPU
   - Memory
   - GPU

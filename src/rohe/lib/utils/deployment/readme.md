@@ -3,7 +3,7 @@ Each application contains multiple microservices.
 A microservice needs a deployment file (yaml) and a image (container image, e.g docker image) to be deployed on Kubernetes-like platform (K3s, KubeEdge, etc).
 
 ## Build a microservice
-Source code of each microservice is stored in a seperate folder with a Docker file. 
+Source code of each microservice is stored in a separate folder with a Docker file. 
 After building the image, it should be published in a public portal such as Dockerhub.
 ## Deployment file - yaml
 The deployment should specify an image containing the application which is built and published. For example: minhtribk12/ml_ubuntu:1.0 in Dockerhub
@@ -19,7 +19,7 @@ The image is mention in the following configuration:
         - containerPort: 5000
 ```
 
-`imagePullPolicy` is set to Always to make sure it pulls newest image evey time it starts the container. Port for communicate should be specify at `containerPort`. Note that the ports are only expose for internal network in same `namespace` in Kubernetes
+`imagePullPolicy` is set to Always to make sure it pulls newest image every time it starts the container. Port for communicate should be specify at `containerPort`. Note that the ports are only expose for internal network in same `namespace` in Kubernetes
 
 The service is published to other component via Service Deployment:
 ```yaml
@@ -62,7 +62,7 @@ This module requires developer specify the computation pipeline in `json` format
 ## Application Profiling
 - The script in the profiling folder (`profilingDeployment.py`) will load the user's pre-defined computation graph and deploy node by node (microservices) with the scales in "scale.txt". We can set different scales and profiling times by passing parameter when calling the script.
 If the script is not executed in the K3s master node, we need a `key` stored in `key.txt`.
-- At the same time, we must start sending requests to the deployed application and run a collector to collect monitoring data. The colletor must query data from the specific channels and queues where the application sends its monitoring data to.
+- At the same time, we must start sending requests to the deployed application and run a collector to collect monitoring data. The collector must query data from the specific channels and queues where the application sends its monitoring data to.
 
 
 ## Automate Deployment

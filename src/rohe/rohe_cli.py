@@ -1,4 +1,3 @@
-# TODO: remove main_path,default_temp_path, ... as they are just example
 import json
 import subprocess
 import traceback
@@ -11,7 +10,6 @@ from .common.logger import logger
 from .variable import PACKAGE_DIR, ROHE_PATH
 
 default_temp_path = ROHE_PATH + "/temp/"
-default_template_path = ROHE_PATH + "/templates/"
 default_conf_path = ROHE_PATH + "/examples/agentConfig/"
 
 headers = {"Content-Type": "application/json"}
@@ -82,7 +80,7 @@ def register_app(app, run, user, url, output_dir):
         logger.exception(traceback.print_exc())
 
 
-@observation.command()
+@observation.command("start_agent")
 @click.option("--app", help="application name", default="dummy")
 @click.option("--conf", help="configuration path", default=None)
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
@@ -102,7 +100,7 @@ def start_observation_agent(app, conf, url):
         logger.exception(traceback.print_exc())
 
 
-@observation.command()
+@observation.command("stop_agent")
 @click.option("--app", help="application name", default="dummy")
 @click.option("--conf", help="configuration path", default=None)
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
@@ -145,159 +143,123 @@ def delete_app(app, run, user, url):
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="add_node.yaml")
+@click.argument("file_path", type=click.Path(exists=True))
 @click.option(
     "--url",
     help="registration url",
     default="http://localhost:5002/management/add-node",
 )
-def add_node(app, conf, url):
+def add_node(file_path, url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
+        config_file = rohe_utils.load_config(file_path)
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logger.debug(response.json())
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Error in adding node")
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="add_service.yaml")
+@click.argument("file_path", type=click.Path(exists=True))
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/add-service",
 )
-def add_service(app, conf, url):
+def add_service(file_path, url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
+        config_file = rohe_utils.load_config(file_path)
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logger.debug(response.json())
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Error in adding service")
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="get_node.yaml")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/get-all-nodes",
 )
-def get_node(app, conf, url):
+def get_node(url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(config_file)
-        )
-        logger.debug(response.json())
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Error in getting node")
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="get_service.yaml")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/get-all-services",
 )
-def get_service(app, conf, url):
+def get_service(url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(config_file)
-        )
-        logger.debug(response.json())
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.error(traceback.print_exc())
+        logger.exception("Error in getting service")
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="remove_node.yaml")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/remove-all-nodes",
 )
-def remove_node(app, conf, url):
+def remove_all_nodes(url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(config_file)
-        )
-        logger.debug(response.json())
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Remove all nodes failed")
 
 
 @orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="start_orchestration.yaml")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/remove-all-services",
 )
-def start_orchestration_agent(app, conf, url):
+def remove_all_services(url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(config_file)
-        )
-        logger.debug(response.json())
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Remove all nodes failed")
 
 
-@orchestration.command()
-@click.option("--app", help="application name", default="test")
-@click.option("--conf", help="configuration path", default="stop_orchestration.yaml")
+@orchestration.command("start_agent")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/start-agent",
 )
-def stop_orchestration_agent(app, conf, url):
+def start_orchestration_agent(url):
     try:
-        conf = default_template_path + "orchestration_command/" + conf
-        # load agent configuration from path
-        config_file = rohe_utils.load_config(conf)
-        config_file["application"] = app
-
-        # sent start command and agent configuration to agent service
-        response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(config_file)
-        )
-        logger.debug(response.json())
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
     except Exception:
-        logger.exception(traceback.print_exc())
+        logger.exception("Failed to start orchestration agent")
+
+
+@orchestration.command("stop_agent")
+@click.option(
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/stop-agent",
+)
+def stop_orchestration_agent(url):
+    try:
+        response = requests.request("POST", url, headers=headers)
+        print(json.dumps(response.json(), indent=2))
+    except Exception:
+        logger.exception("Failed to stop orchestration agent")
 
 
 @start.command()

@@ -16,7 +16,7 @@ class LSTM_Prediction:
         return model
 
     def ML_prediction(self, pas_series):
-        # Making prediciton using loader
+        # Making prediction using loader
         result = self.model.prediction(pas_series)
         # result = result.reshape(result.shape[0],result.shape[1])
         # Load the result into json format

@@ -27,7 +27,7 @@ $ wget https://labs.windriver.com/downloads/0002-nvidia-Add-support-for-tegra-bo
 $ wget https://labs.windriver.com/downloads/0003-main-Add-support-for-tegra-boards.patch
 $ git am 000*.patch
 ```
-Build docker image localy on each GPU node:
+Build docker image locally on each GPU node:
 ```bash
 $ sudo docker build -t nvidia/k8s-device-plugin:1.0.0-beta6 -f docker/arm64/Dockerfile.ubuntu16.04 .
 ```

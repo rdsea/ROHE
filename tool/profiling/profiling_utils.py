@@ -55,7 +55,7 @@ def preprocess_df(df: pd.DataFrame) -> pd.DataFrame:
         processed_df["class_object"] = processed_df["class_object"].astype(int)
 
     if "confidence" in processed_df.columns:
-        # ensure all field is numberic and not null
+        # ensure all field is numeric and not null
         processed_df["confidence"] = pd.to_numeric(
             processed_df["confidence"], errors="coerce"
         )
