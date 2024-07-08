@@ -1,29 +1,14 @@
-#!/usr/bin/env python3
-"""
-for rohe cli
-"""
-
 # TODO: remove main_path,default_temp_path, ... as they are just example
-"""
-You can add a new parameter like --default_conf_path which receive the full path of the configuration, no 
-"""
 import json
 import logging
+import subprocess
 import traceback
 
 import click
 import requests
 
-import rohe.lib.rohe_utils as rohe_utils
-from rohe.variable import ROHE_PATH
-
-# from pathlib import Path
-
-
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.DEBUG
-)
-
+from ..common import rohe_utils
+from ..variable import PACKAGE_DIR, ROHE_PATH
 
 default_temp_path = ROHE_PATH + "/temp/"
 default_template_path = ROHE_PATH + "/templates/"
@@ -64,7 +49,7 @@ def register_app(app, run, user, url, output_dir):
         # Load metadata for QoA client from environment variable (optional)
         qoa_conf["client"] = rohe_utils.load_qoa_conf_env(qoa_conf["client"])
 
-        if output_dir == None:
+        if output_dir is None:
             output_dir = default_temp_path + app
         else:
             output_dir += app
@@ -82,7 +67,7 @@ def register_app(app, run, user, url, output_dir):
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
 def start_obsagent(app, conf, url):
     try:
-        if conf == None:
+        if conf is None:
             conf = default_conf_path + app + "/start.yaml"
         # load agent configuration from path
         config_file = rohe_utils.load_config(conf)
@@ -102,7 +87,7 @@ def start_obsagent(app, conf, url):
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
 def stop_obsagent(app, conf, url):
     try:
-        if conf == None:
+        if conf is None:
             conf = default_conf_path + app + "/stop.yaml"
         # load agent configuration from path
         config_file = rohe_utils.load_config(conf)
@@ -293,22 +278,124 @@ def stop_orchagent(app, conf, url):
 
 
 @click.group()
-def rohe_common():
+@click.version_option()
+def cli():
     pass
 
 
-rohe_common.add_command(register_app)
-rohe_common.add_command(start_obsagent)
-rohe_common.add_command(stop_obsagent)
-rohe_common.add_command(delete_app)
-rohe_common.add_command(add_node)
-rohe_common.add_command(add_service)
-rohe_common.add_command(get_node)
-rohe_common.add_command(get_service)
-rohe_common.add_command(remove_node)
-rohe_common.add_command(start_orchagent)
-rohe_common.add_command(stop_orchagent)
+@click.group()
+def start():
+    pass
 
+
+@start.command()
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Run the Flask development server if set, otherwise run Gunicorn",
+)
+@click.option(
+    "-h",
+    "--host",
+    default="0.0.0.0",
+    help="Host to bind the server to",
+    show_default=True,
+)
+@click.option(
+    "-p",
+    "--port",
+    default=5002,
+    help="Port to bind the server to",
+    show_default=True,
+)
+def orchestration(debug, host, port):
+    if debug:
+        subprocess.run(
+            [
+                "flask",
+                "--app",
+                f"{PACKAGE_DIR}/service/orchestration_service",
+                "run",
+                "--host",
+                host,
+                "--port",
+                str(port),
+            ],
+            check=False,
+        )
+    else:
+        subprocess.run(
+            [
+                "gunicorn",
+                f"--bind={host}:{port}",
+                "--chdir",
+                f"{PACKAGE_DIR}/service",
+                "orchestration_service:app",
+            ],
+            check=False,
+        )
+
+
+@start.command()
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Run the Flask development server if set, otherwise run Gunicorn",
+)
+@click.option(
+    "-h",
+    "--host",
+    default="0.0.0.0",
+    help="Host to bind the server to",
+    show_default=True,
+)
+@click.option(
+    "-p",
+    "--port",
+    default=5010,
+    help="Port to bind the server to",
+    show_default=True,
+)
+def observation(debug, host, port):
+    if debug:
+        subprocess.run(
+            [
+                "flask",
+                "--app",
+                f"{PACKAGE_DIR}/service/observation_service",
+                "run",
+                "--host",
+                host,
+                "--port",
+                str(port),
+            ],
+            check=False,
+        )
+    else:
+        subprocess.run(
+            [
+                "gunicorn",
+                f"--bind={host}:{port}",
+                "--chdir",
+                f"{PACKAGE_DIR}/service",
+                "observation_service:app",
+            ],
+            check=False,
+        )
+
+
+cli.add_command(register_app)
+cli.add_command(start_obsagent)
+cli.add_command(stop_obsagent)
+cli.add_command(delete_app)
+cli.add_command(add_node)
+cli.add_command(add_service)
+cli.add_command(get_node)
+cli.add_command(get_service)
+cli.add_command(remove_node)
+cli.add_command(start_orchagent)
+cli.add_command(stop_orchagent)
+cli.add_command(start)
 
 if __name__ == "__main__":
-    rohe_common()
+    cli()

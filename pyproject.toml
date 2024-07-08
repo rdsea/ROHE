@@ -20,6 +20,9 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
 ]
 
+[tool.poetry.scripts]
+rohe_cli = 'rohe.bin.rohe_cli:cli'
+
 [tool.poetry.dependencies]
 python = ">=3.10.0,<3.11"
 gdown = "4.7.1"

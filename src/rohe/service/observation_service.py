@@ -3,9 +3,9 @@ from flask import Flask
 from flask_restful import Api
 from qoa4ml.config.configs import CollectorConfig, ConnectorConfig
 
-import rohe.lib.rohe_utils as rohe_utils
 from rohe.api.agent_manager_resource import AgentManagerResource
 from rohe.api.registration_resource import RegistrationResource
+from rohe.common import rohe_utils
 from rohe.common.data_models import MongoAuthentication, MongoCollection
 from rohe.common.logger import logger
 from rohe.observation.agent_manager import AgentManager

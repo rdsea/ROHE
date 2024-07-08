@@ -4,6 +4,7 @@
 
 - [Poetry](https://python-poetry.org/): package and dependency management
 - [bytewax](https://bytewax.io/): stream processing in python
+- [Click](https://click.palletsprojects.com/en/8.1.x/): package to create python cli
 - [Ruff](https://docs.astral.sh/ruff/): linter and formater
 - [Pre-commit](https://pre-commit.com/): add hooks that will run before you commit
 - [mypy](https://mypy-lang.org/): static type check

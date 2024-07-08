@@ -3,7 +3,7 @@ from typing import Any
 
 from ..common.data_models import MongoAuthentication, MongoCollection
 from ..common.logger import logger
-from ..lib.common.mongo_utils import get_mdb_client
+from ..common.mongo_utils import get_mdb_client
 
 
 class DBClient(ABC):

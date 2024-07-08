@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 
-import rohe.lib.rohe_utils as rohe_utils
 from rohe.api.orchestration_resource import OrchestationResource
+from rohe.common import rohe_utils
 from rohe.common.data_models import OrchestrationServiceConfig
 from rohe.common.logger import logger
 from rohe.orchestration.node_and_service_manager import NodeAndServiceManager
