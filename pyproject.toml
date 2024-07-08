@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-rohe_cli = 'rohe.bin.rohe_cli:cli'
+rohe_cli = 'rohe.rohe_cli:cli'
 
 [tool.poetry.dependencies]
 python = ">=3.10.0,<3.11"

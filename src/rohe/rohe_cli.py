@@ -1,14 +1,14 @@
 # TODO: remove main_path,default_temp_path, ... as they are just example
 import json
-import logging
 import subprocess
 import traceback
 
 import click
 import requests
 
-from ..common import rohe_utils
-from ..variable import PACKAGE_DIR, ROHE_PATH
+from .common import rohe_utils
+from .common.logger import logger
+from .variable import PACKAGE_DIR, ROHE_PATH
 
 default_temp_path = ROHE_PATH + "/temp/"
 default_template_path = ROHE_PATH + "/templates/"
@@ -17,7 +17,28 @@ default_conf_path = ROHE_PATH + "/examples/agentConfig/"
 headers = {"Content-Type": "application/json"}
 
 
-@click.command()
+@click.group()
+@click.version_option()
+def cli():
+    pass
+
+
+@click.group()
+def start():
+    pass
+
+
+@click.group()
+def observation():
+    pass
+
+
+@click.group()
+def orchestration():
+    pass
+
+
+@observation.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--run", help="Experiment name/id", default="experiment2")
 @click.option("--user", help="application name", default="aaltosea1")
@@ -33,12 +54,12 @@ def register_app(app, run, user, url, output_dir):
         res_data["run_id"] = run
         res_data["user_id"] = user
 
-        logging.debug(res_data)
+        logger.debug(res_data)
         # Send registration data to registration service
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(res_data)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
 
         # get application ID from the registration service response
         res_data["app_id"] = response.json()["response"]["app_id"]
@@ -56,16 +77,16 @@ def register_app(app, run, user, url, output_dir):
         if rohe_utils.make_folder(output_dir):
             file_path = output_dir + "/qoa_config.yaml"
             rohe_utils.to_yaml(file_path, qoa_conf)
-        logging.debug(qoa_conf)
+        logger.debug(qoa_conf)
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@observation.command()
 @click.option("--app", help="application name", default="dummy")
 @click.option("--conf", help="configuration path", default=None)
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
-def start_obsagent(app, conf, url):
+def start_observation_agent(app, conf, url):
     try:
         if conf is None:
             conf = default_conf_path + app + "/start.yaml"
@@ -76,16 +97,16 @@ def start_obsagent(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@observation.command()
 @click.option("--app", help="application name", default="dummy")
 @click.option("--conf", help="configuration path", default=None)
 @click.option("--url", help="registration url", default="http://localhost:5010/agent")
-def stop_obsagent(app, conf, url):
+def stop_observation_agent(app, conf, url):
     try:
         if conf is None:
             conf = default_conf_path + app + "/stop.yaml"
@@ -97,10 +118,10 @@ def stop_obsagent(app, conf, url):
         )
         print(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@observation.command()
 @click.option("--app", help="application name", default="dummy")
 @click.option("--run", help="application name", default="experiment1")
 @click.option("--user", help="application name", default="aaltosea1")
@@ -113,21 +134,23 @@ def delete_app(app, run, user, url):
         res_data["run_id"] = run
         res_data["user_id"] = user
 
-        logging.debug(res_data)
+        logger.debug(res_data)
         # Send delete application command to registration service
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(res_data)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="add_node.yaml")
 @click.option(
-    "--url", help="registration url", default="http://localhost:5002/management"
+    "--url",
+    help="registration url",
+    default="http://localhost:5002/management/add-node",
 )
 def add_node(app, conf, url):
     try:
@@ -140,12 +163,12 @@ def add_node(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="add_service.yaml")
 @click.option(
@@ -162,12 +185,12 @@ def add_service(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="get_node.yaml")
 @click.option(
@@ -184,12 +207,12 @@ def get_node(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="get_service.yaml")
 @click.option(
@@ -206,12 +229,12 @@ def get_service(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.error(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="remove_node.yaml")
 @click.option(
@@ -228,18 +251,18 @@ def remove_node(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="start_orchestration.yaml")
 @click.option(
     "--url", help="registration url", default="http://localhost:5002/management"
 )
-def start_orchagent(app, conf, url):
+def start_orchestration_agent(app, conf, url):
     try:
         conf = default_template_path + "orchestration_command/" + conf
         # load agent configuration from path
@@ -250,18 +273,18 @@ def start_orchagent(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
+        logger.exception(traceback.print_exc())
 
 
-@click.command()
+@orchestration.command()
 @click.option("--app", help="application name", default="test")
 @click.option("--conf", help="configuration path", default="stop_orchestration.yaml")
 @click.option(
     "--url", help="registration url", default="http://localhost:5002/management"
 )
-def stop_orchagent(app, conf, url):
+def stop_orchestration_agent(app, conf, url):
     try:
         conf = default_template_path + "orchestration_command/" + conf
         # load agent configuration from path
@@ -272,20 +295,9 @@ def stop_orchagent(app, conf, url):
         response = requests.request(
             "POST", url, headers=headers, data=json.dumps(config_file)
         )
-        logging.debug(response.json())
+        logger.debug(response.json())
     except Exception:
-        logging.error(traceback.print_exc())
-
-
-@click.group()
-@click.version_option()
-def cli():
-    pass
-
-
-@click.group()
-def start():
-    pass
+        logger.exception(traceback.print_exc())
 
 
 @start.command()
@@ -302,38 +314,30 @@ def start():
     show_default=True,
 )
 @click.option(
-    "-p",
-    "--port",
-    default=5002,
-    help="Port to bind the server to",
-    show_default=True,
+    "-p", "--port", default=5002, help="Port to bind the server to", show_default=True
 )
-def orchestration(debug, host, port):
-    if debug:
-        subprocess.run(
-            [
-                "flask",
-                "--app",
-                f"{PACKAGE_DIR}/service/orchestration_service",
-                "run",
-                "--host",
-                host,
-                "--port",
-                str(port),
-            ],
-            check=False,
-        )
-    else:
-        subprocess.run(
-            [
-                "gunicorn",
-                f"--bind={host}:{port}",
-                "--chdir",
-                f"{PACKAGE_DIR}/service",
-                "orchestration_service:app",
-            ],
-            check=False,
-        )
+def orchestration_service(debug, host, port):
+    command = (
+        [
+            "flask",
+            "--app",
+            f"{PACKAGE_DIR}/service/orchestration_service",
+            "run",
+            "--host",
+            host,
+            "--port",
+            str(port),
+        ]
+        if debug
+        else [
+            "gunicorn",
+            f"--bind={host}:{port}",
+            "--chdir",
+            f"{PACKAGE_DIR}/service",
+            "orchestration_service:app",
+        ]
+    )
+    subprocess.run(command, check=False)
 
 
 @start.command()
@@ -350,52 +354,35 @@ def orchestration(debug, host, port):
     show_default=True,
 )
 @click.option(
-    "-p",
-    "--port",
-    default=5010,
-    help="Port to bind the server to",
-    show_default=True,
+    "-p", "--port", default=5010, help="Port to bind the server to", show_default=True
 )
-def observation(debug, host, port):
-    if debug:
-        subprocess.run(
-            [
-                "flask",
-                "--app",
-                f"{PACKAGE_DIR}/service/observation_service",
-                "run",
-                "--host",
-                host,
-                "--port",
-                str(port),
-            ],
-            check=False,
-        )
-    else:
-        subprocess.run(
-            [
-                "gunicorn",
-                f"--bind={host}:{port}",
-                "--chdir",
-                f"{PACKAGE_DIR}/service",
-                "observation_service:app",
-            ],
-            check=False,
-        )
+def observation_service(debug, host, port):
+    command = (
+        [
+            "flask",
+            "--app",
+            f"{PACKAGE_DIR}/service/observation_service",
+            "run",
+            "--host",
+            host,
+            "--port",
+            str(port),
+        ]
+        if debug
+        else [
+            "gunicorn",
+            f"--bind={host}:{port}",
+            "--chdir",
+            f"{PACKAGE_DIR}/service",
+            "observation_service:app",
+        ]
+    )
+    subprocess.run(command, check=False)
 
 
-cli.add_command(register_app)
-cli.add_command(start_obsagent)
-cli.add_command(stop_obsagent)
-cli.add_command(delete_app)
-cli.add_command(add_node)
-cli.add_command(add_service)
-cli.add_command(get_node)
-cli.add_command(get_service)
-cli.add_command(remove_node)
-cli.add_command(start_orchagent)
-cli.add_command(stop_orchagent)
 cli.add_command(start)
+cli.add_command(orchestration)
+cli.add_command(observation)
 
 if __name__ == "__main__":
     cli()
