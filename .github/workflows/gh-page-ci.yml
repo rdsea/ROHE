@@ -3,8 +3,10 @@ on:
   push:
     paths:
       - "docs/**"
+      - ".github/workflows/gh-page-ci.yml"
     branches:
       - main
+
 permissions:
   contents: write
 jobs:
@@ -23,6 +25,7 @@ jobs:
           cache: "pip"
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - run: echo "ROHE_PATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       - uses: actions/cache@v4
         with:
@@ -46,7 +49,7 @@ jobs:
           key: venv-${{ hashFiles('poetry.lock') }}
 
       - name: Install the project dependencies
-        run: poetry install --no-root
+        run: poetry install
 
       - name: Deploy website
         run: poetry run mkdocs gh-deploy --force
