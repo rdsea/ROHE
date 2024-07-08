@@ -6,10 +6,10 @@ from threading import Thread, Timer
 import pymongo
 from qoa4ml.collector.amqp_collector import Amqp_Collector
 
-from ....common import rohe_utils
-from ....common.logger import logger
-from ....common.window import EventBuffer, TimeBuffer
-from ....variable import ROHE_PATH
+from ..common import rohe_utils
+from ..common.logger import logger
+from ..common.window import EventBuffer, TimeBuffer
+from ..variable import ROHE_PATH
 
 # set default global variable for loading configuration/functions and saving processed data
 DEFAULT_CONFIG_PATH = "configurations/observationConfigLocal.yaml"

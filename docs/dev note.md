@@ -3,6 +3,7 @@
 ## Tools that we use
 
 - [Poetry](https://python-poetry.org/): package and dependency management
+- [bytewax](https://bytewax.io/): stream processing in python
 - [Ruff](https://docs.astral.sh/ruff/): linter and formater
 - [Pre-commit](https://pre-commit.com/): add hooks that will run before you commit
 - [mypy](https://mypy-lang.org/): static type check
