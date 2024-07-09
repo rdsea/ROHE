@@ -15,7 +15,7 @@
 
 <figure>
 <p style="text-align:center">
-<img src="docs/img/architecture.png" alt="ROHE High-level View" width="1000"/>
+<img src="docs/img/animated.svg" alt="ROHE High-level View" width="1000"/>
 </p>
 <figcaption>
 <p style="text-align:center">

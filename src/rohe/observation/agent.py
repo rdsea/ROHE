@@ -43,7 +43,7 @@ def get_app(collection, application_name):
     return None
 
 
-class RoheObservationAgent:
+class ObservationAgent:
     def __init__(self, configuration, mg_db=False):
         self.conf = configuration
         self.application_name = configuration["application_name"]
@@ -235,8 +235,9 @@ if __name__ == "__main__":
 
     try:
         # read the configuration
-        configuration = rohe_utils.load_config(config_file)
-        db_config = configuration["database"]
+        config = rohe_utils.load_config(config_file)
+        assert config is not None
+        db_config = config["database"]
         # connect to database
         mongo_client = pymongo.MongoClient(db_config["url"])
         db = mongo_client[db_config["db_name"]]
@@ -250,7 +251,7 @@ if __name__ == "__main__":
         agent_config = get_app(collection, application_name)["agent_config"]
         agent_config["application_name"] = application_name
         print(agent_config)
-        agent = RoheObservationAgent(agent_config)
+        agent = ObservationAgent(agent_config)
         agent.start()
     except Exception:
         logger.exception("Exception in rohe_agent_streaming")
