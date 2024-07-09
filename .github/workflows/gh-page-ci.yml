@@ -49,7 +49,7 @@ jobs:
           key: venv-${{ hashFiles('poetry.lock') }}
 
       - name: Install the project dependencies
-        run: poetry install
+        run: poetry install --with docs
 
       - name: Deploy website
         run: poetry run mkdocs gh-deploy --force

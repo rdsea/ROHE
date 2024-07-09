@@ -4306,4 +4306,4 @@ ml = ["scikit_learn", "tensorflow", "torch", "ultralytics"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "679d4166c8c910ae7687f6428c37e68e909e75d5a81f87fbf6e8da1c0c2ffbae"
+content-hash = "5191d483abc95f7f120a4a8a7ed980809e35cdb3afff33d6ce57bf3325f84901"

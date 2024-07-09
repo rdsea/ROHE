@@ -1,17 +1,22 @@
 site_name: ROHE Documentation
+repo_url: https://github.com/rdsea/ROHE
+repo_name: rdsea/ROHE
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
   features:
     - navigation.tabs
     - navigation.sections
-    - toc.integrate
     - navigation.top
+    - navigation.expand
+    - toc.integrate
+    - toc.follow
     - search.suggest
     - search.highlight
     - content.tabs.link
     - content.code.annotation
     - content.code.copy
-    - content.code.select
   language: en
   palette:
     - scheme: default
