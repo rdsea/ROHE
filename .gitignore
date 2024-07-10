@@ -1,5 +1,4 @@
 tmp
-test/
 modules/orchestration/temp/
 *.DS_Store
 *.pt

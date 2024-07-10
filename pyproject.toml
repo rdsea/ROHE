@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-rohe-cli = 'rohe.rohe_cli:rohe_cli'
+rohe-cli = 'rohe.rohe_cli.__main__:rohe_cli'
 
 [tool.poetry.dependencies]
 python = ">=3.10.0,<3.11"
@@ -46,6 +46,7 @@ tensorflow = { version = "2.10.0", optional = true }
 torch = { version = "2.1.0", optional = true }
 ultralytics = { version = "8.0.200", optional = true }
 # ray = { version = "2.4.0", optional = true }
+lazy-import = "^0.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"
@@ -56,6 +57,7 @@ ruff = "^0.5.0"
 datamodel-code-generator = "*"
 mypy = "*"
 codespell = "^2.3.0"
+pytest = "^8.2.2"
 
 [tool.poetry.group.docs]
 optional = true
