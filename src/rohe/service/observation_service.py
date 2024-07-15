@@ -9,7 +9,7 @@ from rohe.common.data_models import MongoAuthentication, MongoCollection
 from rohe.common.logger import logger
 from rohe.observation.agent_manager import AgentManager
 from rohe.observation.registration_manager import RegistrationManager
-from rohe.storage.abstract import MDBClient
+from rohe.storage.mongo import MDBClient
 from rohe.variable import ROHE_PATH
 
 DEFAULT_CONFIG_PATH = "/config/observationConfig.yaml"

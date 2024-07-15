@@ -60,6 +60,6 @@ repos:
     rev: 1.8.3
     hooks:
       - id: poetry-check
-        args: ["-C", "./src/rohe", "--lock"]
+        args: [-C, ./src/rohe, --lock]
       - id: poetry-lock
-        args: ["-C", "./src/rohe"]
+        args: [-C, ./src/rohe, --no-update]

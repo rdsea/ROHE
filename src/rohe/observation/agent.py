@@ -4,7 +4,7 @@ import os
 from threading import Thread, Timer
 
 import pymongo
-from qoa4ml.collector.amqp_collector import Amqp_Collector
+from qoa4ml.collector.amqp_collector import AmqpCollector
 
 from ..common import rohe_utils
 from ..common.logger import logger
@@ -50,7 +50,7 @@ class ObservationAgent:
         self.temp_path = DEFAULT_DATA_PATH + self.application_name
         # Init Metric collector
         colletor_conf = self.conf["collector"]
-        self.collector = Amqp_Collector(
+        self.collector = AmqpCollector(
             colletor_conf["amqp_collector"]["conf"], host_object=self
         )
         logger.debug(self.conf["collector"])  # for debugging

@@ -12,7 +12,7 @@ from ..common.data_models import (
     ServiceQueueConfig,
 )
 from ..common.logger import logger
-from ..storage.abstract import MDBClient
+from ..storage.mongo import MDBClient
 from .orchestration_algorithm.manager import AlgorithmManager
 from .resource_management import Node, Service, ServiceInstance, ServiceQueue
 

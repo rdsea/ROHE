@@ -26,8 +26,8 @@ from ..resource_management import ServiceInstance
 
 class K8sClient:
     def __init__(self):
-        config.load_kube_config()
-        self.client = client.ApiClient()
+        # config.load_kube_config()
+        # self.client = client.ApiClient()
 
         Path(f"{ROHE_PATH}/temp/k8s_deployment").mkdir(parents=True, exist_ok=True)
 

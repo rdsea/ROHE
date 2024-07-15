@@ -95,3 +95,30 @@ class RegistrationResource(Resource):
         except Exception as e:
             logger.exception(f"Error in `post` RoheRegistration: {e}")
             return jsonify({"status": "request fail"})
+
+    def delete(self):
+        try:
+            if not request.is_json:
+                return jsonify(
+                    {"status": "failed", "response": "Currently only accept json"}
+                )
+            response = {}
+            try:
+                registration_data = RegistrationRequest.model_validate_json(
+                    request.data
+                )
+            except Exception:
+                response["Error"] = (
+                    "Incorrect request, the correct should have 3 fields: application_name, run_id, user_id"
+                )
+                return jsonify({"status": "success", "response": response})
+            application_name = registration_data.application_name
+            run_id = registration_data.run_id
+            user_id = registration_data.user_id
+            self.registration_manager.delete_app(application_name, run_id, user_id)
+            return jsonify(
+                {"status": "success", "response": f"Deleted {application_name}"}
+            )
+        except Exception as e:
+            logger.exception(f"Error in `delete` RoheRegistration: {e}")
+            return jsonify({"status": "request fail"})

@@ -1,13 +1,16 @@
 import json
+from typing import TYPE_CHECKING
 
 import click
 import lazy_import
 
-from rohe.common.logger import logger
-
 rohe_utils = lazy_import.lazy_module("rohe.common.rohe_utils")
 requests = lazy_import.lazy_module("requests")
 headers = {"Content-Type": "application/json"}
+if TYPE_CHECKING:
+    import requests
+
+    from rohe.common import rohe_utils
 
 
 @click.group()
@@ -30,9 +33,9 @@ def add_node_from_file(file_path, url):
     try:
         config_file = rohe_utils.load_config(file_path)
         response = requests.post(url, headers=headers, data=json.dumps(config_file))
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Error in adding node")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Error in adding node:\n {err}", err=True, fg="red")
 
 
 @orchestration.command()
@@ -49,9 +52,9 @@ def add_service_from_file(file_path, url):
     try:
         config_file = rohe_utils.load_config(file_path)
         response = requests.post(url, headers=headers, data=json.dumps(config_file))
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Error in adding service")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Error in adding service:\n{err}", err=True, fg="red")
 
 
 @orchestration.command()
@@ -140,9 +143,13 @@ def get_node(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Error in getting node")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(
+            f"Error in getting node: have you started orchestration service? \n{err}",
+            err=True,
+            fg="red",
+        )
 
 
 @orchestration.command()
@@ -157,9 +164,9 @@ def get_service(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Error in getting service")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Error in getting service:\n{err}", err=True, fg="red")
 
 
 @orchestration.command()
@@ -174,9 +181,9 @@ def remove_all_nodes(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Remove all nodes failed")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Remove all nodes failed:\n{err}", err=True, fg="red")
 
 
 @orchestration.command()
@@ -191,9 +198,9 @@ def remove_all_services(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Remove all services failed")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Remove all services failed:\n{err}", err=True, fg="red")
 
 
 @orchestration.command("start_agent")
@@ -208,9 +215,9 @@ def start_orchestration_agent(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Failed to start orchestration agent")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Failed to start orchestration agent:\n{err}", err=True, fg="red")
 
 
 @orchestration.command("stop_agent")
@@ -225,6 +232,6 @@ def stop_orchestration_agent(url):
     """
     try:
         response = requests.post(url, headers=headers)
-        print(json.dumps(response.json(), indent=2))
-    except Exception:
-        logger.exception("Failed to stop orchestration agent")
+        click.echo(json.dumps(response.json(), indent=2))
+    except Exception as err:
+        click.secho(f"Failed to stop orchestration agent:\n{err}", err=True, color=True)

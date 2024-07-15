@@ -10,7 +10,7 @@ from ..common.data_models import (
     ServiceData,
 )
 from ..common.logger import logger
-from ..storage.abstract import MDBClient
+from ..storage.mongo import MDBClient
 from .orchestration_agent import OrchestrationAgent
 from .resource_management.service import Service
 

@@ -4,7 +4,7 @@ import docker
 
 from ..common.data_models import MongoCollection
 from ..common.logger import logger
-from ..storage.abstract import MDBClient
+from ..storage.mongo import MDBClient
 from ..variable import ROHE_PATH
 
 DEFAULT_DOCKER_MOUNT = {
@@ -77,7 +77,7 @@ class AgentManager:
                     }
                 },
             ]
-            app_list = list(self.db_client.get(self.db_collection, query))
+            app_list = self.db_client.get(self.db_collection, query)
             # Get application from application list
             for app in app_list:
                 if app["application_name"] == application_name:

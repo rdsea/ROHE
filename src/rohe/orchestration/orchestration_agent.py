@@ -8,7 +8,7 @@ from ..common.data_models import (
     ServiceQueueConfig,
 )
 from ..common.logger import logger
-from ..storage.abstract import MDBClient
+from ..storage.mongo import MDBClient
 from .allocator import Allocator
 
 

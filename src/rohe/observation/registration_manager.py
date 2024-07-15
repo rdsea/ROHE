@@ -12,7 +12,7 @@ from qoa4ml.config.configs import (
 
 from ..common.data_models import MongoCollection
 from ..common.logger import logger
-from ..storage.abstract import MDBClient
+from ..storage.mongo import MDBClient
 
 
 class RegistrationManager:
@@ -64,7 +64,7 @@ class RegistrationManager:
             return None
         except Exception as e:
             logger.exception(f"Error in `get_app` RoheRegistration: {e}")
-            return {}
+            return None
 
     def update_app(self, metadata: Dict):
         """
@@ -120,3 +120,11 @@ class RegistrationManager:
         except Exception as e:
             logger.exception(f"Error in `register_app` RoheRegistration: {e}")
             return {}
+
+    def delete_app(self, application_name: str, run_id: str, user_id: str):
+        application = {
+            "application_name": application_name,
+            "run_id": run_id,
+            "user_id": user_id,
+        }
+        self.db_client.delete_many(self.db_collection, application)
