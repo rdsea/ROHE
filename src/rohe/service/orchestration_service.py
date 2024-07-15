@@ -11,25 +11,40 @@ from rohe.variable import ROHE_PATH
 DEFAULT_CONFIG_PATH = "/config/orchestrationConfig.yaml"
 DEFAULT_PORT = 5002
 
-app = Flask(__name__)
-api = Api(app)
-rohe_agent = None
 
-config_file = None
-port = DEFAULT_PORT
-if not config_file:
-    config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
-    logger.info(config_file)
+class OrchestrationService:
+    def __init__(self) -> None:
+        self.app = Flask(__name__)
+        self.api = Api(self.app)
 
-configuration = rohe_utils.load_config(config_file)
-assert configuration is not None
+        config_file = None
+        if not config_file:
+            config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
+            logger.info(config_file)
 
-orchestration_service_config = OrchestrationServiceConfig.parse_obj(configuration)
-node_and_service_manager = NodeAndServiceManager(orchestration_service_config)
+        configuration = rohe_utils.load_config(config_file)
+        assert configuration is not None
 
-api.add_resource(
-    OrchestationResource,
-    "/management",
-    "/management/<string:command>",
-    resource_class_kwargs={"node_and_service_manager": node_and_service_manager},
-)
+        orchestration_service_config = OrchestrationServiceConfig.parse_obj(
+            configuration
+        )
+        self.node_and_service_manager = NodeAndServiceManager(
+            orchestration_service_config
+        )
+
+        self.api.add_resource(
+            OrchestationResource,
+            "/management",
+            "/management/<string:command>",
+            resource_class_kwargs={
+                "node_and_service_manager": self.node_and_service_manager
+            },
+        )
+
+    def run(self):
+        return self.app
+
+
+def create_app():
+    my_app = OrchestrationService()
+    return my_app.run()

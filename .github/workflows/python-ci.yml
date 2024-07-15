@@ -30,3 +30,6 @@ jobs:
         run: poetry install
 
       - uses: pre-commit/action@v3.0.1
+
+      - name: Test package
+        run: python -m pytest

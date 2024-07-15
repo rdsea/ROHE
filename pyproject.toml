@@ -58,6 +58,7 @@ datamodel-code-generator = "*"
 mypy = "*"
 codespell = "^2.3.0"
 pytest = "^8.2.2"
+pylint = "^3.2.5"
 
 [tool.poetry.group.docs]
 optional = true
@@ -120,3 +121,11 @@ ignore_missing_imports = true
 
 [tool.codespell]
 skip = '*/k8s/*'
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+log_cli_level = "info"
+testpaths = ["tests"]

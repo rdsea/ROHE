@@ -48,7 +48,7 @@ def orchestration_service(debug, host, port):
             f"--bind={host}:{port}",
             "--chdir",
             f"{PACKAGE_DIR}/service",
-            "orchestration_service:app",
+            "orchestration_service:create_app()",
         ]
     )
     subprocess.run(command, check=False)
@@ -91,7 +91,7 @@ def observation_service(debug, host, port):
             f"--bind={host}:{port}",
             "--chdir",
             f"{PACKAGE_DIR}/service",
-            "observation_service:app",
+            "observation_service:create_app()",
         ]
     )
     subprocess.run(command, check=False)

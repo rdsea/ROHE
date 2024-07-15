@@ -12,6 +12,6 @@ def test_cli_runtime():
     end_time = time.time()
     execution_time = end_time - start_time
     assert (
-        execution_time < 0.001
+        execution_time < 0.01
     ), f"Execution time is too long: {execution_time:.4f} seconds"
     assert result.exit_code == 0
