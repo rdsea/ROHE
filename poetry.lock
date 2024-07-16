@@ -212,52 +212,6 @@ files = [
 ]
 
 [[package]]
-name = "bytewax"
-version = "0.20.1"
-description = ""
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "bytewax-0.20.1-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:055e423f6b355634637ccc7b3efe6138265528622c02da0d349a0526e1d4dd1d"},
-    {file = "bytewax-0.20.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:2164997d1f428bb71b2dd52d898eaaf9e7219746d9df713c456a635aca9e87fc"},
-    {file = "bytewax-0.20.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:25cb66534097bf95461c02b1e58123a96662381437bb54b988f209fcaeb96763"},
-    {file = "bytewax-0.20.1-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:1c893998515eb3b759f7635871754cacd954a2fb8cb8f20688f39af2cb267322"},
-    {file = "bytewax-0.20.1-cp310-cp310-manylinux_2_31_x86_64.whl", hash = "sha256:25c15b9e1bd0c20e9f167cd1e5344a312ff4a99e9d0df22095d4beb4eb032517"},
-    {file = "bytewax-0.20.1-cp310-none-win_amd64.whl", hash = "sha256:e60bd5ee0b89c23e392f476f69964082f096c0488b3d365509a36cbda29ff8ef"},
-    {file = "bytewax-0.20.1-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:7134fd37e18233620ee0d942da50473f9e957387e20d631f185a91326e02638d"},
-    {file = "bytewax-0.20.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a7d486ca1223bc31208c067a735cd5fa852e97d94fa3e291b45b93ab9c346244"},
-    {file = "bytewax-0.20.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:40c04113df82f1dde12e7e5084d97fc764ff51df7d59ba4c8497bfca93d93113"},
-    {file = "bytewax-0.20.1-cp311-cp311-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:63b12b05c4c2efec9ec9d04b77975188a2a0d9cdc8a1be5963716492df5892c4"},
-    {file = "bytewax-0.20.1-cp311-cp311-manylinux_2_31_x86_64.whl", hash = "sha256:475ce6cae8ed441e4f8cf696993bec7ac5a2235c463ff251af7214736b452390"},
-    {file = "bytewax-0.20.1-cp311-none-win_amd64.whl", hash = "sha256:01a0ddf6003d6fd630bf77407c55cb080bcf3d59fc3933b2540855f6861a21b7"},
-    {file = "bytewax-0.20.1-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:d557415eb96593d6bc51262e989affc0b95dce3d1b63ab8a901598bd12f6ea41"},
-    {file = "bytewax-0.20.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:26510bc1e24d684059bc68feb04993c6278b57d5fe5d0e9e1a49a5a4d2af26ae"},
-    {file = "bytewax-0.20.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a8f9bed60b099fcecebba1677b14fe78fddc16491641c83b1b0d3cee1b6f0c84"},
-    {file = "bytewax-0.20.1-cp312-cp312-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:085d09b1b4e4eb63e055ea797fc6141897effc549fc4968126586b247199c276"},
-    {file = "bytewax-0.20.1-cp312-cp312-manylinux_2_31_x86_64.whl", hash = "sha256:a0e9477eaa84432ef666d5ace29a7138ff39d7342d3457ac788ed76803f9cf30"},
-    {file = "bytewax-0.20.1-cp312-none-win_amd64.whl", hash = "sha256:b295364d8b219edeeb8171a108e341bb0471f2c1fc18f813e0fbbcb9bcf08472"},
-    {file = "bytewax-0.20.1-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:b241118e6179c1eb3a7363ac1b85243ece51ba2a69c7736395081ff120c4990d"},
-    {file = "bytewax-0.20.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:4db9054f8e7af5f653a8d4edb93f9db1fa8bd17db7f88e89b53b31532f719355"},
-    {file = "bytewax-0.20.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:345e31f6954e557314645a80c19e5f5d5edb9deba518d83b57aaeaf3631bd8f3"},
-    {file = "bytewax-0.20.1-cp38-cp38-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:d76cb40eb4161bcc62441ea8396798d3e973c0ce36a9ad24c378c532f8026bc5"},
-    {file = "bytewax-0.20.1-cp38-cp38-manylinux_2_31_x86_64.whl", hash = "sha256:a558f5523367336e29e2a0a9322fef039b717b5580bdb8d0f265cc3350d331a0"},
-    {file = "bytewax-0.20.1-cp38-none-win_amd64.whl", hash = "sha256:6e03b120d6f2436220355ec73158b36564cc551ded202284a5e6b35a1a792a08"},
-    {file = "bytewax-0.20.1-cp39-cp39-macosx_10_12_x86_64.whl", hash = "sha256:044fb3352db054f77c5ebb32eeb1ea8d6d5ed5d896727453e5643412de80283c"},
-    {file = "bytewax-0.20.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:aa034f95d412a88746ff7fa9802eb22f4a70ffb4765528d0f9991e050b1eb618"},
-    {file = "bytewax-0.20.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:da911d70a28751208e976cb6a705ae1d1417fb40850b76d0b56a099b25a86f1a"},
-    {file = "bytewax-0.20.1-cp39-cp39-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:89b334e8e78c735c8facbb0a5c4d383bfc841479b71fb30856cd22b5871c67b3"},
-    {file = "bytewax-0.20.1-cp39-cp39-manylinux_2_31_x86_64.whl", hash = "sha256:30f6619a8d1bec58ac21b6517bac2cf5d95e2cdd3665b7f976184762f89a3561"},
-    {file = "bytewax-0.20.1-cp39-none-win_amd64.whl", hash = "sha256:295e23e11793c0b756797ce9acad3a576ccb8755f6c77877c2cccb5b351343fb"},
-]
-
-[package.dependencies]
-prometheus-client = ">=0.18"
-typing-extensions = ">=4"
-
-[package.extras]
-kafka = ["confluent-kafka (>=2.0.2)", "fastavro (>=1.8)", "requests (>=2.0)"]
-
-[[package]]
 name = "cachetools"
 version = "5.3.3"
 description = "Extensible memoizing collections and decorators"
@@ -1682,6 +1636,7 @@ description = "Clang Python Bindings, mirrored from the official LLVM repo: http
 optional = true
 python-versions = "*"
 files = [
+    {file = "libclang-18.1.1-1-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:0b2e143f0fac830156feb56f9231ff8338c20aecfe72b4ffe96f19e5a1dbb69a"},
     {file = "libclang-18.1.1-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:6f14c3f194704e5d09769108f03185fce7acaf1d1ae4bbb2f30a72c2400cb7c5"},
     {file = "libclang-18.1.1-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:83ce5045d101b669ac38e6da8e58765f12da2d3aafb3b9b98d88b286a60964d8"},
     {file = "libclang-18.1.1-py2.py3-none-manylinux2010_x86_64.whl", hash = "sha256:c533091d8a3bbf7460a00cb6c1a71da93bffe148f172c7d03b1c31fbf8aa2a0b"},
@@ -2461,20 +2416,6 @@ identify = ">=1.0.0"
 nodeenv = ">=0.11.1"
 pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
-
-[[package]]
-name = "prometheus-client"
-version = "0.20.0"
-description = "Python client for the Prometheus monitoring system."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "prometheus_client-0.20.0-py3-none-any.whl", hash = "sha256:cde524a85bce83ca359cc837f28b8c0db5cac7aa653a588fd7e84ba061c329e7"},
-    {file = "prometheus_client-0.20.0.tar.gz", hash = "sha256:287629d00b147a32dcb2be0b9df905da599b2d82f80377083ec8463309a4bb89"},
-]
-
-[package.extras]
-twisted = ["twisted"]
 
 [[package]]
 name = "protobuf"
@@ -4330,4 +4271,4 @@ ml = ["scikit_learn", "tensorflow", "torch", "ultralytics"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "71e7bd01d3110cdfdf6b3316192d8f91370415adc3286f6262efc19f33ae3b77"
+content-hash = "4485b89371eaa671e4a730cd230f92e119fb549c8f2363ebf10ddb925886c712"

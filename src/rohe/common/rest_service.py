@@ -3,12 +3,10 @@ import json
 from flask import Flask, Response, request
 from flask_restful import Api, Resource
 
-from .rohe_object import RoheObject
 
-
-class RoheRestObject(Resource, RoheObject):
-    def __init__(self, log_level: int = 2) -> None:
-        super().__init__(logging_level=log_level)
+class RoheRestResource(Resource):
+    def __init__(self) -> None:
+        pass
 
     # def get(self):
     #     # Processing GET request
@@ -35,7 +33,7 @@ class RoheRestObject(Resource, RoheObject):
     #     return jsonify({"status": args})
 
 
-class ImageInferenceObject(RoheRestObject):
+class ImageInferenceObject(RoheRestResource):
     def __init__(self) -> None:
         super().__init__()
 
