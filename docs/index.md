@@ -57,7 +57,7 @@ TODO
     ```
     Source the file in ~/.bashrc.
     ```bash
-    source ~/.foo-bar-complete.bash
+    source ~/.rohe-cli-complete.bash
     ```
 
 === "Zsh"
