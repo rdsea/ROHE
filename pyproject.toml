@@ -36,7 +36,7 @@ Flask = "2.2.3"
 flask_restful = "0.3.10"
 pydantic = ">=2.7.4,<2.8"
 #NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
-Werkzeug = "2.2.2"
+Werkzeug = "3.0.3"
 qoa4ml = { git = "https://github.com/rdsea/QoA4ML.git" }
 gunicorn = "^22.0.0"
 lazy-import = "^0.2.2"
