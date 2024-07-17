@@ -8,6 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set repository path
+        run: echo "ROHE_PATH=${{ github.workspace }}" >> $GITHUB_ENV
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
