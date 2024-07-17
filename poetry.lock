@@ -3981,4 +3981,4 @@ yolo = ["gitpython", "ultralytics"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "b4d2c600fdee50d67e72187b7e7cc8923799c90c38a75ac293263e96d17930ee"
+content-hash = "c5e3f7fab504e29f8516c12fcae0fbb6c9bf80d8778ace120ac88daff2b69549"
