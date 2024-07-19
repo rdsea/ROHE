@@ -290,11 +290,13 @@ def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tu
         image = None
     return image
 
+
 def save_numpy_array(self, arr, file_path):
     """
     Saves a numpy array to a file at the specified file path.
     """
     np.save(file_path, arr)
+
 
 def convert_str_to_datetime(str_time: str, option: str = None):
     time = datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%SZ")
@@ -308,7 +310,8 @@ def convert_str_to_datetime(str_time: str, option: str = None):
         return formatted_date
     else:
         return time
-    
+
+
 def get_current_utc_timestamp(option: str = None):
     """
     get current utc timestamp
@@ -318,6 +321,7 @@ def get_current_utc_timestamp(option: str = None):
     if option == "date_only":
         return datetime.utcnow().strftime("%d-%m-%y")
     return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+
 
 def extract_file_extension(url):
     """
@@ -334,6 +338,7 @@ def extract_file_extension(url):
 def convert_str_to_tuple(str_obj) -> tuple:
     return tuple(map(int, str_obj.split(",")))
 
+
 def get_local_ip():
     try:
         # The following line creates a socket to connect to an external site
@@ -346,7 +351,7 @@ def get_local_ip():
         return ip
     except Exception as e:
         return "Unable to get IP: " + str(e)
-    
+
 
 def parse_time(time_str) -> int:
     """
@@ -376,10 +381,9 @@ def handle_service_query(consul_client, service_name, query_type, tags=None):
 
         if query_type == "quorum":
             return consul_client.get_quorum_service_instances(service_name, tags)
-        
+
         logging.error(f"Invalid query type: {query_type}")
         return None
     except Exception as e:
         logging.error(f"Error in handle_service_query: {e}")
         return None
-    
