@@ -4,7 +4,7 @@ requires = ["poetry-core>=1"]
 
 [tool.poetry]
 name = "rohe"
-version = "0.0.4"
+version = "0.0.7"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 authors = ["AaltoSEA <tri.m.nguyen@aalto.fi>"]
 maintainers = ["Minh-Tri Nguyen <tri.m.nguyen@aalto.fi>", "Anh-Dung Nguyen <anh-dung.nguyen@aalto.fi>"]
@@ -37,7 +37,7 @@ flask_restful = "0.3.10"
 pydantic = ">=2.7.4,<2.8"
 #NOTE: Flask doesn't specify this dependency well >=2.2.0, Werkzeug 3.0.0 will be installed and Flask 2.2.2 isn't made for Werkzeug 3.0.0 
 Werkzeug = "2.2.2"
-qoa4ml = { git = "https://github.com/rdsea/QoA4ML.git" }
+qoa4ml = "0.2.9"
 gunicorn = "^22.0.0"
 lazy-import = "^0.2.2"
 
