@@ -4,7 +4,7 @@ requires = ["poetry-core>=1"]
 
 [tool.poetry]
 name = "rohe"
-version = "0.0.7"
+version = "0.0.8"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 authors = ["AaltoSEA <tri.m.nguyen@aalto.fi>"]
 maintainers = ["Minh-Tri Nguyen <tri.m.nguyen@aalto.fi>", "Anh-Dung Nguyen <anh-dung.nguyen@aalto.fi>"]
