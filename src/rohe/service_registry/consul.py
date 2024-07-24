@@ -77,7 +77,7 @@ class ConsulClient:
             logging.error(f"Unable to register for service {id}")
             return False
 
-    def query_service(self, name: str, tags: list | None = None):
+    def query_service(self, name: str, tags: list[str] | None = None):
         service_url = self.url + "/v1/catalog/service/" + name
         params = {}
         if tags:
@@ -106,7 +106,7 @@ class ConsulClient:
             )
             return []
 
-    def get_all_service_instances(self, name: str, tags: list | None = None):
+    def get_all_service_instances(self, name: str, tags: list[str] | None = None):
         """
         Get all service instances based on name and tags.
         """

@@ -16,6 +16,8 @@ import numpy as np
 import requests
 import yaml
 
+from ..service_registry.consul import ConsulClient
+
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
@@ -372,7 +374,9 @@ def parse_time(time_str) -> int:
         return value * 3600
 
 
-def handle_service_query(consul_client, service_name, query_type, tags=None):
+def handle_service_query(
+    consul_client: ConsulClient, service_name, query_type, tags: list[str] | None = None
+):
     try:
         if query_type == "all":
             return consul_client.get_all_service_instances(service_name, tags)
