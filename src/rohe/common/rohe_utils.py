@@ -8,7 +8,7 @@ import sys
 import traceback
 import types
 from typing import Callable
-import datetime
+from datetime import datetime
 import numpy as np
 import requests
 import yaml
