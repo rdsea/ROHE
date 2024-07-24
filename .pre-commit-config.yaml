@@ -26,14 +26,14 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --show-fixes]
-        files: ^src/.*\.py, tests$
+        files: ^src/.*\.py$
       - id: ruff-format
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: "v0.10.0.1"
     hooks:
       - id: shellcheck
-        files: ^src/.*\.py$
+        files: ^(src/tests)/.*\.py$
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

@@ -1,13 +1,13 @@
 import io
-import logging
 import os
 import re
 import sys
 from abc import ABC, abstractmethod
 
-logging.getLogger(__name__)
+from ..common.data_models import StorageInfo
+from ..common.logger import logger
 
-from ..common.storage import StorageInfo
+# TODO: get rid of this
 
 
 class Boto3Connector(ABC):
@@ -41,17 +41,17 @@ class Boto3Connector(ABC):
 
         # Upload the file-like object to S3
         success = False
-        for attempt in range(try_time):
+        for _ in range(try_time):
             try:
-                logging.info(f"Uploading data to {remote_file_path}...")
+                logger.info(f"Uploading data to {remote_file_path}...")
                 self._s3.upload_fileobj(
                     binary_data, self._bucket_name, remote_file_path
                 )
-                logging.info(f"Successfully uploaded data to {remote_file_path}")
+                logger.info(f"Successfully uploaded data to {remote_file_path}")
                 success = True
                 break
             except Exception as e:
-                logging.error(e)
+                logger.error(e)
 
         # binary_data.close()
         return success
@@ -63,34 +63,32 @@ class Boto3Connector(ABC):
         # call synchronously
         if self._parent_thread is None:
             try:
-                logging.info(f"Uploading {local_file_path} to {remote_file_path}...")
+                logger.info(f"Uploading {local_file_path} to {remote_file_path}...")
                 self._s3.upload_file(
                     local_file_path, self._bucket_name, remote_file_path
                 )
-                logging.info(
+                logger.info(
                     f"Successfully uploaded {local_file_path} to {remote_file_path}"
                 )
                 return True
             except Exception as e:
-                logging.error(e)
+                logger.error(e)
                 return False
         else:  # call asynchronously
             t = 1
             while t < try_time:
                 try:
-                    logging.info(
-                        f"Uploading {local_file_path} to {remote_file_path}..."
-                    )
+                    logger.info(f"Uploading {local_file_path} to {remote_file_path}...")
                     self._s3.upload_file(
                         local_file_path, self._bucket_name, remote_file_path
                     )
-                    logging.info(
+                    logger.info(
                         f"Successfully uploaded {local_file_path} to {remote_file_path}"
                     )
                     self._parent_thread.on_upload(True)
                     break
                 except Exception as e:
-                    logging.error(e)
+                    logger.error(e)
 
             self._parent_thread.on_upload(False)
 
@@ -98,11 +96,11 @@ class Boto3Connector(ABC):
         # call synchronously
         if self._parent_thread is None:
             try:
-                logging.info(f"Saving {remote_file_path} to {local_file_path}...")
+                logger.info(f"Saving {remote_file_path} to {local_file_path}...")
                 self._s3.download_file(
                     self._bucket_name, remote_file_path, local_file_path
                 )
-                logging.info(f"Saved {remote_file_path} to {local_file_path}")
+                logger.info(f"Saved {remote_file_path} to {local_file_path}")
                 return True
             except Exception:
                 # raise e
@@ -112,15 +110,15 @@ class Boto3Connector(ABC):
             t = 1
             while t < try_time:
                 try:
-                    logging.info(f"Saving {remote_file_path} to {local_file_path}...")
+                    logger.info(f"Saving {remote_file_path} to {local_file_path}...")
                     self._s3.download_file(
                         self._bucket_name, remote_file_path, local_file_path
                     )
-                    logging.info(f"Saved {remote_file_path} to {local_file_path}")
+                    logger.info(f"Saved {remote_file_path} to {local_file_path}")
                     result = True
                     break
                 except Exception as e:
-                    logging.error(e)
+                    logger.error(e)
             self._parent_thread.on_download(result)
 
     def is_file_exists(self, file_path: str) -> bool:
@@ -143,7 +141,7 @@ class Boto3Connector(ABC):
                     return True
             return False
         except Exception as e:
-            logging.error(
+            logger.error(
                 f"Error occurred while checking if file {file_path} exists in bucket {self._bucket_name}. Error: {e}"
             )
             return False
@@ -153,24 +151,24 @@ class Boto3Connector(ABC):
         valid_bucket_name = self._check_valid_bucket_name()
         if valid_bucket_name:
             try:
-                logging.info(f"Creating bucket {self._bucket_name}")
+                logger.info(f"Creating bucket {self._bucket_name}")
                 self._s3.create_bucket(
                     Bucket=self._bucket_name,
                 )
-                logging.info(f"Created bucket {self._bucket_name}")
+                logger.info(f"Created bucket {self._bucket_name}")
                 # self._s3.put_object(Bucket=self._bucket_name, Key= f'{self._global_model_root_folder}/')
 
             except Exception as e:
                 if "BucketAlreadyOwnedByYou" in str(e):
-                    logging.info(f"Bucket {self._bucket_name} already exists")
+                    logger.info(f"Bucket {self._bucket_name} already exists")
                 else:
-                    logging.info("=" * 20)
-                    logging.error(e)
-                    logging.info("=" * 20)
+                    logger.info("=" * 20)
+                    logger.error(e)
+                    logger.info("=" * 20)
                     sys.exit(0)
 
         else:
-            logging.info(
+            logger.info(
                 f"Bucket name {self._bucket_name} is not valid. Exit the program"
             )
             sys.exit(0)
@@ -178,14 +176,14 @@ class Boto3Connector(ABC):
     def _check_valid_bucket_name(self) -> bool:
         # Bucket name length should be between 3 and 63
         if len(self._bucket_name) < 3 or len(self._bucket_name) > 63:
-            logging.info("Bucket name length should be between 3 and 63 characters.")
+            logger.info("Bucket name length should be between 3 and 63 characters.")
             return False
 
         # Bucket name should start and end with a number or lowercase letter
         if not re.match("^[a-z0-9]", self._bucket_name) or not re.match(
             ".*[a-z0-9]$", self._bucket_name
         ):
-            logging.info(
+            logger.info(
                 "Bucket name should start and end with a lowercase letter or number."
             )
             return False
@@ -195,14 +193,14 @@ class Boto3Connector(ABC):
         if re.search(
             r"_|\.\.|\-$|\-\.|\.\-|^xn--|\-s3alias$|--ol-s3$", self._bucket_name
         ):
-            logging.info(
+            logger.info(
                 "Bucket name should not contain underscore, double dots, dash next to dots, end with a dash, start with 'xn--', end with '-s3alias' or '--ol-s3'."
             )
             return False
 
         # Bucket name should not be in IP format
         if re.match(r"\d+\.\d+\.\d+\.\d+", self._bucket_name):
-            logging.info("Bucket name should not be in IP format.")
+            logger.info("Bucket name should not be in IP format.")
             return False
 
         return True

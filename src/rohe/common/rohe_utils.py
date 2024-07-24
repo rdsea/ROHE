@@ -4,16 +4,17 @@ import logging
 import os
 import pathlib
 import random
+import re
+import socket
 import sys
 import traceback
 import types
-from typing import Callable
 from datetime import datetime
+from typing import Callable
+
 import numpy as np
 import requests
 import yaml
-import re
-import socket
 
 logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
@@ -286,7 +287,7 @@ def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tu
     try:
         image = np.frombuffer(binary_encoded_object, dtype=dtype)
         image = image.reshape(shape)
-    except:
+    except Exception:
         image = None
     return image
 
@@ -298,7 +299,7 @@ def save_numpy_array(self, arr, file_path):
     np.save(file_path, arr)
 
 
-def convert_str_to_datetime(str_time: str, option: str = None):
+def convert_str_to_datetime(str_time: str, option: str | None = None):
     time = datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%SZ")
     if option == "date_only":
         # Extract day, month, and year
@@ -312,7 +313,7 @@ def convert_str_to_datetime(str_time: str, option: str = None):
         return time
 
 
-def get_current_utc_timestamp(option: str = None):
+def get_current_utc_timestamp(option: str | None = None):
     """
     get current utc timestamp
     either date only (option='date_only')

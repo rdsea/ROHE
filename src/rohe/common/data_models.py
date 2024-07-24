@@ -126,3 +126,10 @@ class OrchestrationServiceConfig(BaseModel):
     output_folder: str
     service_queue_config: ServiceQueueConfig
     orchestrate_algorithm_config: OrchestrateAlgorithmConfig
+
+
+class StorageInfo(BaseModel):
+    endpoint_url: str
+    access_key: str = ""
+    secret_key: str = ""
+    bucket_name: str = ""

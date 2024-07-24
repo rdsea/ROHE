@@ -1,17 +1,15 @@
 import boto3
-from ..common.storage import StorageInfo
 from botocore.client import Config
 
-from .boto3 import Boto3Connector
+from ..common.data_models import StorageInfo
 
-# import logging
-
-# logging.getLogger(__name__)
+# from ..common.logger import logger
+from .boto3_connector import Boto3Connector
 
 
 class MinioConnector(Boto3Connector):
-    def __init__(self, storage_info, parent=None):
-        storage_info = StorageInfo(**storage_info)
+    def __init__(self, storage_info_dict: dict, parent=None):
+        storage_info = StorageInfo.model_validate(storage_info_dict)
 
         super().__init__(storage_info=storage_info, parent=parent)
 
