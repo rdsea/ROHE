@@ -63,7 +63,7 @@ tensorflow==2.13.0
 tensorflow-estimator==2.13.0
 tensorflow-io-gcs-filesystem==0.34.0
 termcolor==2.3.0
-torch==2.0.1
+torch==2.2.0
 torchvision==0.15.2
 tqdm==4.66.1
 typing_extensions==4.5.0
