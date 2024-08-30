@@ -1,0 +1,49 @@
+{
+  "App-metric": {
+    "Errors": {
+      "class": "Gauge",
+      "default": 0,
+      "description": "Number of errors"
+    },
+    "Responsetime": {
+      "class": "Gauge",
+      "default": 0,
+      "description": "response time"
+    },
+    "Timestamp": {
+      "class": "Gauge",
+      "default": 0,
+      "description": "Timestamp"
+    }
+  },
+  "Process-metric": {
+    "proc_cpu": {
+      "cpu-time-io": {
+        "class": "Gauge",
+        "default": -1,
+        "description": "monitor system cpu times",
+        "key": "iowait"
+      },
+      "cpu-time-sys": {
+        "class": "Gauge",
+        "default": -1,
+        "description": "monitor system cpu times",
+        "key": "system"
+      },
+      "cpu-time-user": {
+        "class": "Gauge",
+        "default": -1,
+        "description": "monitor system cpu times",
+        "key": "user"
+      }
+    },
+    "proc_mem": {
+      "memory-rss": {
+        "class": "Gauge",
+        "default": 0,
+        "description": "monitor system memory used",
+        "key": "used"
+      }
+    }
+  }
+}

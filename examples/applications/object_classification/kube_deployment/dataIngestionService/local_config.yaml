@@ -1,0 +1,22 @@
+ingestion_config:
+  file_extension: "npy"
+  tmp_image_folder: "tmp_image_folder"
+
+max_thread: 3
+
+minio_config:
+  endpoint_url: "http://localhost:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-unprocessed-image"
+
+mqtt_config:
+  broker_info:
+    url: localhost
+    port: 1883
+    keep_alive: 60
+  client_id: "server_01"
+  sub_topic: "$share/ingestion_instances/shared_topic/rohe/nii_case/test"
+
+redis_server:
+  url: "http://localhost:5000/task_coordinator"

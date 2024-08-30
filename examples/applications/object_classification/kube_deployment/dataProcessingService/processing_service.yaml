@@ -1,0 +1,17 @@
+max_thread: 3
+processing_config:
+  min_request_period: 1
+  max_request_period: 30
+  image_dim: "32,32,3"
+
+redis_server:
+  url: "http://localhost:5000/image_info_server"
+
+# inference_server:
+#   url: "http://localhost:30005/inference_service"
+
+minio_config:
+  endpoint_url: "http://localhost:9000"
+  access_key: "admin_user"
+  secret_key: "admin_pass"
+  bucket_name: "nii-application-unprocessed-image"

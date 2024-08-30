@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-configmap
+data:
+  ml_next_ip: "localhost"
+  ml_next_port: "30002"
+  ml_next_dir: "lstm"

@@ -1,0 +1,22 @@
+mlmodels:
+  model_storage_dir: "/abc/xyz"
+  list_of_models:
+    yolo5:
+      model_name: Yolov5
+      model_file_name: yolov5.pt
+    yolo8:
+      model_name: Yolov8
+      model_file_name: yolov8.pt
+composition:
+- model: Yolov5
+  parameter: yolov5l
+- model: Yolov8
+  parameter: yolov8n
+qoa4ml_client:
+  user_id: aaltosea1
+  instance_id: yolo_inference
+  stage_id: Inference
+  method: REST
+  application_name: test
+  role: ml
+registration_url: http://localhost:5010/registration

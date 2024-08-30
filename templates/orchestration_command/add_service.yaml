@@ -1,0 +1,250 @@
+application: test
+client_id: aaltosea01
+instance_name: test
+stage_id: test
+role: client
+command: ADD SERVICE
+data:
+  object_detection:
+    object_detection_web_service:
+      service_name: object_detection_web_service
+      service_id: EW:VE:TW:WQ:01
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/od_web:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 424
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 200
+        vms: 500
+      processor:
+      - 50
+      - 5
+      sensitivity: 0
+      replicas: 2
+    object_detection_imgproc_service:
+      service_name: object_detection_imgproc_service
+      service_id: EW:VE:TW:WQ:02
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/od_proc:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 933
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 300
+        vms: 500
+      processor:
+      - 90
+      - 5
+      sensitivity: 0
+      replicas: 2
+    object_detection_inference_service:
+      service_name: object_detection_inference_service
+      service_id: EW:VE:TW:WQ:03
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/od_inf:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 500
+      accelerator:
+        gpu: 15
+      memory:
+        rss: 600
+        vms: 200
+      processor:
+      - 50
+      sensitivity: 0
+      replicas: 1
+  kpi:
+    kpi_web_service:
+      service_name: kpi_web_service
+      service_id: EW:VE:TW:WQ:04
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/kpi_web:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 400
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 200
+        vms: 500
+      processor:
+      - 40
+      - 5
+      sensitivity: 0
+      replicas: 1
+    kpi_minio_service:
+      service_name: kpi_minio_service
+      service_id: EW:VE:TW:WQ:05
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: minio/minio
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 1000
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 300
+        vms: 500
+      processor:
+      - 100
+      sensitivity: 0
+      replicas: 2
+    kpi_database_service:
+      service_name: kpi_database_service
+      service_id: EW:VE:TW:WQ:06
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/kpi_database:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 500
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 500
+        vms: 500
+      processor:
+      - 20
+      - 20
+      - 10
+      - 10
+      sensitivity: 0
+      replicas: 1
+    kpi_inference_service:
+      service_name: kpi_inference_service
+      service_id: EW:VE:TW:WQ:07
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/kpi_forecast:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 4000
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 400
+        vms: 500
+      processor:
+      - 100
+      - 80
+      - 80
+      - 80
+      sensitivity: 0
+      replicas: 1
+  bts:
+    bts_dataproc_service:
+      service_name: bts_dataproc_service
+      service_id: EW:VE:TW:WQ:08
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/bts_data_proc:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 1000
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 300
+        vms: 500
+      processor:
+      - 100
+      - 5
+      - 5
+      - 5
+      sensitivity: 0
+      replicas: 2
+    bts_inference_service:
+      service_name: bts_inference_service
+      service_id: EW:VE:TW:WQ:09
+      node: {}
+      status: queueing
+      instance_ids: []
+      running: 0
+      image: rdsea/bts_ml_proc:2.0
+      ports:
+      - 4002
+      port_mapping:
+      - con_port: 4002
+        phy_port: 4002
+      - con_port: 4003
+        phy_port: 4003
+      cpu: 1000
+      accelerator:
+        gpu: 0
+      memory:
+        rss: 2500
+        vms: 500
+      processor:
+      - 100
+      - 5
+      - 5
+      - 5
+      sensitivity: 0
+      replicas: 3

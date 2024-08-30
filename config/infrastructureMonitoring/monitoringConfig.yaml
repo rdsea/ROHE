@@ -1,0 +1,57 @@
+---
+connector:
+  amqp_connector:
+    class: AMQP
+    conf:
+      end_point: localhost
+      exchange_name: k3s_system_report
+      exchange_type: topic
+      out_routing_key: k3s.node1.report2
+      queue_name: node1_report2
+metric:
+  docker:
+    docker_cpu:
+      class: Gauge
+      description: total docker cpu usage
+      default: -1
+    docker_memory:
+      class: Gauge
+      description: total docker memory usage
+      default: -1
+  physical:
+    cpu_stat:
+      cpu_percentage:
+        class: Gauge
+        description: monitor system cpu percentage
+        default: -1
+        key: percentage
+    mem_stat:
+      memory_used:
+        class: Gauge
+        description: monitor system memory used
+        default: 0
+        key: used
+    proc_cpu:
+      proc_cpu:
+        class: Gauge
+        description: monitor process CPU percentage
+        default: 0
+        key: used
+    proc_mem:
+      proc_mem:
+        class: Gauge
+        description: monitor process memory percentage
+        default: 0
+        key: used
+    gpu:
+      class: Gauge
+      description: GPU usage
+      default: -1
+    network:
+      class: Gauge
+      description: network usage
+      default: -1
+    storage:
+      class: Gauge
+      description: Data storage
+      default: -1

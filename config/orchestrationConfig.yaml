@@ -1,0 +1,24 @@
+db_authentication:
+  url: "localhost"
+  prefix: "mongodb+srv://"
+  username: "admin"
+  password: "admin"
+db_node_collection:
+  collection: node_collection
+  database: rohe_orchestration
+db_service_collection:
+  collection: service_collection
+  database: rohe_orchestration
+timer: 10
+output_folder: "/results/"
+sample_rate: 50
+false_rate: 3
+service_queue:
+  priority: 0
+  queue_balance: 3
+orchestrateConfig:
+  name: Priority Orchestration
+  weights:
+    cpu: 1
+    memory: 1
+  strategy: 1

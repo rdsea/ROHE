@@ -1,0 +1,16 @@
+
+version: '3'
+services:
+  nii_processing_server:
+    image: vtn13042000/nii_processing_service_intel:1.0.0
+    extra_hosts:
+      - "host-machine:localhost"
+
+    volumes:
+      # - ${ROHE_PATH}/artifact/nii/VGG16/3/6/repair/model.h5:/inference-server/data/weights_file.h5
+      - ./processing_config.yaml:/processing-server/examples/applications/NII/kube_deployment/dataProcessingService/processing_service.yaml
+    environment:
+      minio_client_access_key: prJxdafe7L400AAXScc8
+      minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
+      HOST_SERVICE_URL_1: "http://host-machine:9000"  # Service on host machine at port 9000
+      HOST_SERVICE_URL_2: "http://host-machine:5000"  # Service on host machine at port 5000

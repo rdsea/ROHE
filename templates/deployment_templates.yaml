@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ task_name }}-{{ node_name }}
+  labels:
+    app: {{ task_name }}
+spec:
+  replicas: {{ service_replica }}
+  selector:
+    matchLabels:
+      app: {{ task_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ task_name }}
+    spec:
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/hostname: {{ node_name }}
+      containers:
+        - name: {{ task_name }}
+          image: {{ image_name }}
+          imagePullPolicy: "Always"
+          ports: {% for port in ports %}
+            - containerPort: {{ port }} {% endfor %}
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ task_name }}-service
+spec:
+  ports: {% for p_map in port_mapping %}
+  - port: {{ p_map.con_port }} {% if p_map.phy_port is defined %}
+    targetPort: {{ p_map.phy_port }} {% endif %} {% endfor %}
+  selector:
+    app: {{ task_name }}

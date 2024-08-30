@@ -1,0 +1,10 @@
+pillow
+paho-mqtt
+numpy
+requests
+python-dotenv
+boto3
+tensorflow
+flask
+flask_restful
+qoa4ml

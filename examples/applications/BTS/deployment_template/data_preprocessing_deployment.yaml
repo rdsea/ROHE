@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-proprocessing-deployment
+  labels:
+    app: datapreprocessing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datapreprocessing
+  template:
+    metadata:
+      labels:
+        app: datapreprocessing
+    spec:
+      containers:
+      - image: minhtribk12/data_ubuntu:1.0
+        imagePullPolicy: Always
+        name: datapreprocessing
+        ports:
+        - containerPort: 5000
+        env:
+          - name: NEXT_IP_DEST
+            valueFrom:
+              configMapKeyRef:
+                name: ml-configmap
+                key: ml_next_ip
+          - name: NEXT_PORT_DEST
+            valueFrom:
+              configMapKeyRef:
+                name: ml-configmap
+                key: ml_next_port
+          - name: NEXT_DIR_DEST
+            valueFrom:
+              configMapKeyRef:
+                name: ml-configmap
+                key: ml_next_dir

@@ -1,0 +1,6 @@
+application: test
+client_id: aaltosea01
+instance_name: test
+stage_id: test
+role: client
+command: REMOVE ALL NODE

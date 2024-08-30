@@ -1,0 +1,16 @@
+version: '3'
+services:
+  nii_inference_server:
+    # image: rdsea/nii_inference_service_intel:1.0.1
+    image: vtn13042000/nii_inference_service_intel:1.0.0
+    ports:
+      - "30005:30005"
+    volumes:
+    # add the mount of configuration yaml file 
+    # so that if we want to modify the url of any of the service
+    # or change some other config of the server
+    # no need to rebuild the image
+      # - ${ROHE_PATH}/artifact:/inference-server/artifact
+      # - ${ROHE_PATH}/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml
+      - ${ROHE_PATH}/artifact:/inference-server/artifact
+      - ./configurations/inference_service.yaml:/inference-server/examples/applications/object_classification/kube_deployment/inferenceService/configurations/inference_service.yaml

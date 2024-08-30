@@ -1,0 +1,42 @@
+mlSpecific:
+  missRateOfClass1and6:
+    operator: prod
+    weight: 1
+    min_value: 1e-10
+    max_value: 0.1
+    objective: min
+    scale: log
+    logbase: 2
+  missRateOfClass1:
+    operator: prod
+    weight: 1
+    min_value: 1e-3
+    max_value: 0.1
+    objective: min
+    scale: log
+  generalAccuracy:
+    operator: rprod
+    weight: 1
+    min_value: 0.6
+    max_value: 0.9999
+    objective: max
+    scale: log
+  confidenceOnClass1:
+    operator: avg
+    weight: 1
+    min_value: 0.6
+    max_value: 0.999
+    objective: max
+    scale: log
+  cost:
+    operator: sum
+    weight: 1
+    min_value: 0.1
+    max_value: 0.9
+    objective: min
+    scale: log
+ensemble:
+  max: 3
+  min: 3
+service:
+  throughput: 60

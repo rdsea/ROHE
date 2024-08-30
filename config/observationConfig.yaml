@@ -1,0 +1,38 @@
+collector:
+  name: amqp_collector
+  connectorType: AMQP
+  config:
+    end_point: localhost
+    exchange_name: exchange_name
+    exchange_type: topic
+    in_queue: collector_1
+    in_routing_key: in_routing_key
+connector:
+  name: amqp_connector
+  connectorType: AMQP
+  config:
+    end_point: localhost
+    exchange_name: exchange_name
+    exchange_type: topic
+    out_routing_key: out_routing_key
+db_authentication:
+  url: "localhost"
+  prefix: "mongodb+srv://"
+  username: "admin"
+  password: "admin"
+db_collection:
+  collection: registration
+  database: rohe_observation
+false_rate: 3
+logging_level: 2
+output_folder: /results/
+sample_rate: 50
+timer: 10
+window:
+  interval:
+    type: 2
+    value: 3
+  size:
+    type: 2
+    value: 100
+agent_image: rdsea/rohe_stream_agent:1.0.0

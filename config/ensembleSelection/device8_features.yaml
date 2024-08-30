@@ -1,0 +1,64 @@
+BeeLink:
+  CPU: 16
+  baseCost: 301.0299956639812
+  costPerRequest: 0.3010299956639812
+  frequency: 2.3
+  mem: 8
+  network: 0.47712125471966244
+  tier: 2
+Rasp:
+  CPU: 4
+  baseCost: 150.5149978319906
+  costPerRequest: 0.1505149978319906
+  frequency: 1.5
+  mem: 4
+  network: 0.3010299956639812
+  tier: 1
+JetsonNano:
+  CPU: 4
+  baseCost: 150.5149978319906
+  costPerRequest: 0.1505149978319906
+  frequency: 1.5
+  mem: 4
+  network: 0.3010299956639812
+  tier: 1
+JetsonAGX:
+  CPU: 16
+  baseCost: 301.0299956639812
+  costPerRequest: 0.3010299956639812
+  frequency: 2.3
+  mem: 8
+  network: 0.47712125471966244
+  tier: 2
+GCP002:
+  CPU: 32
+  baseCost: 389.0756251918218
+  costPerRequest: 0.3890756251918218
+  frequency: 3.5
+  mem: 64
+  network: 0.6020599913279624
+  tier: 3
+GCP001:
+  CPU: 32
+  baseCost: 389.0756251918218
+  costPerRequest: 0.3890756251918218
+  frequency: 3.5
+  mem: 64
+  network: 0.6020599913279624
+  tier: 3
+P620:
+  CPU: 16
+  baseCost: 341.0299956639812
+  costPerRequest: 0.3010299956639812
+  frequency: 2.3
+  mem: 8
+  network: 0.47712125471966244
+  tier: 2
+GCP003:
+  CPU: 16
+  baseCost: 389.5149978319906
+  costPerRequest: 0.3890756251918218
+  frequency: 1.5
+  mem: 48
+  network: 0.3010299956639812
+  tier: 3

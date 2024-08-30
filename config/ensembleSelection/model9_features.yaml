@@ -1,0 +1,134 @@
+model1:
+  bThroughput: 0
+  baseCost: 500.0
+  costPerRequest: 0.5
+  nSpecialize: 4
+  specialize:
+  - 4
+  - 8
+  - 5
+  - 11
+  specializeName:
+  - other person
+  - traffic light
+  - other vehicle
+  - train
+  tier: 5
+model7:
+  bThroughput: 0
+  baseCost: 451.54499349597177
+  costPerRequest: 0.45154499349597177
+  nSpecialize: 3
+  specialize:
+  - 7
+  - 9
+  - 11
+  specializeName:
+  - rider
+  - traffic sign
+  - train
+  tier: 4
+  wThroughput: 0
+model27:
+  bThroughput: 0
+  baseCost: 451.54499349597177
+  costPerRequest: 0.45154499349597177
+  nSpecialize: 3
+  specialize:
+  - 12
+  - 3
+  - 5
+  specializeName:
+  - truck
+  - motorcycle
+  - other vehicle
+  tier: 4
+  wThroughput: 0
+model76:
+  bThroughput: 0
+  baseCost: 150.5149978319906
+  costPerRequest: 0.1505149978319906
+  nSpecialize: 2
+  specialize:
+  - 2
+  - 4
+  specializeName:
+  - car
+  - other person
+  tier: 1
+  wThroughput: 0
+model67:
+  bThroughput: 0
+  baseCost: 451.54499349597177
+  costPerRequest: 0.45154499349597177
+  nSpecialize: 3
+  specialize:
+  - 0
+  - 5
+  - 10
+  specializeName:
+  - bicycle
+  - other vehicle
+  - trailer
+  tier: 4
+  wThroughput: 0
+model212:
+  bThroughput: 0
+  baseCost: 539.5906230238124
+  costPerRequest: 0.5395906230238124
+  nSpecialize: 4
+  specialize:
+  - 4
+  - 5
+  - 11
+  - 7
+  specializeName:
+  - other person
+  - other vehicle
+  - train
+  - rider
+  tier: 6
+  wThroughput: 0
+model6:
+  bThroughput: 0
+  baseCost: 451.54499349597177
+  costPerRequest: 0.45154499349597177
+  nSpecialize: 3
+  specialize:
+  - 2
+  - 0
+  - 1
+  specializeName:
+  - car
+  - bicycle
+  - bus
+  tier: 4
+  wThroughput: 0
+model36:
+  bThroughput: 0
+  baseCost: 389.0756251918218
+  costPerRequest: 0.3890756251918218
+  nSpecialize: 3
+  specialize:
+  - 12
+  - 8
+  - 7
+  specializeName:
+  - truck
+  - traffic light
+  - rider
+  tier: 3
+  wThroughput: 0
+model0:
+  bThroughput: 0
+  baseCost: 301.0299956639812
+  costPerRequest: 0.3010299956639812
+  nSpecialize: 2
+  specialize:
+  - 9
+  - 7
+  specializeName:
+  - traffic sign
+  - rider
+  tier: 2
+  wThroughput: 0

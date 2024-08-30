@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt-broker
+  template:
+    metadata:
+      labels:
+        app: mqtt-broker
+    spec:
+      containers:
+      - name: mqtt-broker
+        image: eclipse-mosquitto
+        volumeMounts:
+        - name: config-volume
+          mountPath: /mosquitto/config
+        - name: data-volume
+          mountPath: /mosquitto/data
+        - name: log-volume
+          mountPath: /mosquitto/log
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mqtt-config
+      - name: data-volume
+        emptyDir: {}
+      - name: log-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mqtt-config
+data:
+  mosquitto.conf: |
+    persistence true
+    persistence_location /mosquitto/data/
+    log_dest file /mosquitto/log/mosquitto.log
+    listener 1883
+    allow_anonymous true

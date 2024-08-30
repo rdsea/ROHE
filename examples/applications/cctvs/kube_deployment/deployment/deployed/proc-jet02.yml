@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: edge-preprocessor
+  name: edge-preprocessor-jet02
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-preprocessor
+  template:
+    metadata:
+      labels:
+        app: edge-preprocessor
+    spec:
+      containers:
+      - env:
+        - name: EDGE_INFERENCE_PREPROCESSOR_SERVICE_PORT
+          value: '4002'
+        - name: EDGE_INFERENCE_SERVICE_NAME
+          value: edge-inference-service
+        - name: CLOUD_INFERENCE_PREPROCESSOR_SERVICE_PORT
+          value: '4001'
+        - name: CLOUD_INFERENCE_SERVICE_NAME
+          value: cloud-inference-service
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: rdsea/od_proc:2.0
+        imagePullPolicy: Always
+        name: edge-preprocessor
+        ports:
+        - containerPort: 5000
+      nodeSelector:
+        kubernetes.io/hostname: aaltosea-jet02-worker

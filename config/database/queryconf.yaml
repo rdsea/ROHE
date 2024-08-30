@@ -1,0 +1,10 @@
+url: "localhost"
+prefix: "mongodb+srv://"
+username: "admin"
+password: "admin"
+database: nii_experiment
+collection: MLPerformance
+model_collection: MLPerformance
+infrastructure_collection: MLService
+model_cost_collection: ModelCost
+infrastructure_cost_collection: InfrastructureCost

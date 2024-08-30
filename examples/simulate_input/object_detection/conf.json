@@ -1,0 +1,22 @@
+{
+  "client_app": {
+    "functionality": "REST",
+    "instance_id": "client_rasp",
+    "stage_id": "client_app"
+  },
+  "client_config": {
+    "id": "Aaltosea1",
+    "role": "mlprovider"
+  },
+  "connector_conf": {
+    "amqp_connector": {
+      "class": "AMQP",
+      "conf": {
+        "end_point": "localhost",
+        "exchange_name": "object_detection",
+        "exchange_type": "topic",
+        "out_routing_key": "qoa1.report.ml"
+      }
+    }
+  }
+}

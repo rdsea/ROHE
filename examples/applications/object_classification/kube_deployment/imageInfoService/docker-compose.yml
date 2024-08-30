@@ -1,0 +1,13 @@
+version: '3'
+services:
+  nii_task_coordinator:
+    image: vtn13042000/nii_task_coordinator_intel:1.0.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./task_coordinator.yaml:/task-coordinator/examples/applications/object_classification/kube_deployment/dataProcessingService/task_coordinator/task_coordinator.yaml
+
+    # environment:
+    #   minio_client_access_key: prJxdafe7L400AAXScc8
+    #   minio_client_secret_key: 2nC9WwmhZe8Ura1XaEo5My5YvXhKClgbq3SNNwV7
+
