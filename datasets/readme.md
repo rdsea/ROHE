@@ -15,7 +15,7 @@
     - `image_ingestion`
     - `image_sharpening_and_transforming`
     - `object_detection`
-- The data is collected from 3 layers, processed and storage in 3 different folders: application layer (`applications_extraced`), process (`resource_proc_metric`), and system (`resource_sys_metric`).
+- The data is collected from 3 layers, processed and stored in 3 different folders: application layer (`applications_extraced`), process (`resource_proc_metric`), and system (`resource_sys_metric`).
 - In `applications_extraced` folder, the data is stored in CSV format with the following columns:
   - `response_time`: response time of each request sent to the service (unit:second).
   - `norm_time`: the timestamp showing the execution time that has been normalized.
