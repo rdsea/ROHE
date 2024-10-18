@@ -1,13 +1,9 @@
 tmp
-<<<<<<< HEAD
-=======
 modules/orchestration/temp/
->>>>>>> origin/main
 *.DS_Store
 *.pt
 *.pyc
 *.csv
-
 *__pycache__/
 # *.pyc
 *.pyo
