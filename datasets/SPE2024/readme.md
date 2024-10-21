@@ -37,7 +37,7 @@
   - `mem`: memory usage (unit:Mb).
   - `gpu`: gpu usage (unit:percentage).
   - `norm_ex_time`: the timestamp showing the execution time that has been normalized.
-- The dataset is collected in multiple runs, each run is stored in a separate folder. Due to limited storage, the repository only contains the dataset for the first run (`run_0`). The dataset for the other runs can be requested by contacting the authors.
+- The dataset is collected in multiple runs, each run is stored in a separate folder. Due to limited storage, the repository only contains the dataset for the two first run (`run_0` and `run_1`). The dataset for the other runs can be requested by contacting the authors.
 - The dataset currently only contains the profiling data. We will upload the experiment data in [Zenodo](zenodo.org) after processed. For more information, please contact the authors.
 - Cite the dataset as follows:
 ```bibtex
