@@ -36,7 +36,7 @@ dependencies = [
   "Flask==2.2.3",
   "flask-restful==0.3.10",
   "pydantic>=2.7.4,<2.8",
-  "Werkzeug==2.2.2",
+  "Werkzeug==3.0.6",
   "qoa4ml>=0.2.14",
   "gunicorn>=22.0.0",
   "lazy-import>=0.2.2",
