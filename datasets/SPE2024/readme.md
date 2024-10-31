@@ -41,13 +41,14 @@
 - The dataset currently only contains the profiling data. We will upload the experiment data in [Zenodo](zenodo.org) after processed. For more information, please contact the authors.
 - Cite the dataset as follows:
 ```bibtex
-@article{rohe,
-  title={On Optimizing Resources for Real-time End-to-End Machine Learning in Heterogeneous Edges},
-  author={Minh-Tri Nguyen and Hong-Linh Truong},
-  journal={Software: Practice and Experience},
-  year={2024},
-  publisher={Wiley}
-}
+@article{nguyen_truong_2024,
+ title={On Optimizing Resources for Real‐Time End‐to‐End Machine Learning in Heterogeneous Edges}, 
+ ISSN={0038-0644}, 
+ DOI={10.1002/spe.3383}, 
+ journal={Software: Practice and Experience}, 
+ publisher={Software: Practice and Experience}, 
+ author={Nguyen, Minh‐Tri and Truong, Hong‐Linh}, 
+ year={2024} }
 ```
 
 Contact: Minh-Tri Nguyen (tri.m.nguyen@aalto.fi)
