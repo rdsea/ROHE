@@ -19,9 +19,9 @@ def map_to_log_scale(value, min_value, max_value, logbase):
         value = min_value
 
     if value < min_value:
-        min_value = value
+        value = min_value
     if value > max_value:
-        max_value = value
+        value = max_value
     log_min = log(min_value, logbase)
     log_max = log(max_value, logbase)
 
