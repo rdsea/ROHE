@@ -1,5 +1,4 @@
 # ROHE
-
 ---
 
 [![Documentation](https://img.shields.io/badge/Documentation-gray?logo=materialformkdocs)](https://rdsea.github.io/ROHE/)
@@ -11,7 +10,20 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rdsea/rohe/python-ci.yml?logo=github&label=Github%20Actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+
+
+---
+
+ROHE is an orchestration framework for end-to-end machine learning serving on heterogeneous edge. 
+The framework provides a set of services for monitoring, orchestration, and resource management of ML pipelines on edge devices.
+- [Resource Optimization](src/rohe/orchestration/resource_management/): ROHE selects the best edge nodes for deploying microservices in ML pipelines based on resource requirements and availability. It also allows developers to implement their own resource allocation algorithms. Publication: [On Optimizing Resources for Real-Time End-to-End Machine Learning in Heterogeneous Edges](https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3383)
+- [Observation Service](src/rohe/observation/): ROHE provides a service for monitoring and analyzing the performance of ML pipelines. It allows developers to register their applications, configure observation agents, and collect metrics from running applications, support runtime explainability. Publication: [Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10555921), [Security orchestration with explainability for digital twins-based smart systems](https://research.aalto.fi/en/publications/security-orchestration-with-explainability-for-digital-twins-base).
+Also see [QoA4ML](https://github.com/rdsea/QoA4ML) - a monitoring library for end-to-end ML applications.
+- [Orchestration Service](src/rohe/orchestration/): ROHE provides set of algorithms for orchestrating runtime inferences by selecting the best ML services (ML models and edge nodes) or ensemble of ML services for running inference tasks. It also allows developers to implement their own orchestration algorithms. Publication: [Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving](https://ieeexplore.ieee.org/abstract/document/10971860)
+
+---
 ## High-level view
+
 
 <figure>
 <p style="text-align:center">
@@ -23,6 +35,7 @@ Fig. ROHE High-level View
 </p>
 </figcaption>
 </figure>
+
 
 ## 1. Observation Service
 
