@@ -1,0 +1,30 @@
+[project]
+dependencies = [
+    "flask==3.1.0",
+    "zmq==0.0.0",
+    "torchvision==0.20.1",
+    "pytorchvideo==0.1.5",
+    "torch==2.5.1",
+    "numba==0.60.0",
+    "opencv-python-headless==4.10.0.84"
+]
+
+optional-dependencies.cpu = ["onnxruntime==1.18.1"]
+
+name = "time_series_inference"
+version = "0.1.0"
+requires-python = "== 3.9.19"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["*.py"]

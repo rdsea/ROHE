@@ -1,0 +1,10 @@
+inference_url: http://localhost:5123/inference_request
+num_workers: 10
+testing_time: 1
+interval: 1
+n_consumer: 1
+explainability: false
+visual_response_time: 1.5
+non_visual_response_time: 0.5
+time_window: 10
+inf_query_path: ./query.yaml

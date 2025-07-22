@@ -1,0 +1,27 @@
+XS:
+  model_name: x3d_xs
+  input_clip_length: 4
+  input_crop_size: 160
+  mean: [0.45, 0.45, 0.45]
+  std: [0.225, 0.225, 0.225]
+
+S:
+  model_name: x3d_s
+  input_clip_length: 13
+  input_crop_size: 160
+  mean: [0.45, 0.45, 0.45]
+  std: [0.225, 0.225, 0.225]
+
+M:
+  model_name: x3d_m
+  input_clip_length: 16
+  input_crop_size: 224
+  mean: [0.45, 0.45, 0.45]
+  std: [0.225, 0.225, 0.225]
+
+L:
+  model_name: x3d_l
+  input_clip_length: 16
+  input_crop_size: 312
+  mean: [0.45, 0.45, 0.45]
+  std: [0.225, 0.225, 0.225]

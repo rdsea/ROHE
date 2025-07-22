@@ -1,0 +1,23 @@
+70376e88-2c0d-479b-92e2-0e90248115a3:
+  sla_id: 70376e88-2c0d-479b-92e2-0e90248115a3
+  tenant_id: tenant_1
+  access_privileges:
+    - acc_phone
+    - acc_watch
+    - video
+  performance_indicators:
+    - metric_name: accuracy
+      target_value: 0.75
+      operator: '>='
+      objective_type: maximize
+      class_id: '14'
+    - metric_name: late_response_ratio
+      target_value: 0.1
+      operator: '<='
+      objective_type: minimize
+  consumer_list:
+    - aaltosea_0
+    - aaltosea_1
+    - aaltosea_2
+  ensemble_size: 2
+  ensemble_selection_strategy: enhance_confidence

@@ -1,0 +1,54 @@
+frame_rate_config:
+  frame_rate: 30
+  frame_rate_list: [15, 30, 45, 60]
+  random_fps: False
+  update_interval: 5
+  dynamic_interval: 60
+registration_data:
+  video:
+    data_type: 1
+    modality: 1
+    data_shape:
+      - 3
+      - 0
+      - 240
+      - 320
+    sample_index: 1
+    model_family: 0
+    stream_id: video
+  acc_phone_clip:
+    data_type: 0
+    modality: 0
+    data_shape:
+      - 0
+      - 4
+    sample_index: 0
+    model_family: 1
+    stream_id: acc_phone
+  acc_watch_clip:
+    data_type: 0
+    modality: 0
+    data_shape:
+      - 0
+      - 4
+    sample_index: 0
+    model_family: 1
+    stream_id: acc_watch
+  gyro_clip:
+    data_type: 0
+    modality: 0
+    data_shape:
+      - 0
+      - 4
+    sample_index: 0
+    model_family: 1
+    stream_id: gyro
+  orientation_clip:
+    data_type: 0
+    modality: 0
+    data_shape:
+      - 0
+      - 4
+    sample_index: 0
+    model_family: 1
+    stream_id: orientation

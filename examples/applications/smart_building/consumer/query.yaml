@@ -1,0 +1,36 @@
+query_1:
+  metadata:
+    consumer_id: aaltosea_2
+  data_source:
+    - video
+    - acc_phone
+    - gyro
+  time_window: 10
+  explainability: true
+  constraint:
+    response_time: 1
+query_2:
+  metadata:
+    consumer_id: aaltosea_1
+  data_source:
+    - video
+    - acc_phone
+    - acc_watch
+  time_window: 12
+  explainability: true
+  constraint:
+    response_time: 2
+query_3:
+  metadata:
+    consumer_id: aaltosea_0
+  data_source:
+    - video
+    - orientation
+    - acc_phone
+    - acc_watch
+    - gyro
+  time_window: 8
+  explainability: true
+  constraint:
+    response_time: 3
+# add more queries

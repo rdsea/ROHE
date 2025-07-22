@@ -388,3 +388,44 @@ def handle_service_query(
     except Exception as e:
         logger.error(f"Error in handle_service_query: {e}")
         return None
+    
+def find_all_files_in_mmact(directory, extension):
+    file_path_list = []
+    file_info_list = []
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(extension):
+                file_path = os.path.join(root, file)
+                file_path_list.append(file_path)
+                
+                # Parse folder names, file name, and extension
+                folder_names = root.split(os.sep)
+                file_name, file_extension = os.path.splitext(file)
+                
+                # Add to file_info_list
+                if extension == '.csv':
+                    file_info_list.append({
+                        "folder_names": folder_names,
+                        "file_name": file_name,
+                        "file_extension": file_extension,
+                        "file_path": file_path,
+                        "session": folder_names[-1],
+                        "scene": folder_names[-2],
+                        "subject": folder_names[-3],
+                        "device": folder_names[-4],
+                        "label": file_name
+                    })
+                if extension == '.mp4':
+                    file_info_list.append({
+                        "folder_names": folder_names,
+                        "file_name": file_name,
+                        "file_extension": file_extension,
+                        "file_path": file_path,
+                        "session": folder_names[-1],
+                        "scene": folder_names[-2],
+                        "cam": folder_names[-3],
+                        "subject": folder_names[-4],
+                        "label": file_name
+                    })
+    return file_path_list, file_info_list

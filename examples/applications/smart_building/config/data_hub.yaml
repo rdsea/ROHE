@@ -1,0 +1,8 @@
+performance_table: 'performance'
+performance_data:  '../data/performance.csv'
+instance_table: 'inference_instances'
+quality_table: 'quality'
+db_path: '../profile_db/file.duckdb'
+start_port: 5555
+default_inf_data: '../data/inference/'
+no_ensemble: 2

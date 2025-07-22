@@ -1,0 +1,26 @@
+database_file: ../database/file.duckdb
+monitoring_table: monitoring_report
+inference_service_table: inference_service
+inference_service_instance_table: inference_service_instance
+inference_result_table: inference_result
+update_interval: 100
+sla_path: ./sla.yaml
+data_hub_url: http://localhost:5550/query_data
+default_inference_url: http://localhost:6666/inference
+test_mode: true
+max_workers: 10
+process_timeout: 10
+default_overhead: 0.01
+time_proportions:
+  aaltosea_0:
+    video: 0.85
+    acc_phone: 0.1
+    acc_watch: 0.1
+  aaltosea_1:
+    video: 0.75
+    acc_phone: 0.2
+    acc_watch: 0.2
+  aaltosea_2:
+    video: 0.95
+    acc_phone: 0.05
+    acc_watch: 0.1

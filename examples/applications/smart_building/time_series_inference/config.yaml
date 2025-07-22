@@ -1,0 +1,8 @@
+model_name: mini_rocket
+device: acc_phone_clip
+test_run: false
+version: 0
+data_hub: http://0.0.0.0:5550
+data_shape:
+  - 200
+  - 3
