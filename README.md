@@ -368,6 +368,7 @@ Workflow of Scoring Algorithm:
 - [Resource Management](src/rohe/orchestration/resource_management)
 - [Orchestration Methods](src/rohe/orchestration/orchestration_algorithm)
 - Example Application: [BTS](examples/applications/BTS), [CCTVS](examples/applications/cctvs), and KPI (private)
+- [Sample Data](datasets/SPE2024)
 
 **Note:** Other publications reuse most parts of this implementation.
 
@@ -389,6 +390,7 @@ Citation:
 - This publication uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
 - The core abstraction of ML contract can be found in [QoA4ML](https://github.com/rdsea/QoA4ML)
 - Example Application: [Malware Detection](https://github.com/rdsea/QoA4ML/tree/main/example/malware_detection/cain_version_outdated) and [CCTVS](examples/applications/cctvs)
+- [Sample Data](datasets/CAIN2024)
 
 Citation:
 ```bibtex
@@ -427,6 +429,7 @@ Citation:
 - [User Defined Functions](userModule)
 - Example Application: [Object Detection](examples/applications/object_classification)
 - Example Agent Configuration: [Agent Config](examples/agentConfig)
+- [Sample Data](datasets/UCC2024)
 
 Citation:
 ```bibtex
@@ -444,6 +447,7 @@ Citation:
 - [Orchestration Abstraction](src/rohe/orchestration/multimodal_abstration.py)
 - Example Application: [Smart building](examples/applications/smart_building), and [Autonomous Robot](examples/applications/) (under maintenance)
 - User Module: [Ensemble Selection](userModule/algorithm/multimodal_ensemble.py) and [Custom Workflow](userModule/algorithm/multimodal_workflow.py)
+- [Sample Data](datasets/IoT_journal)
 
 
 ### 
