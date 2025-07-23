@@ -84,6 +84,99 @@ The repository is structured as follows:
 ├── other project files      # Readme, license, etc.
 
 ```
+## Publications
+
+### On Optimizing Resources for Real‐Time End‐to‐End Machine Learning in Heterogeneous Edges: [Pdf](https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.3383)
+
+#### Implementation:
+- [Observation Service](src/rohe/service/observation_service.py)
+- [Observation Abstraction](src/rohe/observation)
+- [Orchestration Service](src/rohe/service/orchestration_service.py)
+- [Resource Management](src/rohe/orchestration/resource_management)
+- [Orchestration Methods](src/rohe/orchestration/orchestration_algorithm)
+- Example Application: [BTS](examples/applications/BTS), [CCTVS](examples/applications/cctvs), and KPI (private)
+- [Sample Data](datasets/SPE2024)
+
+**Note:** Other publications reuse most parts of this implementation.
+
+Citation:
+```bibtex
+@article{nguyen2025optimizing,
+  title={On Optimizing Resources for Real-Time End-to-End Machine Learning in Heterogeneous Edges},
+  author={Nguyen, Minh-Tri and Truong, Hong-Linh},
+  journal={Software: Practice and Experience},
+  volume={55},
+  number={3},
+  pages={541--558},
+  year={2025},
+  publisher={Wiley Online Library}
+}
+```
+
+### Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving: [Pdf](https://dl.acm.org/doi/pdf/10.1145/3644815.3644964)
+- This publication uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
+- The core abstraction of ML contract can be found in [QoA4ML](https://github.com/rdsea/QoA4ML)
+- Example Application: [Malware Detection](https://github.com/rdsea/QoA4ML/tree/main/example/malware_detection/cain_version_outdated) and [CCTVS](examples/applications/cctvs)
+- [Sample Data](datasets/CAIN2024)
+
+Citation:
+```bibtex
+@inproceedings{nguyen2024novel,
+  title={Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving},
+  author={Nguyen, Minh-Tri and Truong, Hong-Linh and Truong-Huu, Tram},
+  booktitle={Proceedings of the IEEE/ACM 3rd International Conference on AI Engineering-Software Engineering for AI},
+  pages={234--244},
+  year={2024}
+}
+```
+
+### Security orchestration with explainability for digital twins-based smart systems: [Pdf](https://research.aalto.fi/files/159919166/submit_compsac2024149909.pdf)
+- This publication also uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
+- The core abstraction of ML contract can be found in [RXOMS](https://github.com/rdsea/RXOMS)
+- Example Application: [Security in Digital Twins Network](https://github.com/rdsea/RXOMS/tree/main/sdn_simulation)
+- User Module: [Performance Evaluation](userModule/sdn.py)
+
+Citation:
+```bibtex
+@inproceedings{nguyen2024security,
+  title={Security orchestration with explainability for digital twins-based smart systems},
+  author={Nguyen, Minh-Tri and Lam, An Ngoc and Nguyen, Phu and Truong, Hong-Linh},
+  booktitle={2024 IEEE 48th Annual Computers, Software, and Applications Conference (COMPSAC)},
+  pages={1194--1203},
+  year={2024},
+  organization={IEEE}
+}
+```
+
+### Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving: [Pdf](https://ieeexplore.ieee.org/iel8/10971776/10971754/10971860.pdf)
+
+#### Implementation:
+
+- [Orchestration Algorithm](src/rohe/orchestration/ensemble_optimization)
+- [User Defined Functions](userModule)
+- Example Application: [Object Detection](examples/applications/object_classification)
+- Example Agent Configuration: [Agent Config](examples/agentConfig)
+- [Sample Data](datasets/UCC2024)
+
+Citation:
+```bibtex
+@inproceedings{nguyen2024optimizing,
+  title={Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving},
+  author={Nguyen, Minh-Tri and Truong, Hong-Linh and Arcaini, Paolo and Ishikawa, Fuyuki},
+  booktitle={2024 IEEE/ACM 17th International Conference on Utility and Cloud Computing (UCC)},
+  pages={103--108},
+  year={2024},
+  organization={IEEE}
+}
+```
+
+### IoT Jounal submission (on going)
+- [Orchestration Abstraction](src/rohe/orchestration/multimodal_abstration.py)
+- Example Application: [Smart building](examples/applications/smart_building), and [Autonomous Robot](examples/applications/) (under maintenance)
+- User Module: [Ensemble Selection](userModule/algorithm/multimodal_ensemble.py) and [Custom Workflow](userModule/algorithm/multimodal_workflow.py)
+- [Sample Data](datasets/IoT_journal)
+
+
 
 ## 1. Observation Service
 
@@ -356,98 +449,6 @@ Workflow of Scoring Algorithm:
 - Selecting node based on the score, applying different strategies: first/best/worst-fit
 
 - TO DO: define abstract function for each module
-
-## 3 Publications
-
-### On Optimizing Resources for Real‐Time End‐to‐End Machine Learning in Heterogeneous Edges: [Pdf](https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.3383)
-
-#### Implementation:
-- [Observation Service](src/rohe/service/observation_service.py)
-- [Observation Abstraction](src/rohe/observation)
-- [Orchestration Service](src/rohe/service/orchestration_service.py)
-- [Resource Management](src/rohe/orchestration/resource_management)
-- [Orchestration Methods](src/rohe/orchestration/orchestration_algorithm)
-- Example Application: [BTS](examples/applications/BTS), [CCTVS](examples/applications/cctvs), and KPI (private)
-- [Sample Data](datasets/SPE2024)
-
-**Note:** Other publications reuse most parts of this implementation.
-
-Citation:
-```bibtex
-@article{nguyen2025optimizing,
-  title={On Optimizing Resources for Real-Time End-to-End Machine Learning in Heterogeneous Edges},
-  author={Nguyen, Minh-Tri and Truong, Hong-Linh},
-  journal={Software: Practice and Experience},
-  volume={55},
-  number={3},
-  pages={541--558},
-  year={2025},
-  publisher={Wiley Online Library}
-}
-```
-
-### Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving: [Pdf](https://dl.acm.org/doi/pdf/10.1145/3644815.3644964)
-- This publication uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
-- The core abstraction of ML contract can be found in [QoA4ML](https://github.com/rdsea/QoA4ML)
-- Example Application: [Malware Detection](https://github.com/rdsea/QoA4ML/tree/main/example/malware_detection/cain_version_outdated) and [CCTVS](examples/applications/cctvs)
-- [Sample Data](datasets/CAIN2024)
-
-Citation:
-```bibtex
-@inproceedings{nguyen2024novel,
-  title={Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving},
-  author={Nguyen, Minh-Tri and Truong, Hong-Linh and Truong-Huu, Tram},
-  booktitle={Proceedings of the IEEE/ACM 3rd International Conference on AI Engineering-Software Engineering for AI},
-  pages={234--244},
-  year={2024}
-}
-```
-
-### Security orchestration with explainability for digital twins-based smart systems: [Pdf](https://research.aalto.fi/files/159919166/submit_compsac2024149909.pdf)
-- This publication also uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
-- The core abstraction of ML contract can be found in [RXOMS](https://github.com/rdsea/RXOMS)
-- Example Application: [Security in Digital Twins Network](https://github.com/rdsea/RXOMS/tree/main/sdn_simulation)
-- User Module: [Performance Evaluation](userModule/sdn.py)
-
-Citation:
-```bibtex
-@inproceedings{nguyen2024security,
-  title={Security orchestration with explainability for digital twins-based smart systems},
-  author={Nguyen, Minh-Tri and Lam, An Ngoc and Nguyen, Phu and Truong, Hong-Linh},
-  booktitle={2024 IEEE 48th Annual Computers, Software, and Applications Conference (COMPSAC)},
-  pages={1194--1203},
-  year={2024},
-  organization={IEEE}
-}
-```
-
-### Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving: [Pdf](https://ieeexplore.ieee.org/iel8/10971776/10971754/10971860.pdf)
-
-#### Implementation:
-
-- [Orchestration Algorithm](src/rohe/orchestration/ensemble_optimization)
-- [User Defined Functions](userModule)
-- Example Application: [Object Detection](examples/applications/object_classification)
-- Example Agent Configuration: [Agent Config](examples/agentConfig)
-- [Sample Data](datasets/UCC2024)
-
-Citation:
-```bibtex
-@inproceedings{nguyen2024optimizing,
-  title={Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving},
-  author={Nguyen, Minh-Tri and Truong, Hong-Linh and Arcaini, Paolo and Ishikawa, Fuyuki},
-  booktitle={2024 IEEE/ACM 17th International Conference on Utility and Cloud Computing (UCC)},
-  pages={103--108},
-  year={2024},
-  organization={IEEE}
-}
-```
-
-### IoT Jounal submission (on going)
-- [Orchestration Abstraction](src/rohe/orchestration/multimodal_abstration.py)
-- Example Application: [Smart building](examples/applications/smart_building), and [Autonomous Robot](examples/applications/) (under maintenance)
-- User Module: [Ensemble Selection](userModule/algorithm/multimodal_ensemble.py) and [Custom Workflow](userModule/algorithm/multimodal_workflow.py)
-- [Sample Data](datasets/IoT_journal)
 
 
 ### 
