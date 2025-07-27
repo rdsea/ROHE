@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Any, Union, Type, TypeVar
+from abc import ABC, abstractmethod
+from typing import List, Dict, Optional, Any, Union, Type
 from enum import Enum
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -264,8 +265,8 @@ class ServiceLevelAgreement(BaseModel):
     access_privileges: List[str] = Field(..., description="List of data sources the tenant has access to")
     performance_indicators: list[Objective] = Field(..., description="List of performance indicators for the SLA")
     consumer_list: Optional[List[str]] = Field(None, description="List of consumers associated with the SLA")
-    ensemble_size: Optional[int] = Field(1, description="Ensemble size for the SLA")
-    ensemble_selection_strategy: Optional[str] = Field("enhance_confidence", description="Ensemble selection strategy for the SLA")
+    ensemble_size: Optional[int] = Field(1, description="Ensemble size for the inferences")
+    ensemble_selection_strategy: Optional[str] = Field("enhance_confidence", description="Ensemble selection strategy for the tenant")
     def to_dict(self):
         """Convert the SLA to a dictionary."""
         return self.dict()
@@ -558,3 +559,22 @@ class InferenceFeedback(BaseModel):
     def to_string(self):
         """Convert the inference feedback to a string."""
         return str(self)
+
+class InferenceServiceSelectionMethod(ABC):
+    @abstractmethod
+    def select_inference_services(
+        self,
+        inference_services: List[InferenceServiceProfile],
+        intermediate_result: InferenceResult,
+        k: int
+    ) -> List[InferenceServiceProfile]:
+        """
+        Abstract method to select k inference services.
+        Parameters:
+            inference_services (List[InferenceServiceProfile]): List of available inference services.
+            intermediate_result (InferenceResult): Intermediate result used for decision-making.
+            k (int): Number of services to select.
+        Returns:
+            List[InferenceServiceProfile]: List of selected inference services.
+        """
+        pass
