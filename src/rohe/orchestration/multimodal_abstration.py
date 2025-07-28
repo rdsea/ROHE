@@ -242,10 +242,10 @@ class InferenceServiceInstance(BaseModel):
                 raise ValueError(f"Invalid runtime performance data: {e}")
         return cls.model_validate(data)
     
-class Objective(BaseModel):
-    metric_name: str = Field(..., description="Name of the objective metric")
-    target_value: Optional[Union[float, list[float]]] = Field(None, description="Target value(s) for the objective metric")
-    operator: Optional[str] = Field(None, description="Operator for the objective metric (e.g., '>', '<', '==')")
+class ServiceLevelIndicator(BaseModel):
+    metric_name: str = Field(..., description="Name of the service level indicator")
+    target_value: Optional[Union[float, list[float]]] = Field(None, description="Target value(s) for the service level indicator")
+    operator: Optional[str] = Field(None, description="Operator for the service level indicator (e.g., '>', '<', '==')")
     objective_type: Optional[str] = Field(None, description="Type of the objective (e.g., 'minimize', 'maximize')")
     condition: Optional[str] = Field(None, description="Condition for the objective (e.g., 'confidence threshold')")
     class_id: Optional[str] = Field(None, description="Class id for the objective (if applicable)")
@@ -253,17 +253,17 @@ class Objective(BaseModel):
         """Convert the objective to a dictionary."""
         return self.dict()
     def __str__(self):
-        """String representation of the objective."""
-        return f"Objective(metric_name={self.metric_name}, target_value={self.target_value}, operator={self.operator}, objective_type={self.objective_type}, condition={self.condition}, class_id={self.class_id})"
+        """String representation of the service level indicator."""
+        return f"ServiceLevelIndicator(metric_name={self.metric_name}, target_value={self.target_value}, operator={self.operator}, objective_type={self.objective_type}, condition={self.condition}, class_id={self.class_id})"
     def to_string(self):
-        """Convert the objective to a string."""
+        """Convert the service level indicator to a string."""
         return str(self)
 
 class ServiceLevelAgreement(BaseModel):
     sla_id: str = Field(..., description="Unique identifier for the SLA")
     tenant_id: str = Field(..., description="Tenant ID associated with the SLA")
     access_privileges: List[str] = Field(..., description="List of data sources the tenant has access to")
-    performance_indicators: list[Objective] = Field(..., description="List of performance indicators for the SLA")
+    service_level_indicators: list[ServiceLevelIndicator] = Field(..., description="List of service level indicators for the SLA")
     consumer_list: Optional[List[str]] = Field(None, description="List of consumers associated with the SLA")
     ensemble_size: Optional[int] = Field(1, description="Ensemble size for the inferences")
     ensemble_selection_strategy: Optional[str] = Field("enhance_confidence", description="Ensemble selection strategy for the tenant")
@@ -280,11 +280,11 @@ class ServiceLevelAgreement(BaseModel):
     @classmethod
     def from_dict(cls: Type['ServiceLevelAgreement'], data: Dict[str, Any]) -> 'ServiceLevelAgreement':
         """Create a ServiceLevelAgreement instance from a dictionary."""
-        if 'performance_indicators' in data and isinstance(data['performance_indicators'], list):
+        if 'service_level_indicators' in data and isinstance(data['service_level_indicators'], list):
             try:
-                data['performance_indicators'] = [Objective(**item) for item in data['performance_indicators']]
+                data['service_level_indicators'] = [ServiceLevelIndicator(**item) for item in data['service_level_indicators']]
             except Exception as e:
-                raise ValueError(f"Invalid performance indicators data: {e}")
+                raise ValueError(f"Invalid service level indicators data: {e}")
         return cls.model_validate(data)
     
 class MonitoringClient(BaseModel):
