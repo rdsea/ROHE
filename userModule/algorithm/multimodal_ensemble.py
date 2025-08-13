@@ -7,13 +7,24 @@ parent_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(parent_dir)
 from rohe.orchestration.multimodal_abstration import InferenceTask, InferenceResult, CommonMetric, InferenceServiceInstance, Explainability
 import traceback
+import userModule.plugin as plugin
 
 
-def enhance_confidence(task: InferenceTask, intermediate_result: InferenceResult, top_k: int = 1):
+def get_function_from_plugin(app_name: str, plugin_name: str):
+    try:
+        app_module = getattr(plugin, app_name, None)
+        function = getattr(app_module, plugin_name, None)
+        return function if callable(function) else None
+    except Exception as e:
+        logging.error(f"Error getting function {plugin_name} from plugin {app_name}: {e}")
+        return None
+
+def enhance_confidence(app_name: str, plugin_name: str, task: InferenceTask, intermediate_result: InferenceResult, top_k: int = 1):
     try:
         task.selected_instances = []
         used_services = []
-        top_k_classes = intermediate_result.get_top_k_predictions(top_k=top_k)
+        top_k_function = get_function_from_plugin(app_name=app_name, plugin_name=plugin_name)
+        top_k_classes = top_k_function(intermediate_result.data, top_k=top_k)
         if top_k > len(top_k_classes):
             logging.debug(f"Requested top_k {top_k} is greater than available classes {len(top_k_classes)} selecting k classes by default.")
         inference_instances = task.inference_instances

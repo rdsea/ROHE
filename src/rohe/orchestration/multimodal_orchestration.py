@@ -176,6 +176,7 @@ class AdaptiveOrchestrator:
             # Loop until all tasks are processed or time violation occurs
             self.task_execution_loop(task_list=task_list, inference_query=inference_query, start_time=start_time, e2e_response_time=e2e_response_time, intermediate_result=inference_result)
             inference_result.get_avg_from_aggregated_sum()
+            
             inference_time = time.perf_counter() - start_time
             violation = inference_time > e2e_response_time
             inference_result.metadata = {
