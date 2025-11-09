@@ -6,8 +6,11 @@
   - `autonomous_robot` folder contains the dataset for Autonomous Robot application.
     - `compare_generalization` data of a sample run for comparing generalization of different orchestrators.
   - `smart_building` folder contains the dataset for Smart Building application.
-    - `compare_accuracy` data of a sample run for comparing accuracy of different orchestrators.
-    - `compare_late_ratio` data of a sample run for comparing late ratio of different orchestrators.
+    - `setup2` folder contains the dataset for setup 2 of Smart Building application.
+      - `compare_accuracy` data of a sample run for comparing accuracy of different orchestrators.
+      - `compare_late_ratio` data of a sample run for comparing late ratio of different orchestrators.
+
+**Note:** Currently, the experiment datasets are large, so we only provide sample runs via Github for each application. We will upload the full datasets to an public repository soon. If you need the full dataset, please contact the authors.
 
 - The profiling folder contains profiles of different ML models on different edge devices while inference different subject classes.
 
