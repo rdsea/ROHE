@@ -11,17 +11,18 @@ logging.basicConfig(
     format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
 )
 from rohe.orchestration.multimodal_abstration import InferenceQuery
-from rohe.orchestration.multimodal_orchestration import AdaptiveOrchestrator
+from rohe.orchestration import create_orchestrator
 
 DEFAULT_CONFIG_PATH = 'config.yaml'
 
-app = Flask(__name__)  
+app = Flask(__name__)
 
 control_plane_config = yaml.safe_load(open(DEFAULT_CONFIG_PATH, 'r'))
 
 orchestrator_config_path = control_plane_config.get('orchestrator_config_path', '../config/orchestrator.yaml')
+orchestration_algorithm = control_plane_config.get('orchestration_algorithm', 'adaptive')
 
-orchestrator = AdaptiveOrchestrator(config_path=orchestrator_config_path)
+orchestrator = create_orchestrator(algorithm=orchestration_algorithm, config_path=orchestrator_config_path)
 
 
 @app.route('/inference_request', methods=['POST'])
