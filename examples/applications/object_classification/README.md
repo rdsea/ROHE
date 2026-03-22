@@ -1,64 +1,90 @@
-# Object Detection Pipeline
+# Object Classification - ROHE Reference Application
 
-## Overview
-This document provides a comprehensive overview of our end-to-end Machine Learning (ML) Serving Pipeline for Object Detection. The pipeline is designed to process images from ingestion to the aggregating service. Below is a step-by-step explanation of the flow and architecture, including each service's role in the process.
+A production-grade image classification pipeline demonstrating ROHE platform integration. Deploys 4 diverse ML models as independent microservices, orchestrated by the ROHE platform for quality-aware inference.
 
-## Pipeline Flow and Architecture
-![Pipeline Diagram](./nii_case.drawio.png)
+## Architecture
 
-The pipeline consists of several services that work together to process images for object detection:
+```
+Client --> Gateway --> [ResNet-50 | EfficientNet-B0 | MobileNetV3 | ViT-B/16] --> Aggregator
+                            |            |              |            |
+                            +---- rohe-sdk reports metrics to ROHE Observation ----+
+```
 
-- **IngestionService**: Serves as the entry point for images into the pipeline (via REST server)
-- **ImageInfoService**: Functions as a centralized task queue for image processing jobs. It maintains a list of images that need to be processed, which the ProcessingService queries actively.
-- **ProcessingService**: Responsible for image processing tasks, preparing them for inference.
-- **MLInferenceService**: Performs the object detection inference using machine learning models.
-- **ResultAggregationService**: Aggregates the results from the MLInferenceService and send them to the final destination (database in this case)
-- **ServiceController**: Manages and controls the ML models and configuration settings for ProcessingService, MLInferenceService, and ResultAggregationService.
+## Models
 
-## Services Breakdown
+| Service | Model | Parameters | Speed | Accuracy | Use Case |
+|---------|-------|-----------|-------|----------|----------|
+| resnet50 | ResNet-50 | ~25M | Medium | High | CNN baseline |
+| efficientnet | EfficientNet-B0 | ~5M | Fast | High | Best accuracy/compute ratio |
+| mobilenet | MobileNetV3-Small | ~2.5M | Very fast | Moderate | Edge-optimized |
+| vit | ViT-B/16 | ~86M | Slow | Highest | Vision transformer |
 
-### IngestionService
-- **Input**: Images from IoT devices.
-- **Output**: Image metadata and storage.
+All models are pretrained on ImageNet (1000 classes).
 
-### ProcessingService
-- **Input**: Image metadata.
-- **Output**: Processed images ready for ML inference.
+## Quick Start (Local)
 
-### MLInferenceService
-- **Input**: Processed images.
-- **Output**: Inference results.
+```bash
+# Start all services
+docker-compose up --build
 
-### ResultAggregationService
-- **Input**: Inference results.
-- **Output**: Aggregated data for consumption.
+# In another terminal, send a test image
+curl -X POST http://localhost:8000/classify \
+  -F "image=@test_image.jpg"
 
-## Running the Pipeline
+# Run simulated workload
+python client/simulate.py --gateway http://localhost:8000 --rps 5 --duration 60
+```
 
-Instructions on how to deploy and run the entire pipeline or individual services can be found in the links below.
+## K8s Deployment
 
-### 1. Ingestion Service
-Detailed steps for setting up and running the Ingestion Service can be found here:
-[Ingestion Service README](./kube_deployment/dataIngestionService/README.md)
+```bash
+# Deploy to Kubernetes
+kubectl apply -k k8s/
 
-### 2. Processing Service
-For guidelines on the Processing Service, refer to the following documentation:
-[Processing Service README](./kube_deployment/dataProcessingService/README.md)
+# Verify services are running
+kubectl get pods -n object-classification
 
-### 3. Inference Service
-To run the Inference Service, follow the instructions outlined here:
-[Inference Service README](./kube_deployment/inferenceService/README.md)
+# Port-forward gateway
+kubectl port-forward -n object-classification svc/gateway 8000:8000
+```
 
-### 4. Aggregation Service
-Information on how to aggregate results is available at this location:
-[Aggregation Service README](./kube_deployment/aggregatingService/README.md)
+## Running with ROHE Platform
 
-### 5. Image Info Service
+```bash
+# Set ROHE environment variables before starting services
+export ROHE_ENDPOINT=http://rohe-observation:5010/metrics
+export ROHE_EXPERIMENT_ID=exp-001
 
-### 6. Service Controller
+# Start experiment
+rohe experiment start --name "obj-class-dream" --algorithm dream --contract obj-class-sla-001
 
+# Run workload
+python client/simulate.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
 
-## Additional Resources
+# Stop and export
+rohe experiment stop --name "obj-class-dream"
+rohe export experiment --id obj-class-dream --output ./results/ --format csv
+```
 
-- **Authors**
-- **License** 
+## Workload Profiles
+
+| Profile | RPS | Duration | Description |
+|---------|-----|----------|-------------|
+| `steady_medium.yaml` | 20 | 10 min | Steady medium load |
+| `burst.yaml` | 5 (50 burst) | 10 min | Periodic burst pattern |
+
+## Service Contract
+
+See `contract.yaml` for the SLA definition including:
+- Response time p99 < 500ms
+- Accuracy >= 85%
+- Confidence >= 70%
+- Top-5 error rate < 10% (CDM)
+
+## Adding a New Model
+
+1. Create `services/new_model_inference/main.py` following the pattern in `resnet50_inference/main.py`
+2. Add the service to `docker-compose.yml`
+3. Add the service URL to gateway's `INFERENCE_SERVICES` env var
+4. Create K8s manifest in `k8s/`
+5. Set appropriate resource requests/limits based on model size

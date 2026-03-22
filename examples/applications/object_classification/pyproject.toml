@@ -1,0 +1,21 @@
+[project]
+name = "rohe-object-classification"
+version = "0.1.0"
+description = "Object classification ML pipeline - ROHE reference application"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.20.0",
+    "httpx>=0.24.0",
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "Pillow>=9.0.0",
+    "pydantic>=2.0.0",
+    "rohe-sdk",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]

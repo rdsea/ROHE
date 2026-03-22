@@ -1,0 +1,44 @@
+contract:
+  contract_id: obj-class-sla-001
+  tenant_id: tenant-001
+  pipeline_id: object-classification
+  effective_from: "2024-01-01T00:00:00Z"
+
+  performance_slo:
+    response_time_p99_ms: 500.0
+    throughput_rps: 10.0
+    availability_percent: 99.0
+
+  quality_slo:
+    builtin_metrics:
+      accuracy:
+        operator: ">="
+        value: 0.85
+        window: "5m"
+        action_on_violation: alert
+      confidence:
+        operator: ">="
+        value: 0.70
+        window: "5m"
+        action_on_violation: degrade
+
+    cdm_thresholds:
+      top5_error_rate:
+        operator: "<"
+        value: 0.10
+        window: "5m"
+        action_on_violation: reroute
+
+cdm_definitions:
+  top5_error_rate:
+    name: top5_error_rate
+    metric_type: per_period
+    description: "Fraction of requests where ground truth is NOT in top-5 predictions"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            top5_correct: "false"
+        - type: count
+    window: "5m"

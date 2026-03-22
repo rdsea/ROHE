@@ -1,0 +1,4 @@
+rps: 20
+duration_seconds: 600
+concurrency: 5
+description: "Steady medium load: 20 RPS for 10 minutes"
