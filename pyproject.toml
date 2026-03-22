@@ -42,6 +42,7 @@ dependencies = [
   "duckdb>=0.9.0",
   "fastapi>=0.100.0",
   "uvicorn[standard]>=0.20.0",
+  "typer>=0.9.0",
 ]
 
 [project.optional-dependencies]
@@ -53,6 +54,7 @@ docs = [
 ]
 
 [project.scripts]
+rohe = "rohe.cli.main:app"
 rohe-cli = "rohe.rohe_cli.__main__:rohe_cli"
 
 [project.urls]
@@ -115,6 +117,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**" = ["S101", "S106"]  # Allow assert and hardcoded passwords in tests
+"src/rohe/cli/**" = ["B008", "S104"]  # Typer uses function calls in defaults and 0.0.0.0 binding is intentional
 
 [tool.ruff.lint.pylint]
 max-args = 10
