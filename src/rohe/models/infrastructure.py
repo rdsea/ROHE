@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from pydantic import BaseModel
 
-from .rohe_enum import OrchestrateAlgorithmEnum, SensitivityEnum, StatusEnum
+from .common import SensitivityEnum, StatusEnum
 
 
 class MemoryNodeResources(BaseModel):
-    capacity: dict
-    used: dict
+    capacity: dict[str, float]
+    used: dict[str, float]
 
 
 class CpuNodeResources(BaseModel):
@@ -35,7 +37,7 @@ class NodeData(BaseModel):
     cpu: CpuNodeResources
     memory: MemoryNodeResources
     cores: CoresNodeResources
-    services: dict | None = None
+    services: dict[str, list[str]] | None = None
 
 
 class PortMapping(BaseModel):
@@ -46,20 +48,59 @@ class PortMapping(BaseModel):
 class ServiceData(BaseModel):
     service_name: str
     service_id: str
-    node: dict
+    node: dict[str, str]
     status: StatusEnum
-    instance_ids: list
+    instance_ids: list[str]
     running: int
     image: str
-    # NOTE: why this should be a list
-    ports: list
+    ports: list[int]
     port_mapping: list[PortMapping]
     cpu_required: int
-    accelerator_required: dict
-    memory_required: dict
-    cores_required: list
+    accelerator_required: dict[str, int]
+    memory_required: dict[str, float]
+    cores_required: list[float]
     sensitivity: SensitivityEnum
     replicas: int
+
+
+class MongoAuthentication(BaseModel):
+    url: str
+    prefix: str
+    username: str
+    password: str
+
+
+class MongoCollection(BaseModel):
+    collection: str
+    database: str
+
+
+class StorageInfo(BaseModel):
+    endpoint_url: str
+    access_key: str = ""
+    secret_key: str = ""
+    bucket_name: str = ""
+
+
+class ServiceQueueConfig(BaseModel):
+    priority: int
+    queue_balance: int
+
+
+class OrchestrateAlgorithmConfig(BaseModel):
+    algorithm: str
+    weights: dict[str, int]
+    strategy: int
+
+
+class OrchestrationServiceConfig(BaseModel):
+    db_authentication: MongoAuthentication
+    db_node_collection: MongoCollection
+    db_service_collection: MongoCollection
+    orchestration_interval: float
+    output_folder: str
+    service_queue_config: ServiceQueueConfig
+    orchestrate_algorithm_config: OrchestrateAlgorithmConfig
 
 
 class AddNodeRequest(BaseModel):
@@ -86,48 +127,7 @@ class RegistrationRequest(BaseModel):
     instance_id: str | None = None
 
 
-class AgentMangerRequest(BaseModel):
+class AgentManagerRequest(BaseModel):
     application_name: str
     agent_image: str | None = None
-    stream_config: dict | None = None
-
-
-class MongoAuthentication(BaseModel):
-    url: str
-    prefix: str
-    username: str
-    password: str
-
-
-class MongoCollection(BaseModel):
-    collection: str
-    database: str
-
-
-class ServiceQueueConfig(BaseModel):
-    priority: int
-    queue_balance: int
-
-
-# TODO:custom error when algorithm name is wrong
-class OrchestrateAlgorithmConfig(BaseModel):
-    algorithm: OrchestrateAlgorithmEnum
-    weights: dict[str, int]
-    strategy: int
-
-
-class OrchestrationServiceConfig(BaseModel):
-    db_authentication: MongoAuthentication
-    db_node_collection: MongoCollection
-    db_service_collection: MongoCollection
-    orchestration_interval: float
-    output_folder: str
-    service_queue_config: ServiceQueueConfig
-    orchestrate_algorithm_config: OrchestrateAlgorithmConfig
-
-
-class StorageInfo(BaseModel):
-    endpoint_url: str
-    access_key: str = ""
-    secret_key: str = ""
-    bucket_name: str = ""
+    stream_config: dict[str, str] | None = None

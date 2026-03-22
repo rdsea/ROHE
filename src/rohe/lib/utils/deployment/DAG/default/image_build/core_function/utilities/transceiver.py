@@ -5,7 +5,7 @@ import requests
 import zmq
 from flask import Flask, request
 
-from .mess_logging import MessLogging
+from rohe.lib.utils.mess_logging import MessLogging
 
 headers = {"Content-Type": "application/json"}
 
@@ -29,7 +29,7 @@ class AmqpTransceiver(Transceiver):
         self.exchange_type = config["exchange_type"]
         self.user_id = config["user_id"]
         self.mess_logging = MessLogging(self.user_id)
-        self.log_flag = eval(config["log"])
+        self.log_flag = str(config["log"]).lower() in ("true", "1", "yes")
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=config["url"])
         )

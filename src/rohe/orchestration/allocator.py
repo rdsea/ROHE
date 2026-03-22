@@ -1,5 +1,4 @@
 import time
-from typing import Dict
 
 import numpy as np
 import pymongo
@@ -30,8 +29,8 @@ class Allocator:
         self.node_collection = node_collection
         self.service_collection = service_collection
         self.service_queue = ServiceQueue(service_queue_config)
-        self.nodes: Dict[str, Node] = {}
-        self.services: Dict[str, Service] = {}
+        self.nodes: dict[str, Node] = {}
+        self.services: dict[str, Service] = {}
         self.orchestrate_config = orchestrate_algorithm_config
         self.algorithm_manager = AlgorithmManager(self.orchestrate_config)
 

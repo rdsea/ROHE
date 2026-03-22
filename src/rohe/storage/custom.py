@@ -41,12 +41,50 @@ def construct_query(conditions):
 def calculate_metric(description, data):
     # Replace variables in the description with their values from the data dictionary
     expression = description.format(**data)
-    # Evaluate the expression using eval()
+    # Evaluate the expression using safe arithmetic parsing (no eval())
     try:
-        result = eval(expression)
-    except Exception:
+        result = _safe_arithmetic_eval(expression)
+    except (ValueError, ZeroDivisionError):
         result = -1
     return result
+
+
+def _safe_arithmetic_eval(expression: str) -> float:
+    """Safely evaluate simple arithmetic expressions (+-*/) without eval().
+
+    Supports: numbers, +, -, *, /, parentheses.
+    Raises ValueError for invalid or unsafe expressions.
+    """
+    import ast
+    import operator
+    from collections.abc import Callable
+    from typing import Any
+
+    bin_ops: dict[type, Callable[[float, float], float]] = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+    }
+    unary_ops: dict[type, Callable[[float], float]] = {
+        ast.USub: operator.neg,
+    }
+
+    def _eval_node(node: Any) -> float:
+        if isinstance(node, ast.Expression):
+            return _eval_node(node.body)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return float(node.value)
+        if isinstance(node, ast.BinOp) and type(node.op) in bin_ops:
+            left = _eval_node(node.left)
+            right = _eval_node(node.right)
+            return bin_ops[type(node.op)](left, right)
+        if isinstance(node, ast.UnaryOp) and type(node.op) in unary_ops:
+            return unary_ops[type(node.op)](_eval_node(node.operand))
+        raise ValueError(f"Unsupported expression node: {ast.dump(node)}")
+
+    tree = ast.parse(expression.strip(), mode="eval")
+    return _eval_node(tree)
 
 
 def execute_metric_queries(

@@ -7,13 +7,10 @@ import yaml
 
 def convert_boolean(dict_obj):
     # Convert string boolean to True/False value
+    _BOOL_MAP = {"true": True, "false": False}
     for key in dict_obj:
-        try:
-            if isinstance(dict_obj[key], str):
-                if isinstance(eval(dict_obj[key]), bool):
-                    dict_obj[key] = eval(dict_obj[key])
-        except Exception as e:
-            print("Unable to convert some attribute:", e)
+        if isinstance(dict_obj[key], str) and dict_obj[key].lower() in _BOOL_MAP:
+            dict_obj[key] = _BOOL_MAP[dict_obj[key].lower()]
 
 
 def get_edges(graph, config):

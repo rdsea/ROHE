@@ -10,64 +10,65 @@ name = "rohe"
 version = "0.0.8"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 readme = "README.md"
+requires-python = ">=3.10"
 authors = [{ name = "AaltoSEA", email = "tri.m.nguyen@aalto.fi" }]
 maintainers = [
   { name = "AaltoSEA", email = "tri.m.nguyen@aalto.fi" },
   { name = "nguu0123", email = "nguu0123@gmail.com" },
 ]
 license = { text = "Apache-2.0" }
-homepage = "https://rdsea.github.io/"
-repository = "https://github.com/rdsea/ROHE"
-documentation = "https://rdsea.github.io/ROHE/"
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Development Status :: 2 - Pre-Alpha",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
-  "Jinja2==3.1.2",
-  "kubernetes==30.1.0",
-  "numpy==1.23.5",
-  "paho-mqtt==1.6.1",
-  "pandas==1.4.3",
-  "pymongo==4.3.3",
-  "PyYAML==6.0.1",
-  "Flask==2.2.3",
-  "flask-restful==0.3.10",
-  "pydantic>=2.7.4,<2.8",
-  "Werkzeug==2.2.2",
+  "Jinja2>=3.1.2",
+  "kubernetes>=30.1.0",
+  "numpy>=1.23.5",
+  "paho-mqtt>=1.6.1",
+  "pandas>=1.4.3",
+  "pymongo>=4.3.3",
+  "PyYAML>=6.0.1",
+  "Flask>=2.2.3",
+  "flask-restful>=0.3.10",
+  "pydantic>=2.7.4",
   "qoa4ml>=0.2.14",
   "gunicorn>=22.0.0",
-  "lazy-import>=0.2.2",
-  "setuptools>=70.3.0",
   "boto3>=1.34.147",
+  "duckdb>=0.9.0",
 ]
 
-optional-dependencies.yolo = ["ultralytics>=8.2.58", "gitpython>=3.1.43"]
-
-optional-dependencies.docs = [
+[project.optional-dependencies]
+yolo = ["ultralytics>=8.2.58", "gitpython>=3.1.43"]
+docs = [
   "mkdocs-material",
   "mkdocs-click>=0.8.1",
   "mkdocs-awesome-pages-plugin>=2.9.2",
 ]
 
-[tool.rye]
-dev-dependencies = [
+[project.scripts]
+rohe-cli = "rohe.rohe_cli.__main__:rohe_cli"
+
+[project.urls]
+Homepage = "https://rdsea.github.io/"
+Repository = "https://github.com/rdsea/ROHE"
+Documentation = "https://rdsea.github.io/ROHE/"
+
+[dependency-groups]
+dev = [
   "pre-commit",
   "devtools",
   "ruff",
-  "datamodel-code-generator",
   "mypy",
   "codespell",
   "pytest",
+  "pytest-asyncio",
+  "httpx",
 ]
-managed = true
-
-
-[tool.rye.scripts]
-rohe-cli = "rohe.rohe_cli.__main__:rohe_cli"
-
 
 [tool.ruff]
 src = ["src"]
@@ -76,9 +77,6 @@ src = ["src"]
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.ruff.lint.extend-per-file-ignores]
-"__init__.py" = ["F401"]
-
 [tool.ruff.lint]
 select = [
   "F",   # Pyflakes
@@ -86,23 +84,36 @@ select = [
   "E",   # Pycode styles
   "W",   # Pycode styles
   "N",   # Pep8 naming
-  "I",   # Isort,
+  "I",   # Isort
   "UP",  # Pyupgrade
-  "C4",  # Flake8 compehension
+  "C4",  # Flake8 comprehension
   "ISC", # Flake8 implicit str concat
   "B",   # Flake8 bugbear
+  "SIM", # Flake8 simplify
   "PGH", # Pygrep hook
   "RUF", # Ruff specific rules
+  "S",   # Flake8 bandit (security)
 ]
 ignore = [
-  "E501",   # Line too long
-  "RET504", # Unnecessary assignment
-  "RET505", # Unnecessary else after return
-  "C901",   # Too complex function
-  "B904",   # raise-without-from-inside-except, enable when understand more
-  "PLR",
-  "ISC001",
+  "E501",   # Line too long (formatter handles this)
+  "C901",   # Too complex function (address in refactoring)
+  "B904",   # raise-without-from-inside-except (enable when legacy code fixed)
+  "PLR",    # Pylint refactor (too noisy on legacy code)
+  "ISC001", # Conflicts with formatter
+  "S101",   # Use of assert (allow in tests and validation)
+  "S603",   # Subprocess call without shell=true check (false positives)
+  "S607",   # Partial path to executable (false positives)
+  "E402",   # Module import not at top of file (legacy sys.path manipulation, fix in Phase 1)
+  "S113",   # Request without timeout (fix in Phase 1 refactoring)
+  "S608",   # Hardcoded SQL expression (DuckDB queries, fix in Phase 1)
+  "S605",   # Start process with shell (legacy deployment scripts)
+  "S701",   # Jinja2 autoescape (legacy template generation)
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["S101", "S106"]  # Allow assert and hardcoded passwords in tests
+
 [tool.ruff.lint.pylint]
 max-args = 10
 
@@ -114,9 +125,25 @@ warn_unused_ignores = true
 extra_checks = true
 check_untyped_defs = true
 ignore_missing_imports = true
+# Strict mode for new code (models/, repositories/, quality/, export/, experiment/)
+# Legacy code uses gradual typing -- strict enforcement added per-module as refactored
+
+[[tool.mypy.overrides]]
+module = [
+  "rohe.models.*",
+  "rohe.repositories.*",
+  "rohe.quality.*",
+  "rohe.export.*",
+  "rohe.experiment.*",
+  "rohe.monitoring.*",
+]
+disallow_untyped_defs = true
+disallow_any_generics = true
+warn_return_any = true
+strict_equality = true
 
 [tool.codespell]
-skip = '*/k8s/*'
+skip = '*/k8s/*,uv.lock'
 
 [tool.pytest.ini_options]
 minversion = "6.0"

@@ -1,5 +1,4 @@
 from queue import PriorityQueue
-from typing import Tuple
 
 from ...common.data_models import ServiceQueueConfig
 from ...common.rohe_enum import SensitivityEnum
@@ -14,8 +13,8 @@ class ServiceQueue:
         self.priority_factor = config.priority
         self.queue_balance = config.queue_balance
         self.priority_count = 0
-        self.p_queue = PriorityQueue[Tuple[int, Service]]()
-        self.np_queue = PriorityQueue[Tuple[int, Service]]()
+        self.p_queue = PriorityQueue[tuple[int, Service]]()
+        self.np_queue = PriorityQueue[tuple[int, Service]]()
         self.update_flag = False
 
     def empty(self):

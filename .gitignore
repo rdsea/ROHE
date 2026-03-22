@@ -30,3 +30,5 @@ src/rohe/external/k8s/api__v1_openapi.json
 *.tflite
 *.data-00000-of-00001
 build.sh
+
+plan/

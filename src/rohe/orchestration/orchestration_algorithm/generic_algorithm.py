@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
 
 from ...common.data_models import OrchestrateAlgorithmConfig
 from ..resource_management import Node, Service
@@ -10,16 +9,16 @@ class GenericAlgorithm(ABC):
     def find_allocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
         config: OrchestrateAlgorithmConfig,
-    ) -> Optional[str]:
+    ) -> str | None:
         pass
 
     @abstractmethod
     def find_deallocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
         config: OrchestrateAlgorithmConfig,
-    ) -> Optional[str]:
+    ) -> str | None:
         pass

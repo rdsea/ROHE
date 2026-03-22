@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict
+from typing import Any
 
 import pymongo
 
@@ -94,7 +94,7 @@ class NodeAndServiceManager:
 
     def add_node_to_db(self, node: NodeData):
         try:
-            metadata: Dict[str, Any] = {}
+            metadata: dict[str, Any] = {}
             metadata["status"] = node.status
             metadata["timestamp"] = time.time()
             metadata["data"] = node.model_dump()
@@ -105,7 +105,7 @@ class NodeAndServiceManager:
                 f"Error in `add_node_to_db` RoheNodeAndServiceManager: {e}"
             )
 
-    def add_nodes(self, node_data: Dict[str, NodeData]) -> dict:
+    def add_nodes(self, node_data: dict[str, NodeData]) -> dict:
         try:
             # add multiple nodes (as dictionary) to database - node_data contains node configurations
             results = {}
@@ -131,7 +131,7 @@ class NodeAndServiceManager:
                 f"Error in `remove_node_db` RoheNodeAndServiceManager: {e}"
             )
 
-    def remove_nodes(self, node_data: Dict[str, NodeAddress]) -> dict:
+    def remove_nodes(self, node_data: dict[str, NodeAddress]) -> dict:
         try:
             results = {}
             for node_key, node_address in node_data.items():
@@ -226,7 +226,7 @@ class NodeAndServiceManager:
 
     def add_service_to_db(self, service_data: ServiceData, application_name: str):
         try:
-            metadata: Dict[str, Any] = {}
+            metadata: dict[str, Any] = {}
             metadata["status"] = service_data.status
             metadata["replicas"] = service_data.replicas
             metadata["running"] = service_data.running
@@ -240,7 +240,7 @@ class NodeAndServiceManager:
                 f"Error in `add_service_to_db` RoheNodeAndServiceManager: {e}"
             )
 
-    def add_services(self, data: Dict[str, Dict[str, ServiceData]]):
+    def add_services(self, data: dict[str, dict[str, ServiceData]]):
         try:
             results = {}
             for application_name, services in data.items():

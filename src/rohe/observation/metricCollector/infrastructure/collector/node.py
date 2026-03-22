@@ -55,11 +55,11 @@ class Node:
         return self.attributes
 
     def set_attribute(self, attribute_dict):
-        for key, value in attribute_dict:
+        for key, value in attribute_dict.items():
             self.attributes[key] = value
 
     def set_metric_map(self, metric_dict):
-        for key, _value in self.attributes:
+        for key, _value in self.attributes.items():
             try:
                 self.metric_map[key] = metric_dict[key]
             except Exception as e:
@@ -69,7 +69,7 @@ class Node:
         self.node_label[label] = True
 
     def remove_label(self, label):
-        self.self.node_label[label] = False
+        self.node_label[label] = False
 
     def check_label(self, label):
         if label in self.node_label:

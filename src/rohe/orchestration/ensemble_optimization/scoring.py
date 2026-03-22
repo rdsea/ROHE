@@ -1,7 +1,6 @@
 import logging
 import sys
 import traceback
-from typing import Dict
 
 import numpy as np
 from devtools import debug
@@ -15,7 +14,7 @@ logging.basicConfig(
 )
 
 
-def filtering_node(nodes: Dict[str, Node], service: Service):
+def filtering_node(nodes: dict[str, Node], service: Service):
     key_list = []
     for key in nodes:
         node_flag = False
@@ -42,7 +41,7 @@ def filtering_node(nodes: Dict[str, Node], service: Service):
     return key_list
 
 
-def ranking(nodes: Dict[str, Node], keys, service: Service, weights=None):
+def ranking(nodes: dict[str, Node], keys, service: Service, weights=None):
     if weights is None:
         weights = {"cpu": 1, "memory": 1}
     node_ranks = {}
@@ -93,7 +92,7 @@ def selecting_node(node_ranks, strategy=0, debug=False):
     return node_id
 
 
-def assign(nodes: Dict[str, Node], node_id, service):
+def assign(nodes: dict[str, Node], node_id, service):
     if node_id in nodes:
         # debug(nodes[node_id], service)
         nodes[node_id].allocate(service)
@@ -102,7 +101,7 @@ def assign(nodes: Dict[str, Node], node_id, service):
 
 
 def allocate_service(
-    service: Service, nodes: Dict[str, Node], weights, strategy, replicas
+    service: Service, nodes: dict[str, Node], weights, strategy, replicas
 ):
     for _i in range(replicas):
         fil_nodes = filtering_node(nodes, service)
@@ -120,8 +119,8 @@ def deallocate_service(service, nodes, weights, strategy):
 
 
 def orchestrate(
-    nodes: Dict[str, Node],
-    services: Dict[str, Service],
+    nodes: dict[str, Node],
+    services: dict[str, Service],
     service_queue: ServiceQueue,
     configuration,
 ):

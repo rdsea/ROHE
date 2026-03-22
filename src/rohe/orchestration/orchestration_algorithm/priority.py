@@ -1,6 +1,5 @@
 import sys
 import traceback
-from typing import Dict
 
 import numpy as np
 
@@ -18,7 +17,7 @@ class PriorityAlgorithm(GenericAlgorithm):
     def __init__(self):
         pass
 
-    def filtering_node(self, nodes: Dict[str, Node], service: Service):
+    def filtering_node(self, nodes: dict[str, Node], service: Service):
         key_list = []
         for key in nodes:
             node_flag = False
@@ -48,7 +47,7 @@ class PriorityAlgorithm(GenericAlgorithm):
 
     def ranking(
         self,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
         keys,
         service: Service,
         weights=None,
@@ -110,7 +109,7 @@ class PriorityAlgorithm(GenericAlgorithm):
     def find_deallocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
         config: OrchestrateAlgorithmConfig,
     ):
         pass
@@ -118,7 +117,7 @@ class PriorityAlgorithm(GenericAlgorithm):
     def find_allocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
         config: OrchestrateAlgorithmConfig,
     ):
         fil_nodes = self.filtering_node(nodes, p_service)

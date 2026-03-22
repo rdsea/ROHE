@@ -1,5 +1,4 @@
 import importlib
-from typing import Dict, Optional
 
 from ...common.data_models import OrchestrateAlgorithmConfig
 from ...common.rohe_enum import OrchestrateAlgorithmEnum
@@ -16,7 +15,7 @@ class AlgorithmManager:
         algorithm: default to priority
         """
         self.config = orchestrate_algorithm_config
-        self.__current_algorithm: Optional[GenericAlgorithm] = None
+        self.__current_algorithm: GenericAlgorithm | None = None
         self.load_algorithm(orchestrate_algorithm_config.algorithm)
 
     def load_algorithm(self, algorithm: OrchestrateAlgorithmEnum):
@@ -31,8 +30,8 @@ class AlgorithmManager:
     def find_allocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
-    ) -> Optional[str]:
+        nodes: dict[str, Node],
+    ) -> str | None:
         if self.__current_algorithm is None:
             raise RuntimeError("No algorithm is currently loaded")
         return self.__current_algorithm.find_allocate(p_service, nodes, self.config)
@@ -40,6 +39,6 @@ class AlgorithmManager:
     def find_deallocate(
         self,
         p_service: Service,
-        nodes: Dict[str, Node],
+        nodes: dict[str, Node],
     ):
         pass

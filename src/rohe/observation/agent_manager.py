@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 import docker
 
@@ -32,7 +32,7 @@ class AgentManager:
             # if "agent_dict" not in globals():
             #     global agent_dict
             #     agent_dict = {}
-            self.agent_dict: Dict[str, Any] = {}
+            self.agent_dict: dict[str, Any] = {}
         except Exception as e:
             logger.exception(f"Error in `__init__` RoheAgentManager: {e}")
 

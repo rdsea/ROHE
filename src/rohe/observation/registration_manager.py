@@ -1,7 +1,7 @@
 import copy
 import time
 import uuid
-from typing import Any, Dict
+from typing import Any
 
 from qoa4ml.config.configs import (
     AMQPCollectorConfig,
@@ -66,7 +66,7 @@ class RegistrationManager:
             logger.exception(f"Error in `get_app` RoheRegistration: {e}")
             return None
 
-    def update_app(self, metadata: Dict):
+    def update_app(self, metadata: dict):
         """
         Update application configuration
         """
@@ -76,7 +76,7 @@ class RegistrationManager:
             logger.exception(f"Error in `update_app` RoheRegistration: {e}")
             return {}
 
-    def generate_agent_conf(self, metadata: Dict) -> dict:
+    def generate_agent_conf(self, metadata: dict) -> dict:
         try:
             # Database configuration
             agent_db_config = copy.deepcopy(self.db_collection)
@@ -104,7 +104,7 @@ class RegistrationManager:
     def register_app(self, application_name: str, run_id: str, user_id: str) -> dict:
         try:
             # Create new application configuration and push to database
-            metadata: Dict[str, Any] = {}
+            metadata: dict[str, Any] = {}
             metadata["application_name"] = application_name
             metadata["run_id"] = run_id
             metadata["user_id"] = user_id

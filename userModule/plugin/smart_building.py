@@ -7,7 +7,8 @@ def accurate_explainability(row, k: int) -> int:
         ground_truth = row['ground_truth']
         inference_data = row['inf_result']
         if isinstance(inference_data, str):
-            inference_data = dict(eval(inference_data))
+            import json
+            inference_data = json.loads(inference_data)
         # Get the top k predictions
         top_k_predictions = dict(sorted(inference_data.items(), key=lambda x: x[1], reverse=True)[:k])
         # Calculate accuracy
@@ -31,7 +32,7 @@ def get_worst_k_predictions(data, worst_k: int = 5) -> List[str]:
     worst_k_keys = [key for key, _ in worst_k]
     return worst_k_keys
 
-def explainability_sli_check(monitoring_data: Union[str, pd.DataFrame], ground_truth:Union[str:pd.DataFrame], top_k: int = 1, window_size: int = 5, step_size: int = 1) -> float:
+def explainability_sli_check(monitoring_data: Union[str, pd.DataFrame], ground_truth: Union[str, pd.DataFrame], top_k: int = 1, window_size: int = 5, step_size: int = 1) -> float:
     if isinstance(monitoring_data, pd.DataFrame) and isinstance(ground_truth, pd.DataFrame):
         data_df = monitoring_data[monitoring_data['explainability'] == True]
         accuracy_df = ground_truth

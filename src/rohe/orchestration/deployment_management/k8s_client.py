@@ -3,23 +3,6 @@ from pathlib import Path
 import yaml
 from kubernetes import client, config, utils
 
-from ...external.k8s.datamodel.api.apps.v1 import Deployment, DeploymentSpec
-from ...external.k8s.datamodel.api.core.v1 import (
-    Container,
-    ContainerPort,
-    EnvVar,
-    EnvVarSource,
-    ObjectFieldSelector,
-    PodSpec,
-    PodTemplateSpec,
-    Service,
-    ServicePort,
-    ServiceSpec,
-)
-from ...external.k8s.datamodel.apimachinery.pkg.apis.meta.v1 import (
-    LabelSelector,
-    ObjectMeta,
-)
 from ...variable import ROHE_PATH
 from ..resource_management import ServiceInstance
 
@@ -27,51 +10,51 @@ from ..resource_management import ServiceInstance
 class K8sClient:
     def __init__(self):
         config.load_kube_config()
-        self.client = client.ApiClient()
+        self.api_client = client.ApiClient()
 
         Path(f"{ROHE_PATH}/temp/k8s_deployment").mkdir(parents=True, exist_ok=True)
 
     def generate_deployment(self, service_instance: ServiceInstance):
         task_name = service_instance.service.name
         node_name = service_instance.node.name
-        deployment = Deployment(
-            apiVersion="apps/v1",
+        deployment = client.V1Deployment(
+            api_version="apps/v1",
             kind="Deployment",
-            metadata=ObjectMeta(
-                name=f"{task_name}-{service_instance.node.name}",
+            metadata=client.V1ObjectMeta(
+                name=f"{task_name}-{node_name}",
                 labels={"app": task_name},
             ),
-            spec=DeploymentSpec(
+            spec=client.V1DeploymentSpec(
                 replicas=1,
-                selector=LabelSelector(matchLabels={"app": task_name}),
-                template=PodTemplateSpec(
-                    metadata=ObjectMeta(labels={"app": task_name}),
-                    spec=PodSpec(
-                        restartPolicy="Always",
-                        nodeSelector={"kubernetes.io/hostname": node_name},
+                selector=client.V1LabelSelector(match_labels={"app": task_name}),
+                template=client.V1PodTemplateSpec(
+                    metadata=client.V1ObjectMeta(labels={"app": task_name}),
+                    spec=client.V1PodSpec(
+                        restart_policy="Always",
+                        node_selector={"kubernetes.io/hostname": node_name},
                         containers=[
-                            Container(
+                            client.V1Container(
                                 name=task_name,
                                 image=service_instance.service.image,
-                                imagePullPolicy="Always",
+                                image_pull_policy="Always",
                                 ports=[
-                                    ContainerPort(containerPort=port)
+                                    client.V1ContainerPort(container_port=port)
                                     for port in service_instance.service.ports
                                 ],
                                 env=[
-                                    EnvVar(
+                                    client.V1EnvVar(
                                         name="NODE_NAME",
-                                        valueFrom=EnvVarSource(
-                                            fieldRef=ObjectFieldSelector(
-                                                fieldPath="spec.nodeName"
+                                        value_from=client.V1EnvVarSource(
+                                            field_ref=client.V1ObjectFieldSelector(
+                                                field_path="spec.nodeName"
                                             )
                                         ),
                                     ),
-                                    EnvVar(
+                                    client.V1EnvVar(
                                         name="POD_ID",
-                                        valueFrom=EnvVarSource(
-                                            fieldRef=ObjectFieldSelector(
-                                                fieldPath="metadata.name"
+                                        value_from=client.V1EnvVarSource(
+                                            field_ref=client.V1ObjectFieldSelector(
+                                                field_path="metadata.name"
                                             )
                                         ),
                                     ),
@@ -82,35 +65,34 @@ class K8sClient:
                 ),
             ),
         )
-        return deployment.model_dump(exclude_defaults=True)
+        return self.api_client.sanitize_for_serialization(deployment)
 
     def generate_service(self, service_instance: ServiceInstance):
         task_name = service_instance.service.name
-        service = Service(
-            apiVersion="v1",
+        service = client.V1Service(
+            api_version="v1",
             kind="Service",
-            metadata=ObjectMeta(
+            metadata=client.V1ObjectMeta(
                 name=f"{task_name}-service",
             ),
-            spec=ServiceSpec(
+            spec=client.V1ServiceSpec(
                 ports=[
-                    ServicePort(port=p_map.con_port, targetPort=p_map.phy_port)
+                    client.V1ServicePort(
+                        port=p_map.con_port, target_port=p_map.phy_port
+                    )
                     for p_map in service_instance.service.port_mapping
                 ]
             ),
         )
-        return service.model_dump(exclude_defaults=True)
+        return self.api_client.sanitize_for_serialization(service)
 
     def deploy_service_instance(self, service_instance: ServiceInstance):
         service_dict = self.generate_service(service_instance)
         deployment_dict = self.generate_deployment(service_instance)
-        with open(
-            f"{ROHE_PATH}/temp/k8s_deployment/{service_instance.id}.yml", "w"
-        ) as file:
+        output_path = f"{ROHE_PATH}/temp/k8s_deployment/{service_instance.id}.yml"
+        with open(output_path, "w") as file:
             yaml.dump(deployment_dict, file)
             file.write("\n---\n")
             yaml.dump(service_dict, file)
 
-        utils.create_from_yaml(
-            self.client, f"{ROHE_PATH}/temp/deployment/{service_instance.id}.yml"
-        )
+        utils.create_from_yaml(self.api_client, output_path)
