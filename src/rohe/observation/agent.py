@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import argparse
 import json
 import os
-from threading import Thread, Timer
+from threading import Event, Lock, Thread, Timer
+from typing import Any
 
 import pymongo
 from qoa4ml.collector.amqp_collector import AmqpCollector
@@ -9,17 +12,24 @@ from qoa4ml.collector.amqp_collector import AmqpCollector
 from ..common import rohe_utils
 from ..common.logger import logger
 from ..common.window import EventBuffer, TimeBuffer
+from ..models.common import AgentStatus
 from ..variable import ROHE_PATH
 
-# set default global variable for loading configuration/functions and saving processed data
 DEFAULT_CONFIG_PATH = "configurations/observationConfigLocal.yaml"
 DEFAULT_DATA_PATH = "/agent/data/"
 DEFAULT_MODULE_PATH = "/agent/userModule/"
 
+# Window types
+_EVENT_WINDOW = 1
+_TIME_WINDOW = 2
 
-def get_app(collection, application_name):
-    # get application data from databased
-    # Create sorted pipeline to query application list
+# Trigger types
+_TIME_TRIGGER = 1
+_EVENT_TRIGGER = 2
+
+
+def get_app(collection: Any, application_name: str) -> dict[str, Any] | None:
+    """Get application data from database."""
     pipeline = [
         {"$sort": {"timestamp": 1}},
         {
@@ -37,221 +47,205 @@ def get_app(collection, application_name):
     ]
     app_list = list(collection.aggregate(pipeline))
     for app in app_list:
-        # return app with its configuration
         if app["application_name"] == application_name:
             return app
     return None
 
 
 class ObservationAgent:
-    def __init__(self, configuration, mg_db=False):
-        self.conf = configuration
-        self.application_name = configuration["application_name"]
-        self.temp_path = DEFAULT_DATA_PATH + self.application_name
-        # Init Metric collector
-        colletor_conf = self.conf["collector"]
-        self.collector = AmqpCollector(
-            colletor_conf["amqp_collector"]["conf"], host_object=self
-        )
-        logger.debug(self.conf["collector"])  # for debugging
+    """Streaming observation agent that collects metrics via AMQP,
+    buffers them in configurable windows, and processes with user-defined functions."""
 
-        # Init Database connection
+    def __init__(self, configuration: dict[str, Any], mg_db: bool = False) -> None:
+        self.conf = configuration
+        self.application_name: str = configuration["application_name"]
+        self.temp_path = DEFAULT_DATA_PATH + self.application_name
+
+        # Init metric collector
+        collector_conf = self.conf["collector"]
+        self.collector = AmqpCollector(
+            collector_conf["amqp_collector"]["conf"], host_object=self
+        )
+
+        # Init database connection
         db_conf = self.conf["database"]
         self.mongo_client = pymongo.MongoClient(db_conf["url"])
         self.db = self.mongo_client[db_conf["db_name"]]
         self.metric_collection = self.db[db_conf["metric_collection"]]
 
-        """
-        Agent Status
-        0 - Ready
-        1 - Running
-        2 - Stop
-        """
-        self.status = 0
+        self.status = AgentStatus.READY
 
-        # Inint processing configuration e.g., processing window (time/event), processing function, data parser
+        # Init processing configuration
         self.agent_config = self.conf["stream_config"]
         self.buff_config = self.agent_config["window"]
         self.proc_config = self.agent_config["processing"]
-        self.module_path = DEFAULT_MODULE_PATH + "{}.py".format(
-            self.proc_config["module"]
-        )
+        self.module_path = DEFAULT_MODULE_PATH + f"{self.proc_config['module']}.py"
         self.proc_module = rohe_utils.load_module(
             self.module_path, self.proc_config["module"]
         )
-        """
-        Processing Type:
-        1 - Event
-        2 - Time
-        """
-        if self.buff_config["size"]["type"] == 1:
-            # Init Time buffer
-            self.buffer = TimeBuffer(self.buff_config["size"]["value"])
-        elif self.buff_config["size"]["type"] == 2:
-            # Init Event buffer
-            self.buffer = EventBuffer(self.buff_config["size"]["value"])
-        self.trigger = self.buff_config["interval"]
 
-        # Save to database or not: True/False
+        # Init buffer based on window type
+        if self.buff_config["size"]["type"] == _TIME_WINDOW:
+            self.buffer = TimeBuffer(self.buff_config["size"]["value"])
+        elif self.buff_config["size"]["type"] == _EVENT_WINDOW:
+            self.buffer = EventBuffer(self.buff_config["size"]["value"])
+
+        self.trigger = self.buff_config["interval"]
         self.insert_db = mg_db
 
-    # Drop all metric collection
-    def reset_db(self):
+        # Thread safety
+        self._processing_lock = Lock()
+        self._stop_event = Event()
+        self._timer: Timer | None = None
+
+    def reset_db(self) -> None:
+        """Drop all metric collections."""
         self.metric_collection.drop()
 
-    # Start consumming metric reports
-    def start_consuming(self):
-        logger.info("Start Consuming")
+    def start_consuming(self) -> None:
+        """Start consuming metric reports from broker."""
+        logger.info("Start consuming messages")
         self.collector.start_collecting()
 
-    # Public start function
-    def start(self):
-        # Switch to running status
-        self.status = 1
-        # Start consumming metric reports from messaging broker
-        sub_thread = Thread(target=self.start_consuming)
-        sub_thread.start()
-        logger.info("Start consumming message")
+    def start(self) -> None:
+        """Start the observation agent."""
+        self.status = AgentStatus.RUNNING
+        self._stop_event.clear()
 
-        # Start trigger for window processing
-        if self.trigger["type"] == 1:
-            # Time window processing - Trigger after certain interval: self.trigger["value"]
-            self.timer = Timer(self.trigger["value"], self.time_trigger)
-            self.timer.start()
-        elif self.trigger["type"] == 2:
-            # Event window processing - Reset trigger event count to 0
+        sub_thread = Thread(target=self.start_consuming, daemon=True)
+        sub_thread.start()
+        logger.info(f"Agent '{self.application_name}' started consuming messages")
+
+        if self.trigger["type"] == _TIME_TRIGGER:
+            self._schedule_time_trigger()
+        elif self.trigger["type"] == _EVENT_TRIGGER:
             self.trigger["count"] = 0
 
-    def message_processing(self, ch, method, props, body):
-        # Consume message from Broker
+    def message_processing(self, ch: Any, method: Any, props: Any, body: bytes) -> None:
+        """Callback for incoming AMQP messages."""
         mess = json.loads(str(body.decode("utf-8")))
 
-        # Get parser from configuration
         parser_name = self.proc_config["parser"]["name"]
         if parser_name == "dummy":
             logger.info(mess)
-        else:
-            # get parser by its name from userModule
-            parser = getattr(self.proc_module, self.proc_config["parser"]["name"])
-            # Parse data to DataFrame
-            df_mess = parser(mess, self.proc_config["parser"])
-            file_path = self.temp_path + "/raw_message.csv"
-            rohe_utils.df_to_csv(file_path, df_mess)
+            return
 
-            # Add metric report as dataframe to buffer - processing window
-            self.buffer.append(df_mess)
-            logger.info(len(self.buffer.get()))
+        parser = getattr(self.proc_module, self.proc_config["parser"]["name"])
+        df_mess = parser(mess, self.proc_config["parser"])
+        file_path = self.temp_path + "/raw_message.csv"
+        rohe_utils.df_to_csv(file_path, df_mess)
 
-            if self.insert_db:
-                # Insert raw data to databased if insert_db is set to True
-                insert_id = self.metric_collection.insert_one(mess)
-                logger.info(f"Insert to database {insert_id}")
+        self.buffer.append(df_mess)
+        logger.debug(f"Buffer size: {len(self.buffer.get())}")
 
-            # Check event trigger
-            if self.trigger["type"] == 2:
-                self.event_trigger()
+        if self.insert_db:
+            insert_id = self.metric_collection.insert_one(mess)
+            logger.debug(f"Inserted to database: {insert_id}")
 
-    # Function for processing window
-    def window_processing(self):
-        logger.info("Start Window Processing")
-        # Get data from buffer processing window
-        data = self.buffer.get(dataframe=True)
+        if self.trigger["type"] == _EVENT_TRIGGER:
+            self._event_trigger()
 
-        # self.log(data, 1) # For Debugging
+    def window_processing(self) -> None:
+        """Process accumulated buffer data with user-defined function."""
+        if not self._processing_lock.acquire(blocking=False):
+            logger.warning("Window processing already in progress, skipping")
+            return
 
-        # Load dynamic processing function from function configuration
-        function_name = self.proc_config["function"]
-        if function_name == "dummy":
-            pass
-        else:
+        try:
+            logger.info("Start window processing")
+            data = self.buffer.get(dataframe=True)
+
+            function_name = self.proc_config["function"]
+            if function_name == "dummy":
+                return
+
             proc_func = getattr(self.proc_module, self.proc_config["function"])
             feature_list = self.proc_config["parser"]["feature"]
 
-            # data, feature_list = parser(self.buffer, self.proc_config["parser"])
-            #
             for feature in feature_list:
-                result_df, model = proc_func(data, feature)
-                if result_df is not None:
-                    rohe_utils.make_folder(self.temp_path)
-                    file_path = self.temp_path + "/" + str(feature) + ".csv"
-                    rohe_utils.df_to_csv(file_path, result_df)
+                result_df, _model = proc_func(data, feature)
+                if result_df is None:
+                    continue
 
-                    errors = result_df.loc[result_df["anomaly"] == -1]
-                    if len(errors) > 0:
-                        print(errors)
-                        err_file_path = (
-                            self.temp_path + "/error_" + str(feature) + ".csv"
-                        )
-                        rohe_utils.df_to_csv(err_file_path, errors)
-                    # self.log("\n"+str(result_df))
+                rohe_utils.make_folder(self.temp_path)
+                file_path = self.temp_path + "/" + str(feature) + ".csv"
+                rohe_utils.df_to_csv(file_path, result_df)
 
-    def event_trigger(self):
-        # Check trigger and reset counter
+                errors = result_df.loc[result_df["anomaly"] == -1]
+                if len(errors) > 0:
+                    logger.warning(f"Anomalies detected in feature '{feature}': {len(errors)} rows")
+                    err_file_path = self.temp_path + "/error_" + str(feature) + ".csv"
+                    rohe_utils.df_to_csv(err_file_path, errors)
+        finally:
+            self._processing_lock.release()
+
+    def _event_trigger(self) -> None:
+        """Event-based trigger: fire after N messages."""
         self.trigger["count"] += 1
-        if self.trigger["count"] == self.trigger["value"]:
-            if self.status == 1:
+        if self.trigger["count"] >= self.trigger["value"]:
+            if self.status == AgentStatus.RUNNING:
                 self.window_processing()
             self.trigger["count"] = 0
 
-    def time_trigger(self):
+    def _schedule_time_trigger(self) -> None:
+        """Schedule the next time-based trigger."""
+        if self._stop_event.is_set():
+            return
+        self._timer = Timer(self.trigger["value"], self._time_trigger)
+        self._timer.daemon = True
+        self._timer.start()
+
+    def _time_trigger(self) -> None:
+        """Time-based trigger: fire periodically."""
         try:
-            # if status is running, call windowProcessing
-            if self.status == 1:
+            if self.status == AgentStatus.RUNNING:
                 self.window_processing()
-            # Start timer to trigger window processing after certain interval - self.trigger["value"]
-            self.timer = Timer(self.trigger["value"], self.time_trigger)
-            self.timer.start()
+            self._schedule_time_trigger()
         except Exception as e:
-            logger.exception(
-                f"Error {type(e)} while estimating contribution",
-            )
+            logger.exception(f"Error in time trigger: {e}")
 
-    def stop(self):
-        # self.collector.stop()
+    def stop(self) -> None:
+        """Stop the observation agent."""
+        self._stop_event.set()
         self.insert_db = False
-        self.status = 2
-        # Todo:
-        # Stop consumming message
+        self.status = AgentStatus.STOPPED
+        if self._timer is not None:
+            self._timer.cancel()
+        logger.info(f"Agent '{self.application_name}' stopped")
 
-    def restart(self):
-        # self.collector.stop()
+    def restart(self) -> None:
+        """Restart database insertion."""
         self.insert_db = True
-        self.status = 1
+        self.status = AgentStatus.RUNNING
+        self._stop_event.clear()
+        logger.info(f"Agent '{self.application_name}' restarted")
 
 
 if __name__ == "__main__":
-    # init_env_variables()
-    parser = argparse.ArgumentParser(description="Argument for Rohe Observation Agent")
-    parser.add_argument("--conf", help="configuration file", default=None)
+    arg_parser = argparse.ArgumentParser(description="ROHE Observation Agent")
+    arg_parser.add_argument("--conf", help="configuration file", default=None)
+    args = arg_parser.parse_args()
 
-    # Parse the parameters
-    args = parser.parse_args()
     config_file = args.conf
-
-    # load configuration file
     if not config_file:
         config_file = ROHE_PATH + DEFAULT_CONFIG_PATH
-        print(config_file)
+        logger.info(f"Using default config: {config_file}")
 
     try:
-        # read the configuration
         config = rohe_utils.load_config(config_file)
-        assert config is not None
+        if config is None:
+            raise RuntimeError(f"Failed to load config from {config_file}")
+
         db_config = config["database"]
-        # connect to database
         mongo_client = pymongo.MongoClient(db_config["url"])
         db = mongo_client[db_config["db_name"]]
         collection = db[db_config["collection"]]
 
-        # get application_name from Container Environment
-        application_name = os.environ.get("APP_NAME")
-        if not application_name:
-            application_name = "test"
-        # get agent configuration from database
+        application_name = os.environ.get("APP_NAME", "test")
         agent_config = get_app(collection, application_name)["agent_config"]
         agent_config["application_name"] = application_name
-        print(agent_config)
+        logger.info(f"Starting agent for application: {application_name}")
         agent = ObservationAgent(agent_config)
         agent.start()
     except Exception:
-        logger.exception("Exception in rohe_agent_streaming")
+        logger.exception("Exception in observation agent")
