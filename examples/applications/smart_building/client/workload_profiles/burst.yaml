@@ -1,0 +1,10 @@
+rps: 5
+burst_rps: 50
+burst_interval_seconds: 120
+burst_duration_seconds: 30
+duration_seconds: 600
+modalities:
+  - video
+  - timeseries
+time_constraint_ms: 300
+description: "Burst load: 5 RPS baseline with 50 RPS bursts every 2 minutes for 30 seconds"

@@ -1,0 +1,8 @@
+rps: 20
+duration_seconds: 600
+modalities:
+  - video
+  - timeseries
+time_constraint_ms: 500
+concurrency: 5
+description: "Steady medium load: 20 RPS for 10 minutes with both modalities"

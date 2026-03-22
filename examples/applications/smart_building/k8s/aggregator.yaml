@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  namespace: smart-building
+  labels:
+    app: aggregator
+    component: aggregation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      containers:
+        - name: aggregator
+          image: rohe/smart-building-inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE
+              value: aggregator
+            - name: ROHE_SERVICE_NAME
+              value: aggregator
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aggregator
+  namespace: smart-building
+spec:
+  selector:
+    app: aggregator
+  ports:
+    - port: 8000
+      targetPort: 8000

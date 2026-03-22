@@ -1,0 +1,122 @@
+services:
+  control-plane:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: control_plane
+    ports:
+      - "8000:8000"
+    environment:
+      - VIDEO_SERVICES=http://x3d-xs:8000,http://x3d-s:8000,http://x3d-m:8000,http://slowfast:8000
+      - TIMESERIES_SERVICES=http://minirocket-svm:8000,http://minirocket-ridge:8000,http://cnn1d:8000,http://lstm-ts:8000
+      - AGGREGATOR_URL=http://aggregator:8000/aggregate
+      - ROHE_SERVICE_NAME=control-plane
+    depends_on:
+      - x3d-xs
+      - x3d-s
+      - x3d-m
+      - slowfast
+      - minirocket-svm
+      - minirocket-ridge
+      - cnn1d
+      - lstm-ts
+      - aggregator
+
+  x3d-xs:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: x3d_xs_inference
+    environment:
+      - ROHE_SERVICE_NAME=x3d-xs
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  x3d-s:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: x3d_s_inference
+    environment:
+      - ROHE_SERVICE_NAME=x3d-s
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  x3d-m:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: x3d_m_inference
+    environment:
+      - ROHE_SERVICE_NAME=x3d-m
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  slowfast:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: slowfast_inference
+    environment:
+      - ROHE_SERVICE_NAME=slowfast
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  minirocket-svm:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: minirocket_svm_inference
+    environment:
+      - ROHE_SERVICE_NAME=minirocket-svm
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  minirocket-ridge:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: minirocket_ridge_inference
+    environment:
+      - ROHE_SERVICE_NAME=minirocket-ridge
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  cnn1d:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: cnn1d_inference
+    environment:
+      - ROHE_SERVICE_NAME=cnn1d
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  lstm-ts:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: lstm_ts_inference
+    environment:
+      - ROHE_SERVICE_NAME=lstm-ts
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  aggregator:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: aggregator
+    environment:
+      - ROHE_SERVICE_NAME=aggregator
+
+  data-hub:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: data_hub
+    environment:
+      - ROHE_SERVICE_NAME=data-hub

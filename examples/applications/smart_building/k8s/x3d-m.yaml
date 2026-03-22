@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: x3d-m-inference
+  namespace: smart-building
+  labels:
+    app: x3d-m-inference
+    component: inference
+    modality: video
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: x3d-m-inference
+  template:
+    metadata:
+      labels:
+        app: x3d-m-inference
+    spec:
+      containers:
+        - name: x3d-m
+          image: rohe/smart-building-inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE
+              value: x3d_m_inference
+            - name: ROHE_SERVICE_NAME
+              value: x3d-m
+            - name: ROHE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: endpoint
+                  optional: true
+            - name: ROHE_EXPERIMENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: experiment_id
+                  optional: true
+          resources:
+            requests:
+              cpu: "1"
+              memory: "4Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "4"
+              memory: "8Gi"
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: x3d-m-inference
+  namespace: smart-building
+spec:
+  selector:
+    app: x3d-m-inference
+  ports:
+    - port: 8000
+      targetPort: 8000

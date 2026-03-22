@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - control-plane.yaml
+  - x3d-xs.yaml
+  - x3d-s.yaml
+  - x3d-m.yaml
+  - slowfast.yaml
+  - minirocket-svm.yaml
+  - minirocket-ridge.yaml
+  - cnn1d.yaml
+  - lstm-ts.yaml
+  - aggregator.yaml
+  - data-hub.yaml

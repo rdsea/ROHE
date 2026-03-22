@@ -1,0 +1,8 @@
+rps: 10
+duration_seconds: 600
+modalities:
+  - video
+  - timeseries
+time_constraint_ms: 800
+concurrency: 3
+description: "Multi-modal focused: 10 RPS for 10 minutes with relaxed time constraint for full fusion"

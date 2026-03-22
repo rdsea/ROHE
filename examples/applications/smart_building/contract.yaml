@@ -1,0 +1,88 @@
+contract:
+  contract_id: smart-building-sla-001
+  tenant_id: tenant-001
+  pipeline_id: smart-building
+  effective_from: "2024-01-01T00:00:00Z"
+
+  performance_slo:
+    response_time_p99_ms: 800.0
+    throughput_rps: 10.0
+    availability_percent: 99.0
+
+  quality_slo:
+    builtin_metrics:
+      accuracy:
+        operator: ">="
+        value: 0.80
+        window: "5m"
+        action_on_violation: alert
+      confidence:
+        operator: ">="
+        value: 0.65
+        window: "5m"
+        action_on_violation: degrade
+
+    cdm_thresholds:
+      video_accuracy:
+        operator: ">="
+        value: 0.75
+        window: "5m"
+        action_on_violation: reroute
+      timeseries_accuracy:
+        operator: ">="
+        value: 0.70
+        window: "5m"
+        action_on_violation: reroute
+      cross_modal_agreement:
+        operator: ">="
+        value: 0.60
+        window: "5m"
+        action_on_violation: alert
+
+cdm_definitions:
+  video_accuracy:
+    name: video_accuracy
+    metric_type: per_period
+    description: "Accuracy of video modality predictions against ground truth"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            modality: "video"
+            correct: "true"
+        - type: count
+          filters:
+            modality: "video"
+    window: "5m"
+
+  timeseries_accuracy:
+    name: timeseries_accuracy
+    metric_type: per_period
+    description: "Accuracy of time-series modality predictions against ground truth"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            modality: "timeseries"
+            correct: "true"
+        - type: count
+          filters:
+            modality: "timeseries"
+    window: "5m"
+
+  cross_modal_agreement:
+    name: cross_modal_agreement
+    metric_type: per_period
+    description: "Fraction of queries where video and timeseries modalities agree on top prediction"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            modalities_agree: "true"
+        - type: count
+          filters:
+            is_multimodal: "true"
+    window: "5m"
