@@ -1,7 +1,7 @@
 ORCHESTRATOR_REGISTRY = {
-    "adaptive": "rohe.orchestration.multimodal_orchestration.AdaptiveOrchestrator",
-    "llf": "rohe.orchestration.llf_orchestration.LLFOrchestrator",
-    "dream": "rohe.orchestration.dream_orchestration.DREAMOrchestrator",
+    "adaptive": "rohe.orchestration.inference.orchestrator.AdaptiveOrchestrator",
+    "llf": "rohe.orchestration.inference.llf.LLFOrchestrator",
+    "dream": "rohe.orchestration.inference.dream.DREAMOrchestrator",
 }
 
 
