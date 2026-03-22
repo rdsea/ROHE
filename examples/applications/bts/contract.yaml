@@ -1,0 +1,61 @@
+contract:
+  contract_id: bts-sla-001
+  tenant_id: tenant-001
+  pipeline_id: bts
+  effective_from: "2024-01-01T00:00:00Z"
+
+  performance_slo:
+    response_time_p99_ms: 300.0
+    throughput_rps: 20.0
+    availability_percent: 99.0
+
+  quality_slo:
+    builtin_metrics:
+      prediction_accuracy:
+        operator: ">="
+        value: 0.80
+        window: "5m"
+        action_on_violation: alert
+      confidence:
+        operator: ">="
+        value: 0.70
+        window: "5m"
+        action_on_violation: degrade
+
+    cdm_thresholds:
+      forecast_mae:
+        operator: "<"
+        value: 0.15
+        window: "5m"
+        action_on_violation: reroute
+      prediction_variance:
+        operator: "<"
+        value: 0.10
+        window: "5m"
+        action_on_violation: alert
+
+cdm_definitions:
+  forecast_mae:
+    name: forecast_mae
+    metric_type: per_period
+    description: "Mean absolute error between predicted and actual energy consumption"
+    expression:
+      type: mean
+      operands:
+        - type: abs_difference
+          fields:
+            predicted: energy_forecast_kwh
+            actual: actual_energy_kwh
+    window: "5m"
+
+  prediction_variance:
+    name: prediction_variance
+    metric_type: per_period
+    description: "Variance across ensemble model predictions indicating disagreement"
+    expression:
+      type: variance
+      operands:
+        - type: field
+          field: energy_forecast_kwh
+          group_by: model
+    window: "5m"

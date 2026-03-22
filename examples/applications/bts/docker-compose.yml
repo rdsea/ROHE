@@ -1,0 +1,78 @@
+services:
+  gateway:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - DATA_INGESTION_URL=http://data-ingestion:8000
+      - INFERENCE_SERVICES=http://lstm:8000,http://gru:8000,http://transformer:8000,http://statistical:8000
+      - ROHE_SERVICE_NAME=gateway
+    depends_on:
+      - data-ingestion
+      - lstm
+      - gru
+      - transformer
+      - statistical
+
+  data-ingestion:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: data_ingestion
+    environment:
+      - ROHE_SERVICE_NAME=data-ingestion
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  lstm:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: lstm_inference
+    environment:
+      - ROHE_SERVICE_NAME=lstm
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  gru:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: gru_inference
+    environment:
+      - ROHE_SERVICE_NAME=gru
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  transformer:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: transformer_inference
+    environment:
+      - ROHE_SERVICE_NAME=transformer
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  statistical:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: statistical_inference
+    environment:
+      - ROHE_SERVICE_NAME=statistical
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  aggregator:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: aggregator
+    environment:
+      - ROHE_SERVICE_NAME=aggregator
