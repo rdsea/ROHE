@@ -1,0 +1,89 @@
+services:
+  web-gateway:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: web_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PREPROCESSOR_URL=http://preprocessor:8000/preprocess
+      - INFERENCE_SERVICES=http://yolov5l:8000,http://yolov8n:8000,http://yolov8s:8000,http://yolov8m:8000,http://ssd-mobilenet:8000
+      - ROHE_SERVICE_NAME=web-gateway
+    depends_on:
+      - preprocessor
+      - yolov5l
+      - yolov8n
+      - yolov8s
+      - yolov8m
+      - ssd-mobilenet
+
+  preprocessor:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: preprocessor
+    environment:
+      - ROHE_SERVICE_NAME=preprocessor
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  yolov5l:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: yolov5l_inference
+    environment:
+      - ROHE_SERVICE_NAME=yolov5l
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  yolov8n:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: yolov8n_inference
+    environment:
+      - ROHE_SERVICE_NAME=yolov8n
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  yolov8s:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: yolov8s_inference
+    environment:
+      - ROHE_SERVICE_NAME=yolov8s
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  yolov8m:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: yolov8m_inference
+    environment:
+      - ROHE_SERVICE_NAME=yolov8m
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  ssd-mobilenet:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: ssd_mobilenet_inference
+    environment:
+      - ROHE_SERVICE_NAME=ssd-mobilenet
+      - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
+
+  aggregator:
+    build:
+      context: ./services
+      dockerfile: Dockerfile.inference
+      args:
+        MODEL_SERVICE: aggregator
+    environment:
+      - ROHE_SERVICE_NAME=aggregator

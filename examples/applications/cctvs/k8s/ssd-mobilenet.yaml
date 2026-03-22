@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssd-mobilenet-inference
+  namespace: cctvs
+  labels:
+    app: ssd-mobilenet-inference
+    component: inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssd-mobilenet-inference
+  template:
+    metadata:
+      labels:
+        app: ssd-mobilenet-inference
+    spec:
+      containers:
+        - name: ssd-mobilenet
+          image: rohe/cctvs-inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE
+              value: ssd_mobilenet_inference
+            - name: ROHE_SERVICE_NAME
+              value: ssd-mobilenet
+            - name: ROHE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: endpoint
+                  optional: true
+            - name: ROHE_EXPERIMENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: experiment_id
+                  optional: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssd-mobilenet-inference
+  namespace: cctvs
+spec:
+  selector:
+    app: ssd-mobilenet-inference
+  ports:
+    - port: 8000
+      targetPort: 8000

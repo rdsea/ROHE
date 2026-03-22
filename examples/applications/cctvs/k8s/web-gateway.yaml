@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-gateway
+  namespace: cctvs
+  labels:
+    app: web-gateway
+    component: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-gateway
+  template:
+    metadata:
+      labels:
+        app: web-gateway
+    spec:
+      containers:
+        - name: web-gateway
+          image: rohe/cctvs-inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE
+              value: web_gateway
+            - name: ROHE_SERVICE_NAME
+              value: web-gateway
+            - name: PREPROCESSOR_URL
+              value: "http://preprocessor.cctvs.svc.cluster.local:8000/preprocess"
+            - name: INFERENCE_SERVICES
+              value: "http://yolov5l-inference.cctvs.svc.cluster.local:8000,http://yolov8n-inference.cctvs.svc.cluster.local:8000,http://yolov8s-inference.cctvs.svc.cluster.local:8000,http://yolov8m-inference.cctvs.svc.cluster.local:8000,http://ssd-mobilenet-inference.cctvs.svc.cluster.local:8000"
+            - name: ROHE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: endpoint
+                  optional: true
+            - name: ROHE_EXPERIMENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: experiment_id
+                  optional: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-gateway
+  namespace: cctvs
+spec:
+  type: LoadBalancer
+  selector:
+    app: web-gateway
+  ports:
+    - port: 8000
+      targetPort: 8000

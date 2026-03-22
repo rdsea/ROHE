@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - web-gateway.yaml
+  - preprocessor.yaml
+  - yolov5l.yaml
+  - yolov8n.yaml
+  - yolov8s.yaml
+  - yolov8m.yaml
+  - ssd-mobilenet.yaml
+  - aggregator.yaml

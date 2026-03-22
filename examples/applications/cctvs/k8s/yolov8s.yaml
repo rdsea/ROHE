@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolov8s-inference
+  namespace: cctvs
+  labels:
+    app: yolov8s-inference
+    component: inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yolov8s-inference
+  template:
+    metadata:
+      labels:
+        app: yolov8s-inference
+    spec:
+      containers:
+        - name: yolov8s
+          image: rohe/cctvs-inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MODEL_SERVICE
+              value: yolov8s_inference
+            - name: ROHE_SERVICE_NAME
+              value: yolov8s
+            - name: ROHE_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: endpoint
+                  optional: true
+            - name: ROHE_EXPERIMENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: rohe-config
+                  key: experiment_id
+                  optional: true
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yolov8s-inference
+  namespace: cctvs
+spec:
+  selector:
+    app: yolov8s-inference
+  ports:
+    - port: 8000
+      targetPort: 8000

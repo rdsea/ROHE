@@ -1,0 +1,62 @@
+contract:
+  contract_id: cctvs-sla-001
+  tenant_id: tenant-001
+  pipeline_id: cctvs-object-detection
+  effective_from: "2024-01-01T00:00:00Z"
+
+  performance_slo:
+    response_time_p99_ms: 300.0
+    throughput_rps: 15.0
+    availability_percent: 99.0
+
+  quality_slo:
+    builtin_metrics:
+      accuracy:
+        operator: ">="
+        value: 0.80
+        window: "5m"
+        action_on_violation: alert
+      confidence:
+        operator: ">="
+        value: 0.60
+        window: "5m"
+        action_on_violation: degrade
+
+    cdm_thresholds:
+      misclassification_rate:
+        operator: "<"
+        value: 0.15
+        window: "5m"
+        action_on_violation: reroute
+      false_positive_rate:
+        operator: "<"
+        value: 0.10
+        window: "5m"
+        action_on_violation: alert
+
+cdm_definitions:
+  misclassification_rate:
+    name: misclassification_rate
+    metric_type: per_period
+    description: "Fraction of detections where the predicted class does not match ground truth"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            detection_correct: "false"
+        - type: count
+    window: "5m"
+
+  false_positive_rate:
+    name: false_positive_rate
+    metric_type: per_period
+    description: "Fraction of detections that are false positives (no matching ground truth object)"
+    expression:
+      type: ratio
+      operands:
+        - type: count
+          filters:
+            is_false_positive: "true"
+        - type: count
+    window: "5m"
