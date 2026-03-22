@@ -32,3 +32,26 @@ src/rohe/external/k8s/api__v1_openapi.json
 build.sh
 
 plan/
+
+# Simulation artifacts (never commit - simulation_plan.md rule)
+**/simulation/
+**/sim_models/
+**/sim_config/
+**/simulated_*.py
+**/sim_*.yaml
+**/sim_*.yml
+examples/applications/*/config/sim_*
+examples/applications/*/models/
+examples/applications/*/data_preprocessing/
+
+# Experiment results and exported data
+**/results/
+**/export_output/
+
+# Model weights and checkpoints
+*.pth
+*.onnx
+*.pkl
+*.joblib
+*.h5
+*.safetensors
