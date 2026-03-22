@@ -33,7 +33,7 @@ curl -X POST http://localhost:8000/forecast \
   -d '{"sensor_values": [22.5, 55.0, 12.3, 4.1, 35, 450.0]}'
 
 # Run simulated workload
-python client/simulate.py --gateway http://localhost:8000 --rps 5 --duration 60
+python client/client.py --gateway http://localhost:8000 --rps 5 --duration 60
 ```
 
 ## K8s Deployment
@@ -60,7 +60,7 @@ export ROHE_EXPERIMENT_ID=exp-001
 rohe experiment start --name "bts-dream" --algorithm dream --contract bts-sla-001
 
 # Run workload
-python client/simulate.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
+python client/client.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
 
 # Stop and export
 rohe experiment stop --name "bts-dream"

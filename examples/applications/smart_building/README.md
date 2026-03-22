@@ -50,13 +50,13 @@ curl -X POST http://localhost:8000/infer \
   -d '{"modalities": ["video", "timeseries"], "time_constraint_ms": 500}'
 
 # Run simulated workload
-python client/consumer.py --control-plane http://localhost:8000 --rps 5 --duration 60
+python client/client.py --control-plane http://localhost:8000 --rps 5 --duration 60
 
 # Video-only workload
-python client/consumer.py --control-plane http://localhost:8000 --modalities video --rps 10
+python client/client.py --control-plane http://localhost:8000 --modalities video --rps 10
 
 # Time-series-only workload
-python client/consumer.py --control-plane http://localhost:8000 --modalities timeseries --rps 20
+python client/client.py --control-plane http://localhost:8000 --modalities timeseries --rps 20
 ```
 
 ## K8s Deployment
@@ -83,7 +83,7 @@ export ROHE_EXPERIMENT_ID=exp-001
 rohe experiment start --name "smart-building-dream" --algorithm dream --contract smart-building-sla-001
 
 # Run workload
-python client/consumer.py --control-plane http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
+python client/client.py --control-plane http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
 
 # Stop and export
 rohe experiment stop --name "smart-building-dream"
