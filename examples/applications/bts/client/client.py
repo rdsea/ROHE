@@ -1,8 +1,17 @@
 """Client for BTS time-series forecasting pipeline.
 
-Supports two modes:
-  --mode real       Send real sensor data (default)
-  --mode simulated  Send sample IDs from sim_config for ground-truth tracking
+Supports three data sources:
+  --mode real                    Generate random sensor data (default)
+  --mode simulated --sim-config  Send sample IDs for ground-truth tracking
+  --dataset path/to/folder       Read real sensor data from CSV files
+
+Dataset folder format:
+  dataset/
+    readings_001.csv   (columns: temperature,humidity,hvac_power,lighting_power,occupancy,solar_irradiance)
+    readings_002.csv
+    ...
+  Each CSV row is one sensor reading sent as a request.
+  If a "label" column exists, it's used as ground_truth.
 """
 from __future__ import annotations
 
@@ -12,6 +21,7 @@ import logging
 import random
 import time
 from pathlib import Path
+from typing import Any, Iterator
 
 import httpx
 import yaml
@@ -33,7 +43,7 @@ def load_workload_profile(profile_path: str) -> dict:
 
 
 def generate_sensor_data() -> list[float]:
-    """Generate simulated building sensor readings."""
+    """Generate random building sensor readings."""
     return [
         round(random.gauss(22.0, 5.0), 2),
         round(random.gauss(50.0, 15.0), 2),
@@ -44,21 +54,48 @@ def generate_sensor_data() -> list[float]:
     ]
 
 
+def iter_dataset(dataset_dir: str) -> Iterator[tuple[list[float], str]]:
+    """Iterate over CSV files in dataset directory.
+
+    Yields (sensor_values, ground_truth_label) tuples.
+    Cycles through the dataset indefinitely.
+    """
+    dataset_path = Path(dataset_dir)
+    csv_files = sorted(dataset_path.glob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found in {dataset_dir}")
+
+    logger.info(f"Loading dataset from {dataset_dir}: {len(csv_files)} CSV files")
+
+    while True:
+        for csv_file in csv_files:
+            with open(csv_file, newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    label = row.pop("label", "")
+                    values = [float(v) for v in row.values()]
+                    yield values, label
+
+
 def run_workload(
     gateway_url: str,
     rps: float,
     duration_seconds: int,
     output_csv: str,
     mode: str = "real",
+    dataset_dir: str | None = None,
     sim_config: str | None = None,
     pipeline_id: str = "bts",
 ) -> None:
     """Run workload against gateway and log results."""
-    # Conditional import for simulated mode
     data_gen = None
+    dataset_iter: Iterator[tuple[list[float], str]] | None = None
+
     if mode == "simulated":
         from simulation.simulated_data_generator import SimulatedDataGenerator
         data_gen = SimulatedDataGenerator(sim_config or "sim_config/client.yaml")
+    elif dataset_dir:
+        dataset_iter = iter_dataset(dataset_dir)
 
     interval = 1.0 / rps if rps > 0 else 1.0
     end_time = time.time() + duration_seconds
@@ -75,7 +112,10 @@ def run_workload(
             "model_count", "status",
         ])
 
-        logger.info(f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url} (mode={mode})")
+        logger.info(
+            f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url} "
+            f"(mode={mode}, dataset={'yes' if dataset_dir else 'no'})"
+        )
 
         with httpx.Client(timeout=30.0) as client:
             while time.time() < end_time:
@@ -83,11 +123,15 @@ def run_workload(
 
                 sample_id = ""
                 ground_truth = ""
+                payload: dict[str, Any]
 
                 if data_gen:
                     sample_id, ground_truth = data_gen.next_sample()
-                    # Send sample ID as data -- simulated model resolves it
                     payload = {"data": sample_id}
+                elif dataset_iter:
+                    sensor_values, ground_truth = next(dataset_iter)
+                    sample_id = f"dataset-{request_count}"
+                    payload = {"data": sensor_values}
                 else:
                     payload = {"data": generate_sensor_data()}
 
@@ -155,6 +199,7 @@ def main() -> None:
     parser.add_argument("--pipeline-id", default="bts", help="Pipeline ID for monitoring")
     parser.add_argument("--mode", choices=["real", "simulated"], default="real", help="Client mode")
     parser.add_argument("--sim-config", default=None, help="Simulation client config YAML path")
+    parser.add_argument("--dataset", default=None, help="Path to dataset folder with CSV files")
     args = parser.parse_args()
 
     if args.profile:
@@ -168,6 +213,7 @@ def main() -> None:
         duration_seconds=args.duration,
         output_csv=args.output,
         mode=args.mode,
+        dataset_dir=args.dataset,
         sim_config=args.sim_config,
         pipeline_id=args.pipeline_id,
     )

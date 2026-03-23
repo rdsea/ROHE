@@ -1,8 +1,24 @@
 """Client for CCTVS object detection pipeline.
 
-Supports two modes:
-  --mode real       Send real/dummy images (default)
-  --mode simulated  Send sample IDs from sim_config for ground-truth tracking
+Supports three data sources:
+  --mode real                    Generate dummy images (default)
+  --mode simulated --sim-config  Send sample IDs for ground-truth tracking
+  --dataset path/to/folder       Read real images from folder
+
+Dataset folder format (flat):
+  dataset/
+    frame_001.jpg
+    frame_002.png
+    ...
+
+Dataset folder format (class-labeled, for ground truth):
+  dataset/
+    car/
+      img_001.jpg
+    person/
+      img_002.jpg
+    ...
+  The parent folder name is used as ground_truth label.
 """
 from __future__ import annotations
 
@@ -12,6 +28,7 @@ import io
 import logging
 import time
 from pathlib import Path
+from typing import Any, Iterator
 
 import httpx
 import yaml
@@ -24,6 +41,8 @@ try:
     monitor = RoheMonitor.from_env()
 except Exception:
     monitor = None  # type: ignore[assignment]
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def load_workload_profile(profile_path: str) -> dict:
@@ -41,20 +60,62 @@ def generate_dummy_image() -> bytes:
     return buf.getvalue()
 
 
+def iter_image_dataset(dataset_dir: str) -> Iterator[tuple[bytes, str, str]]:
+    """Iterate over images in dataset directory.
+
+    Supports two layouts:
+      Flat: dataset/img.jpg -> ground_truth=""
+      Class-labeled: dataset/car/img.jpg -> ground_truth="car"
+
+    Yields (image_bytes, filename, ground_truth) tuples.
+    Cycles through the dataset indefinitely.
+    """
+    dataset_path = Path(dataset_dir)
+
+    image_files: list[tuple[Path, str]] = []
+
+    # Check for class-labeled subdirectories
+    subdirs = [d for d in dataset_path.iterdir() if d.is_dir()]
+    if subdirs:
+        for subdir in sorted(subdirs):
+            label = subdir.name
+            for img_path in sorted(subdir.iterdir()):
+                if img_path.suffix.lower() in IMAGE_EXTENSIONS:
+                    image_files.append((img_path, label))
+    else:
+        for img_path in sorted(dataset_path.iterdir()):
+            if img_path.suffix.lower() in IMAGE_EXTENSIONS:
+                image_files.append((img_path, ""))
+
+    if not image_files:
+        raise FileNotFoundError(f"No image files found in {dataset_dir}")
+
+    logger.info(f"Loading dataset from {dataset_dir}: {len(image_files)} images")
+
+    while True:
+        for img_path, label in image_files:
+            yield img_path.read_bytes(), img_path.name, label
+
+
 def run_workload(
     gateway_url: str,
     rps: float,
     duration_seconds: int,
     output_csv: str,
     mode: str = "real",
+    dataset_dir: str | None = None,
     sim_config: str | None = None,
     pipeline_id: str = "cctvs-object-detection",
 ) -> None:
     """Run workload against gateway and log results."""
     data_gen = None
+    dataset_iter: Iterator[tuple[bytes, str, str]] | None = None
+
     if mode == "simulated":
         from simulation.simulated_data_generator import SimulatedDataGenerator
         data_gen = SimulatedDataGenerator(sim_config or "sim_config/client.yaml")
+    elif dataset_dir:
+        dataset_iter = iter_image_dataset(dataset_dir)
 
     interval = 1.0 / rps if rps > 0 else 1.0
     end_time = time.time() + duration_seconds
@@ -71,7 +132,10 @@ def run_workload(
             "model_count", "status",
         ])
 
-        logger.info(f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url} (mode={mode})")
+        logger.info(
+            f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url} "
+            f"(mode={mode}, dataset={'yes' if dataset_dir else 'no'})"
+        )
 
         with httpx.Client(timeout=30.0) as client:
             while time.time() < end_time:
@@ -87,11 +151,18 @@ def run_workload(
                             f"{gateway_url}/predict",
                             json={"data": sample_id},
                         )
+                    elif dataset_iter:
+                        image_bytes, filename, ground_truth = next(dataset_iter)
+                        sample_id = filename
+                        response = client.post(
+                            f"{gateway_url}/predict",
+                            json={"data": sample_id, "modalities": ["image"]},
+                        )
                     else:
                         image_bytes = generate_dummy_image()
                         response = client.post(
                             f"{gateway_url}/predict",
-                            files={"image": ("frame.jpg", image_bytes, "image/jpeg")},
+                            json={"data": "dummy-image", "modalities": ["image"]},
                         )
 
                     elapsed_ms = (time.perf_counter() - start) * 1000
@@ -150,9 +221,10 @@ def main() -> None:
     parser.add_argument("--duration", type=int, default=60, help="Duration in seconds")
     parser.add_argument("--output", default="./results/client_results.csv", help="Output CSV path")
     parser.add_argument("--profile", default=None, help="Workload profile YAML path")
-    parser.add_argument("--pipeline-id", default="cctvs-object-detection", help="Pipeline ID for monitoring")
+    parser.add_argument("--pipeline-id", default="cctvs-object-detection", help="Pipeline ID")
     parser.add_argument("--mode", choices=["real", "simulated"], default="real", help="Client mode")
     parser.add_argument("--sim-config", default=None, help="Simulation client config YAML path")
+    parser.add_argument("--dataset", default=None, help="Path to dataset folder with images")
     args = parser.parse_args()
 
     if args.profile:
@@ -166,6 +238,7 @@ def main() -> None:
         duration_seconds=args.duration,
         output_csv=args.output,
         mode=args.mode,
+        dataset_dir=args.dataset,
         sim_config=args.sim_config,
         pipeline_id=args.pipeline_id,
     )
