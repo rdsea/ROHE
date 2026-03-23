@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aggregator
-  namespace: bts
   labels:
     app: aggregator
     component: inference
@@ -18,12 +17,11 @@ spec:
     spec:
       containers:
         - name: aggregator
-          image: rohe/bts-inference:latest
+          image: rdsea/bts-aggregator:0.0.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
-            - name: MODEL_SERVICE
-              value: aggregator
             - name: ROHE_SERVICE_NAME
               value: aggregator
             - name: ROHE_ENDPOINT
@@ -56,7 +54,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: aggregator
-  namespace: bts
 spec:
   selector:
     app: aggregator

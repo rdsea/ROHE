@@ -1,7 +1,8 @@
-"""Simulated client for building energy time-series forecasting pipeline.
+"""Client for BTS time-series forecasting pipeline.
 
-Sends sensor data to the gateway at configurable rates and logs results to CSV.
-Reports predictions via rohe-sdk for quality evaluation.
+Supports two modes:
+  --mode real       Send real sensor data (default)
+  --mode simulated  Send sample IDs from sim_config for ground-truth tracking
 """
 from __future__ import annotations
 
@@ -32,19 +33,14 @@ def load_workload_profile(profile_path: str) -> dict:
 
 
 def generate_sensor_data() -> list[float]:
-    """Generate simulated building sensor readings.
-
-    Returns 6 float values:
-    [temperature_c, humidity_pct, hvac_power_kw, lighting_power_kw,
-     occupancy_count, solar_irradiance_wm2]
-    """
+    """Generate simulated building sensor readings."""
     return [
-        round(random.gauss(22.0, 5.0), 2),     # temperature_c
-        round(random.gauss(50.0, 15.0), 2),     # humidity_pct
-        round(max(0, random.gauss(15.0, 8.0)), 2),  # hvac_power_kw
-        round(max(0, random.gauss(5.0, 3.0)), 2),   # lighting_power_kw
-        round(max(0, random.gauss(50.0, 30.0))),     # occupancy_count
-        round(max(0, random.gauss(400.0, 200.0)), 2),  # solar_irradiance_wm2
+        round(random.gauss(22.0, 5.0), 2),
+        round(random.gauss(50.0, 15.0), 2),
+        round(max(0, random.gauss(15.0, 8.0)), 2),
+        round(max(0, random.gauss(5.0, 3.0)), 2),
+        round(max(0, random.gauss(50.0, 30.0))),
+        round(max(0, random.gauss(400.0, 200.0)), 2),
     ]
 
 
@@ -53,9 +49,17 @@ def run_workload(
     rps: float,
     duration_seconds: int,
     output_csv: str,
+    mode: str = "real",
+    sim_config: str | None = None,
     pipeline_id: str = "bts",
 ) -> None:
     """Run workload against gateway and log results."""
+    # Conditional import for simulated mode
+    data_gen = None
+    if mode == "simulated":
+        from simulation.simulated_data_generator import SimulatedDataGenerator
+        data_gen = SimulatedDataGenerator(sim_config or "sim_config/client.yaml")
+
     interval = 1.0 / rps if rps > 0 else 1.0
     end_time = time.time() + duration_seconds
     request_count = 0
@@ -66,22 +70,31 @@ def run_workload(
     with open(csv_path, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow([
-            "query_id", "timestamp", "response_time_ms",
-            "energy_forecast_kwh", "avg_confidence", "model_count", "status",
+            "query_id", "timestamp", "sample_id", "ground_truth",
+            "response_time_ms", "top_prediction", "confidence",
+            "model_count", "status",
         ])
 
-        logger.info(f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url}")
+        logger.info(f"Starting workload: {rps} RPS for {duration_seconds}s -> {gateway_url} (mode={mode})")
 
         with httpx.Client(timeout=30.0) as client:
             while time.time() < end_time:
                 start = time.perf_counter()
 
-                sensor_data = generate_sensor_data()
+                sample_id = ""
+                ground_truth = ""
+
+                if data_gen:
+                    sample_id, ground_truth = data_gen.next_sample()
+                    # Send sample ID as data -- simulated model resolves it
+                    payload = {"data": sample_id}
+                else:
+                    payload = {"data": generate_sensor_data()}
 
                 try:
                     response = client.post(
-                        f"{gateway_url}/forecast",
-                        json={"sensor_values": sensor_data},
+                        f"{gateway_url}/predict",
+                        json=payload,
                     )
                     elapsed_ms = (time.perf_counter() - start) * 1000
 
@@ -89,18 +102,13 @@ def run_workload(
                         data = response.json()
                         query_id = data["query_id"]
                         ensemble = data.get("ensemble_result", {})
-                        energy_forecast = ensemble.get("energy_forecast_kwh", 0.0)
-                        model_count = len(data.get("individual_results", []))
-                        confidences = [
-                            r["confidence"] for r in data.get("individual_results", [])
-                        ]
-                        avg_confidence = (
-                            sum(confidences) / len(confidences) if confidences else 0.0
-                        )
+                        top_class = next(iter(ensemble), "")
+                        top_conf = ensemble.get(top_class, 0.0)
+                        model_count = data.get("model_count", 0)
 
                         writer.writerow([
-                            query_id, time.time(), round(elapsed_ms, 2),
-                            round(energy_forecast, 4), round(avg_confidence, 4),
+                            query_id, time.time(), sample_id, ground_truth,
+                            round(elapsed_ms, 2), top_class, round(top_conf, 4),
                             model_count, "ok",
                         ])
 
@@ -109,20 +117,23 @@ def run_workload(
                                 query_id=query_id,
                                 pipeline_id=pipeline_id,
                                 response_time_ms=elapsed_ms,
-                                ground_truth=None,
+                                ground_truth=ground_truth or None,
                                 prediction=ensemble,
                             )
                     else:
                         writer.writerow([
-                            "", time.time(), round(elapsed_ms, 2),
-                            "", 0, 0, f"error-{response.status_code}",
+                            "", time.time(), sample_id, ground_truth,
+                            round(elapsed_ms, 2), "", 0, 0,
+                            f"error-{response.status_code}",
                         ])
                 except Exception as e:
                     elapsed_ms = (time.perf_counter() - start) * 1000
-                    writer.writerow(["", time.time(), round(elapsed_ms, 2), "", 0, 0, str(e)])
+                    writer.writerow([
+                        "", time.time(), sample_id, ground_truth,
+                        round(elapsed_ms, 2), "", 0, 0, str(e),
+                    ])
 
                 request_count += 1
-
                 sleep_time = interval - (time.perf_counter() - start)
                 if sleep_time > 0:
                     time.sleep(sleep_time)
@@ -135,13 +146,15 @@ def run_workload(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="BTS Simulated Client")
+    parser = argparse.ArgumentParser(description="BTS Client")
     parser.add_argument("--gateway", default="http://localhost:8000", help="Gateway URL")
     parser.add_argument("--rps", type=float, default=5.0, help="Requests per second")
     parser.add_argument("--duration", type=int, default=60, help="Duration in seconds")
     parser.add_argument("--output", default="./results/client_results.csv", help="Output CSV path")
     parser.add_argument("--profile", default=None, help="Workload profile YAML path")
     parser.add_argument("--pipeline-id", default="bts", help="Pipeline ID for monitoring")
+    parser.add_argument("--mode", choices=["real", "simulated"], default="real", help="Client mode")
+    parser.add_argument("--sim-config", default=None, help="Simulation client config YAML path")
     args = parser.parse_args()
 
     if args.profile:
@@ -154,6 +167,8 @@ def main() -> None:
         rps=args.rps,
         duration_seconds=args.duration,
         output_csv=args.output,
+        mode=args.mode,
+        sim_config=args.sim_config,
         pipeline_id=args.pipeline_id,
     )
 

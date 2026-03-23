@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gateway
-  namespace: bts
   labels:
     app: gateway
     component: gateway
@@ -18,18 +17,19 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: rohe/bts-inference:latest
+          image: rdsea/bts-gateway:0.0.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
-            - name: MODEL_SERVICE
-              value: gateway
             - name: ROHE_SERVICE_NAME
               value: gateway
-            - name: DATA_INGESTION_URL
-              value: "http://data-ingestion.bts.svc.cluster.local:8000"
-            - name: INFERENCE_SERVICES
-              value: "http://lstm-inference.bts.svc.cluster.local:8000,http://gru-inference.bts.svc.cluster.local:8000,http://transformer-inference.bts.svc.cluster.local:8000,http://statistical-inference.bts.svc.cluster.local:8000"
+            - name: PIPELINE_ID
+              value: bts
+            - name: ORCHESTRATOR_URL
+              value: "http://orchestrator:9000"
+            - name: DATA_HUB_URL
+              value: "http://data-hub:8000"
             - name: ROHE_ENDPOINT
               valueFrom:
                 configMapKeyRef:
@@ -60,7 +60,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gateway
-  namespace: bts
 spec:
   type: LoadBalancer
   selector:

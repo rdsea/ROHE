@@ -1,50 +1,46 @@
-"""BTS data ingestion and normalization service."""
+"""BTS data ingestion and normalization preprocessor.
+
+Normalizes sensor readings (temperature, humidity, HVAC power, etc.)
+to [0, 1] range using min-max normalization.
+"""
 from __future__ import annotations
 
-import logging
-import os
+from typing import Any
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-logger = logging.getLogger(__name__)
-app = FastAPI(title="BTS Data Ingestion")
+from common.preprocessor_service import create_preprocessor_app
 
 
-class IngestRequest(BaseModel):
-    query_id: str
-    sensor_values: list[float]
+def normalize_sensor_data(data: Any) -> Any:
+    """Min-max normalize sensor values to [0, 1] range.
+
+    Expected input: list of floats (sensor readings) or a sample ID string.
+    """
+    if isinstance(data, str):
+        # Simulated mode: sample ID, pass through
+        return data
+    if not isinstance(data, list):
+        return data
+
+    # Sensor value ranges for BTS building data
+    ranges = [
+        (0.0, 50.0),    # temperature_c
+        (0.0, 100.0),   # humidity_pct
+        (0.0, 50.0),    # hvac_power_kw
+        (0.0, 20.0),    # lighting_power_kw
+        (0.0, 200.0),   # occupancy_count
+        (0.0, 1200.0),  # solar_irradiance_wm2
+    ]
+    normalized = []
+    for i, val in enumerate(data):
+        if i < len(ranges):
+            lo, hi = ranges[i]
+            normalized.append(round(max(0.0, min(1.0, (val - lo) / (hi - lo))), 4))
+        else:
+            normalized.append(val)
+    return normalized
 
 
-class IngestResponse(BaseModel):
-    query_id: str
-    normalized_values: list[float]
-
-
-preprocessor = None
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    global preprocessor
-    config_path = os.environ.get("PREPROCESSOR_CONFIG", "/config/preprocessor.yaml")
-    try:
-        from rohe.common.preprocessor_loader import PreprocessorLoader
-        preprocessor = PreprocessorLoader.load(config_path)
-        logger.info(f"Loaded preprocessor: {preprocessor.get_preprocessor_info()}")
-    except Exception:
-        logger.warning("No preprocessor config, using passthrough")
-
-
-@app.post("/ingest")
-async def ingest(request: IngestRequest) -> IngestResponse:
-    if preprocessor:
-        normalized = preprocessor.preprocess(request.sensor_values)
-    else:
-        normalized = request.sensor_values
-    return IngestResponse(query_id=request.query_id, normalized_values=normalized)
-
-
-@app.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "data-ingestion"}
+app = create_preprocessor_app(
+    service_name="bts-data-ingestion",
+    preprocess_fn=normalize_sensor_data,
+)

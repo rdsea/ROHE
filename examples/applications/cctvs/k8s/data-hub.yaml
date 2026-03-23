@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-hub
+  labels:
+    app: data-hub
+    component: data-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-hub
+  template:
+    metadata:
+      labels:
+        app: data-hub
+    spec:
+      containers:
+        - name: data-hub
+          image: rdsea/cctvs-data-hub:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ROHE_SERVICE_NAME
+              value: data-hub
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-hub
+spec:
+  selector:
+    app: data-hub
+  ports:
+    - port: 8000
+      targetPort: 8000

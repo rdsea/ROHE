@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: yolov5l-inference
-  namespace: cctvs
   labels:
     app: yolov5l-inference
     component: inference
@@ -18,12 +17,11 @@ spec:
     spec:
       containers:
         - name: yolov5l
-          image: rohe/cctvs-inference:latest
+          image: rdsea/cctvs-yolov5l-inference:0.0.1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
           env:
-            - name: MODEL_SERVICE
-              value: yolov5l_inference
             - name: ROHE_SERVICE_NAME
               value: yolov5l
             - name: ROHE_ENDPOINT
@@ -56,7 +54,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: yolov5l-inference
-  namespace: cctvs
 spec:
   selector:
     app: yolov5l-inference
