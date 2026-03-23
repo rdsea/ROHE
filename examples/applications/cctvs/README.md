@@ -1,92 +1,90 @@
-# CCTVS Object Detection - ROHE Reference Application
+# CCTVS (CCTV Surveillance)
 
-A production-grade object detection pipeline demonstrating ROHE platform integration. Deploys 5 diverse detection models as independent microservices with a preprocessing stage, orchestrated by the ROHE platform for quality-aware inference.
+Object detection from surveillance camera feeds.
 
 ## Architecture
 
 ```
-Client --> Web Gateway --> Preprocessor --> [YOLOv5L | YOLOv8N | YOLOv8S | YOLOv8M | SSD-MobileNet] --> Aggregator
-                                                |          |         |         |            |
-                                                +---- rohe-sdk reports metrics to ROHE Observation ----+
+Client -> Web Gateway -> DataHub -> Orchestrator -> Preprocessor -> Inference Services -> Aggregator -> Web Gateway -> Client
 ```
 
-## Models
+### Services
 
-| Service | Model | Parameters | Speed | Accuracy | Use Case |
-|---------|-------|-----------|-------|----------|----------|
-| yolov5l | YOLOv5 Large | ~46M | Moderate | High | High-accuracy baseline |
-| yolov8n | YOLOv8 Nano | ~3M | Very fast | Lower | Edge / real-time |
-| yolov8s | YOLOv8 Small | ~11M | Fast | Moderate | Balanced speed/accuracy |
-| yolov8m | YOLOv8 Medium | ~26M | Moderate | High | General purpose |
-| ssd-mobilenet | SSD MobileNet | ~6M | Fastest | Lower | Ultra-low latency |
+| Service | Image | Description |
+|---------|-------|-------------|
+| Web Gateway | rdsea/cctvs-web-gateway | Accepts requests, stores data in DataHub, forwards to orchestrator |
+| Orchestrator | rdsea/cctvs-orchestrator | Loads ExecutionPlan, dispatches preprocessing and inference |
+| DataHub | rdsea/cctvs-data-hub | Data plane: stores raw and preprocessed data |
+| Preprocessor | rdsea/cctvs-preprocessor | Fetches from DataHub, normalizes, stores back |
+| YOLOv5L | rdsea/cctvs-yolov5l-inference | Fetches from DataHub, runs YOLOv5 Large inference |
+| YOLOv8N | rdsea/cctvs-yolov8n-inference | Fetches from DataHub, runs YOLOv8 Nano inference |
+| YOLOv8S | rdsea/cctvs-yolov8s-inference | Fetches from DataHub, runs YOLOv8 Small inference |
+| YOLOv8M | rdsea/cctvs-yolov8m-inference | Fetches from DataHub, runs YOLOv8 Medium inference |
+| SSD-MobileNet | rdsea/cctvs-ssd-mobilenet-inference | Fetches from DataHub, runs SSD MobileNet inference |
+| Aggregator | rdsea/cctvs-aggregator | Combines results from ensemble |
+| Redis | redis:7-alpine | ExecutionPlan persistence |
 
-All models produce simulated detections for classes: car, person, truck, bicycle, bus, motorcycle, dog, cat.
+## Quick Start
 
-## Quick Start (Local)
+### Build
+```bash
+# Without simulation (production)
+bash scripts/build.sh rdsea 0.0.1
+
+# With simulation (for testing)
+bash scripts/build.sh rdsea 0.0.1 true
+```
+
+### Deploy to Local K8s (kind)
+```bash
+bash scripts/deploy.sh --local --load-images
+```
+
+### Test
+```bash
+kubectl -n cctvs port-forward svc/web-gateway 8000:8000
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"data":"cctvs-00001","modalities":["image"]}'
+```
+
+### Teardown
+```bash
+bash scripts/teardown.sh
+```
+
+## Simulation
+
+Simulation code is gitignored and baked into images with `INCLUDE_SIM=true`.
+
+### Sim Config Files
+- `sim_config/yolov5l.yaml` - YOLOv5 Large simulation config (accuracy, latency, hardware)
+- `sim_config/yolov8n.yaml` - YOLOv8 Nano simulation config
+- `sim_config/yolov8s.yaml` - YOLOv8 Small simulation config
+- `sim_config/yolov8m.yaml` - YOLOv8 Medium simulation config
+- `sim_config/ssd_mobilenet.yaml` - SSD MobileNet simulation config
+- `sim_config/samples.yaml` - sample registry for ground truth tracking
+- `sim_config/client.yaml` - client simulation config
+- `sim_config/execution_plan.yaml` - ExecutionPlan defining the ensemble
+- `sim_config/hardware_profiles/` - hardware device profiles (latency multipliers)
+- `sim_config/scenarios/` - quality scenarios (high_accuracy, low_latency, degraded, etc.)
+
+### Switching Models
+Edit the ExecutionPlan via the orchestrator API:
+```bash
+kubectl -n cctvs port-forward svc/orchestrator 9000:9000
+# Get current plan
+curl http://localhost:9000/plans/{pipeline_id}
+# Patch ensemble (e.g., remove a model)
+curl -X PATCH http://localhost:9000/plans/{pipeline_id}/ensemble/image \
+  -H "Content-Type: application/json" -d '{...}'
+```
+
+## Client
 
 ```bash
-# Start all services
-docker-compose up --build
-
-# In another terminal, send a test image
-curl -X POST http://localhost:8000/detect \
-  -F "image=@test_frame.jpg"
-
-# Run simulated workload
 python client/client.py --gateway http://localhost:8000 --rps 5 --duration 60
+
+# With image dataset
+python client/client.py --gateway http://localhost:8000 --dataset /path/to/images/
 ```
-
-## K8s Deployment
-
-```bash
-# Deploy to Kubernetes
-kubectl apply -k k8s/
-
-# Verify services are running
-kubectl get pods -n cctvs
-
-# Port-forward gateway
-kubectl port-forward -n cctvs svc/web-gateway 8000:8000
-```
-
-## Running with ROHE Platform
-
-```bash
-# Set ROHE environment variables before starting services
-export ROHE_ENDPOINT=http://rohe-observation:5010/metrics
-export ROHE_EXPERIMENT_ID=exp-001
-
-# Start experiment
-rohe experiment start --name "cctvs-dream" --algorithm dream --contract cctvs-sla-001
-
-# Run workload
-python client/client.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
-
-# Stop and export
-rohe experiment stop --name "cctvs-dream"
-rohe export experiment --id cctvs-dream --output ./results/ --format csv
-```
-
-## Workload Profiles
-
-| Profile | RPS | Duration | Description |
-|---------|-----|----------|-------------|
-| `steady_medium.yaml` | 20 | 10 min | Steady medium load |
-| `burst.yaml` | 5 (50 burst) | 10 min | Periodic burst pattern |
-
-## Service Contract
-
-See `contract.yaml` for the SLA definition including:
-- Response time p99 < 300ms
-- Accuracy >= 80%
-- Confidence >= 60%
-- Misclassification rate < 15% (CDM)
-- False positive rate < 10% (CDM)
-
-## Adding a New Model
-
-1. Create `services/new_model_inference/main.py` following the pattern in `yolov5l_inference/main.py`
-2. Add the service to `docker-compose.yml`
-3. Add the service URL to web-gateway's `INFERENCE_SERVICES` env var
-4. Create K8s manifest in `k8s/`
-5. Set appropriate resource requests/limits based on model size

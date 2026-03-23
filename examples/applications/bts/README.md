@@ -1,92 +1,88 @@
-# BTS (Building Energy Time Series Forecasting) - ROHE Reference Application
+# BTS (Building Time Series)
 
-A production-grade building energy forecasting pipeline demonstrating ROHE platform integration. Deploys 4 diverse time-series models as independent microservices, orchestrated by the ROHE platform for quality-aware prediction.
+Time-series forecasting for building energy management.
 
 ## Architecture
 
 ```
-Client --> Gateway --> Data Ingestion --> [LSTM | GRU | Transformer | Statistical] --> Aggregator
-                            |               |       |        |            |
-                            +---- rohe-sdk reports metrics to ROHE Observation ----+
+Client -> Gateway -> DataHub -> Orchestrator -> Data Ingestion -> Inference Services -> Aggregator -> Gateway -> Client
 ```
 
-## Models
+### Services
 
-| Service | Model | Approach | Speed | Accuracy | Use Case |
-|---------|-------|----------|-------|----------|----------|
-| lstm | LSTM | Exponential recency weighting | Medium | High | Temporal dependency baseline |
-| gru | GRU | Linear decay weighting | Fast | High | Lighter recurrent alternative |
-| transformer | Transformer | Self-attention weighting | Slow | Highest | Captures complex patterns |
-| statistical | ARIMA/Statistical | Moving average + trend | Very fast | Moderate | Low-cost fallback |
+| Service | Image | Description |
+|---------|-------|-------------|
+| Gateway | rdsea/bts-gateway | Accepts requests, stores data in DataHub, forwards to orchestrator |
+| Orchestrator | rdsea/bts-orchestrator | Loads ExecutionPlan, dispatches preprocessing and inference |
+| DataHub | rdsea/bts-data-hub | Data plane: stores raw and preprocessed data |
+| Data Ingestion | rdsea/bts-data-ingestion | Fetches from DataHub, normalizes, stores back |
+| LSTM | rdsea/bts-lstm-inference | Fetches from DataHub, runs LSTM inference |
+| GRU | rdsea/bts-gru-inference | Fetches from DataHub, runs GRU inference |
+| Transformer | rdsea/bts-transformer-inference | Fetches from DataHub, runs transformer inference |
+| Statistical | rdsea/bts-statistical-inference | Fetches from DataHub, runs statistical inference |
+| Aggregator | rdsea/bts-aggregator | Combines results from ensemble |
+| Redis | redis:7-alpine | ExecutionPlan persistence |
 
-All models accept 6 normalized sensor channels: temperature, humidity, HVAC power, lighting power, occupancy, and solar irradiance.
+## Quick Start
 
-## Quick Start (Local)
-
+### Build
 ```bash
-# Start all services
-docker-compose up --build
+# Without simulation (production)
+bash scripts/build.sh rdsea 0.0.1
 
-# In another terminal, send a test forecast request
-curl -X POST http://localhost:8000/forecast \
+# With simulation (for testing)
+bash scripts/build.sh rdsea 0.0.1 true
+```
+
+### Deploy to Local K8s (kind)
+```bash
+bash scripts/deploy.sh --local --load-images
+```
+
+### Test
+```bash
+kubectl -n bts port-forward svc/gateway 8000:8000
+curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"sensor_values": [22.5, 55.0, 12.3, 4.1, 35, 450.0]}'
+  -d '{"data":"bts-00001","modalities":["timeseries"]}'
+```
 
-# Run simulated workload
+### Teardown
+```bash
+bash scripts/teardown.sh
+```
+
+## Simulation
+
+Simulation code is gitignored and baked into images with `INCLUDE_SIM=true`.
+
+### Sim Config Files
+- `sim_config/lstm.yaml` - LSTM simulation config (accuracy, latency, hardware)
+- `sim_config/gru.yaml` - GRU simulation config
+- `sim_config/transformer.yaml` - Transformer simulation config
+- `sim_config/statistical.yaml` - Statistical simulation config
+- `sim_config/samples.yaml` - sample registry for ground truth tracking
+- `sim_config/client.yaml` - client simulation config
+- `sim_config/execution_plan.yaml` - ExecutionPlan defining the ensemble
+- `sim_config/hardware_profiles/` - hardware device profiles (latency multipliers)
+- `sim_config/scenarios/` - quality scenarios (high_accuracy, low_latency, degraded, etc.)
+
+### Switching Models
+Edit the ExecutionPlan via the orchestrator API:
+```bash
+kubectl -n bts port-forward svc/orchestrator 9000:9000
+# Get current plan
+curl http://localhost:9000/plans/{pipeline_id}
+# Patch ensemble (e.g., remove a model)
+curl -X PATCH http://localhost:9000/plans/{pipeline_id}/ensemble/timeseries \
+  -H "Content-Type: application/json" -d '{...}'
+```
+
+## Client
+
+```bash
 python client/client.py --gateway http://localhost:8000 --rps 5 --duration 60
+
+# With CSV dataset
+python client/client.py --gateway http://localhost:8000 --dataset /path/to/data.csv --mode simulated
 ```
-
-## K8s Deployment
-
-```bash
-# Deploy to Kubernetes
-kubectl apply -k k8s/
-
-# Verify services are running
-kubectl get pods -n bts
-
-# Port-forward gateway
-kubectl port-forward -n bts svc/gateway 8000:8000
-```
-
-## Running with ROHE Platform
-
-```bash
-# Set ROHE environment variables before starting services
-export ROHE_ENDPOINT=http://rohe-observation:5010/metrics
-export ROHE_EXPERIMENT_ID=exp-001
-
-# Start experiment
-rohe experiment start --name "bts-dream" --algorithm dream --contract bts-sla-001
-
-# Run workload
-python client/client.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
-
-# Stop and export
-rohe experiment stop --name "bts-dream"
-rohe export experiment --id bts-dream --output ./results/ --format csv
-```
-
-## Workload Profiles
-
-| Profile | RPS | Duration | Description |
-|---------|-----|----------|-------------|
-| `steady_medium.yaml` | 20 | 10 min | Steady medium load |
-| `burst.yaml` | 5 (50 burst) | 10 min | Periodic burst pattern |
-
-## Service Contract
-
-See `contract.yaml` for the SLA definition including:
-- Response time p99 < 300ms
-- Prediction accuracy >= 80%
-- Confidence >= 70%
-- Forecast MAE < 0.15 (CDM)
-- Prediction variance < 0.10 (CDM)
-
-## Adding a New Model
-
-1. Create `services/new_model_inference/main.py` following the pattern in `lstm_inference/main.py`
-2. Add the service to `docker-compose.yml`
-3. Add the service URL to gateway's `INFERENCE_SERVICES` env var
-4. Create K8s manifest in `k8s/`
-5. Set appropriate resource requests/limits based on model complexity

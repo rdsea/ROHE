@@ -1,90 +1,88 @@
-# Object Classification - ROHE Reference Application
+# Object Classification
 
-A production-grade image classification pipeline demonstrating ROHE platform integration. Deploys 4 diverse ML models as independent microservices, orchestrated by the ROHE platform for quality-aware inference.
+Image classification with ensemble of CNN and transformer models.
 
 ## Architecture
 
 ```
-Client --> Gateway --> [ResNet-50 | EfficientNet-B0 | MobileNetV3 | ViT-B/16] --> Aggregator
-                            |            |              |            |
-                            +---- rohe-sdk reports metrics to ROHE Observation ----+
+Client -> Gateway -> DataHub -> Orchestrator -> Preprocessor -> Inference Services -> Aggregator -> Gateway -> Client
 ```
 
-## Models
+### Services
 
-| Service | Model | Parameters | Speed | Accuracy | Use Case |
-|---------|-------|-----------|-------|----------|----------|
-| resnet50 | ResNet-50 | ~25M | Medium | High | CNN baseline |
-| efficientnet | EfficientNet-B0 | ~5M | Fast | High | Best accuracy/compute ratio |
-| mobilenet | MobileNetV3-Small | ~2.5M | Very fast | Moderate | Edge-optimized |
-| vit | ViT-B/16 | ~86M | Slow | Highest | Vision transformer |
+| Service | Image | Description |
+|---------|-------|-------------|
+| Gateway | rdsea/object-classification-gateway | Accepts requests, stores data in DataHub, forwards to orchestrator |
+| Orchestrator | rdsea/object-classification-orchestrator | Loads ExecutionPlan, dispatches preprocessing and inference |
+| DataHub | rdsea/object-classification-data-hub | Data plane: stores raw and preprocessed data |
+| Preprocessor | rdsea/object-classification-preprocessor | Fetches from DataHub, normalizes, stores back |
+| ResNet-50 | rdsea/object-classification-resnet50-inference | Fetches from DataHub, runs ResNet-50 inference |
+| EfficientNet-B0 | rdsea/object-classification-efficientnet-b0-inference | Fetches from DataHub, runs EfficientNet-B0 inference |
+| MobileNetV3 | rdsea/object-classification-mobilenet-v3-small-inference | Fetches from DataHub, runs MobileNetV3-Small inference |
+| ViT-B/16 | rdsea/object-classification-vit-b-16-inference | Fetches from DataHub, runs ViT-B/16 inference |
+| Aggregator | rdsea/object-classification-aggregator | Combines results from ensemble |
+| Redis | redis:7-alpine | ExecutionPlan persistence |
 
-All models are pretrained on ImageNet (1000 classes).
+## Quick Start
 
-## Quick Start (Local)
+### Build
+```bash
+# Without simulation (production)
+bash scripts/build.sh rdsea 0.0.1
+
+# With simulation (for testing)
+bash scripts/build.sh rdsea 0.0.1 true
+```
+
+### Deploy to Local K8s (kind)
+```bash
+bash scripts/deploy.sh --local --load-images
+```
+
+### Test
+```bash
+kubectl -n object-classification port-forward svc/gateway 8000:8000
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"data":"objclass-00001","modalities":["image"]}'
+```
+
+### Teardown
+```bash
+bash scripts/teardown.sh
+```
+
+## Simulation
+
+Simulation code is gitignored and baked into images with `INCLUDE_SIM=true`.
+
+### Sim Config Files
+- `sim_config/resnet50.yaml` - ResNet-50 simulation config (accuracy, latency, hardware)
+- `sim_config/efficientnet_b0.yaml` - EfficientNet-B0 simulation config
+- `sim_config/mobilenet_v3_small.yaml` - MobileNetV3-Small simulation config
+- `sim_config/vit_b_16.yaml` - ViT-B/16 simulation config
+- `sim_config/samples.yaml` - sample registry for ground truth tracking
+- `sim_config/client.yaml` - client simulation config
+- `sim_config/execution_plan.yaml` - ExecutionPlan defining the ensemble
+- `sim_config/hardware_profiles/` - hardware device profiles (latency multipliers)
+- `sim_config/scenarios/` - quality scenarios (high_accuracy, low_latency, degraded, etc.)
+
+### Switching Models
+Edit the ExecutionPlan via the orchestrator API:
+```bash
+kubectl -n object-classification port-forward svc/orchestrator 9000:9000
+# Get current plan
+curl http://localhost:9000/plans/{pipeline_id}
+# Patch ensemble (e.g., remove a model)
+curl -X PATCH http://localhost:9000/plans/{pipeline_id}/ensemble/image \
+  -H "Content-Type: application/json" -d '{...}'
+```
+
+## Client
 
 ```bash
-# Start all services
-docker-compose up --build
-
-# In another terminal, send a test image
-curl -X POST http://localhost:8000/classify \
-  -F "image=@test_image.jpg"
-
-# Run simulated workload
 python client/client.py --gateway http://localhost:8000 --rps 5 --duration 60
+
+# With class-labeled image dataset
+python client/client.py --gateway http://localhost:8000 --dataset /path/to/images/
 ```
-
-## K8s Deployment
-
-```bash
-# Deploy to Kubernetes
-kubectl apply -k k8s/
-
-# Verify services are running
-kubectl get pods -n object-classification
-
-# Port-forward gateway
-kubectl port-forward -n object-classification svc/gateway 8000:8000
-```
-
-## Running with ROHE Platform
-
-```bash
-# Set ROHE environment variables before starting services
-export ROHE_ENDPOINT=http://rohe-observation:5010/metrics
-export ROHE_EXPERIMENT_ID=exp-001
-
-# Start experiment
-rohe experiment start --name "obj-class-dream" --algorithm dream --contract obj-class-sla-001
-
-# Run workload
-python client/client.py --gateway http://localhost:8000 --profile client/workload_profiles/steady_medium.yaml
-
-# Stop and export
-rohe experiment stop --name "obj-class-dream"
-rohe export experiment --id obj-class-dream --output ./results/ --format csv
-```
-
-## Workload Profiles
-
-| Profile | RPS | Duration | Description |
-|---------|-----|----------|-------------|
-| `steady_medium.yaml` | 20 | 10 min | Steady medium load |
-| `burst.yaml` | 5 (50 burst) | 10 min | Periodic burst pattern |
-
-## Service Contract
-
-See `contract.yaml` for the SLA definition including:
-- Response time p99 < 500ms
-- Accuracy >= 85%
-- Confidence >= 70%
-- Top-5 error rate < 10% (CDM)
-
-## Adding a New Model
-
-1. Create `services/new_model_inference/main.py` following the pattern in `resnet50_inference/main.py`
-2. Add the service to `docker-compose.yml`
-3. Add the service URL to gateway's `INFERENCE_SERVICES` env var
-4. Create K8s manifest in `k8s/`
-5. Set appropriate resource requests/limits based on model size
