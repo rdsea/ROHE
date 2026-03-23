@@ -1,7 +1,0 @@
-boto3
-tensorflow
-numpy
-python-dotenv
-flask
-flask_restful
-qoa4ml

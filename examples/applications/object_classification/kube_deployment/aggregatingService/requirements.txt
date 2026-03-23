@@ -1,5 +1,0 @@
-quixstreams
-pyyaml
-qoa4ml
-pymongo
-pandas
