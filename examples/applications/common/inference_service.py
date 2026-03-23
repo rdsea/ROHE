@@ -3,6 +3,10 @@
 All inference services across all apps use this to create their FastAPI app.
 The service is identical regardless of model type (real or simulated) --
 the model is loaded via ModelLoader at startup from a YAML config.
+
+Supports two request modes:
+  1. POST /predict (PredictRequest) -- inline data, for direct testing
+  2. POST /inference (InferenceTaskRequest) -- data reference, fetches from DataHub
 """
 from __future__ import annotations
 
@@ -11,9 +15,10 @@ import os
 import time
 from typing import Any
 
-from fastapi import FastAPI, File, Form, UploadFile
+import httpx
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
-from .schemas import InferenceResponse, PredictRequest
+from .schemas import InferenceResponse, InferenceTaskRequest, PredictRequest
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +30,6 @@ def create_inference_app(
     """Create a standard inference service FastAPI app.
 
     The model is loaded at startup from MODEL_CONFIG env var.
-    Supports both JSON (PredictRequest) and file upload (UploadFile) endpoints.
     """
     app = FastAPI(title=f"{service_name} Inference Service")
     app.state.model = None
@@ -49,9 +53,27 @@ def create_inference_app(
         except Exception:
             logger.debug("rohe-sdk not available, monitoring disabled")
 
+    # -- Orchestrator-driven endpoint (data reference) --
+
+    @app.post("/inference", response_model=InferenceResponse)
+    async def inference_from_datahub(request: InferenceTaskRequest) -> InferenceResponse:
+        """Run inference on data fetched from DataHub.
+
+        Called by the orchestrator with a data reference. The service fetches
+        its input from DataHub, runs the model, and returns the result.
+        """
+        data = await _fetch_from_datahub(
+            data_hub_url=request.data_hub_url,
+            query_id=request.query_id,
+            data_key=request.data_key,
+        )
+        return _run_inference(app, request.query_id, data)
+
+    # -- Direct endpoints (inline data, for testing and backward compat) --
+
     @app.post("/predict", response_model=InferenceResponse)
     async def predict_json(request: PredictRequest) -> InferenceResponse:
-        """Predict from JSON request (timeseries, tabular data)."""
+        """Predict from inline JSON data."""
         return _run_inference(app, request.query_id, request.data)
 
     @app.post("/predict/image", response_model=InferenceResponse)
@@ -75,10 +97,26 @@ def create_inference_app(
     return app
 
 
+async def _fetch_from_datahub(
+    data_hub_url: str,
+    query_id: str,
+    data_key: str,
+) -> Any:
+    """Fetch data from DataHub by query_id and data_key."""
+    url = f"{data_hub_url}/fetch/{query_id}/{data_key}"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url)
+    if resp.status_code != 200:
+        raise HTTPException(
+            status_code=502,
+            detail=f"DataHub fetch failed: {url} returned {resp.status_code}",
+        )
+    return resp.json().get("data")
+
+
 def _run_inference(app: FastAPI, query_id: str, input_data: Any) -> InferenceResponse:
     """Run inference through the loaded model and report metrics."""
     if app.state.model is None:
-        from fastapi import HTTPException
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     start = time.perf_counter()
