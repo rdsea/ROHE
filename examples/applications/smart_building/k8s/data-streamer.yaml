@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-streamer
+  labels:
+    app: data-streamer
+    component: data-streamer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-streamer
+  template:
+    metadata:
+      labels:
+        app: data-streamer
+    spec:
+      containers:
+        - name: data-streamer
+          image: rdsea/smartbuilding-data-streamer:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ROHE_SERVICE_NAME
+              value: data-streamer
+            - name: DATA_HUB_URL
+              value: "http://data-hub:8000"
+            - name: STREAM_RATE
+              value: "10"
+            - name: STREAM_MODALITIES
+              value: "video,acc_phone,acc_watch,gyro,orientation"
+            - name: DATASET_DIR
+              value: /data/dataset
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-streamer
+spec:
+  selector:
+    app: data-streamer
+  ports:
+    - port: 8000
+      targetPort: 8000

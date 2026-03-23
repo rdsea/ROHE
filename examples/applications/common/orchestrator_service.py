@@ -88,6 +88,7 @@ def create_orchestrator_app() -> FastAPI:
             )
 
         data_hub_url = request.data_hub_url or plan.data_hub_url
+        window_length = request.window_length
         all_results: list[InferenceResponse] = []
 
         # Execute phases sequentially
@@ -104,6 +105,7 @@ def create_orchestrator_app() -> FastAPI:
                 phase_modalities=phase.modalities,
                 query_id=request.query_id,
                 data_hub_url=data_hub_url,
+                window_length=window_length,
                 timeout=app.state.timeout,
             )
             all_results.extend(phase_results)
@@ -214,7 +216,8 @@ async def _execute_phase(
     phase_modalities: list[str],
     query_id: str,
     data_hub_url: str,
-    timeout: float,
+    window_length: int = 0,
+    timeout: float = 30.0,
 ) -> list[InferenceResponse]:
     """Execute all modalities in a phase concurrently."""
     tasks = []
@@ -228,6 +231,7 @@ async def _execute_phase(
                 ensemble=ensemble,
                 query_id=query_id,
                 data_hub_url=data_hub_url,
+                window_length=window_length,
                 timeout=timeout,
             )
         )
@@ -249,7 +253,8 @@ async def _execute_modality(
     ensemble: Any,  # ModalityEnsemble
     query_id: str,
     data_hub_url: str,
-    timeout: float,
+    window_length: int = 0,
+    timeout: float = 30.0,
 ) -> list[InferenceResponse]:
     """Execute preprocessing + inference for a single modality."""
     data_key = ensemble.modality  # raw data key
@@ -263,6 +268,7 @@ async def _execute_modality(
             data_key=data_key,
             output_data_key=preproc.output_data_key,
             data_hub_url=data_hub_url,
+            window_length=window_length,
         )
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:

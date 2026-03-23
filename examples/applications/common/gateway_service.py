@@ -25,8 +25,9 @@ class GatewayPredictRequest(BaseModel):
     """Request body for the gateway predict endpoint."""
 
     query_id: str = ""
-    data: Any = None  # noqa: ANN401 -- opaque, passed to DataHub
+    data: Any = None  # noqa: ANN401 -- opaque, passed to DataHub (None for streaming)
     modalities: Optional[list[str]] = None
+    window_length: int = 0  # >0 = extract from DataHub stream buffer, 0 = use inline data
     time_constraint_ms: float = 500.0
 
 
@@ -66,6 +67,7 @@ def create_gateway_app(
             return await _handle_request(
                 app, query_id, request.data,
                 modalities=request.modalities or [app.state.pipeline_id],
+                window_length=request.window_length,
                 time_constraint_ms=request.time_constraint_ms,
             )
     else:
@@ -101,30 +103,33 @@ async def _handle_request(
     query_id: str,
     data: Any,  # noqa: ANN401 -- opaque
     modalities: list[str],
-    time_constraint_ms: float,
+    window_length: int = 0,
+    time_constraint_ms: float = 500.0,
 ) -> GatewayResponse:
-    """Store data in DataHub, forward to orchestrator, return response."""
+    """Store data in DataHub (if provided), forward to orchestrator, return response."""
     async with httpx.AsyncClient(timeout=app.state.timeout) as client:
-        # Step 1: Store raw data in DataHub (one entry per modality)
-        for modality in modalities:
-            try:
-                await client.post(
-                    f"{app.state.data_hub_url}/store",
-                    json={
-                        "query_id": query_id,
-                        "data_key": modality,
-                        "data": data,
-                        "metadata": {"source": "gateway"},
-                    },
-                )
-            except (httpx.TimeoutException, httpx.ConnectError):
-                logger.warning(f"DataHub unavailable, could not store {modality}")
+        # Step 1: Store raw data in DataHub (skip if streaming -- data already in stream buffer)
+        if data is not None and window_length == 0:
+            for modality in modalities:
+                try:
+                    await client.post(
+                        f"{app.state.data_hub_url}/store",
+                        json={
+                            "query_id": query_id,
+                            "data_key": modality,
+                            "data": data,
+                            "metadata": {"source": "gateway"},
+                        },
+                    )
+                except (httpx.TimeoutException, httpx.ConnectError):
+                    logger.warning(f"DataHub unavailable, could not store {modality}")
 
         # Step 2: Forward control message to orchestrator
         orchestrate_request = OrchestrateRequest(
             query_id=query_id,
             pipeline_id=app.state.pipeline_id,
             modalities=modalities,
+            window_length=window_length,
             time_constraint_ms=time_constraint_ms,
             data_hub_url=app.state.data_hub_url,
         )

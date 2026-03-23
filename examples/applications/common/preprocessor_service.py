@@ -58,12 +58,19 @@ def create_preprocessor_app(
         request: PreprocessTaskRequest,
     ) -> PreprocessTaskResponse:
         """Fetch raw data from DataHub, preprocess, store result back."""
-        # Fetch raw data
-        raw_data = await _fetch_from_datahub(
-            data_hub_url=request.data_hub_url,
-            query_id=request.query_id,
-            data_key=request.data_key,
-        )
+        # Fetch raw data -- from stream buffer or query-scoped storage
+        if request.window_length > 0:
+            raw_data = await _fetch_stream_window(
+                data_hub_url=request.data_hub_url,
+                modality=request.data_key,
+                window_length=request.window_length,
+            )
+        else:
+            raw_data = await _fetch_from_datahub(
+                data_hub_url=request.data_hub_url,
+                query_id=request.query_id,
+                data_key=request.data_key,
+            )
 
         # Preprocess
         processed_data = _apply_preprocessing(app, raw_data)
@@ -103,6 +110,23 @@ def _apply_preprocessing(app: FastAPI, data: Any) -> Any:
         return app.state.preprocessor.preprocess(data)
     # Passthrough if no preprocessor configured
     return data
+
+
+async def _fetch_stream_window(
+    data_hub_url: str,
+    modality: str,
+    window_length: int,
+) -> Any:
+    """Fetch a window of recent samples from DataHub's stream buffer."""
+    url = f"{data_hub_url}/stream/{modality}/window?length={window_length}"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url)
+    if resp.status_code != 200:
+        raise HTTPException(
+            status_code=502,
+            detail=f"DataHub stream window fetch failed: {url} returned {resp.status_code}",
+        )
+    return resp.json().get("samples", [])
 
 
 async def _fetch_from_datahub(

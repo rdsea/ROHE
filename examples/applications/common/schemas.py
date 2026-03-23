@@ -35,15 +35,17 @@ class InferenceTaskRequest(BaseModel):
 class PreprocessTaskRequest(BaseModel):
     """Request from orchestrator to a preprocessor service via data references.
 
-    The preprocessor fetches raw data from DataHub, processes it, and stores
-    the result back to DataHub under output_data_key.
+    Two modes:
+    - window_length=0: fetch by query_id/data_key (request-scoped data)
+    - window_length>0: extract last N samples from stream buffer (streaming data)
     """
 
     query_id: str
     modality: str
-    data_key: str  # key to fetch raw data from DataHub
+    data_key: str  # key to fetch raw data from DataHub (or stream modality name)
     output_data_key: str  # key to store preprocessed result in DataHub
     data_hub_url: str
+    window_length: int = 0  # >0 = extract from stream buffer
 
 
 class PreprocessTaskResponse(BaseModel):
@@ -62,6 +64,7 @@ class OrchestrateRequest(BaseModel):
     query_id: str
     pipeline_id: str
     modalities: list[str] = []
+    window_length: int = 0  # 0 = use query-scoped data, >0 = extract from stream buffer
     time_constraint_ms: float = 500.0
     data_hub_url: str = ""
 
