@@ -11,6 +11,12 @@ COPY src/rohe/__init__.py /app/rohe/__init__.py
 COPY src/rohe/common/ /app/rohe/common/
 COPY src/rohe/models/ /app/rohe/models/
 COPY src/rohe/repositories/ /app/rohe/repositories/
+COPY src/rohe/monitoring/ /app/rohe/monitoring/
+COPY src/rohe/orchestration/__init__.py /app/rohe/orchestration/__init__.py
+COPY src/rohe/orchestration/inference/__init__.py /app/rohe/orchestration/inference/__init__.py
+COPY src/rohe/orchestration/inference/orchestrator_v2.py /app/rohe/orchestration/inference/orchestrator_v2.py
+COPY src/rohe/orchestration/inference/ensemble_selector.py /app/rohe/orchestration/inference/ensemble_selector.py
+COPY src/rohe/orchestration/inference/service_registry.py /app/rohe/orchestration/inference/service_registry.py
 
 # Copy shared application utilities
 COPY examples/applications/common/ /app/common/

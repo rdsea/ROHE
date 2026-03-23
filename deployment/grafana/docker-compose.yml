@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana:11-alpine
+    image: grafana/grafana:latest
     ports:
       - "3000:3000"
     environment:
