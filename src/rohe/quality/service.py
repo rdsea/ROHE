@@ -42,12 +42,14 @@ class QualityService:
     Combines:
     - Tier 1: ContractChecker (rule-based threshold evaluation)
     - Tier 2: MetricAnomalyChecker (statistical anomaly detection)
+    - Tier 3: LLMDiagnosisEngine (LLM-assisted root cause analysis)
     - Remediation: adjust ExecutionPlan when violations detected
 
     Usage:
         service = QualityService(
             contract_checker=checker,
             plan_store=redis_cache,
+            enable_llm_diagnosis=True,
         )
         actions = service.evaluate_and_remediate()
     """
@@ -58,12 +60,22 @@ class QualityService:
         anomaly_checker: MetricAnomalyChecker | None = None,
         plan_store: Any = None,  # RedisCache
         max_remediation_per_cycle: int = 3,
+        enable_llm_diagnosis: bool = False,
     ) -> None:
         self._contract_checker = contract_checker
         self._anomaly_checker = anomaly_checker or MetricAnomalyChecker()
         self._plan_store = plan_store
         self._max_remediation = max_remediation_per_cycle
         self._action_log: list[RemediationAction] = []
+        self._llm_engine: Any = None
+
+        if enable_llm_diagnosis:
+            try:
+                from rohe.quality.llm_diagnosis import LLMDiagnosisEngine
+                self._llm_engine = LLMDiagnosisEngine()
+                logger.info("Tier 3 LLM diagnosis enabled")
+            except Exception as e:
+                logger.warning(f"LLM diagnosis not available: {e}")
 
     def evaluate_and_remediate(self) -> list[RemediationAction]:
         """Run one evaluation cycle: check contracts, detect anomalies, remediate.
@@ -91,6 +103,11 @@ class QualityService:
             if plan is None:
                 continue
 
+            # Tier 3: LLM diagnosis for critical violations
+            critical_violations = [v for v in pipeline_violations if v.severity == "critical"]
+            if critical_violations and self._llm_engine:
+                self._run_llm_diagnosis(pipeline_id, critical_violations, plan)
+
             for violation in pipeline_violations:
                 action = self._remediate(plan, violation)
                 if action:
@@ -111,9 +128,57 @@ class QualityService:
         """
         return self._anomaly_checker.check_metrics(metrics_by_name)
 
+    def diagnose_pipeline(
+        self,
+        pipeline_id: str,
+        violations: list[dict[str, Any]],
+        metric_summary: dict[str, Any] | None = None,
+        anomaly_results: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Run Tier 3 LLM diagnosis on a pipeline's quality issues.
+
+        Can be called directly via API for on-demand diagnosis.
+        """
+        if self._llm_engine is None:
+            return {"error": "LLM diagnosis not enabled"}
+
+        plan = self._load_plan(pipeline_id)
+        plan_snapshot = plan.model_dump(mode="json") if plan else None
+
+        result = self._llm_engine.diagnose(
+            pipeline_id=pipeline_id,
+            violations=violations,
+            metric_summary=metric_summary,
+            anomaly_results=anomaly_results,
+            plan_snapshot=plan_snapshot,
+        )
+        return result.model_dump(mode="json")
+
     def get_action_log(self) -> list[RemediationAction]:
         """Return all remediation actions taken since startup."""
         return list(self._action_log)
+
+    def _run_llm_diagnosis(
+        self,
+        pipeline_id: str,
+        violations: list[ViolationEvent],
+        plan: ExecutionPlan,
+    ) -> None:
+        """Run LLM diagnosis for critical violations (async, non-blocking)."""
+        try:
+            violation_dicts = [v.model_dump(mode="json") for v in violations]
+            result = self._llm_engine.diagnose(
+                pipeline_id=pipeline_id,
+                violations=violation_dicts,
+                plan_snapshot=plan.model_dump(mode="json"),
+            )
+            logger.info(
+                f"LLM diagnosis for '{pipeline_id}': severity={result.severity}, "
+                f"root_cause={result.root_cause}, "
+                f"recommendations={len(result.recommendations)}"
+            )
+        except Exception as e:
+            logger.warning(f"LLM diagnosis failed for '{pipeline_id}': {e}")
 
     def _remediate(
         self,
