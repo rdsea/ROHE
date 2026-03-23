@@ -1,0 +1,124 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Inference Requests / sec",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(rohe_inference_requests_total[1m])",
+          "legendFormat": "{{pipeline_id}} - {{model}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "reqps"}
+      }
+    },
+    {
+      "title": "Inference Latency (p95)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(rohe_inference_latency_bucket[5m]))",
+          "legendFormat": "{{pipeline_id}} - {{model}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "ms"}
+      }
+    },
+    {
+      "title": "Average Confidence by Pipeline",
+      "type": "gauge",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "avg(rohe_inference_confidence) by (pipeline_id)",
+          "legendFormat": "{{pipeline_id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "percentunit", "min": 0, "max": 1, "thresholds": {
+          "steps": [
+            {"color": "red", "value": 0},
+            {"color": "yellow", "value": 0.6},
+            {"color": "green", "value": 0.8}
+          ]
+        }}
+      }
+    },
+    {
+      "title": "SLA Violations",
+      "type": "stat",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(increase(rohe_sla_violations_total[1h])) by (pipeline_id, severity)",
+          "legendFormat": "{{pipeline_id}} ({{severity}})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"thresholds": {
+          "steps": [
+            {"color": "green", "value": 0},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 5}
+          ]
+        }}
+      }
+    },
+    {
+      "title": "Active Models per Pipeline",
+      "type": "bargauge",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+      "targets": [
+        {
+          "expr": "count(rohe_inference_requests_total) by (pipeline_id)",
+          "legendFormat": "{{pipeline_id}}"
+        }
+      ]
+    },
+    {
+      "title": "Model Confidence Distribution",
+      "type": "histogram",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "rohe_inference_confidence",
+          "legendFormat": "{{model}}"
+        }
+      ]
+    },
+    {
+      "title": "Latency by Model",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(rohe_inference_latency_bucket[5m]))",
+          "legendFormat": "p50 {{model}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(rohe_inference_latency_bucket[5m]))",
+          "legendFormat": "p99 {{model}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "ms"}
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["rohe", "inference", "quality"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "ROHE Inference Quality Overview",
+  "uid": "rohe-overview"
+}
