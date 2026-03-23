@@ -1,15 +1,18 @@
 services:
   gateway:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: gateway
+        APP_NAME: bts
+        SERVICE_NAME: gateway
+    image: rdsea/bts-gateway:0.0.1
     ports:
       - "8000:8000"
     environment:
       - DATA_INGESTION_URL=http://data-ingestion:8000
       - INFERENCE_SERVICES=http://lstm:8000,http://gru:8000,http://transformer:8000,http://statistical:8000
+      - AGGREGATOR_URL=http://aggregator:8000/aggregate
       - ROHE_SERVICE_NAME=gateway
     depends_on:
       - data-ingestion
@@ -17,62 +20,75 @@ services:
       - gru
       - transformer
       - statistical
+      - aggregator
 
   data-ingestion:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: data_ingestion
+        APP_NAME: bts
+        SERVICE_NAME: data_ingestion
+    image: rdsea/bts-data-ingestion:0.0.1
     environment:
       - ROHE_SERVICE_NAME=data-ingestion
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   lstm:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: lstm_inference
+        APP_NAME: bts
+        SERVICE_NAME: lstm_inference
+    image: rdsea/bts-lstm-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=lstm
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   gru:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: gru_inference
+        APP_NAME: bts
+        SERVICE_NAME: gru_inference
+    image: rdsea/bts-gru-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=gru
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   transformer:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: transformer_inference
+        APP_NAME: bts
+        SERVICE_NAME: transformer_inference
+    image: rdsea/bts-transformer-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=transformer
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   statistical:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: statistical_inference
+        APP_NAME: bts
+        SERVICE_NAME: statistical_inference
+    image: rdsea/bts-statistical-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=statistical
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   aggregator:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: bts/Dockerfile
       args:
-        MODEL_SERVICE: aggregator
+        APP_NAME: bts
+        SERVICE_NAME: aggregator
+    image: rdsea/bts-aggregator:0.0.1
     environment:
       - ROHE_SERVICE_NAME=aggregator

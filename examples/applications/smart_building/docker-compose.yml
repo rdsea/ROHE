@@ -1,10 +1,12 @@
 services:
   control-plane:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: control_plane
+        APP_NAME: smart_building
+        SERVICE_NAME: control_plane
+    image: rdsea/smartbuilding-control-plane:0.0.1
     ports:
       - "8000:8000"
     environment:
@@ -25,98 +27,118 @@ services:
 
   x3d-xs:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: x3d_xs_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: x3d_xs_inference
+    image: rdsea/smartbuilding-x3d-xs-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=x3d-xs
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   x3d-s:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: x3d_s_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: x3d_s_inference
+    image: rdsea/smartbuilding-x3d-s-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=x3d-s
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   x3d-m:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: x3d_m_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: x3d_m_inference
+    image: rdsea/smartbuilding-x3d-m-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=x3d-m
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   slowfast:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: slowfast_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: slowfast_inference
+    image: rdsea/smartbuilding-slowfast-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=slowfast
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   minirocket-svm:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: minirocket_svm_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: minirocket_svm_inference
+    image: rdsea/smartbuilding-minirocket-svm-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=minirocket-svm
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   minirocket-ridge:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: minirocket_ridge_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: minirocket_ridge_inference
+    image: rdsea/smartbuilding-minirocket-ridge-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=minirocket-ridge
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   cnn1d:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: cnn1d_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: cnn1d_inference
+    image: rdsea/smartbuilding-cnn1d-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=cnn1d
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   lstm-ts:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: lstm_ts_inference
+        APP_NAME: smart_building
+        SERVICE_NAME: lstm_ts_inference
+    image: rdsea/smartbuilding-lstm-ts-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=lstm-ts
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   aggregator:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: aggregator
+        APP_NAME: smart_building
+        SERVICE_NAME: aggregator
+    image: rdsea/smartbuilding-aggregator:0.0.1
     environment:
       - ROHE_SERVICE_NAME=aggregator
 
   data-hub:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: smart_building/Dockerfile
       args:
-        MODEL_SERVICE: data_hub
+        APP_NAME: smart_building
+        SERVICE_NAME: data_hub
+    image: rdsea/smartbuilding-data-hub:0.0.1
     environment:
       - ROHE_SERVICE_NAME=data-hub

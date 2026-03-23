@@ -1,0 +1,64 @@
+services:
+  x3d-xs:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/x3d_xs.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  x3d-s:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/x3d_s.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  x3d-m:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/x3d_m.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  slowfast:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/slowfast.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  minirocket-svm:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/minirocket_svm.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  minirocket-ridge:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/minirocket_ridge.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  cnn1d:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/cnn1d.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  lstm-ts:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/lstm_ts.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml

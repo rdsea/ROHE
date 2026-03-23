@@ -1,0 +1,48 @@
+services:
+  preprocessor:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/preprocessor.yaml:/config/preprocessor.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - PREPROCESSOR_CONFIG=/config/preprocessor.yaml
+
+  yolov5l:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/yolov5l.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  yolov8n:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/yolov8n.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  yolov8s:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/yolov8s.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  yolov8m:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/yolov8m.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  ssd-mobilenet:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/ssd_mobilenet.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml

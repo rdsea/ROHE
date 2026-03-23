@@ -1,0 +1,40 @@
+services:
+  data-ingestion:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/preprocessor.yaml:/config/preprocessor.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - PREPROCESSOR_CONFIG=/config/preprocessor.yaml
+
+  lstm:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/lstm.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  gru:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/gru.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  transformer:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/transformer.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml
+
+  statistical:
+    volumes:
+      - ./simulation/:/app/simulation/:ro
+      - ./sim_config/statistical.yaml:/config/model.yaml:ro
+      - ./sim_config/samples.yaml:/config/samples.yaml:ro
+    environment:
+      - MODEL_CONFIG=/config/model.yaml

@@ -1,15 +1,18 @@
 services:
   web-gateway:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: web_gateway
+        APP_NAME: cctvs
+        SERVICE_NAME: web_gateway
+    image: rdsea/cctvs-web-gateway:0.0.1
     ports:
       - "8000:8000"
     environment:
       - PREPROCESSOR_URL=http://preprocessor:8000/preprocess
       - INFERENCE_SERVICES=http://yolov5l:8000,http://yolov8n:8000,http://yolov8s:8000,http://yolov8m:8000,http://ssd-mobilenet:8000
+      - AGGREGATOR_URL=http://aggregator:8000/aggregate
       - ROHE_SERVICE_NAME=web-gateway
     depends_on:
       - preprocessor
@@ -18,72 +21,87 @@ services:
       - yolov8s
       - yolov8m
       - ssd-mobilenet
+      - aggregator
 
   preprocessor:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: preprocessor
+        APP_NAME: cctvs
+        SERVICE_NAME: preprocessor
+    image: rdsea/cctvs-preprocessor:0.0.1
     environment:
       - ROHE_SERVICE_NAME=preprocessor
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   yolov5l:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: yolov5l_inference
+        APP_NAME: cctvs
+        SERVICE_NAME: yolov5l_inference
+    image: rdsea/cctvs-yolov5l-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=yolov5l
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   yolov8n:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: yolov8n_inference
+        APP_NAME: cctvs
+        SERVICE_NAME: yolov8n_inference
+    image: rdsea/cctvs-yolov8n-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=yolov8n
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   yolov8s:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: yolov8s_inference
+        APP_NAME: cctvs
+        SERVICE_NAME: yolov8s_inference
+    image: rdsea/cctvs-yolov8s-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=yolov8s
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   yolov8m:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: yolov8m_inference
+        APP_NAME: cctvs
+        SERVICE_NAME: yolov8m_inference
+    image: rdsea/cctvs-yolov8m-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=yolov8m
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   ssd-mobilenet:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: ssd_mobilenet_inference
+        APP_NAME: cctvs
+        SERVICE_NAME: ssd_mobilenet_inference
+    image: rdsea/cctvs-ssd-mobilenet-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=ssd-mobilenet
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   aggregator:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: cctvs/Dockerfile
       args:
-        MODEL_SERVICE: aggregator
+        APP_NAME: cctvs
+        SERVICE_NAME: aggregator
+    image: rdsea/cctvs-aggregator:0.0.1
     environment:
       - ROHE_SERVICE_NAME=aggregator

@@ -1,66 +1,80 @@
 services:
   gateway:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: gateway
+        APP_NAME: object_classification
+        SERVICE_NAME: gateway
+    image: rdsea/objclass-gateway:0.0.1
     ports:
       - "8000:8000"
     environment:
       - INFERENCE_SERVICES=http://resnet50:8000,http://efficientnet:8000,http://mobilenet:8000,http://vit:8000
+      - AGGREGATOR_URL=http://aggregator:8000/aggregate
       - ROHE_SERVICE_NAME=gateway
     depends_on:
       - resnet50
       - efficientnet
       - mobilenet
       - vit
+      - aggregator
 
   resnet50:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: resnet50_inference
+        APP_NAME: object_classification
+        SERVICE_NAME: resnet50_inference
+    image: rdsea/objclass-resnet50-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=resnet50
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   efficientnet:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: efficientnet_inference
+        APP_NAME: object_classification
+        SERVICE_NAME: efficientnet_inference
+    image: rdsea/objclass-efficientnet-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=efficientnet
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   mobilenet:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: mobilenet_inference
+        APP_NAME: object_classification
+        SERVICE_NAME: mobilenet_inference
+    image: rdsea/objclass-mobilenet-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=mobilenet
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   vit:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: vit_inference
+        APP_NAME: object_classification
+        SERVICE_NAME: vit_inference
+    image: rdsea/objclass-vit-inference:0.0.1
     environment:
       - ROHE_SERVICE_NAME=vit
       - ROHE_ENDPOINT=${ROHE_ENDPOINT:-http://host.docker.internal:5010/metrics}
 
   aggregator:
     build:
-      context: ./services
-      dockerfile: Dockerfile.inference
+      context: ..
+      dockerfile: object_classification/Dockerfile
       args:
-        MODEL_SERVICE: aggregator
+        APP_NAME: object_classification
+        SERVICE_NAME: aggregator
+    image: rdsea/objclass-aggregator:0.0.1
     environment:
       - ROHE_SERVICE_NAME=aggregator
