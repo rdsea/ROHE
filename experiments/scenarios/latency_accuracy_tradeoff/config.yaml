@@ -1,0 +1,8 @@
+scenario:
+  name: latency_accuracy_tradeoff
+  description: "Compare ensemble sizes: 1, 2, 3, 4 models and their latency vs accuracy tradeoff"
+  apps: [bts, object-classification]
+  ensemble_sizes: [1, 2, 3, 4]
+  duration_seconds: 120
+  rps: 10
+  repetitions: 3

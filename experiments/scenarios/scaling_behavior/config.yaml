@@ -1,0 +1,7 @@
+scenario:
+  name: scaling_behavior
+  description: "Test throughput and latency under increasing RPS"
+  apps: [bts]
+  rps_levels: [1, 5, 10, 20, 50]
+  duration_per_level_seconds: 60
+  repetitions: 3

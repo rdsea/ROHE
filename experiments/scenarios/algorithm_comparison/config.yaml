@@ -1,0 +1,12 @@
+scenario:
+  name: algorithm_comparison
+  description: "Compare orchestration algorithms (enhance_confidence, select_by_overall_accuracy, enhance_generalization) across all apps"
+  apps: [bts, cctvs, object-classification, smart-building]
+  algorithms:
+    - enhance_confidence
+    - select_by_overall_accuracy
+    - enhance_generalization
+  workload: steady_medium
+  duration_seconds: 300
+  rps: 10
+  repetitions: 3
