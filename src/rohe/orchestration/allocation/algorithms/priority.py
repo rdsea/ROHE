@@ -5,8 +5,8 @@ import numpy as np
 
 from rohe.common.data_models import OrchestrateAlgorithmConfig
 from rohe.common.logger import logger
-from rohe.orchestration.resource_management import Node, Service
 from rohe.orchestration.allocation.algorithms.generic import GenericAlgorithm
+from rohe.orchestration.resource_management import Node, Service
 
 FIRST_FIT = 0
 BEST_FIT = 1

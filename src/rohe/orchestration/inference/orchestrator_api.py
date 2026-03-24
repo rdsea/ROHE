@@ -11,6 +11,7 @@ Environment variables:
   ORCHESTRATOR_CONFIG: path to orchestrator YAML config
   REDIS_URL: Redis URL for plan persistence
 """
+
 from __future__ import annotations
 
 import logging
@@ -29,6 +30,7 @@ bridge: OrchestratorBridge | None = None
 
 class OrchestrateRequest:
     """Matches the schema from examples/applications/common/schemas.py."""
+
     pass
 
 

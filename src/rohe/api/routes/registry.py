@@ -58,21 +58,27 @@ def create_registry_router(
     async def get_application(app_name: str) -> StatusResponse:
         app = registrar.get_app(app_name)
         if app is None:
-            raise HTTPException(status_code=404, detail=f"Application '{app_name}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Application '{app_name}' not found"
+            )
         return StatusResponse(status="ok", data=app)
 
     @router.delete("/applications/{app_name}")
     async def delete_application(app_name: str) -> StatusResponse:
         deleted = registrar.delete_app(app_name)
         if not deleted:
-            raise HTTPException(status_code=404, detail=f"Application '{app_name}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Application '{app_name}' not found"
+            )
         return StatusResponse(status="deleted", data={"application_name": app_name})
 
     # --- Service Discovery ---
 
     @router.post("/services")
     async def register_service(req: RegisterServiceRequest) -> StatusResponse:
-        instance_id = discovery.register(req.service_name, req.host, req.port, req.metadata)
+        instance_id = discovery.register(
+            req.service_name, req.host, req.port, req.metadata
+        )
         return StatusResponse(status="registered", data={"instance_id": instance_id})
 
     @router.get("/services/{service_name}")
@@ -84,7 +90,9 @@ def create_registry_router(
     async def deregister_service(instance_id: str) -> StatusResponse:
         removed = discovery.deregister(instance_id)
         if not removed:
-            raise HTTPException(status_code=404, detail=f"Instance '{instance_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Instance '{instance_id}' not found"
+            )
         return StatusResponse(status="deregistered", data={"instance_id": instance_id})
 
     @router.get("/health")

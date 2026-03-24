@@ -42,7 +42,9 @@ def create_contracts_router(repo: ContractRepository) -> APIRouter:
     async def create_contract(req: ContractCreateRequest) -> StatusResponse:
         existing = repo.get_contract(req.contract_id)
         if existing is not None:
-            raise HTTPException(status_code=409, detail=f"Contract '{req.contract_id}' already exists")
+            raise HTTPException(
+                status_code=409, detail=f"Contract '{req.contract_id}' already exists"
+            )
         contract_id = repo.create_contract(req.model_dump())
         return StatusResponse(status="created", data={"contract_id": contract_id})
 
@@ -50,7 +52,9 @@ def create_contracts_router(repo: ContractRepository) -> APIRouter:
     async def get_contract(contract_id: str) -> StatusResponse:
         contract = repo.get_contract(contract_id)
         if contract is None:
-            raise HTTPException(status_code=404, detail=f"Contract '{contract_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Contract '{contract_id}' not found"
+            )
         return StatusResponse(status="ok", data=contract)
 
     @router.get("/")
@@ -62,17 +66,23 @@ def create_contracts_router(repo: ContractRepository) -> APIRouter:
         return StatusResponse(status="ok", data={"contracts": contracts})
 
     @router.put("/{contract_id}")
-    async def update_contract(contract_id: str, updates: dict[str, Any]) -> StatusResponse:
+    async def update_contract(
+        contract_id: str, updates: dict[str, Any]
+    ) -> StatusResponse:
         updated = repo.update_contract(contract_id, updates)
         if not updated:
-            raise HTTPException(status_code=404, detail=f"Contract '{contract_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Contract '{contract_id}' not found"
+            )
         return StatusResponse(status="updated", data={"contract_id": contract_id})
 
     @router.delete("/{contract_id}")
     async def deactivate_contract(contract_id: str) -> StatusResponse:
         deactivated = repo.deactivate_contract(contract_id)
         if not deactivated:
-            raise HTTPException(status_code=404, detail=f"Contract '{contract_id}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Contract '{contract_id}' not found"
+            )
         return StatusResponse(status="deactivated", data={"contract_id": contract_id})
 
     # --- CDM definitions ---

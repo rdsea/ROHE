@@ -135,7 +135,9 @@ def create_agent_manager_router(agent_manager: Any) -> APIRouter:
                 if request_data.stream_config is not None:
                     metadata["app_id"] = deepcopy(metadata["_id"])
                     metadata.pop("_id")
-                    metadata["agent_config"]["stream_config"] = request_data.stream_config
+                    metadata["agent_config"]["stream_config"] = (
+                        request_data.stream_config
+                    )
                     agent_manager.update_app(metadata)
 
                 response[application_name] = f"Agent for '{application_name}' started"
@@ -174,7 +176,9 @@ def create_agent_manager_router(agent_manager: Any) -> APIRouter:
                     response["logs"] = str(logs)
 
             else:
-                raise HTTPException(status_code=400, detail=f"Unknown command: {command}")
+                raise HTTPException(
+                    status_code=400, detail=f"Unknown command: {command}"
+                )
 
             return StatusResponse(status="success", response=response)
         except HTTPException:

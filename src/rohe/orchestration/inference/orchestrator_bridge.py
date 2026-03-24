@@ -15,6 +15,7 @@ Usage:
   - Redis for plan persistence
   - Contract YAML per pipeline
 """
+
 from __future__ import annotations
 
 import json
@@ -26,15 +27,11 @@ from typing import Any
 
 import yaml
 
-from rohe.models.contracts import ServiceLevelAgreement, ServiceContract
+from rohe.models.contracts import ServiceContract, ServiceLevelAgreement
 from rohe.models.execution_plan import (
-    EnsembleMember,
     ExecutionPlan,
-    ExecutionPhase,
-    ModalityEnsemble,
-    PreprocessorSpec,
 )
-from rohe.models.pipeline import InferenceQuery, InferenceResult
+from rohe.models.pipeline import InferenceQuery
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +62,7 @@ class OrchestratorBridge:
         # Load AdaptiveOrchestrator
         try:
             from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
+
             self._adaptive_orchestrator = AdaptiveOrchestrator(
                 config_path=self._config_path
             )
@@ -76,6 +74,7 @@ class OrchestratorBridge:
         if self._redis_url:
             try:
                 from rohe.repositories.redis import RedisCache
+
                 self._plan_store = RedisCache(url=self._redis_url)
                 logger.info(f"Redis plan store connected at {self._redis_url}")
             except Exception as e:
@@ -202,21 +201,21 @@ class OrchestratorBridge:
             predictions: dict[str, float] = {}
             individual_results: list[dict[str, Any]] = []
             for row in result:
-                row_dict = dict(zip(
-                    [desc[0] for desc in db_conn.description], row
-                ))
+                row_dict = dict(zip([desc[0] for desc in db_conn.description], row))
                 inf_result = row_dict.get("inf_result", "{}")
                 if isinstance(inf_result, str):
                     inf_result = json.loads(inf_result)
 
-                individual_results.append({
-                    "query_id": query_id,
-                    "predictions": inf_result,
-                    "confidence": max(inf_result.values()) if inf_result else 0.0,
-                    "model": row_dict.get("model_id", "unknown"),
-                    "response_time_ms": row_dict.get("response_time", 0) * 1000,
-                    "modality": row_dict.get("data_source"),
-                })
+                individual_results.append(
+                    {
+                        "query_id": query_id,
+                        "predictions": inf_result,
+                        "confidence": max(inf_result.values()) if inf_result else 0.0,
+                        "model": row_dict.get("model_id", "unknown"),
+                        "response_time_ms": row_dict.get("response_time", 0) * 1000,
+                        "modality": row_dict.get("data_source"),
+                    }
+                )
 
                 # Aggregate predictions (average)
                 for cls, score in inf_result.items():
@@ -261,7 +260,9 @@ class OrchestratorBridge:
         if quality_slo is None or quality_slo.builtin_metrics is None:
             return
 
-        avg_confidence = sum(predictions.values()) / len(predictions) if predictions else 0.0
+        avg_confidence = (
+            sum(predictions.values()) / len(predictions) if predictions else 0.0
+        )
 
         confidence_threshold = quality_slo.builtin_metrics.get("confidence")
         if confidence_threshold and confidence_threshold.is_violated(avg_confidence):
@@ -277,7 +278,9 @@ class OrchestratorBridge:
                 if plan_dict:
                     try:
                         plan = ExecutionPlan.model_validate(
-                            json.loads(plan_dict) if isinstance(plan_dict, str) else plan_dict
+                            json.loads(plan_dict)
+                            if isinstance(plan_dict, str)
+                            else plan_dict
                         )
                         # Increase ensemble sizes by 1 for each modality
                         for ensemble in plan.modality_ensembles.values():

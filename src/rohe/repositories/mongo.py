@@ -32,7 +32,9 @@ def create_mongo_client(uri: str) -> MongoClient[dict[str, Any]]:
 class MongoNodeRepository(NodeRepository):
     """MongoDB implementation of NodeRepository."""
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "nodes") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "nodes"
+    ) -> None:
         self._collection: Collection[dict[str, Any]] = db[collection_name]
 
     def get_node(self, node_name: str) -> dict[str, Any] | None:
@@ -62,7 +64,9 @@ class MongoNodeRepository(NodeRepository):
 class MongoServiceRepository(ServiceRepository):
     """MongoDB implementation of ServiceRepository."""
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "services") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "services"
+    ) -> None:
         self._collection: Collection[dict[str, Any]] = db[collection_name]
 
     def get_service(self, service_name: str) -> dict[str, Any] | None:
@@ -95,7 +99,9 @@ class MongoMetricRepository(MetricRepository):
     Stores per-request and per-period metrics with timestamp-based queries.
     """
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "metrics") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "metrics"
+    ) -> None:
         self._collection: Collection[dict[str, Any]] = db[collection_name]
         self._collection.create_index([("timestamp", DESCENDING)])
         self._collection.create_index("experiment_id")
@@ -157,7 +163,9 @@ class MongoMetricRepository(MetricRepository):
 class MongoContractRepository(ContractRepository):
     """MongoDB implementation of ContractRepository."""
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "contracts") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "contracts"
+    ) -> None:
         self._contracts: Collection[dict[str, Any]] = db[collection_name]
         self._cdms: Collection[dict[str, Any]] = db["cdm_definitions"]
         self._contracts.create_index("contract_id", unique=True)
@@ -235,7 +243,9 @@ class MongoContractRepository(ContractRepository):
 class MongoPipelineRepository(PipelineRepository):
     """MongoDB implementation of PipelineRepository."""
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "applications") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "applications"
+    ) -> None:
         self._collection: Collection[dict[str, Any]] = db[collection_name]
         self._collection.create_index("application_name", unique=True)
 
@@ -249,7 +259,9 @@ class MongoPipelineRepository(PipelineRepository):
         self._collection.insert_one(app_data)
         return str(app_data.get("application_name", ""))
 
-    def update_application(self, application_name: str, updates: dict[str, Any]) -> bool:
+    def update_application(
+        self, application_name: str, updates: dict[str, Any]
+    ) -> bool:
         result = self._collection.update_one(
             {"application_name": application_name},
             {"$set": updates},
@@ -270,7 +282,9 @@ class MongoPipelineRepository(PipelineRepository):
 class MongoExperimentRepository(ExperimentRepository):
     """MongoDB implementation of ExperimentRepository."""
 
-    def __init__(self, db: Database[dict[str, Any]], collection_name: str = "experiments") -> None:
+    def __init__(
+        self, db: Database[dict[str, Any]], collection_name: str = "experiments"
+    ) -> None:
         self._collection: Collection[dict[str, Any]] = db[collection_name]
         self._collection.create_index("experiment_id", unique=True)
         self._collection.create_index("name")

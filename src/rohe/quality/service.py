@@ -7,6 +7,7 @@ it automatically adjusts the ExecutionPlan via remediation strategies.
 The service runs as a periodic background task in the orchestrator or
 as a standalone service.
 """
+
 from __future__ import annotations
 
 import json
@@ -16,8 +17,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from rohe.models.contracts import MetricThreshold, ServiceContract
-from rohe.models.execution_plan import EnsembleMember, ExecutionPlan
+from rohe.models.execution_plan import ExecutionPlan
 from rohe.quality.anomaly import MetricAnomalyChecker
 from rohe.quality.rules import ContractChecker, ViolationEvent
 
@@ -72,6 +72,7 @@ class QualityService:
         if enable_llm_diagnosis:
             try:
                 from rohe.quality.llm_diagnosis import LLMDiagnosisEngine
+
                 self._llm_engine = LLMDiagnosisEngine()
                 logger.info("Tier 3 LLM diagnosis enabled")
             except Exception as e:
@@ -96,7 +97,9 @@ class QualityService:
 
         for pipeline_id, pipeline_violations in violations_by_pipeline.items():
             if len(actions) >= self._max_remediation:
-                logger.warning(f"Max remediation limit ({self._max_remediation}) reached, skipping remaining")
+                logger.warning(
+                    f"Max remediation limit ({self._max_remediation}) reached, skipping remaining"
+                )
                 break
 
             plan = self._load_plan(pipeline_id)
@@ -104,7 +107,9 @@ class QualityService:
                 continue
 
             # Tier 3: LLM diagnosis for critical violations
-            critical_violations = [v for v in pipeline_violations if v.severity == "critical"]
+            critical_violations = [
+                v for v in pipeline_violations if v.severity == "critical"
+            ]
             if critical_violations and self._llm_engine:
                 self._run_llm_diagnosis(pipeline_id, critical_violations, plan)
 
@@ -227,8 +232,12 @@ class QualityService:
             if inactive:
                 # Activate one inactive member
                 member_to_activate = inactive[0]
-                plan.set_member_active(modality, member_to_activate.instance_id, is_active=True)
-                changes.append(f"activated {member_to_activate.service_id} in {modality}")
+                plan.set_member_active(
+                    modality, member_to_activate.instance_id, is_active=True
+                )
+                changes.append(
+                    f"activated {member_to_activate.service_id} in {modality}"
+                )
             elif ensemble.ensemble_size < len(ensemble.ensemble_members):
                 # Increase ensemble_size
                 ensemble.ensemble_size = min(
@@ -236,7 +245,9 @@ class QualityService:
                     len(ensemble.ensemble_members),
                 )
                 plan._bump_version()
-                changes.append(f"increased ensemble_size to {ensemble.ensemble_size} in {modality}")
+                changes.append(
+                    f"increased ensemble_size to {ensemble.ensemble_size} in {modality}"
+                )
 
         if not changes:
             return None

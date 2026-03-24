@@ -6,13 +6,13 @@ across 3 strategy functions. Now uses a Strategy pattern with a common base.
 Each strategy selects which inference service instances to include in the
 ensemble for a given modality, based on different optimization criteria.
 """
+
 from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
-from rohe.models.enums import CommonMetric, Explainability, InstanceStatus
+from rohe.models.enums import CommonMetric
 from rohe.models.pipeline import (
     InferenceResult,
     InferenceServiceInstance,
@@ -57,7 +57,8 @@ class EnsembleSelector(ABC):
     ) -> InferenceServiceInstance | None:
         """Find the best instance for a service based on response time."""
         target_instances = (
-            task.inference_instances_ex if mode == "explainability"
+            task.inference_instances_ex
+            if mode == "explainability"
             else task.inference_instances
         )
         if not target_instances or service_id not in target_instances:
@@ -66,12 +67,16 @@ class EnsembleSelector(ABC):
         best: InferenceServiceInstance | None = None
         best_time = float("inf")
 
-        for inst_id, instance in target_instances[service_id].items():
+        for _inst_id, instance in target_instances[service_id].items():
             if not isinstance(instance, InferenceServiceInstance):
                 continue
             for metric in instance.runtime_performance:
                 if metric.metric_name == CommonMetric.RESPONSE_TIME:
-                    rt = float(metric.value) if metric.value is not None else float("inf")
+                    rt = (
+                        float(metric.value)
+                        if metric.value is not None
+                        else float("inf")
+                    )
                     if rt < best_time:
                         best_time = rt
                         best = instance
@@ -136,7 +141,10 @@ class EnsembleSelector(ABC):
             if not isinstance(svc, InferenceServiceProfile):
                 continue
             for metric in svc.base_line:
-                if metric.metric_name == CommonMetric.ACCURACY and metric.value is not None:
+                if (
+                    metric.metric_name == CommonMetric.ACCURACY
+                    and metric.value is not None
+                ):
                     scored.append((svc_id, float(metric.value)))
                     break
 
@@ -229,7 +237,9 @@ class EnhanceGeneralizationSelector(EnsembleSelector):
         if not worst_classes:
             service_ids = self._select_services_by_overall_accuracy(task)
         else:
-            service_ids = self._select_services_by_classes(task, worst_classes, services)
+            service_ids = self._select_services_by_classes(
+                task, worst_classes, services
+            )
 
         return self._resolve_instances(task, service_ids)
 

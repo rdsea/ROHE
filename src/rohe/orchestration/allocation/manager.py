@@ -10,9 +10,9 @@ from rohe.common.data_models import (
     ServiceData,
 )
 from rohe.common.logger import logger
-from rohe.storage.mongo import MDBClient
 from rohe.orchestration.allocation.agent import OrchestrationAgent
 from rohe.orchestration.resource_management.service import Service
+from rohe.storage.mongo import MDBClient
 
 
 class NodeAndServiceManager:

@@ -34,6 +34,7 @@ class PreprocessorLoader:
 
         if preproc_type == PreprocessorType.SIMULATED:
             from simulation.simulated_preprocessor import SimulatedPreprocessor
+
             return SimulatedPreprocessor(config)
 
         raise ValueError(

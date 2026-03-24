@@ -9,6 +9,7 @@ Configuration via environment variables:
   LLM_BASE_URL: API base URL (default: https://integrate.api.nvidia.com/v1)
   LLM_MODEL: Model ID (default: nvidia/llama-3.1-nemotron-70b-instruct)
 """
+
 from __future__ import annotations
 
 import json
@@ -77,12 +78,15 @@ class LLMDiagnosisEngine:
             )
         try:
             import openai
+
             self._client = openai.OpenAI(
                 api_key=self._api_key,
                 base_url=self._base_url,
                 timeout=120.0,
             )
-            logger.info(f"LLM client initialized: model={self._model}, base_url={self._base_url}")
+            logger.info(
+                f"LLM client initialized: model={self._model}, base_url={self._base_url}"
+            )
             return self._client
         except ImportError:
             raise ImportError("openai package required: pip install openai")
@@ -265,9 +269,7 @@ Focus on:
                     f"LLM response could not be parsed: {e}",
                     "Manual investigation recommended",
                 ],
-                affected_modalities=[
-                    v.get("metric_name", "") for v in violations
-                ],
+                affected_modalities=[v.get("metric_name", "") for v in violations],
                 affected_models=[],
                 confidence=0.0,
                 raw_response=raw_response,

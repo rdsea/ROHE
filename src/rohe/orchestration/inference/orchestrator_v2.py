@@ -11,20 +11,18 @@ Replaces the legacy AdaptiveOrchestrator with clean architecture:
 - Proper async/await with httpx
 - Type-safe throughout
 """
+
 from __future__ import annotations
 
 import asyncio
 import logging
 import time
-import uuid
 from typing import Any
 
 import httpx
 from pydantic import BaseModel
 
-from rohe.models.enums import CommonMetric, InstanceStatus
 from rohe.models.execution_plan import ExecutionPlan, ModalityEnsemble
-from rohe.models.pipeline import InferenceResult, InferenceTask, TaskList
 from rohe.monitoring.inference_reporter import InferenceReporter, NoOpReporter
 from rohe.orchestration.inference.ensemble_selector import EnsembleSelectorFactory
 from rohe.orchestration.inference.service_registry import ServiceRegistry
@@ -272,12 +270,16 @@ class InferenceOrchestrator:
         for r in results:
             all_classes.update(r.get("predictions", {}).keys())
         n = len(results)
-        return {
-            cls: round(
-                sum(r.get("predictions", {}).get(cls, 0.0) for r in results) / n, 4
-            )
-            for cls in all_classes
-        } if n > 0 else {}
+        return (
+            {
+                cls: round(
+                    sum(r.get("predictions", {}).get(cls, 0.0) for r in results) / n, 4
+                )
+                for cls in all_classes
+            }
+            if n > 0
+            else {}
+        )
 
     async def _evict(self, data_hub_url: str, query_id: str) -> None:
         """Evict query data from DataHub."""
@@ -296,14 +298,17 @@ class InferenceOrchestrator:
             return True
 
         source_results = [
-            r for r in previous_results
+            r
+            for r in previous_results
             if r.get("modality") in condition.source_modalities
         ]
         if not source_results:
             return True
 
         if condition.trigger == "confidence_below":
-            avg_conf = sum(r.get("confidence", 0) for r in source_results) / len(source_results)
+            avg_conf = sum(r.get("confidence", 0) for r in source_results) / len(
+                source_results
+            )
             return avg_conf < condition.threshold
 
         if condition.trigger == "agreement_below":

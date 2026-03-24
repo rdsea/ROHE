@@ -77,7 +77,9 @@ class HttpTransport(MetricTransport):
             if attempt < self._max_retries - 1:
                 time.sleep(0.5 * (2**attempt))
 
-        logger.debug(f"Dropping {len(metrics)} metrics after {self._max_retries} retries")
+        logger.debug(
+            f"Dropping {len(metrics)} metrics after {self._max_retries} retries"
+        )
 
 
 class NoopTransport(MetricTransport):

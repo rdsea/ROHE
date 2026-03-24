@@ -3,11 +3,11 @@
 Reports inference monitoring data to a configured backend (DuckDB, HTTP, etc.).
 Extracted from the legacy MonitoringClient that was embedded in data models.
 """
+
 from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
 from rohe.models.pipeline import MonitoringReport
 
@@ -43,6 +43,7 @@ class DuckDBReporter(InferenceReporter):
     def report(self, report: MonitoringReport) -> None:
         try:
             import duckdb
+
             conn = duckdb.connect(self._db_path)
             conn.execute(
                 f"INSERT INTO {self._table_name} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -77,6 +78,7 @@ class HttpReporter(InferenceReporter):
     def report(self, report: MonitoringReport) -> None:
         try:
             import httpx
+
             with httpx.Client(timeout=5.0) as client:
                 client.post(self._url, json=report.model_dump(mode="json"))
         except Exception as e:

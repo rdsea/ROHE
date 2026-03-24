@@ -8,12 +8,12 @@ Generates publication-ready artifacts from experiment data:
 
 Integrates with experiments/common/analysis/ utilities.
 """
+
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -111,10 +111,14 @@ class PaperExporter:
         manifest: dict[str, list[str]] = {"figures": [], "tables": [], "data": []}
 
         # Generate comparison artifacts
-        figs = self._generate_figures(merged, output_dir, "variant", comparison_name, formats)
+        figs = self._generate_figures(
+            merged, output_dir, "variant", comparison_name, formats
+        )
         manifest["figures"].extend(figs)
 
-        tables = self._generate_latex_tables(merged, output_dir, "variant", comparison_name)
+        tables = self._generate_latex_tables(
+            merged, output_dir, "variant", comparison_name
+        )
         manifest["tables"].extend(tables)
 
         sig = self._generate_significance_tests(merged, output_dir, "variant")
@@ -123,7 +127,10 @@ class PaperExporter:
         return manifest
 
     def _generate_summary_stats(
-        self, df: Any, output_dir: Path, group_by: str,
+        self,
+        df: Any,
+        output_dir: Path,
+        group_by: str,
     ) -> list[str]:
         """Generate summary statistics CSV."""
         files: list[str] = []
@@ -149,14 +156,19 @@ class PaperExporter:
         return files
 
     def _generate_figures(
-        self, df: Any, output_dir: Path, group_by: str, title_prefix: str,
+        self,
+        df: Any,
+        output_dir: Path,
+        group_by: str,
+        title_prefix: str,
         formats: list[str],
     ) -> list[str]:
         """Generate matplotlib figures."""
         files: list[str] = []
         try:
             from experiments.common.analysis.plot_utils import (
-                plot_latency_cdf, plot_accuracy_boxplot, save_figure,
+                plot_accuracy_boxplot,
+                plot_latency_cdf,
             )
 
             if "response_time_ms" in df.columns and group_by in df.columns:
@@ -165,7 +177,8 @@ class PaperExporter:
                     for name, group in df.groupby(group_by)
                 }
                 fig = plot_latency_cdf(
-                    data, title=f"{title_prefix} - Response Time CDF",
+                    data,
+                    title=f"{title_prefix} - Response Time CDF",
                     output_path=output_dir / "latency_cdf",
                 )
                 files.append(str(output_dir / "latency_cdf.pdf"))
@@ -176,7 +189,8 @@ class PaperExporter:
                     for name, group in df.groupby(group_by)
                 }
                 fig = plot_accuracy_boxplot(
-                    data, title=f"{title_prefix} - Confidence Distribution",
+                    data,
+                    title=f"{title_prefix} - Confidence Distribution",
                     output_path=output_dir / "confidence_boxplot",
                 )
                 files.append(str(output_dir / "confidence_boxplot.pdf"))
@@ -188,18 +202,29 @@ class PaperExporter:
         return files
 
     def _generate_latex_tables(
-        self, df: Any, output_dir: Path, group_by: str, title_prefix: str,
+        self,
+        df: Any,
+        output_dir: Path,
+        group_by: str,
+        title_prefix: str,
     ) -> list[str]:
         """Generate LaTeX tables."""
         files: list[str] = []
         try:
-            from experiments.common.analysis.latex_utils import generate_comparison_table
+            from experiments.common.analysis.latex_utils import (
+                generate_comparison_table,
+            )
 
-            metrics = [c for c in ["response_time_ms", "confidence", "model_count"]
-                       if c in df.columns]
+            metrics = [
+                c
+                for c in ["response_time_ms", "confidence", "model_count"]
+                if c in df.columns
+            ]
             if metrics and group_by in df.columns:
                 latex = generate_comparison_table(
-                    df, metrics=metrics, group_by=group_by,
+                    df,
+                    metrics=metrics,
+                    group_by=group_by,
                     caption=f"{title_prefix} comparison",
                     label=f"tab:{title_prefix.lower().replace(' ', '_')}",
                 )
@@ -214,7 +239,10 @@ class PaperExporter:
         return files
 
     def _generate_significance_tests(
-        self, df: Any, output_dir: Path, group_by: str,
+        self,
+        df: Any,
+        output_dir: Path,
+        group_by: str,
     ) -> list[str]:
         """Generate statistical significance test results."""
         files: list[str] = []

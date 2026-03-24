@@ -32,7 +32,9 @@ class RedisCache:
             return None
         return json.loads(raw)  # type: ignore[no-any-return]
 
-    def set(self, key: str, value: dict[str, Any], ttl_seconds: int | None = None) -> None:
+    def set(
+        self, key: str, value: dict[str, Any], ttl_seconds: int | None = None
+    ) -> None:
         """Set a JSON value with optional TTL."""
         serialized = json.dumps(value)
         if ttl_seconds:

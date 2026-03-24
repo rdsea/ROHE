@@ -2,8 +2,8 @@ import importlib
 
 from rohe.common.data_models import OrchestrateAlgorithmConfig
 from rohe.common.rohe_enum import OrchestrateAlgorithmEnum
-from rohe.orchestration.resource_management import Node, Service
 from rohe.orchestration.allocation.algorithms.generic import GenericAlgorithm
+from rohe.orchestration.resource_management import Node, Service
 
 
 class AlgorithmManager:

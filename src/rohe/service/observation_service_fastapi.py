@@ -37,9 +37,7 @@ def create_observation_app():
     registration_manager = RegistrationManager(
         db_client, db_collection, connector_config, collector_config
     )
-    agent_manager = AgentManager(
-        db_client, db_collection, configuration["agent_image"]
-    )
+    agent_manager = AgentManager(db_client, db_collection, configuration["agent_image"])
 
     app = create_app(title="ROHE Observation Service")
     app.include_router(create_registration_router(registration_manager))

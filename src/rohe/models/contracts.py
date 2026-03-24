@@ -80,10 +80,14 @@ class ServiceLevelIndicator(BaseModel):
     """Individual SLI within a ServiceLevelAgreement (legacy model, kept for compatibility)."""
 
     metric_name: str = Field(..., description="Name of the service level indicator")
-    target_value: float | list[float] | None = Field(None, description="Target value(s)")
+    target_value: float | list[float] | None = Field(
+        None, description="Target value(s)"
+    )
     operator: str | None = Field(None, description="Operator: '>', '<', '=='")
     objective_type: str | None = Field(None, description="'minimize' or 'maximize'")
-    condition: str | None = Field(None, description="Condition, e.g. confidence threshold")
+    condition: str | None = Field(
+        None, description="Condition, e.g. confidence threshold"
+    )
     class_id: str | None = Field(None, description="Class id if applicable")
 
 
@@ -92,15 +96,27 @@ class ServiceLevelAgreement(BaseModel):
 
     sla_id: str = Field(..., description="Unique identifier for the SLA")
     tenant_id: str = Field(..., description="Tenant ID")
-    access_privileges: list[str] = Field(..., description="Data sources the tenant can access")
-    service_level_indicators: list[ServiceLevelIndicator] = Field(..., description="SLIs for the SLA")
-    consumer_list: list[str] | None = Field(None, description="Consumers associated with the SLA")
+    access_privileges: list[str] = Field(
+        ..., description="Data sources the tenant can access"
+    )
+    service_level_indicators: list[ServiceLevelIndicator] = Field(
+        ..., description="SLIs for the SLA"
+    )
+    consumer_list: list[str] | None = Field(
+        None, description="Consumers associated with the SLA"
+    )
     ensemble_size: int | None = Field(1, description="Ensemble size for inferences")
-    ensemble_selection_strategy: str | None = Field("enhance_confidence", description="Ensemble selection strategy")
+    ensemble_selection_strategy: str | None = Field(
+        "enhance_confidence", description="Ensemble selection strategy"
+    )
 
     @classmethod
-    def from_dict(cls: type[ServiceLevelAgreement], data: dict[str, Any]) -> ServiceLevelAgreement:
-        if "service_level_indicators" in data and isinstance(data["service_level_indicators"], list):
+    def from_dict(
+        cls: type[ServiceLevelAgreement], data: dict[str, Any]
+    ) -> ServiceLevelAgreement:
+        if "service_level_indicators" in data and isinstance(
+            data["service_level_indicators"], list
+        ):
             data["service_level_indicators"] = [
                 ServiceLevelIndicator(**item) if isinstance(item, dict) else item
                 for item in data["service_level_indicators"]

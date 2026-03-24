@@ -1,4 +1,5 @@
 """Shared enumerations for the orchestration domain."""
+
 from __future__ import annotations
 
 from enum import StrEnum

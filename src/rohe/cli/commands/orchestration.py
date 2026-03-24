@@ -17,7 +17,9 @@ DEFAULT_MGMT_URL = "http://localhost:5002/management"
 @app.command()
 def add_node_from_file(
     file_path: Path = typer.Argument(..., exists=True, help="Path to node config file"),
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/add-node", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/add-node", "--url", help="Management URL"
+    ),
 ) -> None:
     """Add nodes from a config file."""
     config = rohe_utils.load_config(str(file_path))
@@ -27,8 +29,12 @@ def add_node_from_file(
 
 @app.command()
 def add_service_from_file(
-    file_path: Path = typer.Argument(..., exists=True, help="Path to service config file"),
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/add-service", "--url", help="Management URL"),
+    file_path: Path = typer.Argument(
+        ..., exists=True, help="Path to service config file"
+    ),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/add-service", "--url", help="Management URL"
+    ),
 ) -> None:
     """Add services from a config file."""
     config = rohe_utils.load_config(str(file_path))
@@ -38,7 +44,9 @@ def add_service_from_file(
 
 @app.command()
 def get_nodes(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/get-all-nodes", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/get-all-nodes", "--url", help="Management URL"
+    ),
 ) -> None:
     """Retrieve all nodes."""
     response = requests.post(url, headers=HEADERS, timeout=30)
@@ -47,7 +55,9 @@ def get_nodes(
 
 @app.command()
 def get_services(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/get-all-services", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/get-all-services", "--url", help="Management URL"
+    ),
 ) -> None:
     """Retrieve all services."""
     response = requests.post(url, headers=HEADERS, timeout=30)
@@ -56,7 +66,9 @@ def get_services(
 
 @app.command()
 def remove_all_nodes(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/remove-all-nodes", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/remove-all-nodes", "--url", help="Management URL"
+    ),
 ) -> None:
     """Remove all nodes."""
     response = requests.post(url, headers=HEADERS, timeout=30)
@@ -65,7 +77,9 @@ def remove_all_nodes(
 
 @app.command()
 def remove_all_services(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/remove-all-services", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/remove-all-services", "--url", help="Management URL"
+    ),
 ) -> None:
     """Remove all services."""
     response = requests.post(url, headers=HEADERS, timeout=30)
@@ -74,7 +88,9 @@ def remove_all_services(
 
 @app.command()
 def start_agent(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/start-agent", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/start-agent", "--url", help="Management URL"
+    ),
 ) -> None:
     """Start the orchestration agent."""
     response = requests.post(url, headers=HEADERS, timeout=30)
@@ -83,7 +99,9 @@ def start_agent(
 
 @app.command()
 def stop_agent(
-    url: str = typer.Option(f"{DEFAULT_MGMT_URL}/stop-agent", "--url", help="Management URL"),
+    url: str = typer.Option(
+        f"{DEFAULT_MGMT_URL}/stop-agent", "--url", help="Management URL"
+    ),
 ) -> None:
     """Stop the orchestration agent."""
     response = requests.post(url, headers=HEADERS, timeout=30)

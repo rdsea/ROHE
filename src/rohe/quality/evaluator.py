@@ -96,7 +96,9 @@ class ExpressionEvaluator:
             raise ValueError("cdm_ref expression must have cdm_ref field set")
 
         if cdm_name in visited:
-            raise CycleError(f"CDM reference cycle detected: {cdm_name} already visited in {visited}")
+            raise CycleError(
+                f"CDM reference cycle detected: {cdm_name} already visited in {visited}"
+            )
 
         cdm = self._cdm_registry.get(cdm_name)
         if cdm is None:
@@ -151,12 +153,13 @@ class ExpressionEvaluator:
         if not filters:
             return metrics
         return [
-            m for m in metrics
-            if all(str(m.get(k)) == v for k, v in filters.items())
+            m for m in metrics if all(str(m.get(k)) == v for k, v in filters.items())
         ]
 
     @staticmethod
-    def _extract_values(metrics: list[dict[str, Any]], field: str = "value") -> list[float]:
+    def _extract_values(
+        metrics: list[dict[str, Any]], field: str = "value"
+    ) -> list[float]:
         """Extract numeric values from filtered metrics."""
         values: list[float] = []
         for m in metrics:

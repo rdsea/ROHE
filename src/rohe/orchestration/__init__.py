@@ -8,6 +8,7 @@ Provides multiple orchestration algorithms selectable at runtime:
 
 Algorithms can be selected via ExecutionPlan config or API request.
 """
+
 from __future__ import annotations
 
 # All available orchestration algorithms (lazy-loaded via importlib)
@@ -32,7 +33,8 @@ def create_orchestrator(algorithm: str = "v2", **kwargs: object) -> object:
             f"Available: {list(ORCHESTRATOR_REGISTRY.keys())}"
         )
     module_path, class_name = class_path.rsplit(".", 1)
-    import importlib
+    import importlib  # noqa: PLC0415
+
     module = importlib.import_module(module_path)
     cls = getattr(module, class_name)
     return cls(**kwargs)

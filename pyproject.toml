@@ -120,6 +120,29 @@ ignore = [
 "tests/**" = ["S101", "S106"]  # Allow assert and hardcoded passwords in tests
 "src/rohe/cli/**" = ["B008", "S104"]  # Typer uses function calls in defaults and 0.0.0.0 binding is intentional
 "examples/**" = ["B008", "B905", "PLC0415", "S104", "S311", "SIM108"]  # FastAPI patterns, simulated randomness, style
+# Legacy algorithm files: deferred imports, old patterns preserved for research use
+"src/rohe/orchestration/multimodal_*.py" = ["PLC0415", "SIM115", "B905", "B007", "E711"]
+"src/rohe/orchestration/inference/adaptive_orchestrator.py" = ["PLC0415", "SIM115", "B905", "B007", "E711"]
+"src/rohe/orchestration/inference/orchestrator_bridge.py" = ["PLC0415", "SIM115", "B905"]
+"src/rohe/orchestration/inference/orchestrator_api.py" = ["PLW0603"]  # Global bridge variable
+"src/rohe/orchestration/inference/service_registry.py" = ["PLC0415", "SIM115", "B905"]
+"src/rohe/orchestration/inference/orchestrator_v2.py" = ["SIM102"]  # Nested if for readability
+"src/rohe/orchestration/resource_management/**" = ["SIM115", "B905", "PLW1641"]
+"src/rohe/orchestration/deployment_management/**" = ["SIM115"]
+"src/rohe/orchestration/allocation/**" = ["PLC0206"]
+"src/rohe/orchestration/orchestration_algorithm/**" = ["PLC0206"]
+"src/rohe/orchestration/ensemble_optimization/**" = ["PLC0206"]
+# Infrastructure and utility modules
+"src/rohe/lib/**" = ["PLC0415", "SIM115", "SIM108", "SIM401", "B905", "S104", "N806"]
+"src/rohe/storage/**" = ["PLC0415", "SIM115", "SIM108", "SIM110"]
+"src/rohe/external/**" = ["PLC0415", "SIM115", "SIM103", "SIM110"]
+"src/rohe/observation/**" = ["PLC0415", "SIM115", "PLW0603", "RUF059"]
+"src/rohe/common/**" = ["PLC0415", "S104", "S311", "B007"]
+"src/rohe/export/**" = ["PLC0415", "F841"]
+"src/rohe/quality/**" = ["PLC0415", "F841"]
+"src/rohe/monitoring/**" = ["PLC0415"]
+"src/rohe/models/**" = ["PLC0415"]
+"src/rohe/_v1_archive/**" = ["ALL"]  # Archived code, not linted
 
 [tool.ruff.lint.pylint]
 max-args = 10

@@ -18,7 +18,13 @@ class ServiceDiscovery(ABC):
     """
 
     @abstractmethod
-    def register(self, service_name: str, host: str, port: int, metadata: dict[str, Any] | None = None) -> str:
+    def register(
+        self,
+        service_name: str,
+        host: str,
+        port: int,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
         """Register a service instance. Returns instance ID."""
         ...
 
@@ -49,7 +55,9 @@ class K8sServiceDiscovery(ServiceDiscovery):
         self.namespace = namespace
         self._is_k8s = self._detect_k8s()
         if self._is_k8s:
-            logger.info(f"K8s service discovery initialized for namespace '{namespace}'")
+            logger.info(
+                f"K8s service discovery initialized for namespace '{namespace}'"
+            )
         else:
             logger.warning("Not running in K8s cluster, K8s discovery will be limited")
 
@@ -58,10 +66,18 @@ class K8sServiceDiscovery(ServiceDiscovery):
         """Detect if running inside a K8s cluster."""
         return os.path.exists("/var/run/secrets/kubernetes.io/serviceaccount/token")
 
-    def register(self, service_name: str, host: str, port: int, metadata: dict[str, Any] | None = None) -> str:
+    def register(
+        self,
+        service_name: str,
+        host: str,
+        port: int,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
         """In K8s, registration is handled by K8s Service resources. This is a no-op."""
         instance_id = f"{service_name}-{host}-{port}"
-        logger.info(f"K8s service '{service_name}' registered (managed by K8s): {instance_id}")
+        logger.info(
+            f"K8s service '{service_name}' registered (managed by K8s): {instance_id}"
+        )
         return instance_id
 
     def deregister(self, instance_id: str) -> bool:
@@ -76,7 +92,9 @@ class K8sServiceDiscovery(ServiceDiscovery):
         For full endpoint enumeration, use the K8s API.
         """
         dns_name = f"{service_name}.{self.namespace}.svc.cluster.local"
-        return [{"service_name": service_name, "dns": dns_name, "namespace": self.namespace}]
+        return [
+            {"service_name": service_name, "dns": dns_name, "namespace": self.namespace}
+        ]
 
     def health_check(self) -> bool:
         return self._is_k8s
@@ -93,7 +111,13 @@ class HttpRegistryDiscovery(ServiceDiscovery):
         self._services: dict[str, dict[str, Any]] = {}
         logger.info("HTTP registry discovery initialized (in-memory)")
 
-    def register(self, service_name: str, host: str, port: int, metadata: dict[str, Any] | None = None) -> str:
+    def register(
+        self,
+        service_name: str,
+        host: str,
+        port: int,
+        metadata: dict[str, Any] | None = None,
+    ) -> str:
         instance_id = str(uuid.uuid4())
         self._services[instance_id] = {
             "instance_id": instance_id,
@@ -102,19 +126,24 @@ class HttpRegistryDiscovery(ServiceDiscovery):
             "port": port,
             "metadata": metadata or {},
         }
-        logger.info(f"Registered service '{service_name}' at {host}:{port} as {instance_id}")
+        logger.info(
+            f"Registered service '{service_name}' at {host}:{port} as {instance_id}"
+        )
         return instance_id
 
     def deregister(self, instance_id: str) -> bool:
         if instance_id in self._services:
             removed = self._services.pop(instance_id)
-            logger.info(f"Deregistered service '{removed['service_name']}': {instance_id}")
+            logger.info(
+                f"Deregistered service '{removed['service_name']}': {instance_id}"
+            )
             return True
         return False
 
     def discover(self, service_name: str) -> list[dict[str, Any]]:
         return [
-            svc for svc in self._services.values()
+            svc
+            for svc in self._services.values()
             if svc["service_name"] == service_name
         ]
 

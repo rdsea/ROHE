@@ -19,6 +19,7 @@ Environment variables:
     OTEL_SERVICE_NAME: Service name for OTel resource
     OTEL_ENABLED: "true" to enable (default: "false")
 """
+
 from __future__ import annotations
 
 import logging
@@ -48,11 +49,15 @@ def setup_otel_metrics(
         return False
 
     service_name = service_name or os.environ.get("OTEL_SERVICE_NAME", "rohe-service")
-    endpoint = endpoint or os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+    endpoint = endpoint or os.environ.get(
+        "OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"
+    )
 
     try:
         from opentelemetry import metrics
-        from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+        from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+            OTLPMetricExporter,
+        )
         from opentelemetry.sdk.metrics import MeterProvider
         from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
         from opentelemetry.sdk.resources import Resource
@@ -87,7 +92,9 @@ def setup_otel_metrics(
             unit="1",
         )
 
-        logger.info(f"OTel metrics initialized: service={service_name}, endpoint={endpoint}")
+        logger.info(
+            f"OTel metrics initialized: service={service_name}, endpoint={endpoint}"
+        )
         return True
 
     except ImportError:

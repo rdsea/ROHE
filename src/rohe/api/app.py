@@ -25,7 +25,9 @@ def create_app(title: str = "ROHE", version: str = "0.0.8") -> FastAPI:
     )
 
     @app.exception_handler(Exception)
-    async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    async def global_exception_handler(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
         logger.exception(f"Unhandled error on {request.method} {request.url.path}")
         return JSONResponse(
             status_code=500,

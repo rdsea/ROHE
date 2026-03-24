@@ -61,10 +61,14 @@ class ContractChecker:
                 contract_violations = self._check_contract(contract)
                 violations.extend(contract_violations)
             except Exception:
-                logger.exception(f"Error checking contract {contract_data.get('contract_id', '?')}")
+                logger.exception(
+                    f"Error checking contract {contract_data.get('contract_id', '?')}"
+                )
 
         if violations:
-            logger.warning(f"Found {len(violations)} SLA violations across {len(contracts)} contracts")
+            logger.warning(
+                f"Found {len(violations)} SLA violations across {len(contracts)} contracts"
+            )
         return violations
 
     def _check_contract(self, contract: ServiceContract) -> list[ViolationEvent]:
@@ -74,18 +78,14 @@ class ContractChecker:
         # Check builtin metric thresholds
         if contract.quality_slo.builtin_metrics:
             for metric_name, threshold in contract.quality_slo.builtin_metrics.items():
-                violation = self._check_threshold(
-                    contract, metric_name, threshold
-                )
+                violation = self._check_threshold(contract, metric_name, threshold)
                 if violation is not None:
                     violations.append(violation)
 
         # Check CDM thresholds
         if contract.quality_slo.cdm_thresholds:
             for cdm_name, threshold in contract.quality_slo.cdm_thresholds.items():
-                violation = self._check_cdm_threshold(
-                    contract, cdm_name, threshold
-                )
+                violation = self._check_cdm_threshold(contract, cdm_name, threshold)
                 if violation is not None:
                     violations.append(violation)
 
@@ -112,7 +112,9 @@ class ContractChecker:
         actual_value = sum(values) / len(values)
 
         if threshold.is_violated(actual_value):
-            return self._create_violation(contract, metric_name, threshold, actual_value)
+            return self._create_violation(
+                contract, metric_name, threshold, actual_value
+            )
         return None
 
     def _check_cdm_threshold(
@@ -124,7 +126,9 @@ class ContractChecker:
         """Check a CDM threshold by evaluating its expression tree."""
         cdm = self._contract_repo.get_cdm(cdm_name)
         if cdm is None:
-            logger.warning(f"CDM '{cdm_name}' referenced in contract '{contract.contract_id}' not found")
+            logger.warning(
+                f"CDM '{cdm_name}' referenced in contract '{contract.contract_id}' not found"
+            )
             return None
 
         cdm_def = CDMDefinition.model_validate(cdm)
@@ -163,6 +167,8 @@ class ContractChecker:
             threshold_operator=threshold.operator,
             threshold_value=threshold.value,
             actual_value=actual_value,
-            severity="critical" if abs(actual_value - threshold.value) > threshold.value * 0.1 else "warning",
+            severity="critical"
+            if abs(actual_value - threshold.value) > threshold.value * 0.1
+            else "warning",
             recommended_action=threshold.action_on_violation,
         )

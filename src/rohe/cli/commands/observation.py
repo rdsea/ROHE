@@ -28,13 +28,17 @@ def register_app(
     run: str = typer.Option("experiment1", "--run", help="Experiment name/id"),
     user: str = typer.Option("aaltosea1", "--user", help="User name"),
     url: str = typer.Option(DEFAULT_REG_URL, "--url", help="Registration URL"),
-    output_dir: str | None = typer.Option(None, "--output-dir", help="Output directory"),
+    output_dir: str | None = typer.Option(
+        None, "--output-dir", help="Output directory"
+    ),
 ) -> None:
     """Register an application with the observation service."""
     res_data = {"application_name": app_name, "run_id": run, "user_id": user}
     typer.echo(json.dumps(res_data))
 
-    response = requests.post(url, headers=HEADERS, data=json.dumps(res_data), timeout=30)
+    response = requests.post(
+        url, headers=HEADERS, data=json.dumps(res_data), timeout=30
+    )
     typer.echo(json.dumps(response.json(), indent=2))
 
     resp_json = response.json()
@@ -63,7 +67,9 @@ def delete_app(
 ) -> None:
     """Delete an application from the observation service."""
     res_data = {"application_name": app_name, "run_id": run, "user_id": user}
-    response = requests.delete(url, headers=HEADERS, data=json.dumps(res_data), timeout=30)
+    response = requests.delete(
+        url, headers=HEADERS, data=json.dumps(res_data), timeout=30
+    )
     typer.echo(json.dumps(response.json(), indent=2))
 
 
@@ -78,7 +84,9 @@ def start_agent(
         conf = _get_rohe_path() + "/examples/agentConfig/" + app_name + "/start.yaml"
 
     config_file = rohe_utils.load_config(conf)
-    response = requests.post(url, headers=HEADERS, data=json.dumps(config_file), timeout=30)
+    response = requests.post(
+        url, headers=HEADERS, data=json.dumps(config_file), timeout=30
+    )
     typer.echo(json.dumps(response.json(), indent=2))
 
 
@@ -93,5 +101,7 @@ def stop_agent(
         conf = _get_rohe_path() + "/examples/agentConfig/" + app_name + "/stop.yaml"
 
     config_file = rohe_utils.load_config(conf)
-    response = requests.post(url, headers=HEADERS, data=json.dumps(config_file), timeout=30)
+    response = requests.post(
+        url, headers=HEADERS, data=json.dumps(config_file), timeout=30
+    )
     typer.echo(json.dumps(response.json(), indent=2))

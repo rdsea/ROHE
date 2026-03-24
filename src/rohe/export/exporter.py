@@ -19,11 +19,13 @@ class ExportManifest:
         self.files: list[dict[str, Any]] = []
 
     def add_file(self, path: Path, row_count: int, description: str) -> None:
-        self.files.append({
-            "path": str(path),
-            "row_count": row_count,
-            "description": description,
-        })
+        self.files.append(
+            {
+                "path": str(path),
+                "row_count": row_count,
+                "description": description,
+            }
+        )
 
     def summary(self) -> str:
         total_rows = sum(f["row_count"] for f in self.files)

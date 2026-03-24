@@ -9,13 +9,13 @@ logging.basicConfig(
 
 from userModule.algorithm.dream_workflow import assigning_phase_with_dream
 
+from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
 from rohe.orchestration.multimodal_abstration import (
     InferenceQuery,
     InferenceResult,
     TaskList,
     TaskStatus,
 )
-from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
 
 
 class DREAMOrchestrator(AdaptiveOrchestrator):

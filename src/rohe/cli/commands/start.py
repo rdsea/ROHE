@@ -18,8 +18,10 @@ def orchestration_service(
         "uvicorn",
         "rohe.service.orchestration_service_fastapi:create_orchestration_app",
         "--factory",
-        "--host", host,
-        "--port", str(port),
+        "--host",
+        host,
+        "--port",
+        str(port),
     ]
     if debug:
         cmd.append("--reload")
@@ -37,8 +39,10 @@ def observation_service(
         "uvicorn",
         "rohe.service.observation_service_fastapi:create_observation_app",
         "--factory",
-        "--host", host,
-        "--port", str(port),
+        "--host",
+        host,
+        "--port",
+        str(port),
     ]
     if debug:
         cmd.append("--reload")

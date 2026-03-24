@@ -9,6 +9,7 @@ Usage:
   scores = detector.fit_score(metric_values)
   anomaly_rate = detector.anomaly_rate(metric_values)
 """
+
 from __future__ import annotations
 
 import logging

@@ -4,12 +4,11 @@ Abstracts the data layer for service/instance discovery, SLA lookup,
 and result reporting. Implementations can use DuckDB (legacy), Redis,
 or MongoDB as backends.
 """
+
 from __future__ import annotations
 
-import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
 from rohe.models.contracts import ServiceLevelAgreement
 from rohe.models.enums import InstanceStatus
@@ -26,13 +25,17 @@ class ServiceRegistry(ABC):
     """Abstract interface for service/instance discovery and reporting."""
 
     @abstractmethod
-    def get_services(self, modality: str | None = None) -> dict[str, InferenceServiceProfile]:
+    def get_services(
+        self, modality: str | None = None
+    ) -> dict[str, InferenceServiceProfile]:
         """Get available inference services, optionally filtered by modality."""
         ...
 
     @abstractmethod
     def get_instances(
-        self, service_id: str | None = None, status: InstanceStatus | None = None,
+        self,
+        service_id: str | None = None,
+        status: InstanceStatus | None = None,
     ) -> dict[str, InferenceServiceInstance]:
         """Get running instances, optionally filtered by service and status."""
         ...
@@ -70,40 +73,40 @@ class DuckDBServiceRegistry(ServiceRegistry):
         self._services: dict[str, InferenceServiceProfile] = {}
         self._instances: dict[str, InferenceServiceInstance] = {}
 
-    def get_services(self, modality: str | None = None) -> dict[str, InferenceServiceProfile]:
+    def get_services(
+        self, modality: str | None = None
+    ) -> dict[str, InferenceServiceProfile]:
         if modality:
-            return {
-                k: v for k, v in self._services.items()
-                if v.modality == modality
-            }
+            return {k: v for k, v in self._services.items() if v.modality == modality}
         return dict(self._services)
 
     def get_instances(
-        self, service_id: str | None = None, status: InstanceStatus | None = None,
+        self,
+        service_id: str | None = None,
+        status: InstanceStatus | None = None,
     ) -> dict[str, InferenceServiceInstance]:
         result = dict(self._instances)
         if service_id:
             result = {
-                k: v for k, v in result.items()
-                if v.inference_service_id == service_id
+                k: v for k, v in result.items() if v.inference_service_id == service_id
             }
         if status:
-            result = {
-                k: v for k, v in result.items()
-                if v.status == status.value
-            }
+            result = {k: v for k, v in result.items() if v.status == status.value}
         return result
 
     def get_sla(self, consumer_id: str) -> ServiceLevelAgreement | None:
         try:
             import duckdb
+
             conn = duckdb.connect(self._db_path, read_only=True)
             rows = conn.execute(
                 "SELECT * FROM sla_table WHERE tenant_id = ?", [consumer_id]
             ).fetchall()
             conn.close()
             if rows:
-                cols = [desc[0] for desc in conn.description] if conn.description else []
+                cols = (
+                    [desc[0] for desc in conn.description] if conn.description else []
+                )
                 data = dict(zip(cols, rows[0]))
                 return ServiceLevelAgreement.from_dict(data)
         except Exception as e:
@@ -113,15 +116,25 @@ class DuckDBServiceRegistry(ServiceRegistry):
     def report_result(self, report: MonitoringReport) -> None:
         try:
             import duckdb
+
             conn = duckdb.connect(self._db_path)
             conn.execute(
                 f"INSERT INTO {self._monitoring_table} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
-                    report.query_id, report.inf_id, str(report.data_source),
-                    report.time_window, report.model_id, report.model_version,
-                    report.device_id, report.instance_id, report.response_time,
-                    report.inf_time, str(report.inf_result), report.explainability,
-                    report.time_violation, report.time_for_inference,
+                    report.query_id,
+                    report.inf_id,
+                    str(report.data_source),
+                    report.time_window,
+                    report.model_id,
+                    report.model_version,
+                    report.device_id,
+                    report.instance_id,
+                    report.response_time,
+                    report.inf_time,
+                    str(report.inf_result),
+                    report.explainability,
+                    report.time_violation,
+                    report.time_for_inference,
                 ],
             )
             conn.close()
@@ -132,6 +145,7 @@ class DuckDBServiceRegistry(ServiceRegistry):
         """Load services and instances from DuckDB."""
         try:
             import duckdb
+
             conn = duckdb.connect(self._db_path, read_only=True)
 
             rows = conn.execute(f"SELECT * FROM {self._service_table}").fetchall()
@@ -172,17 +186,23 @@ class InMemoryServiceRegistry(ServiceRegistry):
         self._slas: dict[str, ServiceLevelAgreement] = {}
         self._reports: list[MonitoringReport] = []
 
-    def get_services(self, modality: str | None = None) -> dict[str, InferenceServiceProfile]:
+    def get_services(
+        self, modality: str | None = None
+    ) -> dict[str, InferenceServiceProfile]:
         if modality:
             return {k: v for k, v in self._services.items() if v.modality == modality}
         return dict(self._services)
 
     def get_instances(
-        self, service_id: str | None = None, status: InstanceStatus | None = None,
+        self,
+        service_id: str | None = None,
+        status: InstanceStatus | None = None,
     ) -> dict[str, InferenceServiceInstance]:
         result = dict(self._instances)
         if service_id:
-            result = {k: v for k, v in result.items() if v.inference_service_id == service_id}
+            result = {
+                k: v for k, v in result.items() if v.inference_service_id == service_id
+            }
         if status:
             result = {k: v for k, v in result.items() if v.status == status.value}
         return result

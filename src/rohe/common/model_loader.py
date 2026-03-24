@@ -39,11 +39,11 @@ class ModelLoader:
 
         if model_type == ModelType.SIMULATED:
             from simulation.simulated_model import SimulatedInferenceModel
+
             return SimulatedInferenceModel(config)
 
         raise ValueError(
-            f"Unknown model type: '{model_type}'. "
-            f"Supported: {', '.join(ModelType)}"
+            f"Unknown model type: '{model_type}'. Supported: {', '.join(ModelType)}"
         )
 
     @staticmethod

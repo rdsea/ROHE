@@ -58,10 +58,13 @@ class ExperimentManager:
             logger.warning(f"Experiment '{experiment_id}' is already running")
             return experiment
 
-        self._repo.update_experiment(experiment_id, {
-            "status": "running",
-            "started_at": datetime.now(tz=timezone.utc).isoformat(),
-        })
+        self._repo.update_experiment(
+            experiment_id,
+            {
+                "status": "running",
+                "started_at": datetime.now(tz=timezone.utc).isoformat(),
+            },
+        )
         logger.info(f"Started experiment '{experiment['name']}' ({experiment_id})")
         return self._repo.get_experiment(experiment_id)
 
@@ -71,10 +74,13 @@ class ExperimentManager:
         if experiment is None:
             return None
 
-        self._repo.update_experiment(experiment_id, {
-            "status": "stopped",
-            "stopped_at": datetime.now(tz=timezone.utc).isoformat(),
-        })
+        self._repo.update_experiment(
+            experiment_id,
+            {
+                "status": "stopped",
+                "stopped_at": datetime.now(tz=timezone.utc).isoformat(),
+            },
+        )
         logger.info(f"Stopped experiment '{experiment['name']}' ({experiment_id})")
         return self._repo.get_experiment(experiment_id)
 

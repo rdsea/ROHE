@@ -8,6 +8,7 @@ The orchestrator owns and mutates ExecutionPlans at runtime to maintain
 inference quality. Plans are persisted to Redis for crash recovery and
 horizontal scaling.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -15,8 +16,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 # Leaf models are frozen (immutable) -- the orchestrator replaces them, not mutates them.
+
 
 class EnsembleMember(BaseModel):
     """A single inference service instance within a modality's ensemble."""
@@ -24,7 +25,9 @@ class EnsembleMember(BaseModel):
     model_config = ConfigDict(frozen=True, protected_namespaces=())
 
     service_id: str = Field(..., description="Service name, e.g. 'x3d_s'")
-    instance_id: str = Field(..., description="Unique instance, e.g. 'x3d_s-instance-01'")
+    instance_id: str = Field(
+        ..., description="Unique instance, e.g. 'x3d_s-instance-01'"
+    )
     inference_url: str = Field(..., description="HTTP endpoint for inference")
     model_id: str = Field(..., description="Model identifier")
     device_type: str = Field(..., description="Hardware: 'gpu', 'cpu'")
@@ -40,7 +43,8 @@ class PreprocessorSpec(BaseModel):
     service_url: str = Field(..., description="HTTP endpoint for preprocessing")
     preprocessor_id: str = Field(..., description="Preprocessor identifier")
     output_data_key: str = Field(
-        ..., description="DataHub key for preprocessed output, e.g. 'video_preprocessed'"
+        ...,
+        description="DataHub key for preprocessed output, e.g. 'video_preprocessed'",
     )
 
 
@@ -49,7 +53,9 @@ class PhaseCondition(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    trigger: str = Field(..., description="Condition type: 'confidence_below', 'agreement_below'")
+    trigger: str = Field(
+        ..., description="Condition type: 'confidence_below', 'agreement_below'"
+    )
     threshold: float = Field(..., description="Threshold value for the trigger")
     source_modalities: list[str] = Field(
         ..., description="Modalities from previous phases to evaluate"
@@ -62,14 +68,19 @@ class ExecutionPhase(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     phase_id: int = Field(..., description="Phase order: 0, 1, 2...")
-    modalities: list[str] = Field(..., description="Modalities to execute in this phase")
-    is_conditional: bool = Field(False, description="Whether this phase depends on previous results")
+    modalities: list[str] = Field(
+        ..., description="Modalities to execute in this phase"
+    )
+    is_conditional: bool = Field(
+        False, description="Whether this phase depends on previous results"
+    )
     condition: PhaseCondition | None = Field(
         None, description="Condition for conditional phases"
     )
 
 
 # Container models are MUTABLE -- the orchestrator updates them at runtime.
+
 
 class ModalityEnsemble(BaseModel):
     """Ensemble configuration for a single modality within a pipeline.
@@ -80,7 +91,9 @@ class ModalityEnsemble(BaseModel):
     - Adjust time budget fractions
     """
 
-    modality: str = Field(..., description="Modality name: 'video', 'acc_phone', 'timeseries', etc.")
+    modality: str = Field(
+        ..., description="Modality name: 'video', 'acc_phone', 'timeseries', etc."
+    )
     preprocessor: PreprocessorSpec | None = Field(
         None, description="Preprocessor for this modality (None to skip)"
     )
@@ -110,7 +123,9 @@ class ExecutionPlan(BaseModel):
     Each mutation increments `version` for cache invalidation and audit.
     """
 
-    pipeline_id: str = Field(..., description="Pipeline identifier, e.g. 'bts', 'smart-building'")
+    pipeline_id: str = Field(
+        ..., description="Pipeline identifier, e.g. 'bts', 'smart-building'"
+    )
     version: int = Field(0, description="Monotonically increasing version number")
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
@@ -145,7 +160,9 @@ class ExecutionPlan(BaseModel):
             raise ValueError(f"Modality '{modality}' not found in plan")
         ensemble = self.modality_ensembles[modality]
         if any(m.instance_id == member.instance_id for m in ensemble.ensemble_members):
-            raise ValueError(f"Instance '{member.instance_id}' already exists in '{modality}'")
+            raise ValueError(
+                f"Instance '{member.instance_id}' already exists in '{modality}'"
+            )
         ensemble.ensemble_members.append(member)
         self._bump_version()
 
@@ -170,7 +187,9 @@ class ExecutionPlan(BaseModel):
         self.add_member(modality, new_member)
         # remove_member and add_member each bump version; that's fine
 
-    def set_member_active(self, modality: str, instance_id: str, *, is_active: bool) -> None:
+    def set_member_active(
+        self, modality: str, instance_id: str, *, is_active: bool
+    ) -> None:
         """Activate or deactivate an ensemble member."""
         if modality not in self.modality_ensembles:
             raise ValueError(f"Modality '{modality}' not found in plan")
@@ -203,8 +222,9 @@ class ExecutionPlan(BaseModel):
     @classmethod
     def from_yaml_file(cls, path: str) -> ExecutionPlan:
         """Load from a YAML file (for initial bootstrap)."""
-        import yaml  # noqa: PLC0415 -- deferred import, yaml is optional
         from pathlib import Path
+
+        import yaml
 
         data: dict[str, Any] = yaml.safe_load(Path(path).read_text())
         return cls.model_validate(data)

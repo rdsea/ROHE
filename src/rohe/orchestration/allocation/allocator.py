@@ -11,9 +11,14 @@ from rohe.common.data_models import (
     ServiceQueueConfig,
 )
 from rohe.common.logger import logger
-from rohe.storage.mongo import MDBClient
 from rohe.orchestration.allocation.algorithms.algorithm_manager import AlgorithmManager
-from rohe.orchestration.resource_management import Node, Service, ServiceInstance, ServiceQueue
+from rohe.orchestration.resource_management import (
+    Node,
+    Service,
+    ServiceInstance,
+    ServiceQueue,
+)
+from rohe.storage.mongo import MDBClient
 
 
 class Allocator:

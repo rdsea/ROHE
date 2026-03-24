@@ -16,10 +16,14 @@ class InferenceQuery(BaseModel):
     """A request for inference from a consumer."""
 
     metadata: dict[str, Any] = Field(..., description="Metadata about the consumer")
-    data_source: list[str] = Field(..., description="Data sources for the inference query")
+    data_source: list[str] = Field(
+        ..., description="Data sources for the inference query"
+    )
     time_window: int = Field(..., description="Time window for the inference query")
     explainability: bool = Field(..., description="Whether to include explainability")
-    constraint: dict[str, Any] = Field(..., description="Constraints for the inference query")
+    constraint: dict[str, Any] = Field(
+        ..., description="Constraints for the inference query"
+    )
     query_id: str | None = Field(None, description="Unique identifier for the query")
 
     def get_response_time(self) -> float | None:
@@ -43,9 +47,13 @@ class MonitoringReport(BaseModel):
     response_time: float = Field(..., description="Response time in seconds")
     inf_result: dict[str, float] = Field(..., description="Inference result data")
     model_version: str | None = Field(None, description="Model version")
-    explainability: bool | None = Field(False, description="Whether explainability is included")
+    explainability: bool | None = Field(
+        False, description="Whether explainability is included"
+    )
     time_violation: bool | None = Field(False, description="Whether time was violated")
-    time_for_inference: float | None = Field(None, description="Remaining time for inference")
+    time_for_inference: float | None = Field(
+        None, description="Remaining time for inference"
+    )
 
 
 class InferenceServiceProfile(BaseModel):
@@ -57,19 +65,34 @@ class InferenceServiceProfile(BaseModel):
     inference_service_id: str = Field(..., description="Unique service identifier")
     model_id: str = Field(..., description="Model ID")
     model_version: str | None = Field(None, description="Model version")
-    device_type: str = Field(..., description="Device type (e.g. 'jetson-nano', 'gpu-a100')")
+    device_type: str = Field(
+        ..., description="Device type (e.g. 'jetson-nano', 'gpu-a100')"
+    )
     base_line: list[Metric] = Field(..., description="Baseline performance metrics")
-    inference_performance: RuntimePerformance | None = Field(None, description="Runtime performance")
+    inference_performance: RuntimePerformance | None = Field(
+        None, description="Runtime performance"
+    )
     instance_list: list[str] = Field(..., description="List of instance_ids")
     specialized_class: list[str] | None = Field(None, description="Specialized classes")
-    modality: str | None = Field(None, description="Modality: 'image', 'text', 'video', etc.")
+    modality: str | None = Field(
+        None, description="Modality: 'image', 'text', 'video', etc."
+    )
 
     @classmethod
-    def from_dict(cls: type[InferenceServiceProfile], data: dict[str, Any]) -> InferenceServiceProfile:
+    def from_dict(
+        cls: type[InferenceServiceProfile], data: dict[str, Any]
+    ) -> InferenceServiceProfile:
         if "base_line" in data and isinstance(data["base_line"], list):
-            data["base_line"] = [Metric(**item) if isinstance(item, dict) else item for item in data["base_line"]]
-        if "inference_performance" in data and isinstance(data["inference_performance"], dict):
-            data["inference_performance"] = RuntimePerformance.from_dict(data["inference_performance"])
+            data["base_line"] = [
+                Metric(**item) if isinstance(item, dict) else item
+                for item in data["base_line"]
+            ]
+        if "inference_performance" in data and isinstance(
+            data["inference_performance"], dict
+        ):
+            data["inference_performance"] = RuntimePerformance.from_dict(
+                data["inference_performance"]
+            )
         return cls.model_validate(data)
 
 
@@ -84,18 +107,27 @@ class InferenceServiceInstance(BaseModel):
     device_id: str = Field(..., description="Device ID where instance runs")
     ip_address: str = Field(..., description="IP address of the device")
     port: int = Field(..., description="Port number")
-    runtime_performance: list[Metric] = Field(..., description="Runtime performance metrics")
+    runtime_performance: list[Metric] = Field(
+        ..., description="Runtime performance metrics"
+    )
     modality: str | None = Field(None, description="Modality")
     device_type: str | None = Field(None, description="Device type")
     inference_service_id: str | None = Field(None, description="Parent service ID")
-    status: str | None = Field(None, description="Instance status: active, inactive, error, contention")
+    status: str | None = Field(
+        None, description="Instance status: active, inactive, error, contention"
+    )
     inference_url: str | None = Field(None, description="URL for inference requests")
 
     @classmethod
-    def from_dict(cls: type[InferenceServiceInstance], data: dict[str, Any]) -> InferenceServiceInstance:
-        if "runtime_performance" in data and isinstance(data["runtime_performance"], list):
+    def from_dict(
+        cls: type[InferenceServiceInstance], data: dict[str, Any]
+    ) -> InferenceServiceInstance:
+        if "runtime_performance" in data and isinstance(
+            data["runtime_performance"], list
+        ):
             data["runtime_performance"] = [
-                Metric(**item) if isinstance(item, dict) else item for item in data["runtime_performance"]
+                Metric(**item) if isinstance(item, dict) else item
+                for item in data["runtime_performance"]
             ]
         return cls.model_validate(data)
 
@@ -104,31 +136,41 @@ class InferenceResult(BaseModel):
     """Aggregated result from one or more inference service instances."""
 
     inference_time: float | None = Field(0.0, description="Inference time in seconds")
-    data: dict[str, float] = Field(default_factory=dict, description="Class name -> confidence score")
+    data: dict[str, float] = Field(
+        default_factory=dict, description="Class name -> confidence score"
+    )
     query_id: list[str] | str | None = Field(None, description="Query ID(s)")
     task_id: list[str] = Field(default_factory=list, description="Task IDs")
     inf_id: list[str] = Field(default_factory=list, description="Inference IDs")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Result metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Result metadata"
+    )
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "inference_time": self.inference_time,
             "data": self.data,
-            "query_id": self.query_id[0] if isinstance(self.query_id, list) and self.query_id else self.query_id,
+            "query_id": self.query_id[0]
+            if isinstance(self.query_id, list) and self.query_id
+            else self.query_id,
             "task_id": str(self.task_id),
             "inf_id": str(self.inf_id),
             "metadata": self.metadata,
         }
 
     def get_top_k_predictions(self, top_k: int = 5) -> list[str]:
-        sorted_items = sorted(self.data.items(), key=lambda item: item[1], reverse=True)[:top_k]
+        sorted_items = sorted(
+            self.data.items(), key=lambda item: item[1], reverse=True
+        )[:top_k]
         return [key for key, _ in sorted_items]
 
     def get_worst_k_predictions(self, worst_k: int = 5) -> list[str]:
         sorted_items = sorted(self.data.items(), key=lambda item: item[1])[:worst_k]
         return [key for key, _ in sorted_items]
 
-    def aggregate(self, other: InferenceResult, avg_flag: bool = False) -> InferenceResult:
+    def aggregate(
+        self, other: InferenceResult, avg_flag: bool = False
+    ) -> InferenceResult:
         """Aggregate another InferenceResult into this one."""
         if not isinstance(other, InferenceResult):
             raise ValueError("other must be an instance of InferenceResult")
@@ -150,10 +192,14 @@ class InferenceResult(BaseModel):
         n_inf = len(self.inf_id)
         if n_inf == 0:
             return
-        self.data = {class_name: value / n_inf for class_name, value in self.data.items()}
+        self.data = {
+            class_name: value / n_inf for class_name, value in self.data.items()
+        }
 
     def sort_inference_result(self) -> None:
-        self.data = dict(sorted(self.data.items(), key=lambda item: item[1], reverse=True))
+        self.data = dict(
+            sorted(self.data.items(), key=lambda item: item[1], reverse=True)
+        )
 
 
 class InferenceTask(BaseModel):
@@ -162,26 +208,50 @@ class InferenceTask(BaseModel):
     task_id: str = Field(..., description="Unique identifier (inf_id)")
     modality: str | None = Field(None, description="Modality: 'image', 'text', 'video'")
     allocated_time: float | None = Field(None, description="Allocated time in seconds")
-    min_execution_time: float | None = Field(None, description="Min execution time in seconds")
-    max_execution_time: float | None = Field(None, description="Max execution time in seconds")
-    min_execution_time_ex: float | None = Field(None, description="Min exec time for explainability")
-    max_execution_time_ex: float | None = Field(None, description="Max exec time for explainability")
-    inference_services: dict[str, Any] | None = Field(default_factory=dict, description="Available inference services")
-    inference_instances: dict[str, Any] | None = Field(default_factory=dict, description="Available inference instances")
-    inference_services_ex: dict[str, Any] | None = Field(default_factory=dict, description="Explainability services")
-    inference_instances_ex: dict[str, Any] | None = Field(default_factory=dict, description="Explainability instances")
+    min_execution_time: float | None = Field(
+        None, description="Min execution time in seconds"
+    )
+    max_execution_time: float | None = Field(
+        None, description="Max execution time in seconds"
+    )
+    min_execution_time_ex: float | None = Field(
+        None, description="Min exec time for explainability"
+    )
+    max_execution_time_ex: float | None = Field(
+        None, description="Max exec time for explainability"
+    )
+    inference_services: dict[str, Any] | None = Field(
+        default_factory=dict, description="Available inference services"
+    )
+    inference_instances: dict[str, Any] | None = Field(
+        default_factory=dict, description="Available inference instances"
+    )
+    inference_services_ex: dict[str, Any] | None = Field(
+        default_factory=dict, description="Explainability services"
+    )
+    inference_instances_ex: dict[str, Any] | None = Field(
+        default_factory=dict, description="Explainability instances"
+    )
     status: str | None = Field(None, description="Task status")
     phase: int | None = Field(0, description="Execution phase")
-    inference_query: InferenceQuery | None = Field(None, description="Associated inference query")
-    selected_instances: list[InferenceServiceInstance] = Field(default_factory=list, description="Selected instances")
+    inference_query: InferenceQuery | None = Field(
+        None, description="Associated inference query"
+    )
+    selected_instances: list[InferenceServiceInstance] = Field(
+        default_factory=list, description="Selected instances"
+    )
     selected_instances_ex: list[InferenceServiceInstance] = Field(
         default_factory=list, description="Selected explainability instances"
     )
     ensemble_size: int | None = Field(1, description="Ensemble size")
-    ensemble_selection_strategy: str | None = Field("enhance_confidence", description="Ensemble strategy")
+    ensemble_selection_strategy: str | None = Field(
+        "enhance_confidence", description="Ensemble strategy"
+    )
     test_mode: bool | None = Field(True, description="Whether in test mode")
     monitoring_client: Any | None = Field(None, description="Monitoring client")
-    explainability: bool | None = Field(False, description="Whether explainability is enabled")
+    explainability: bool | None = Field(
+        False, description="Whether explainability is enabled"
+    )
 
 
 class TaskList(BaseModel):

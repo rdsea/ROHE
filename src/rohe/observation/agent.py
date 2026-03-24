@@ -173,7 +173,9 @@ class ObservationAgent:
 
                 errors = result_df.loc[result_df["anomaly"] == -1]
                 if len(errors) > 0:
-                    logger.warning(f"Anomalies detected in feature '{feature}': {len(errors)} rows")
+                    logger.warning(
+                        f"Anomalies detected in feature '{feature}': {len(errors)} rows"
+                    )
                     err_file_path = self.temp_path + "/error_" + str(feature) + ".csv"
                     rohe_utils.df_to_csv(err_file_path, errors)
         finally:
