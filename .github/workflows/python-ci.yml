@@ -1,38 +1,37 @@
 name: Python CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  pre-commit:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set repository path
-        run: echo "ROHE_PATH=${{ github.workspace }}" >> $GITHUB_ENV
-
-      - uses: actions/setup-python@v5
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10.14"
+          python-version: "3.11"
 
-      - uses: eifinger/setup-rye@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
 
-      - name: Set Rye Config
-        run: |
-          rye config --set-bool behavior.global-python=true
-          rye config --set-bool behavior.use-uv=true
-        shell: bash
+      - name: Install dependencies
+        run: uv sync
 
-      - name: Sync dependencies
-        run: rye sync
+      - name: Ruff format check
+        run: uv run ruff format --check src/
 
-      - name: Rye fmt
-        run: rye fmt --check
+      - name: Ruff lint
+        run: uv run ruff check src/
 
-      - name: Rye lint
-        run: rye lint src
-
-      - name: Rye lint
-        run: rye sync
+      - name: Run unit tests
+        run: uv run pytest tests/unit/ -v --tb=short -x
+        env:
+          ROHE_PATH: ${{ github.workspace }}

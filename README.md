@@ -14,15 +14,16 @@
 
 ---
 
-ROHE is an orchestration framework for end-to-end machine learning serving on heterogeneous edge. 
-The framework provides a set of services for monitoring, orchestration, and resource management of ML pipelines on edge devices.
+ROHE is a platform for orchestrating end-to-end machine learning inference pipelines on heterogeneous edge clusters. It provides quality-aware orchestration, runtime observation, and contract-driven SLA enforcement.
 
 Features:
 
 - [Resource Optimization](src/rohe/orchestration/resource_management/): ROHE selects the optimal edge nodes for deploying microservices in ML pipelines based on resource requirements and availability. It also allows developers to implement their own resource allocation algorithms. Currently, ROHE supports application deployments on Kube-like environment (e.g., K3s and K8s). Publication: [On Optimizing Resources for Real-Time End-to-End Machine Learning in Heterogeneous Edges](https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3383)
 - [Observation Service](src/rohe/observation/): ROHE provides a service for monitoring and analyzing the performance of ML pipelines. It allows developers to register their applications, configure observation agents, collect metrics from running applications, and support runtime explainability. Publication: [Novel contract-based runtime explainability framework for end-to-end ensemble machine learning serving](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10555921), [Security orchestration with explainability for digital twins-based smart systems](https://research.aalto.fi/en/publications/security-orchestration-with-explainability-for-digital-twins-base).
 Also see [QoA4ML](https://github.com/rdsea/QoA4ML) - a monitoring library for end-to-end ML applications.
-- [Orchestration Service](src/rohe/orchestration/): ROHE provides set of algorithms for orchestrating runtime inferences by selecting the best ML services (ML models and edge nodes) or ensemble of ML services for running inference tasks. Developers can also implement their own orchestration algorithms as ROHE plugins to optimize the quality of service base on consumer-specific contexts. Publication: [Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving](https://ieeexplore.ieee.org/abstract/document/10971860)
+- [Orchestration Service](src/rohe/orchestration/): ROHE provides set of algorithms for orchestrating runtime inferences by selecting the best ML services (ML models and edge nodes) or ensemble of ML services for running inference tasks. Developers can also implement their own orchestration algorithms as ROHE plugins to optimize the quality of service base on consumer-specific contexts. The v2 async orchestrator supports multiple algorithms selectable at runtime (v2, adaptive, DREAM, LLF). Publication: [Optimizing Multiple Consumer-specific Objectives in End-to-End Ensemble Machine Learning Serving](https://ieeexplore.ieee.org/abstract/document/10971860)
+- Quality Evaluation: Three-tier quality assessment -- Tier 1 (rules-based), Tier 2 (anomaly detection), Tier 3 (LLM-assisted diagnosis).
+- Example Applications: [BTS](examples/applications/bts), [CCTVS](examples/applications/cctvs), [Object Classification](examples/applications/object_classification), [Smart Building](examples/applications/smart_building) -- each with per-service Docker images, K8s deployment, and simulation framework.
 
 ---
 ## High-level view
@@ -40,61 +41,66 @@ Fig. ROHE High-level View
 </figure>
 
 ## Installation
-### From PyPI
-You can install ROHE from PyPI using pip:
-```bash
-pip install rohe
-```
 
-### From Source
-You can also install ROHE from source. First, clone the repository:
 ```bash
+# Install with uv (recommended)
 git clone https://github.com/rdsea/ROHE.git
 cd ROHE
-pip install -e .
+uv sync
+
+# Or from PyPI
+pip install rohe
 ```
 
 **Note:** Due to the continuous development of the required Python libraries, the installation may have some dependency conflicts.
 
 ## Structure of the repository
 The repository is structured as follows:
-```ROHE/
-├── config/                  # Configuration files for ROHE services
-├── datasets/                # Data generated from experiments or used in scientific publications
-├── deployment/              # Deployment of external services (e.g., MongoDB, redis, etc.)
-├── docs/                    # Documentation files
-├── examples/                # Example applications (services and clients), and service contracts, etc.
-├── src/                     # Source code of ROHE
-│   ├── rohe/                # Main package of ROHE
-│   │   ├── api/             # APIs for manage computation resources (will be further developed)
-│   │   ├── common/          # Data models, abstractions, and utilities
-│   │   ├── external/        # Connectors to other services and modules (e.g., k8s)
-│   │   ├── lib/             # Utility functions and classes in ROHE
-│   │   ├── messaging/       # For communication between ROHE services
-│   │   ├── observation/     # Observation implementation
-│   │   ├── orchestration/   # Orchestration implementation
-│   │   ├── rohe_cli/        # Command line interface for ROHE
-│   │   └── service/         # Deployment of ROHE services
-│   │   └── service_registry/         # Manage service registration and discovery
-│   │   └── storage/         # Connectors to storage services (e.g., MongoDB, MinIo, etc.)
-│   └── system_setup/        # Setup system environment (e.g., K3s, Docker, etc. - under maintenance)
-│   └── templates/           # Templates for data communicated between ROHE services
-│   └── tests/               # Unit tests for ROHE (under development)
-│   └── userModule/          # Extension modules implemented by users
-├── other project files      # Readme, license, etc.
-
+```
+ROHE/
+├── src/rohe/                 # Core platform
+│   ├── api/                  # FastAPI endpoints
+│   ├── cli/                  # Typer CLI
+│   ├── common/               # Data models, abstractions, utilities
+│   ├── export/               # Experiment data export
+│   ├── experiment/           # Experiment lifecycle management
+│   ├── external/             # External integrations (YOLO models)
+│   ├── lib/                  # Deployment utilities
+│   ├── messaging/            # Message bus abstractions
+│   ├── models/               # Pydantic domain models (ExecutionPlan, contracts, metrics)
+│   ├── monitoring/           # rohe-sdk, inference reporter, OTel
+│   ├── observation/          # Observation agents, metric collection
+│   ├── orchestration/        # Inference orchestration (v2, adaptive, DREAM, LLF)
+│   ├── quality/              # Quality evaluation (rules, anomaly, LLM diagnosis)
+│   ├── registry/             # Service discovery (K8s, HTTP)
+│   ├── repositories/         # Data access (MongoDB, Redis)
+│   ├── service/              # FastAPI service factories
+│   ├── service_registry/     # Consul integration
+│   └── storage/              # Storage connectors (MongoDB, MinIO, S3)
+├── examples/applications/    # 4 reference applications
+│   ├── bts/                  # Building Time Series (4 models)
+│   ├── cctvs/                # CCTV Surveillance (5 models)
+│   ├── object_classification/# Image Classification (4 models)
+│   ├── smart_building/       # Multi-modal Activity Recognition (8 models)
+│   └── common/               # Shared service factories
+├── experiments/              # Experiment scenarios and analysis
+├── deployment/               # Infrastructure (Redis, Grafana)
+├── userModule/               # User-extensible algorithms
+├── datasets/                 # Experiment data
+├── docs/                     # Documentation
+└── tests/                    # Unit tests (203+ tests)
 ```
 ## Publications
 
-### On Optimizing Resources for Real‐Time End‐to‐End Machine Learning in Heterogeneous Edges: [Pdf](https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.3383)
+### On Optimizing Resources for Real-Time End-to-End Machine Learning in Heterogeneous Edges: [Pdf](https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.3383)
 
 #### Implementation:
-- [Observation Service](src/rohe/service/observation_service.py)
+- [Observation Service](src/rohe/service/observation_service_fastapi.py)
 - [Observation Abstraction](src/rohe/observation)
-- [Orchestration Service](src/rohe/service/orchestration_service.py)
+- [Orchestration Service](src/rohe/service/orchestration_service_fastapi.py)
 - [Resource Management](src/rohe/orchestration/resource_management)
 - [Orchestration Methods](src/rohe/orchestration/orchestration_algorithm)
-- Example Application: [BTS](examples/applications/BTS), [CCTVS](examples/applications/cctvs), and KPI (private)
+- Example Application: [BTS](examples/applications/bts), [CCTVS](examples/applications/cctvs), and KPI (private)
 - [Sample Data](datasets/SPE2024)
 
 **Note:** Other publications reuse most parts of this implementation.
@@ -134,7 +140,6 @@ Citation:
 - This publication also uses ROHE as the orchestration framework with Observation Service for monitoring and explainability.
 - The core abstraction of ML contract can be found in [RXOMS](https://github.com/rdsea/RXOMS)
 - Example Application: [Security in Digital Twins Network](https://github.com/rdsea/RXOMS/tree/main/sdn_simulation)
-- User Module: [Performance Evaluation](userModule/sdn.py)
 
 Citation:
 ```bibtex
@@ -155,7 +160,6 @@ Citation:
 - [Orchestration Algorithm](src/rohe/orchestration/ensemble_optimization)
 - [User Defined Functions](userModule)
 - Example Application: [Object Detection](examples/applications/object_classification)
-- Example Agent Configuration: [Agent Config](examples/agentConfig)
 - [Sample Data](datasets/UCC2024)
 
 Citation:
@@ -189,14 +193,14 @@ Citation:
   - Visualization service (e.g., Prometheus, Graphana - optional)
 - Observation Service includes registration service and agent manager. Users can modify Observation Service configurations in `$ROHE_PATH/config/observationConfigLocal.yaml`.
   The configuration defines: - Protocols with default configurations for public (connector) and consume (collector) metrics. - Database configuration where metrics and application data/metadata are stored. - Container Image of the Observation Agent - Logging Level (debugging, warning, etc)
-- To deploy Observation Service, use rohe-cli:
+- To deploy Observation Service, use rohe:
 
 ```bash
-$ rohe-cli start observation-service
+$ rohe start observation-service
 ```
 
 - Application Registration
-  - Users can register the application using `rohe-cli`. Application metadata and related configurations will be saved to the Database
+  - Users can register the application using `rohe`. Application metadata and related configurations will be saved to the Database
   - When register an end-to-end ML application, the users must provide application name (`app_name` - string), run ID (`run_id` - string), user ID (`user_id` - string), and send registration request to the Observation Service via its `url`.
   - The Observation Service will generate:
   - Application ID: `appID`
@@ -206,7 +210,7 @@ $ rohe-cli start observation-service
 Example
 
 ```bash
-$ rohe-cli observation register-app --app <application_name> --run <run_ID> --user <user_ID> --url <resigstration_service_url> --output_dir <folder_path_to_save_app_metadata>
+$ rohe observation register-app --app <application_name> --run <run_ID> --user <user_ID> --url <resigstration_service_url> --output_dir <folder_path_to_save_app_metadata>
 ```
 
 - Then, users must implement QoA probes manually into the application. Probes use this metadata to register with the observation service. The metadata can be extended with information like stage_id microserviceID, method, role, etc. After the registration, the probes will receive communication protocol & configurations to report metrics.
@@ -214,24 +218,24 @@ $ rohe-cli observation register-app --app <application_name> --run <run_ID> --us
   The Agent must be configured with application name, command, stream configuration including: - Processing window: interval, size - Processing module: specify `parser` and `function` names to process metric reports.
   User must define these processing moduled in `$ROHE_PATH/userModule` (e.g., `userModule/common`), including metric `parser` for parsing metric reports and `function` for window processing.
 
-- To start the Agent, the user can use `rohe-cli`:
+- To start the Agent, the user can use `rohe`:
 
 ```bash
-$ rohe-cli observation start-observation-agent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
+$ rohe observation start-observation-agent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
 ```
 
 - The Observation service will start the Agent on a container (e.g., Docker container). Metric processing results from the Agent are saved to files or database or message broker (developing) or Prometheus/Grafana (developing) depending on Agent configuration
 
-- To stop the Agent, the user can also use `rohe-cli`:
+- To stop the Agent, the user can also use `rohe`:
 
 ```bash
-$ rohe-cli observation stop-observation-agent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
+$ rohe observation stop-observation-agent --app <application_name> --conf <path_to_agent_configuration> --url <resigstration_service_url>
 ```
 
-- To delete/unregister an application using `rohe-cli`:
+- To delete/unregister an application using `rohe`:
 
 ```bash
-$ rohe-cli observation delete-app --app <application_name> --url <resigstration_service_url>
+$ rohe observation delete-app --app <application_name> --url <resigstration_service_url>
 ```
 
 ### 1.2 Development Guide
@@ -244,7 +248,7 @@ $ rohe-cli observation delete-app --app <application_name> --url <resigstration_
 #### 1.2.2 Observation Agent
 
 - Agents are currently deployed on the local docker environment: `core.observation.containerizedAgent`.
-- To Do: implement remote deployment on several container environments (Docker, Kubernetes, etc).
+- Remote deployment is supported via K8s manifests in each application's k8s/ directory.
 
 ## 2. Orchestration Service
 
@@ -254,88 +258,88 @@ $ rohe-cli observation delete-app --app <application_name> --url <resigstration_
   - Database service (e.g., MongoDB)
 - The Orchestration Service allocate service instances on edge nodes base on a specific orchestration algorithm (currently using scoring algorithm). Users can modify Orchestration Service configurations in `$ROHE_PATH/config/orchestrationConfigLocal.yaml`.
   The configuration defines: - Database configuration where metrics and application data/metadata are stored. - Service queue priority - Orchestration algorithm
-- To deploy Orchestration Service, use `rohe-cli`.
+- To deploy Orchestration Service, use `rohe`.
 
 ```bash
-$ rohe-cli start orchestration-service
+$ rohe start orchestration-service
 ```
 
 - Add nodes to the orchestration system
-  - Users can add nodes by using `rohe-cli`. The node metadata will be saved to the Database
+  - Users can add nodes by using `rohe`. The node metadata will be saved to the Database
   - When adding nodes, the users must provide file path to the node configurations (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of node configuration is in `$ROHE_PATH/templates/orchestration_command/add_node.yaml`
 
 Example
 
 ```bash
-$ rohe-cli orchestration add-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration add-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Add service to the orchestration system
-  - Users can add services by using `rohe-cli`. The service metadata will be saved to the Database
+  - Users can add services by using `rohe`. The service metadata will be saved to the Database
   - When adding service, the users must provide file path to the service configurations (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of service configuration is in `$ROHE_PATH/templates/orchestration_command/add_service.yaml`
 
 Example
 
 ```bash
-$ rohe-cli orchestration add-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration add-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Get node information from the orchestration system
-  - Users can get node information by using `rohe-cli`.
+  - Users can get node information by using `rohe`.
   - To get node information, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of command is in `$ROHE_PATH/templates/orchestration_command/get_node.yaml`
 
 Example
 
 ```bash
-$ rohe-cli orchestration get-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration get-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Get service information from the orchestration system
-  - Users can get service information by using `rohe-cli`.
+  - Users can get service information by using `rohe`.
   - To get service information, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of command is in `$ROHE_PATH/templates/orchestration_command/get_service.yaml`
 
 Example
 
 ```bash
-$ rohe-cli orchestration get-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration get-service --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Remove nodes from the orchestration system
 ```bash
-$ rohe-cli orchestration remove-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration remove-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
-  - Users can remove node by using `rohe-cli`.
+  - Users can remove node by using `rohe`.
   - To remove nodes, the users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of command is in `$ROHE_PATH/templates/orchestration_command/remove_node.yaml`
 
 Example
 
 ```bash
-$ rohe-cli orchestration remove-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration remove-node --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Start Orchestration Agent
-  - Users can start the agent by using `rohe-cli` in the `/bin` folder.
+  - Users can start the agent by using `rohe` in the `/bin` folder.
   - Users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
   - The agent constantly check services in the service queue (for services waiting for being allocated). If the service queue is not empty, the agent will find location for allocate the service in the available nodes.
   - The template of command is in `$ROHE_PATH/templates/orchestration_command/start_orchestration.yaml`
 
 Example
 ```bash
-$ rohe-cli orchestration start-agent --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration start-agent --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 - Stop Orchestration Agent
-  - Users can start the agent by using `rohe-cli` in the `/bin` folder.
+  - Users can start the agent by using `rohe` in the `/bin` folder.
   - Users must provide file path to the get command (`-conf`) and `-url`, the url to the Orchestration Service.
   - The template of command is in `$ROHE_PATH/templates/orchestration_command/stop_orchestration.yaml`
 
 ```bash
-$ rohe-cli orchestration stop-agent --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
+$ rohe orchestration stop-agent --app <application_name> --conf <configuration_path> --url <orchestration_service_url>
 ```
 
 ### 2.2 Development Guide
@@ -354,7 +358,7 @@ The module provide the abstract class/object to manage the infrastructure resour
 
 - Provide utilities for generating deployment files from template (`$ROHE_PATH/templates/deployment_template.yaml`)
 - Deploy microservices, pod based on generated deployment files
-- TO DO: develop abstract function to improve the extendability
+- See orchestration/allocation/algorithms/ for pluggable algorithm implementations.
 
 #### 2.2.3 Algorithm
 
@@ -448,51 +452,17 @@ Workflow of Scoring Algorithm:
 - Scoring filtered node
 - Selecting node based on the score, applying different strategies: first/best/worst-fit
 
-- TO DO: define abstract function for each module
+The v2 orchestrator supports multiple algorithms selectable at runtime:
+- `v2`: Async production orchestrator with ExecutionPlan and DataHub
+- `adaptive`: Original multimodal orchestrator
+- `dream`: DREAM deadline-aware allocation
+- `llf`: Least-laxity-first scheduling
 
-
-### 
-
-<!-- ### User running pipeline
-Assume user has application
-Explain:
-- application: meaning
-- client: meaning
-- ...
-
-
-### Scenario 1: obsersvation
-Step 1:
-- Register application: one time
-    - template file for register: example
-    - Run client_registrate -> url: "observation:register/"
-    return: qoa4ml config
-
-Step 2:
-- Enable monitoring: one time
-    - Config qoa4ml client using qoa4ml config: example
-    - Run: qoa4ml_configurate -> generate qoa4ml client config
-
-Step 3:
-- Start observation agent
-    - Set function and parser for agent in configuration.json: example: niiStream.config
-    - Run start_agent: example: startAgent.sh -> python
-
-Step 4
-- Get analysis result from agent:
-    - get data from mogodb
-
-### Scenario 2: orchestration
-### Scenario 3: ...
-
-Add example contract to 'example/contract'
-
-rename module for icsoc, journal
-
-### Scenario 4: user modify pipeline to use ROHE
-
-
- -->
+Example applications can be deployed on K8s:
+```bash
+bash examples/applications/bts/scripts/build.sh rdsea 0.0.1 true
+bash examples/applications/bts/scripts/deploy.sh --local --load-images
+```
 
 
 
