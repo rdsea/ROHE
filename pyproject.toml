@@ -7,7 +7,7 @@ packages = ["src/rohe"]
 
 [project]
 name = "rohe"
-version = "0.0.8"
+version = "0.2.1"
 description = "An orchestration framework for End-to-End Machine Learning Serving with Resource Optimization on Heterogeneous Edge"
 readme = "README.md"
 requires-python = ">=3.10"
