@@ -116,6 +116,10 @@ class ExecutionPlan(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc),
         description="Last update timestamp",
     )
+    orchestration_algorithm: str = Field(
+        "v2",
+        description="Orchestration algorithm: v2, adaptive, dream, llf",
+    )
     modality_ensembles: dict[str, ModalityEnsemble] = Field(
         default_factory=dict, description="Per-modality ensemble configurations"
     )
