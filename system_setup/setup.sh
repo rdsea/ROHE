@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # This script is for preparing environment for installing Kubernetes in a physical node
 
 sudo apt install net-tools

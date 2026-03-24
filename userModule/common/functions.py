@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import logging
 
@@ -14,7 +16,7 @@ import traceback
 
 
 def dummy_function(data):
-    print(data)
+    logging.debug(str(data))
     return None
 
 
@@ -116,9 +118,9 @@ def sdn_detect_local_outlier_factor(data, feature):
             dfs[key], model = detect_local_outlier_factor(df, feature)
             logging.debug(dfs[key])
             final_df = pd.concat([final_df, dfs[key]], ignore_index=True)
-        print(final_df)
+        logging.debug(str(final_df))
         return final_df, model
-    except:
+    except Exception:
         logging.error("Window processing error in sdn_detect_local_outlier_factor")
         return None, None
 

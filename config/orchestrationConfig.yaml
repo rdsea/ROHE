@@ -1,8 +1,8 @@
 db_authentication:
   url: "localhost"
   prefix: "mongodb+srv://"
-  username: "admin"
-  password: "admin"
+  username: "${MONGODB_USERNAME:-admin}"
+  password: "${MONGODB_PASSWORD:-admin}"
 db_node_collection:
   collection: node_collection
   database: rohe_orchestration
