@@ -71,7 +71,7 @@ class EnsembleSelector(ABC):
             if not isinstance(instance, InferenceServiceInstance):
                 continue
             for metric in instance.runtime_performance:
-                if metric.metric_name == CommonMetric.RESPONSE_TIME:
+                if metric.metric_name == CommonMetric.RESPONSE_TIME.value:
                     rt = (
                         float(metric.value)
                         if metric.value is not None
@@ -115,7 +115,7 @@ class EnsembleSelector(ABC):
                 # Find class-specific accuracy
                 for metric in svc.base_line:
                     if (
-                        metric.metric_name == CommonMetric.ACCURACY
+                        metric.metric_name == CommonMetric.ACCURACY.value
                         and metric.class_id == target_class
                         and metric.value is not None
                         and float(metric.value) > best_accuracy
@@ -142,7 +142,7 @@ class EnsembleSelector(ABC):
                 continue
             for metric in svc.base_line:
                 if (
-                    metric.metric_name == CommonMetric.ACCURACY
+                    metric.metric_name == CommonMetric.ACCURACY.value
                     and metric.value is not None
                 ):
                     scored.append((svc_id, float(metric.value)))
