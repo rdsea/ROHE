@@ -2,10 +2,6 @@ import logging
 
 from pydantic import BaseModel
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
-
 
 class MessagingConnectionConfig(BaseModel):
     name: str

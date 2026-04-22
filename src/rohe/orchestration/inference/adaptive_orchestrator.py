@@ -16,9 +16,6 @@ import yaml
 
 ROHE_PATH = os.getenv("ROHE_PATH", "../..")
 sys.path.append(ROHE_PATH)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 import multiprocessing
 
 from userModule.algorithm import multimodal_ensemble

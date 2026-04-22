@@ -1,26 +1,21 @@
 import logging
+import os
+import sys
 import time
+import traceback
+import uuid
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 from threading import Lock
 from typing import Any
 
+import duckdb
 import requests
 from pydantic import BaseModel, Field
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-import os
-import sys
-import uuid
-
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
 sys.path.append(parent_dir)
-import traceback
-
-import duckdb
 
 DEFAULT_INFERENCE_URL = "http://localhost:6666/inference"
 

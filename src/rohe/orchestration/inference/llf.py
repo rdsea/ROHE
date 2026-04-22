@@ -3,10 +3,6 @@ import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
 from userModule.algorithm.llf_workflow import assigning_phase_with_laxity
 
 from rohe.orchestration.inference.adaptive_orchestrator import AdaptiveOrchestrator

@@ -9,10 +9,6 @@ from ..resource_management.node import Node
 from ..resource_management.service import Service
 from ..resource_management.service_queue import ServiceQueue
 
-logging.basicConfig(
-    format="%(asctime)s:%(levelname)s -- %(message)s", level=logging.INFO
-)
-
 
 def filtering_node(nodes: dict[str, Node], service: Service):
     key_list = []
