@@ -32,6 +32,7 @@ src/rohe/external/k8s/api__v1_openapi.json
 build.sh
 
 plan/
+reviews/
 
 # Simulation artifacts (never commit - simulation_plan.md rule)
 **/simulation/
