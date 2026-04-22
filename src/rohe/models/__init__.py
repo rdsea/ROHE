@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from .common import (
     AgentStatus,
-    CommonMetric,
-    Explainability,
-    InstanceStatus,
     OrchestrateAlgorithmEnum,
     SensitivityEnum,
     StatusEnum,
+)
+from .enums import (
+    CommonMetric,
+    Explainability,
+    InstanceStatus,
     TaskStatus,
 )
 from .contracts import (
