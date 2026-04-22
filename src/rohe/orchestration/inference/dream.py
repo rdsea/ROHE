@@ -118,3 +118,4 @@ class DREAMOrchestrator(AdaptiveOrchestrator):
         except Exception as e:
             logging.error(f"DREAM task execution loop failed: {e}")
             traceback.print_exc()
+            return TaskStatus.FAILED.value

@@ -167,6 +167,9 @@ class AdaptiveOrchestrator:
             logging.debug(
                 f"Consumer {consumer_id} has access privileges: {access_privileges}, requested data sources: {inference_query.data_source}"
             )
+            if tenant_sla is None:
+                logging.warning(f"No SLA found for consumer {consumer_id}")
+                return {"Error": f"No SLA found for consumer {consumer_id}"}
             data_source = inference_query.data_source
             inference_query.query_id = query_id
             for source in data_source:

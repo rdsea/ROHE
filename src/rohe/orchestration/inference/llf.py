@@ -118,3 +118,4 @@ class LLFOrchestrator(AdaptiveOrchestrator):
         except Exception as e:
             logging.error(f"LLF task execution loop failed: {e}")
             traceback.print_exc()
+            return TaskStatus.FAILED.value

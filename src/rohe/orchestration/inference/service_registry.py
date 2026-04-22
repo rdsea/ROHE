@@ -99,14 +99,13 @@ class DuckDBServiceRegistry(ServiceRegistry):
             import duckdb
 
             conn = duckdb.connect(self._db_path, read_only=True)
-            rows = conn.execute(
+            cursor = conn.execute(
                 "SELECT * FROM sla_table WHERE tenant_id = ?", [consumer_id]
-            ).fetchall()
+            )
+            rows = cursor.fetchall()
+            cols = [desc[0] for desc in cursor.description] if cursor.description else []
             conn.close()
             if rows:
-                cols = (
-                    [desc[0] for desc in conn.description] if conn.description else []
-                )
                 data = dict(zip(cols, rows[0]))
                 return ServiceLevelAgreement.from_dict(data)
         except Exception as e:

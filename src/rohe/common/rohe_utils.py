@@ -326,7 +326,7 @@ def decode_binary_image(binary_encoded_object: bytes, dtype: np.dtype, shape: tu
     return image
 
 
-def save_numpy_array(self, arr, file_path):
+def save_numpy_array(arr: np.ndarray, file_path: str) -> None:
     """
     Saves a numpy array to a file at the specified file path.
     """

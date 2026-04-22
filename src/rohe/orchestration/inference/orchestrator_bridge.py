@@ -61,13 +61,15 @@ class OrchestratorBridge:
         """Initialize the AdaptiveOrchestrator, Redis, and load contracts."""
         # Load AdaptiveOrchestrator
         try:
-            from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
+            from rohe.orchestration.inference.adaptive_orchestrator import (
+                AdaptiveOrchestrator,
+            )
 
             self._adaptive_orchestrator = AdaptiveOrchestrator(
                 config_path=self._config_path
             )
             logger.info("AdaptiveOrchestrator initialized")
-        except Exception as e:
+        except ImportError as e:
             logger.error(f"Failed to initialize AdaptiveOrchestrator: {e}")
 
         # Connect to Redis
