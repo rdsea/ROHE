@@ -5,8 +5,6 @@ import pathlib
 import random
 import re
 import socket
-import sys
-import traceback
 import types
 from collections.abc import Callable
 from datetime import datetime, timezone
@@ -17,7 +15,6 @@ import yaml
 
 from ..service_registry.consul import ConsulClient
 from .logger import logger
-
 
 _SQL_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
 

@@ -6,12 +6,6 @@ from .common import (
     SensitivityEnum,
     StatusEnum,
 )
-from .enums import (
-    CommonMetric,
-    Explainability,
-    InstanceStatus,
-    TaskStatus,
-)
 from .contracts import (
     MetricThreshold,
     PerformanceSLO,
@@ -19,6 +13,12 @@ from .contracts import (
     ServiceContract,
     ServiceLevelAgreement,
     ServiceLevelIndicator,
+)
+from .enums import (
+    CommonMetric,
+    Explainability,
+    InstanceStatus,
+    TaskStatus,
 )
 from .infrastructure import (
     AcceleratorResource,
