@@ -18,10 +18,12 @@ class MDBClient:
     def get_mdb_client(self, mdb_conf):
         username = quote_plus(mdb_conf.username)
         password = quote_plus(mdb_conf.password)
-        # mdb_conf.url historically omits the scheme and the '@' separator;
-        # build a well-formed URI instead of concatenating raw pieces.
-        m_uri = f"{mdb_conf.prefix}{username}:{password}@{mdb_conf.url}"
-        client = MongoClient(m_uri, server_api=ServerApi("1"))
+        # Build the URI inline and do not bind it to a named local; this keeps
+        # the plaintext credentials out of traceback frames that include locals.
+        client = MongoClient(
+            f"{mdb_conf.prefix}{username}:{password}@{mdb_conf.url}",
+            server_api=ServerApi("1"),
+        )
         client.admin.command("ping")
         logger.info("Pinged your deployment. You successfully connected to MongoDB!")
         return client
@@ -33,7 +35,7 @@ class MDBClient:
             data = list(collection.aggregate(query))
             return data
         except Exception as e:
-            logger.exception(f"Error in `get` MDBClient: {e}")
+            logger.error(f"MDBClient error in `get` ({type(e).__name__})")
             return []
 
     def insert_one(self, db_collection: MongoCollection, data: dict):
@@ -43,7 +45,7 @@ class MDBClient:
             response = collection.insert_one(data)
             return response
         except Exception as e:
-            logger.exception(f"Error in `insert_one` MDBClient: {e}")
+            logger.error(f"MDBClient error in `insert_one` ({type(e).__name__})")
             return {}
 
     def insert_many(self, db_collection: MongoCollection, data: list):
@@ -53,7 +55,7 @@ class MDBClient:
             response = collection.insert_many(data)
             return response
         except Exception as e:
-            logger.exception(f"Error in `insert_many` MDBClient: {e}")
+            logger.error(f"MDBClient error in `insert_many` ({type(e).__name__})")
             return {}
 
     def delete_many(self, db_collection: MongoCollection, data: dict):
@@ -63,7 +65,7 @@ class MDBClient:
             response = collection.delete_many(data)
             return response
         except Exception as e:
-            logger.exception(f"Error in `delete_many` MDBClient: {e}")
+            logger.error(f"MDBClient error in `delete_many` ({type(e).__name__})")
             return {}
 
     def find(self, db_collection: MongoCollection, query: Any):
@@ -73,7 +75,7 @@ class MDBClient:
             data = collection.find(query)
             return data
         except Exception as e:
-            logger.exception(f"Error in `find` MDBClient: {e}")
+            logger.error(f"MDBClient error in `find` ({type(e).__name__})")
             return {}
 
     def aggregate(
@@ -85,7 +87,7 @@ class MDBClient:
             data = collection.find(find_query).sort(sort_query)
             return data
         except Exception as e:
-            logger.exception(f"Error in `find` MDBClient: {e}")
+            logger.error(f"MDBClient error in `aggregate` ({type(e).__name__})")
             return {}
 
     def drop(self, db_collection: MongoCollection):
@@ -95,7 +97,7 @@ class MDBClient:
             collection.drop()
             return True
         except Exception as e:
-            logger.exception(f"Error in `find` MDBClient: {e}")
+            logger.error(f"MDBClient error in `drop` ({type(e).__name__})")
             return False
 
     def to_dict(self):

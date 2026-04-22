@@ -597,7 +597,10 @@ class InferenceTask(BaseModel):
                         request_dict["model_version"] = instance_ex_i.model_version
                         futures.append(
                             executor.submit(
-                                requests.post, inference_url, json=request_dict
+                                requests.post,
+                                inference_url,
+                                json=request_dict,
+                                timeout=(3.0, 10.0),
                             )
                         )
                 for instance_i in self.selected_instances:
@@ -611,7 +614,12 @@ class InferenceTask(BaseModel):
                     request_dict["device_id"] = instance_i.device_id
                     request_dict["model_version"] = instance_i.model_version
                     futures.append(
-                        executor.submit(requests.post, inference_url, json=request_dict)
+                        executor.submit(
+                            requests.post,
+                            inference_url,
+                            json=request_dict,
+                            timeout=(3.0, 10.0),
+                        )
                     )
 
                 for future in as_completed(futures):

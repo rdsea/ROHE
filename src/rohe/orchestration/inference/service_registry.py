@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 
+from rohe.common.rohe_utils import validate_sql_identifier
 from rohe.models.contracts import ServiceLevelAgreement
 from rohe.models.enums import InstanceStatus
 from rohe.models.pipeline import (
@@ -67,9 +68,13 @@ class DuckDBServiceRegistry(ServiceRegistry):
         monitoring_table: str = "inference_result_table",
     ) -> None:
         self._db_path = db_path
-        self._service_table = service_table
-        self._instance_table = instance_table
-        self._monitoring_table = monitoring_table
+        self._service_table = validate_sql_identifier(service_table, "service_table")
+        self._instance_table = validate_sql_identifier(
+            instance_table, "instance_table"
+        )
+        self._monitoring_table = validate_sql_identifier(
+            monitoring_table, "monitoring_table"
+        )
         self._services: dict[str, InferenceServiceProfile] = {}
         self._instances: dict[str, InferenceServiceInstance] = {}
 

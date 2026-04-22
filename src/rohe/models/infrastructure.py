@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .common import SensitivityEnum, StatusEnum
 
@@ -29,7 +29,7 @@ class AcceleratorResource(BaseModel):
 
 
 class NodeData(BaseModel):
-    node_name: str
+    node_name: str = Field(..., pattern=r"^[a-zA-Z0-9_-]{1,64}$")
     mac_address: str
     status: StatusEnum
     frequency: float

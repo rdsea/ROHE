@@ -26,6 +26,7 @@ from userModule.algorithm.multimodal_workflow import (
     assigning_phase_with_longest_sequence,
 )
 
+from rohe.common.rohe_utils import validate_sql_identifier
 from rohe.orchestration.multimodal_abstration import (
     CommonMetric,
     Explainability,
@@ -77,16 +78,21 @@ class AdaptiveOrchestrator:
         try:
             with open(self.config_path) as f:
                 self.config = yaml.safe_load(f)
-            logging.debug(f"Configuration loaded: {self.config}")
+            logging.debug(f"Config keys loaded: {list(self.config)}")
             self.db_path = self.config.get("database_file", "../database/file.duckdb")
-            self.monitoring_table = self.config.get(
-                "monitoring_table", "monitoring_report"
+            self.monitoring_table = validate_sql_identifier(
+                self.config.get("monitoring_table", "monitoring_report"),
+                "monitoring_table",
             )
-            self.inference_service_table = self.config.get(
-                "inference_service_table", "inference_service"
+            self.inference_service_table = validate_sql_identifier(
+                self.config.get("inference_service_table", "inference_service"),
+                "inference_service_table",
             )
-            self.inference_service_instance_table = self.config.get(
-                "inference_service_instance_table", "inference_service_instance"
+            self.inference_service_instance_table = validate_sql_identifier(
+                self.config.get(
+                    "inference_service_instance_table", "inference_service_instance"
+                ),
+                "inference_service_instance_table",
             )
             self.update_interval = self.config.get("update_interval", 100)
             self.sla_path = self.config.get("sla_path", "./sla.yaml")
@@ -94,7 +100,7 @@ class AdaptiveOrchestrator:
             self.sla = {}
             for key, value in sla_dict.items():
                 self.sla[key] = ServiceLevelAgreement.from_dict(value)
-            logging.debug(f"Loaded SLA: {self.sla}")
+            logging.debug(f"Loaded SLA keys: {list(self.sla)}")
             self.time_proportions = self.config.get("time_proportions", {})
             self.data_hub_url = self.config.get(
                 "data_hub_url", "http://localhost:5550/query_data"
@@ -104,8 +110,9 @@ class AdaptiveOrchestrator:
             self.test_mode = self.config.get("test_mode", True)
             self.default_inference_url = self.config.get("default_inference_url", None)
             self.default_overhead = self.config.get("default_overhead", 0.01)
-            self.inference_result_table = self.config.get(
-                "inference_result_table", "inference_result"
+            self.inference_result_table = validate_sql_identifier(
+                self.config.get("inference_result_table", "inference_result"),
+                "inference_result_table",
             )
         except Exception as e:
             logging.error(f"Failed to load configuration: {e}")
@@ -454,7 +461,9 @@ class AdaptiveOrchestrator:
                 "stream_id": stream_id,
                 "window_size": time_window,
             }
-            response = requests.post(self.data_hub_url, json=data_request)
+            response = requests.post(
+                self.data_hub_url, json=data_request, timeout=(3.0, 10.0)
+            )
             if response.status_code == 200:
                 result = response.json()
             return result

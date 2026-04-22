@@ -19,6 +19,20 @@ from ..service_registry.consul import ConsulClient
 from .logger import logger
 
 
+_SQL_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
+
+
+def validate_sql_identifier(name: str, context: str = "identifier") -> str:
+    """Return `name` if it is a safe SQL identifier, otherwise raise ValueError.
+
+    Intended for table/column names interpolated into SQL strings, where
+    parameter binding does not apply to the identifier itself.
+    """
+    if not isinstance(name, str) or not _SQL_IDENTIFIER_RE.match(name):
+        raise ValueError(f"Invalid SQL {context}: {name!r}")
+    return name
+
+
 def get_function_from_module(
     module: types.ModuleType, func_name: str
 ) -> Callable | None:
