@@ -44,22 +44,27 @@ def get_function_from_module(
         return None
 
 
-def merge_dict(f_dict, i_dict, prio=False):
-    try:
-        if isinstance(f_dict, dict) and isinstance(i_dict, dict):
-            for key in f_dict:
-                if key in i_dict:
-                    f_dict[key] = merge_dict(f_dict[key], i_dict[key], prio)
-                    i_dict.pop(key)
-            f_dict.update(i_dict)
-        elif f_dict != i_dict:
-            if prio:
-                return f_dict
-            else:
-                return i_dict
-    except Exception:
-        logger.exception("Error in merge_dict")
-    return f_dict
+def merge_dict(f_dict, i_dict, prio: bool = False):
+    """Return a new value from merging f_dict and i_dict recursively.
+
+    Top-level callers are expected to pass two dicts. On nested key
+    collisions where at least one side is not a dict, prio decides:
+    f_dict wins when True, otherwise i_dict wins. Neither input is
+    mutated (pure function).
+    """
+    if not isinstance(f_dict, dict) or not isinstance(i_dict, dict):
+        return f_dict if prio else i_dict
+
+    result: dict = {}
+    for key, f_val in f_dict.items():
+        if key in i_dict:
+            result[key] = merge_dict(f_val, i_dict[key], prio)
+        else:
+            result[key] = f_val
+    for key, i_val in i_dict.items():
+        if key not in result:
+            result[key] = i_val
+    return result
 
 
 def get_dict_at(dict, i=0):
