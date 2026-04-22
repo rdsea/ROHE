@@ -43,9 +43,8 @@ def merge_dict(f_dict, i_dict, prio=False):
                 return f_dict
             else:
                 return i_dict
-    except Exception as e:
-        print(f"[ERROR] - Error {type(e)} in merge_dict: {e.__traceback__}")
-        traceback.print_exception(*sys.exc_info())
+    except Exception:
+        logger.exception("Error in merge_dict")
     return f_dict
 
 
@@ -54,7 +53,8 @@ def get_dict_at(dict, i=0):
         keys = list(dict.keys())
         return keys[i], dict[keys[i]]
     except Exception:
-        traceback.print_exception(*sys.exc_info())
+        logger.exception("Error in get_dict_at")
+        return None
 
 
 def get_parent_dir(file, parent_level=1, to_string=True):
@@ -67,21 +67,53 @@ def get_parent_dir(file, parent_level=1, to_string=True):
         return current_dir
 
 
+_ENV_VAR_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}")
+
+
+def _expand_env(value):
+    """Recursively expand ``${VAR}`` / ``${VAR:-default}`` in a loaded config.
+
+    Applied only to string leaves. Dicts and lists are walked in place.
+    This matches the envsubst syntax already used in shipped YAML files.
+    """
+    if isinstance(value, dict):
+        return {k: _expand_env(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_expand_env(v) for v in value]
+    if isinstance(value, str):
+
+        def _resolve(match: re.Match[str]) -> str:
+            var_name, default = match.group(1), match.group(2)
+            env_value = os.environ.get(var_name)
+            if env_value is not None:
+                return env_value
+            if default is not None:
+                return default
+            return ""
+
+        return _ENV_VAR_PATTERN.sub(_resolve, value)
+    return value
+
+
 def load_config(file_path: str) -> dict | None:
     """
     file_path: file path to load config
+
+    ``${VAR}`` and ``${VAR:-default}`` placeholders in string values are
+    expanded from the current environment.
     """
     try:
-        if "json" in file_path:
+        suffix = pathlib.Path(file_path).suffix.lower()
+        if suffix == ".json":
             with open(file_path) as f:
-                return json.load(f)
-        if ("yaml" in file_path) or ("yml" in file_path):
+                return _expand_env(json.load(f))
+        if suffix in (".yaml", ".yml"):
             with open(file_path) as f:
-                return yaml.safe_load(f)
-        else:
-            return None
-    except yaml.YAMLError as exc:
-        print(exc)
+                return _expand_env(yaml.safe_load(f))
+        return None
+    except yaml.YAMLError:
+        logger.exception("Error loading YAML config from %s", file_path)
+        raise
 
 
 def to_json(file_path: str, conf: dict):
@@ -245,13 +277,17 @@ def get_rohe_dir(file, level=1, to_string=True):
 
 def load_module(file_path, module_name):
     spec = importlib.util.spec_from_file_location(module_name, file_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(
+            f"Unable to load module '{module_name}' from '{file_path}'"
+        )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
 def list_files(folder_path):
-    print(folder_path)
+    logger.debug("Listing files under %s", folder_path)
     file_list = {}
     for _root, _dirs, files in os.walk(folder_path):
         for item in files:

@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import json
 import logging
 import random
 import uuid
+from typing import Any
 
 import requests
 
 headers = {"Content-Type": "application/json"}
+
+# Default request timeout (connect, read) in seconds.
+DEFAULT_TIMEOUT = (5.0, 30.0)
 
 
 class ConsulClient:
@@ -42,7 +48,7 @@ class ConsulClient:
         enable_tag_override: bool = False,
         weight=None,
     ):
-        service_conf = {"Name": name}
+        service_conf: dict[str, Any] = {"Name": name}
 
         if id == "":
             id = str(uuid.uuid4())
@@ -60,7 +66,10 @@ class ConsulClient:
         service_conf["EnableTagOverride"] = enable_tag_override
 
         response = requests.put(
-            url=self.registerLink, headers=headers, data=json.dumps(service_conf)
+            url=self.registerLink,
+            headers=headers,
+            data=json.dumps(service_conf),
+            timeout=DEFAULT_TIMEOUT,
         )
 
         if response.status_code == 200:
@@ -70,20 +79,24 @@ class ConsulClient:
             return None
 
     def service_deregister(self, id):
-        response = requests.put(url=self.deregisterLink + str(id))
+        response = requests.put(
+            url=self.deregisterLink + str(id), timeout=DEFAULT_TIMEOUT
+        )
         if response.status_code == 200:
             return True
         else:
-            logging.error(f"Unable to register for service {id}")
+            logging.error(f"Unable to deregister service {id}")
             return False
 
     def query_service(self, name: str, tags: list[str] | None = None):
         service_url = self.url + "/v1/catalog/service/" + name
-        params = {}
+        params: dict[str, Any] = {}
         if tags:
             params["tag"] = tags
 
-        response = requests.get(service_url, headers=headers, params=params)
+        response = requests.get(
+            service_url, headers=headers, params=params, timeout=DEFAULT_TIMEOUT
+        )
         if response.status_code == 200:
             services_info = response.json()
             # print(f"This is service info: {services_info}, type: {type(services_info)}")

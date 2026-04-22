@@ -30,6 +30,8 @@ class TaskStatus(Enum):
     RUNNING = "running"
     COMPLETED = "completed"
     ERROR = "error"
+    FAILED = "failed"
+    DROPPED = "dropped"
 
 
 class CommonMetric(Enum):

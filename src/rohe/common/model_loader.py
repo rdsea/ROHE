@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +12,7 @@ from .model_interface import InferenceModel
 logger = logging.getLogger(__name__)
 
 
-class ModelType(StrEnum):
+class ModelType(str, Enum):
     PYTORCH = "pytorch"
     SKLEARN = "sklearn"
     SIMULATED = "simulated"

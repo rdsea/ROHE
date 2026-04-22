@@ -1,4 +1,5 @@
 from typing import Any
+from urllib.parse import quote_plus
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -9,16 +10,17 @@ from ..common.logger import logger
 
 class MDBClient:
     def __init__(self, mdb_config: MongoAuthentication) -> None:
-        try:
-            self.db_config = mdb_config
-            self.mdb_client = self.get_mdb_client(self.db_config)
-        except Exception as e:
-            logger.exception(f"Error in __init__ MDBClient: {e}")
+        self.db_config = mdb_config
+        # Fail-fast: let connection errors propagate so callers can decide
+        # how to handle them; do not swallow and leave mdb_client unset.
+        self.mdb_client = self.get_mdb_client(self.db_config)
 
     def get_mdb_client(self, mdb_conf):
-        m_uri = (
-            mdb_conf.prefix + mdb_conf.username + ":" + mdb_conf.password + mdb_conf.url
-        )
+        username = quote_plus(mdb_conf.username)
+        password = quote_plus(mdb_conf.password)
+        # mdb_conf.url historically omits the scheme and the '@' separator;
+        # build a well-formed URI instead of concatenating raw pieces.
+        m_uri = f"{mdb_conf.prefix}{username}:{password}@{mdb_conf.url}"
         client = MongoClient(m_uri, server_api=ServerApi("1"))
         client.admin.command("ping")
         logger.info("Pinged your deployment. You successfully connected to MongoDB!")

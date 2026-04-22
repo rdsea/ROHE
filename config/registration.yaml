@@ -16,10 +16,10 @@ connector:
     exchange_type: topic
     out_routing_key: out_routing_key
 db_authentication:
-  url: "localhost"
-  prefix: "mongodb+srv://"
-  username: "admin"
-  password: "admin"
+  url: "${MONGODB_URL:-localhost}"
+  prefix: "${MONGODB_PREFIX:-mongodb+srv://}"
+  username: "${MONGODB_USERNAME}"
+  password: "${MONGODB_PASSWORD}"
 db_collection:
   collection: registration
   database: rohe_observation

@@ -85,6 +85,25 @@ class Node:
         self.config.accelerator = self.accelerator
         self.config.services = self.service_list
 
+    def allocate(self, service) -> None:
+        """Record a service assignment on this node.
+
+        Minimal bookkeeping: add to service_list and deduct the service's CPU
+        and memory from the available capacity. Callers are expected to have
+        already verified capacity via filtering_node / ranking.
+        """
+        service_name = getattr(service, "name", None)
+        if service_name is None:
+            return
+        existing = self.service_list.get(service_name, 0) if self.service_list else 0
+        self.service_list[service_name] = existing + 1
+        self.cpu.used += getattr(service, "cpu", 0)
+        service_mem = getattr(service, "memory", {}) or {}
+        if "rss" in service_mem:
+            self.memory.used["rss"] = self.memory.used.get("rss", 0) + service_mem["rss"]
+        if "vms" in service_mem:
+            self.memory.used["vms"] = self.memory.used.get("vms", 0) + service_mem["vms"]
+
     def __str__(self):
         return (
             "Name: "

@@ -25,7 +25,7 @@ from userModule.algorithm.multimodal_ensemble import select_by_overall_accuracy
 from rohe.orchestration import create_orchestrator, ORCHESTRATOR_REGISTRY, _import_class
 
 try:
-    from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
+    from rohe.orchestration.inference.adaptive_orchestrator import AdaptiveOrchestrator
     from rohe.orchestration.inference.llf import LLFOrchestrator
     from rohe.orchestration.inference.dream import DREAMOrchestrator
     HAS_DUCKDB = True

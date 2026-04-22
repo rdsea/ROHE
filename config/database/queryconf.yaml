@@ -1,7 +1,7 @@
-url: "localhost"
-prefix: "mongodb+srv://"
-username: "admin"
-password: "admin"
+url: "${MONGODB_URL:-localhost}"
+prefix: "${MONGODB_PREFIX:-mongodb+srv://}"
+username: "${MONGODB_USERNAME}"
+password: "${MONGODB_PASSWORD}"
 database: nii_experiment
 collection: MLPerformance
 model_collection: MLPerformance

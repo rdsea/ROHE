@@ -56,7 +56,6 @@ docs = [
 
 [project.scripts]
 rohe = "rohe.cli.main:app"
-rohe-cli = "rohe.rohe_cli.__main__:rohe_cli"
 
 [project.urls]
 Homepage = "https://rdsea.github.io/"

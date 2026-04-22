@@ -1,17 +1,22 @@
-import time
+"""Smoke tests for the Typer-based ``rohe`` CLI."""
 
-from click.testing import CliRunner
+from __future__ import annotations
 
-from rohe.rohe_cli.__main__ import rohe_cli
+from typer.testing import CliRunner
+
+from rohe.cli.main import app
 
 
-def test_cli_runtime():
+def test_cli_help_exits_cleanly() -> None:
     runner = CliRunner()
-    start_time = time.time()
-    result = runner.invoke(rohe_cli)
-    end_time = time.time()
-    execution_time = end_time - start_time
-    assert (
-        execution_time < 0.01
-    ), f"Execution time is too long: {execution_time:.4f} seconds"
+    result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
+    assert "ROHE" in result.stdout
+
+
+def test_cli_subcommands_registered() -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["--help"])
+    assert result.exit_code == 0
+    for subcommand in ("start", "orchestration", "observation"):
+        assert subcommand in result.stdout

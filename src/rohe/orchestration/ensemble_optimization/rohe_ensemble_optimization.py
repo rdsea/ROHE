@@ -111,12 +111,18 @@ class RoheEnsembleOptimization(EnsembleOptimization):
         return ml_performance_list
 
     def select(self, ml_service_list: list, contract: dict) -> list:
-        # must be call after "set_optimization_algorithm"
-        ensemble = self.optimization_algorithm(
+        # must be called after "set_optimization_algorithm"
+        algorithm = getattr(self, "optimization_algorithm", None)
+        if algorithm is None:
+            raise RuntimeError(
+                "optimization_algorithm is not configured; "
+                "call set_optimization_algorithm(...) before select(...)."
+            )
+        ensemble = algorithm(
             self.model_list,
             self.infrastructure_list,
             ml_service_list,
-            self.objective_funtion,
+            self.objective_function,
             contract,
         )
         return ensemble

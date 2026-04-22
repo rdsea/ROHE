@@ -14,8 +14,7 @@ class EnsembleOptimization(ABC):
         self, objective_func_name: str, model_list: list, infrastructure_list: list
     ):
         super().__init__()
-        self.objective_funtion = objective_func_name
-        # self.objective_funtion = rUtils.get_function_from_module(objective, objective_func_name)
+        self.objective_function = objective_func_name
         self.model_list = model_list
         self.infrastructure_list = infrastructure_list
 

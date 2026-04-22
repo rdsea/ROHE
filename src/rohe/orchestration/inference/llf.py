@@ -9,7 +9,7 @@ logging.basicConfig(
 
 from userModule.algorithm.llf_workflow import assigning_phase_with_laxity
 
-from rohe.orchestration.inference.orchestrator import AdaptiveOrchestrator
+from rohe.orchestration.inference.adaptive_orchestrator import AdaptiveOrchestrator
 from rohe.orchestration.multimodal_abstration import (
     InferenceQuery,
     InferenceResult,
@@ -43,7 +43,7 @@ class LLFOrchestrator(AdaptiveOrchestrator):
         except Exception as e:
             logging.error(f"Failed to determine LLF execution workflow: {e}")
             traceback.print_exc()
-            return None
+            return TaskList()
 
     def task_execution_loop(
         self,

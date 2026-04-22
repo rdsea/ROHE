@@ -45,11 +45,12 @@ class TimeBuffer:
     def get(self):
         # get all item as a list within the window time
         current_time = time.time()
-        while len(self.buffer != 0):
-            if (
-                current_time - self.buffer[0]["metadata"]["timestamp"]
-            ) > self.windowside:
-                self.buffer.popleft()
+        while (
+            self.buffer
+            and (current_time - self.buffer[0]["metadata"]["timestamp"])
+            > self.windowside
+        ):
+            self.buffer.popleft()
         return list(self.buffer)
 
     def pop(self):

@@ -5,10 +5,10 @@ services:
     image: mongo:latest
     container_name: mongodb_container
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin_user
-      MONGO_INITDB_ROOT_PASSWORD: admin_pass
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?MONGO_INITDB_ROOT_USERNAME must be set}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?MONGO_INITDB_ROOT_PASSWORD must be set}
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     networks:
       - mongo-network
     volumes:

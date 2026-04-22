@@ -2,19 +2,21 @@
 
 from __future__ import annotations
 
-from enum import StrEnum
+from enum import Enum
 
 
-class TaskStatus(StrEnum):
+class TaskStatus(str, Enum):
     """Status of an inference task within a pipeline execution."""
 
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     ERROR = "error"
+    FAILED = "failed"
+    DROPPED = "dropped"
 
 
-class CommonMetric(StrEnum):
+class CommonMetric(str, Enum):
     """Standard metric names used in SLA evaluation."""
 
     RESPONSE_TIME = "response_time"
@@ -23,7 +25,7 @@ class CommonMetric(StrEnum):
     THROUGHPUT = "throughput"
 
 
-class InstanceStatus(StrEnum):
+class InstanceStatus(str, Enum):
     """Status of a running inference service instance."""
 
     AVAILABLE = "available"
@@ -32,7 +34,7 @@ class InstanceStatus(StrEnum):
     INACTIVE = "inactive"
 
 
-class Explainability(StrEnum):
+class Explainability(str, Enum):
     """Whether explainability is requested for inference."""
 
     DISABLED = "normal"

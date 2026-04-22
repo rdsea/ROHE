@@ -57,6 +57,10 @@ class Metric(BaseModel):
     condition: str | None = Field(
         None, description="Condition, e.g. confidence threshold"
     )
+    class_id: str | None = Field(
+        None,
+        description="Optional class identifier for class-specific metrics (e.g., per-class accuracy).",
+    )
 
     @classmethod
     def from_dict(cls: type[Metric], data: dict[str, Any]) -> Metric:

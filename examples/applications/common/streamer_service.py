@@ -61,15 +61,19 @@ def create_streamer_app() -> FastAPI:
         )
 
         app.state.running = True
+        app.state.tasks = []
         for modality in modalities:
             app.state.stats[modality] = 0
-            asyncio.create_task(
+            task = asyncio.create_task(
                 _stream_modality(app, data_hub_url, dataset_dir, modality, stream_rate)
             )
+            app.state.tasks.append(task)
 
     @app.on_event("shutdown")
     async def shutdown() -> None:
         app.state.running = False
+        for task in getattr(app.state, "tasks", []):
+            task.cancel()
 
     @app.get("/status")
     async def status() -> dict[str, Any]:
@@ -122,7 +126,7 @@ async def _stream_modality(
             except StopIteration:
                 break
             except (httpx.TimeoutException, httpx.ConnectError):
-                logger.debug(f"DataHub unavailable, retrying in 1s")
+                logger.debug("DataHub unavailable, retrying in 1s")
                 await asyncio.sleep(1.0)
                 continue
             except Exception as e:
@@ -147,7 +151,7 @@ def _iter_modality_data(data_dir: Path, modality: str) -> Any:
             for csv_file in csv_files:
                 with open(csv_file, newline="") as f:
                     reader = csv.reader(f)
-                    header = next(reader, None)  # skip header
+                    next(reader, None)  # skip header
                     for row in reader:
                         try:
                             yield [float(v) for v in row]

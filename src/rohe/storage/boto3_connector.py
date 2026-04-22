@@ -57,9 +57,10 @@ class Boto3Connector(ABC):
         return success
 
     def upload(self, local_file_path: str, remote_file_path: str, try_time=5):
-        # check if local_file_path is exist, if not create one
-        if not os.path.exists(local_file_path):
-            os.makedirs(local_file_path.split(os.path.sep)[:-1])
+        # check if parent directory exists, if not create it
+        parent_dir = os.path.dirname(local_file_path)
+        if parent_dir and not os.path.exists(parent_dir):
+            os.makedirs(parent_dir, exist_ok=True)
         # call synchronously
         if self._parent_thread is None:
             try:

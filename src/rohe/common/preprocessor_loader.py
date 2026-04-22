@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +12,7 @@ from .model_interface import DataPreprocessor
 logger = logging.getLogger(__name__)
 
 
-class PreprocessorType(StrEnum):
+class PreprocessorType(str, Enum):
     IMAGE = "image"
     TIMESERIES = "timeseries"
     SIMULATED = "simulated"
