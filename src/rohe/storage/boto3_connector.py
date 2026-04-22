@@ -1,13 +1,14 @@
 import io
 import os
 import re
-import sys
 from abc import ABC, abstractmethod
 
 from ..common.data_models import StorageInfo
 from ..common.logger import logger
 
-# TODO: get rid of this
+
+class BucketError(RuntimeError):
+    """Raised when bucket creation or validation fails."""
 
 
 class Boto3Connector(ABC):
@@ -76,8 +77,8 @@ class Boto3Connector(ABC):
                 logger.error(e)
                 return False
         else:  # call asynchronously
-            t = 1
-            while t < try_time:
+            success = False
+            for _ in range(try_time):
                 try:
                     logger.info(f"Uploading {local_file_path} to {remote_file_path}...")
                     self._s3.upload_file(
@@ -86,12 +87,11 @@ class Boto3Connector(ABC):
                     logger.info(
                         f"Successfully uploaded {local_file_path} to {remote_file_path}"
                     )
-                    self._parent_thread.on_upload(True)
+                    success = True
                     break
                 except Exception as e:
                     logger.error(e)
-
-            self._parent_thread.on_upload(False)
+            self._parent_thread.on_upload(success)
 
     def download(self, remote_file_path, local_file_path, try_time=5):
         # call synchronously
@@ -108,8 +108,7 @@ class Boto3Connector(ABC):
                 return False
         else:  # call asynchronously
             result = False
-            t = 1
-            while t < try_time:
+            for _ in range(try_time):
                 try:
                     logger.info(f"Saving {remote_file_path} to {local_file_path}...")
                     self._s3.download_file(
@@ -148,30 +147,22 @@ class Boto3Connector(ABC):
 
     def create_bucket(self):
         # check whether the bucket name is in the valid format
-        valid_bucket_name = self._check_valid_bucket_name()
-        if valid_bucket_name:
-            try:
-                logger.info(f"Creating bucket {self._bucket_name}")
-                self._s3.create_bucket(
-                    Bucket=self._bucket_name,
-                )
-                logger.info(f"Created bucket {self._bucket_name}")
-                # self._s3.put_object(Bucket=self._bucket_name, Key= f'{self._global_model_root_folder}/')
-
-            except Exception as e:
-                if "BucketAlreadyOwnedByYou" in str(e):
-                    logger.info(f"Bucket {self._bucket_name} already exists")
-                else:
-                    logger.info("=" * 20)
-                    logger.error(e)
-                    logger.info("=" * 20)
-                    sys.exit(0)
-
-        else:
-            logger.info(
-                f"Bucket name {self._bucket_name} is not valid. Exit the program"
+        if not self._check_valid_bucket_name():
+            raise BucketError(
+                f"Bucket name {self._bucket_name!r} is not valid"
             )
-            sys.exit(0)
+        try:
+            logger.info(f"Creating bucket {self._bucket_name}")
+            self._s3.create_bucket(Bucket=self._bucket_name)
+            logger.info(f"Created bucket {self._bucket_name}")
+        except Exception as e:
+            if "BucketAlreadyOwnedByYou" in str(e):
+                logger.info(f"Bucket {self._bucket_name} already exists")
+                return
+            logger.error(e)
+            raise BucketError(
+                f"Failed to create bucket {self._bucket_name!r}"
+            ) from e
 
     def _check_valid_bucket_name(self) -> bool:
         # Bucket name length should be between 3 and 63
