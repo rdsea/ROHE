@@ -90,7 +90,7 @@ def generate_deployment_k3s(
 ):
     user_config = json.load(open(user_config_path))
     default_config = json.load(open(default_com_config_path))
-    def_pod_deploy, def_service_deploy = yaml.full_load_all(
+    def_pod_deploy, def_service_deploy = yaml.safe_load_all(
         open(default_deployment_path)
     )
     user_pipeline = generate_graph_configuration(user_config, default_config)

@@ -35,7 +35,7 @@ def profiling_deploy(
         service_ls = []
         for name_node in list(user_graph.nodes):
             node = user_graph.nodes[name_node]
-            node_deploy, service_deploy = yaml.full_load_all(
+            node_deploy, service_deploy = yaml.safe_load_all(
                 open(node["path"] + node["value"] + "-deployment.yaml")
             )
             node_deploy["spec"]["replicas"] = int(scale[node["value"]])
