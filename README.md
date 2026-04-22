@@ -68,7 +68,7 @@ ROHE/
 │   ├── lib/                  # Deployment utilities
 │   ├── messaging/            # Message bus abstractions
 │   ├── models/               # Pydantic domain models (ExecutionPlan, contracts, metrics)
-│   ├── monitoring/           # rohe-sdk, inference reporter, OTel
+│   ├── monitoring/           # rohe-sdk, inference reporter, transport
 │   ├── observation/          # Observation agents, metric collection
 │   ├── orchestration/        # Inference orchestration (v2, adaptive, DREAM, LLF)
 │   ├── quality/              # Quality evaluation (rules, anomaly, LLM diagnosis)
@@ -99,7 +99,7 @@ ROHE/
 - [Observation Abstraction](src/rohe/observation)
 - [Orchestration Service](src/rohe/service/orchestration_service_fastapi.py)
 - [Resource Management](src/rohe/orchestration/resource_management)
-- [Orchestration Methods](src/rohe/orchestration/orchestration_algorithm)
+- [Orchestration Methods](src/rohe/orchestration/allocation/algorithms)
 - Example Application: [BTS](examples/applications/bts), [CCTVS](examples/applications/cctvs), and KPI (private)
 - [Sample Data](datasets/SPE2024)
 
@@ -190,7 +190,7 @@ Citation:
   - Database service (e.g., MongoDB)
   - Communication service (e.g., AMQP message broker)
   - Container environment (e.g., Docker)
-  - Visualization service (e.g., Prometheus, Graphana - optional)
+  - Visualization service (e.g., Prometheus, Grafana - optional)
 - Observation Service includes registration service and agent manager. Users can modify Observation Service configurations in `$ROHE_PATH/config/observationConfig.yaml`.
   The configuration defines: - Protocols with default configurations for public (connector) and consume (collector) metrics. - Database configuration where metrics and application data/metadata are stored. - Container Image of the Observation Agent - Logging Level (debugging, warning, etc)
 - To deploy Observation Service, use rohe:
@@ -235,7 +235,7 @@ $ rohe observation stop-agent --app <application_name> --conf <path_to_agent_con
 - To delete/unregister an application using `rohe`:
 
 ```bash
-$ rohe observation delete-app --app <application_name> --url <resigstration_service_url>
+$ rohe observation delete-app --app <application_name> --url <registration_service_url>
 ```
 
 ### 1.2 Development Guide
@@ -243,7 +243,7 @@ $ rohe observation delete-app --app <application_name> --url <resigstration_serv
 #### 1.2.1 Registration Service
 
 - This service allows users to register and unregister applications. It is served by the FastAPI application in `src/rohe/service/observation_service_fastapi.py`, backed by routers under `src/rohe/api/routes/`.
-- Currently this service supports MongoDB as database and AMPQ as communication protocol. The service will also support other communication protocols and databases
+- Currently this service supports MongoDB as database and AMQP as communication protocol. The service will also support other communication protocols and databases
 
 #### 1.2.2 Observation Agent
 
@@ -310,7 +310,7 @@ $ rohe orchestration stop-agent --url <orchestration_service_url>
 
 #### 2.2.1 Resource Management
 
-The module provide the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and eviroment variable by ConfigMap.
+The module provides the abstract class/object to manage the infrastructure resource by Node; application by Deployment; network routine by Service; and environment variable by ConfigMap.
 
 - Node: physical node
 - Deployment: each application has multiple microservices. Each microservice has its own Deployment setup specify: image, resource requirement, replicas, etc
@@ -326,7 +326,7 @@ The module provide the abstract class/object to manage the infrastructure resour
 
 #### 2.2.3 Algorithm
 
-This module provide functions to select resource to allocate microservices.
+This module provides functions to select resources to allocate microservices.
 
 Current implementation: Scoring Algorithm
 

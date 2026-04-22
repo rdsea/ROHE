@@ -190,7 +190,7 @@ def separate_ds_by_class(x, y):
     :param x: Multi-dimensional numpy array, representing the dataset to be separated. Can have shape
               (num_samples, height, width, channels) for RGB images or (num_samples, height, width) for grayscale images.
     :param y: 2D numpy array of shape (num_samples, num_classes), representing the one-hot encoded class labels corresponding to the samples in X.
-    :return: dict, a nested dictionary where the outer keys are class labels, and the values are dictionaries with keys 'X' and 'y'
+    :return: dict, a nested dictionary where the outer keys are class labels, and the values are dictionaries with keys 'x' and 'y'
              representing subsets of X and corresponding rows of y belonging to each class.
     """
 

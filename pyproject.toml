@@ -120,7 +120,7 @@ ignore = [
 "tests/**" = ["S101", "S106"]  # Allow assert and hardcoded passwords in tests
 "src/rohe/cli/**" = ["B008", "S104"]  # Typer uses function calls in defaults and 0.0.0.0 binding is intentional
 "examples/**" = ["B008", "B905", "PLC0415", "S104", "S311", "SIM108"]  # FastAPI patterns, simulated randomness, style
-# Legacy algorithm files: deferred imports, old patterns preserved for research use
+# multimodal_abstration.py: legacy shared-types module (pending consolidation into rohe.models.*)
 "src/rohe/orchestration/multimodal_*.py" = ["PLC0415", "SIM115", "B905", "B007", "E711"]
 "src/rohe/orchestration/inference/adaptive_orchestrator.py" = ["PLC0415", "SIM115", "B905", "B007", "E711"]
 "src/rohe/orchestration/inference/orchestrator_bridge.py" = ["PLC0415", "SIM115", "B905"]

@@ -18,18 +18,13 @@ class ConsulClient:
     def __init__(self, config) -> None:
         """
         Example config:
-        config = {
-            "url": "http://127.0.0.1:8500",
-            "token": None,
-            "datacenter": None,
-            "adapter": None
-        }
+        config = {"url": "http://127.0.0.1:8500"}
         """
         if "url" in config:
             self.url = config["url"]
         else:
             self.url = "http://localhost:8500"
-            logging.debug("Consul ULR is not set! Using default localhost")
+            logging.debug("Consul URL is not set! Using default localhost")
         self.registerLink = self.url + "/v1/agent/service/register"
         self.deregisterLink = self.url + "/v1/agent/service/deregister/"
         self.getServiceLink = self.url + "/v1/catalog/services"
@@ -148,28 +143,3 @@ class ConsulClient:
     # def retrieve_inference_service_address(self, service_info: list):
 
 
-"""
-# Example code
-# Document: https://developer.hashicorp.com/consul/api-docs/catalog#list-services
-
-import os, sys
-ROHE_PATH = os.getenv('ROHE_PATH')
-sys.path.append(ROHE_PATH)
-
-consul_conf = {
-    "url": "http://localhost:8500"
-}
-
-from lib.serviceRegistry.consul import ConsulClient
-
-client = consulClient(consul_conf)
-
-service_id = client.serviceRegister("mongo", tag=["test", "demo1"])
-if service_id != None:
-    print(service_id, ": Registered")
-
-response = client.serviceDeregister(service_id)
-if response:
-    print(service_id, ": Deregistered")
-
-"""

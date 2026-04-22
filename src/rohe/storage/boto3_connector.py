@@ -124,10 +124,9 @@ class Boto3Connector(ABC):
 
     def is_file_exists(self, file_path: str) -> bool:
         """
-        Check if a file with the given file_path exists in the bucket with the given bucket_name.
+        Check if a file with the given file_path exists in the configured bucket.
 
         Args:
-            bucket_name (str): The name of the S3 bucket.
             file_path (str): The path of the file to check.
 
         Returns:
