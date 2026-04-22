@@ -141,5 +141,3 @@ class ConsulClient:
         return self.get_n_random_service_instances(name, tags, quorum)
 
     # def retrieve_inference_service_address(self, service_info: list):
-
-

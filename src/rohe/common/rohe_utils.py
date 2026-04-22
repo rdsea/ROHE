@@ -288,9 +288,7 @@ def get_rohe_dir(file, level=1, to_string=True):
 def load_module(file_path, module_name):
     spec = importlib.util.spec_from_file_location(module_name, file_path)
     if spec is None or spec.loader is None:
-        raise ImportError(
-            f"Unable to load module '{module_name}' from '{file_path}'"
-        )
+        raise ImportError(f"Unable to load module '{module_name}' from '{file_path}'")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

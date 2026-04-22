@@ -69,9 +69,7 @@ class DuckDBServiceRegistry(ServiceRegistry):
     ) -> None:
         self._db_path = db_path
         self._service_table = validate_sql_identifier(service_table, "service_table")
-        self._instance_table = validate_sql_identifier(
-            instance_table, "instance_table"
-        )
+        self._instance_table = validate_sql_identifier(instance_table, "instance_table")
         self._monitoring_table = validate_sql_identifier(
             monitoring_table, "monitoring_table"
         )
@@ -108,7 +106,9 @@ class DuckDBServiceRegistry(ServiceRegistry):
                 "SELECT * FROM sla_table WHERE tenant_id = ?", [consumer_id]
             )
             rows = cursor.fetchall()
-            cols = [desc[0] for desc in cursor.description] if cursor.description else []
+            cols = (
+                [desc[0] for desc in cursor.description] if cursor.description else []
+            )
             conn.close()
             if rows:
                 data = dict(zip(cols, rows[0]))

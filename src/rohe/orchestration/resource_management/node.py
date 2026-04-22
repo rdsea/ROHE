@@ -100,9 +100,13 @@ class Node:
         self.cpu.used += getattr(service, "cpu", 0)
         service_mem = getattr(service, "memory", {}) or {}
         if "rss" in service_mem:
-            self.memory.used["rss"] = self.memory.used.get("rss", 0) + service_mem["rss"]
+            self.memory.used["rss"] = (
+                self.memory.used.get("rss", 0) + service_mem["rss"]
+            )
         if "vms" in service_mem:
-            self.memory.used["vms"] = self.memory.used.get("vms", 0) + service_mem["vms"]
+            self.memory.used["vms"] = (
+                self.memory.used.get("vms", 0) + service_mem["vms"]
+            )
 
     def __str__(self):
         return (

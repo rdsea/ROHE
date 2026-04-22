@@ -147,9 +147,7 @@ class Boto3Connector(ABC):
     def create_bucket(self):
         # check whether the bucket name is in the valid format
         if not self._check_valid_bucket_name():
-            raise BucketError(
-                f"Bucket name {self._bucket_name!r} is not valid"
-            )
+            raise BucketError(f"Bucket name {self._bucket_name!r} is not valid")
         try:
             logger.info(f"Creating bucket {self._bucket_name}")
             self._s3.create_bucket(Bucket=self._bucket_name)
@@ -159,9 +157,7 @@ class Boto3Connector(ABC):
                 logger.info(f"Bucket {self._bucket_name} already exists")
                 return
             logger.error(e)
-            raise BucketError(
-                f"Failed to create bucket {self._bucket_name!r}"
-            ) from e
+            raise BucketError(f"Failed to create bucket {self._bucket_name!r}") from e
 
     def _check_valid_bucket_name(self) -> bool:
         # Bucket name length should be between 3 and 63
