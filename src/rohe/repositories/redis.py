@@ -44,7 +44,7 @@ class RedisCache:
 
     def delete(self, key: str) -> bool:
         """Delete a key."""
-        return bool(self._client.delete(key) > 0)
+        return self._client.delete(key) > 0
 
     def keys(self, pattern: str = "*") -> list[str]:
         """List keys matching pattern."""

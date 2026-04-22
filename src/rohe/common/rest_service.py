@@ -8,30 +8,6 @@ class RoheRestResource(Resource):
     def __init__(self) -> None:
         pass
 
-    # def get(self):
-    #     # Processing GET request
-    #     args = request.query_string.decode("utf-8").split("&")
-    #     # get param from args here
-    #     return jsonify({"status": args})
-    #
-    # def post(self):
-    #     # Processing GET request
-    #     args = request.query_string.decode("utf-8").split("&")
-    #     # get param from args here
-    #     return jsonify({"status": args})
-    #
-    # def put(self):
-    #     # if request.is_json:
-    #     #     args = request.get_json(force=True)
-    #     # get param from args here
-    #     return jsonify({"status": True})
-    #
-    # def delete(self):
-    #     if request.is_json:
-    #         args = request.get_json(force=True)
-    #     # get param from args here
-    #     return jsonify({"status": args})
-
 
 class ImageInferenceObject(RoheRestResource):
     def __init__(self) -> None:

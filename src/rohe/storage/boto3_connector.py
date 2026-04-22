@@ -54,7 +54,6 @@ class Boto3Connector(ABC):
             except Exception as e:
                 logger.error(e)
 
-        # binary_data.close()
         return success
 
     def upload(self, local_file_path: str, remote_file_path: str, try_time=5):

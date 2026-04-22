@@ -1,7 +1,6 @@
 import datetime
 
 import kubernetes.client
-import pytz
 import yaml
 from kubernetes.client.rest import ApiException
 
@@ -77,9 +76,9 @@ class Deployment:
     def restart(self):
         self.deployment = self.get_info()
         self.deployment.spec.template.metadata.annotations = {
-            "kubectl.kubernetes.io/restartedAt": datetime.datetime.utcnow()
-            .replace(tzinfo=pytz.UTC)
-            .isoformat()
+            "kubectl.kubernetes.io/restartedAt": datetime.datetime.now(
+                datetime.timezone.utc
+            ).isoformat()
         }
         try:
             api_response = self.api_instance.patch_namespaced_deployment(

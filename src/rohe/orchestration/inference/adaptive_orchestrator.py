@@ -42,7 +42,7 @@ from rohe.orchestration.multimodal_abstration import (
 
 def kill_process_after_timeout(proc: multiprocessing.Process):
     if proc.is_alive():
-        print("Timeout reached. Terminating process.")
+        logging.warning("Timeout reached. Terminating process.")
         proc.terminate()
 
 

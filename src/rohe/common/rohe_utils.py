@@ -9,7 +9,7 @@ import sys
 import traceback
 import types
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import requests
@@ -67,10 +67,10 @@ def merge_dict(f_dict, i_dict, prio: bool = False):
     return result
 
 
-def get_dict_at(dict, i=0):
+def get_dict_at(source: dict, i: int = 0):
     try:
-        keys = list(dict.keys())
-        return keys[i], dict[keys[i]]
+        keys = list(source.keys())
+        return keys[i], source[keys[i]]
     except Exception:
         logger.exception("Error in get_dict_at")
         return None
@@ -131,7 +131,7 @@ def load_config(file_path: str) -> dict | None:
                 return _expand_env(yaml.safe_load(f))
         return None
     except yaml.YAMLError:
-        logger.exception("Error loading YAML config from %s", file_path)
+        logger.exception(f"Error loading YAML config from {file_path}")
         raise
 
 
@@ -193,12 +193,6 @@ def message_serialize(dictionary) -> str:
 
 def message_deserialize(string_object) -> dict:
     return json.loads(string_object.decode("utf-8"))
-
-
-# def json_to_yaml(file_path):
-#     config = load_config(file_path)
-#     yaml_path = str(file_path)[:-4] + "yaml"
-#     # yaml_config = to_yaml(yaml_path, config)
 
 
 def separate_ds_by_class(x, y):
@@ -306,7 +300,7 @@ def load_module(file_path, module_name):
 
 
 def list_files(folder_path):
-    logger.debug("Listing files under %s", folder_path)
+    logger.debug(f"Listing files under {folder_path}")
     file_list = {}
     for _root, _dirs, files in os.walk(folder_path):
         for item in files:
@@ -373,8 +367,8 @@ def get_current_utc_timestamp(option: str | None = None):
     or both date and time (default)
     """
     if option == "date_only":
-        return datetime.utcnow().strftime("%d-%m-%y")
-    return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        return datetime.now(timezone.utc).strftime("%d-%m-%y")
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def extract_file_extension(url):
@@ -419,10 +413,11 @@ def parse_time(time_str) -> int:
     value, unit = int(match.group(1)), match.group(2)
     if unit == "s":
         return value
-    elif unit == "m":
+    if unit == "m":
         return value * 60
-    elif unit == "h":
+    if unit == "h":
         return value * 3600
+    raise ValueError(f"Unsupported time unit: {unit!r}")
 
 
 def handle_service_query(

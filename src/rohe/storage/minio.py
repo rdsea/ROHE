@@ -1,10 +1,12 @@
+import logging
+
 import boto3
 from botocore.client import Config
 
 from ..common.data_models import StorageInfo
-
-# from ..common.logger import logger
 from .boto3_connector import Boto3Connector
+
+logger = logging.getLogger(__name__)
 
 
 class MinioConnector(Boto3Connector):
@@ -14,7 +16,7 @@ class MinioConnector(Boto3Connector):
         super().__init__(storage_info=storage_info, parent=parent)
 
     def _setup_connection(self, storage_info: StorageInfo):
-        print(
+        logger.info(
             f"About to setup connection to minio server with bucket name: {storage_info.bucket_name}"
         )
         self._access_key = storage_info.access_key
@@ -32,9 +34,7 @@ class MinioConnector(Boto3Connector):
 
         try:
             self._s3.list_buckets()
-            # logging.info(f'Connected to MinIO server')
-            print("Connected to MinIO server")
+            logger.info("Connected to MinIO server")
         except Exception as e:
-            # logging.error("Invalid MinIO Key.")
-            print("Invalid MinIO Key.")
+            logger.error("Invalid MinIO Key.")
             raise e
